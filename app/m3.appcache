@@ -1,0 +1,21 @@
+CACHE MANIFEST
+# This is the deprecated appcache manifest
+
+http://glenreesor.ca/m3/index.html
+http://glenreesor.ca/m3/localforage.js
+http://glenreesor.ca/m3/m3.css
+http://glenreesor.ca/m3/m3.js
+http://glenreesor.ca/m3/manifest.webmanifest
+
+http://glenreesor.ca/m3/images/add-child.svg
+http://glenreesor.ca/m3/images/add-sibling.svg
+http://glenreesor.ca/m3/images/cloud.svg
+http://glenreesor.ca/m3/images/delete.svg
+http://glenreesor.ca/m3/images/edit.svg
+http://glenreesor.ca/m3/images/home.svg
+http://glenreesor.ca/m3/images/import-export.svg
+http://glenreesor.ca/m3/images/info.svg
+http://glenreesor.ca/m3/images/load.svg
+http://glenreesor.ca/m3/images/manage.svg
+http://glenreesor.ca/m3/images/modified.svg
+http://glenreesor.ca/m3/images/save.svg

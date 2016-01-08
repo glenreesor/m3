@@ -1,0 +1,77 @@
+"use strict";
+
+// Copyright 2015, 2016 Glen Reesor
+//
+// This file is part of m3 - Mobile Mind Mapper.
+//
+// m3 - Mobile Mind Mapper is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License, version 3, as published by
+// the Free Software Foundation.
+//
+// m3 - Mobile Mind Mapper is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * An ErrorDialog object displays the specified error message.
+ * @constructor
+ * @param {String} errorMsg - The error message to be displayed
+ */
+function ErrorDialog(errorMsg) {
+   let domParser;
+   let html;
+   let htmlAsDoc;
+
+   //--------------------------------------------------------------------------
+   // Tags to be added
+   //--------------------------------------------------------------------------
+   html = `<div id='${ErrorDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
+          "   <p style='text-align: center; font-weight: bold;'>" + App.MY_NAME + " - Error</p>" +
+          "   <p>" + errorMsg + "</p>" +
+          `   <button id='${ErrorDialog.OK_ID}'>Ok</button>` +
+          "</div>";
+
+   //--------------------------------------------------------------------------
+   // Create the dialog
+   //--------------------------------------------------------------------------
+   domParser = new DOMParser();
+   htmlAsDoc = domParser.parseFromString(html, "text/html");
+   this._errorDialog = document.importNode(htmlAsDoc.getElementById(ErrorDialog.DIALOG_ID), true);
+   document.getElementById("app-popups").appendChild(this._errorDialog);
+
+   //--------------------------------------------------------------------------
+   // Add our listeners
+   //--------------------------------------------------------------------------
+   document.getElementById(ErrorDialog.OK_ID).addEventListener("click", () => this.close());
+
+   //--------------------------------------------------------------------------
+   // Finally, make the app-popups div visible and set state
+   //--------------------------------------------------------------------------
+   document.getElementById("app-popups").removeAttribute("hidden");
+   m3App.getGlobalState().setState(State.STATE_DIALOG_ERROR);
+} // ErrorDialog()
+
+ErrorDialog.DIALOG_ID = "m3-errorDialog";
+ErrorDialog.OK_ID = ErrorDialog.DIALOG_ID + "Ok";
+
+/**
+ * Close this Error Dialog:
+ *    - Make the global popups div hidden
+ *    - Delete the errorDialog div
+ *    - Set state back to IDLE
+ *
+ * @return {void}
+ */
+ErrorDialog.prototype.close = function close() {
+   let appPopups;
+
+   appPopups = document.getElementById("app-popups");
+   appPopups.setAttribute("hidden", "true");
+   appPopups.removeChild(this._errorDialog);
+
+   m3App.getGlobalState().setState(State.STATE_IDLE);
+}; // close()

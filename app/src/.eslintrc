@@ -1,0 +1,67 @@
+{
+   "extends": "eslint:recommended",
+
+   "env": {
+      "browser": true,
+      "es6": true
+   },
+
+   "rules": {
+      "arrow-spacing": 2,           // Require spaces around =>
+      "brace-style": [2, "1tbs"],   // One true brace style
+      "curly": 2,                   // Require brackets for single-statement blocks
+      "eqeqeq": 2,                  // Require non-casting comparison
+      "no-console": 0,              // Allow console things (for Diagnostics)
+      "no-spaced-func": 2,          // No space between fn name and ()
+      "no-var": 2,                  // Don't allow var
+      "semi": 2,                    // Require semicolons to end statements
+      "sort-vars": 2,               // Require variable declarations to be sorted
+      "valid-jsdoc": 2,             // Require valid JSDOC
+
+      // These rules are good, but flag too much
+      // so just use once in a while
+      "camelcase": 0,               // Flags xml versions since have "_" in middle
+      "no-unused-vars": 0           // Enable every now and then
+   },
+
+   "globals": {
+
+      // Constructors
+
+      "AboutDialog":           false,
+      "App":                   false,
+      "AppButtons":            false,
+      "ArrowLink":             false,
+      "BubbleView":            false,
+      "Cloud":                 false,
+      "CloudView":             false,
+      "ConnectorView":         false,
+      "Controller":            false,
+      "Diagnostics":           false,
+      "EditNodeDialog":        false,
+      "ErrorDialog":           false,
+      "ExportDialog":          false,
+      "FoldingIconView":       false,
+      "Font":                  false,
+      "GraphicalLinkView":     false,
+      "ImportExportDialog":    false,
+      "LinkTarget":            false,
+      "LoadDialog":            false,
+      "ManageSavedMapsDialog": false,
+      "MapModel":              false,
+      "MapViewController":     false,
+      "NodeModel":             false,
+      "NodeView":              false,
+      "RichTextView":          false,
+      "SaveDialog":            false,
+      "RenameMapDialog":       false,
+      "Sizer":                 false,
+      "State":                 false,
+      "TextView":              false,
+
+      // Global vars
+      "m3App":       true,
+      "m3SampleXml": true,
+      "localforage": false
+   }
+}

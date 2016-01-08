@@ -1,0 +1,21 @@
+{
+  "lang": "en",
+  "name": "m3 - Mobile Mind Mapper",
+  "short_name": "m3",
+  "icons": [{
+        "src": "images/m3-64.png",
+        "sizes": "64x64"
+      }, {
+        "src": "images/m3-128.png",
+        "sizes": "128x128"
+      }, {
+        "src": "images/m3-256.png",
+        "sizes": "256x256"
+      }],
+  "splash_screens": [{
+        "src": "images/splash-640x960.png",
+        "sizes": "640x960"
+      }],
+  "start_url": "index.html",
+  "display": "fullscreen"
+}

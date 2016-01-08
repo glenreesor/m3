@@ -1,0 +1,37 @@
+body {
+   font-size:1em;
+   margin: 0px;
+   overflow:hidden;
+}
+
+#app-popups {
+   background-color: white;
+   padding: 10px;
+   position: fixed;
+   bottom: 50px;
+}
+
+.clickableIcon {
+   border: 2px solid white;
+}
+
+.clickableIcon:active {
+   border: 2px solid blue;
+}
+
+.clickableText {
+   border: 2px solid white;
+   text-align: center;
+   background-color: #0099ff;
+}
+
+.clickableText:active {
+   border: 2px solid blue;
+   background-color: #dddddd;
+}
+
+.popup {
+   border: 2px solid blue;
+   padding: 10px;
+   overflow-y: auto;
+}

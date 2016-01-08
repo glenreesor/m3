@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" xmlns:ns1="http://sozi.baierouge.fr" id="svg5518" sodipodi:docname="info-icon.svg" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\info.png" viewBox="0 0 64 64" sodipodi:version="0.32" inkscape:export-xdpi="95.279228" version="1.1" inkscape:output_extension="org.inkscape.output.svg.inkscape" inkscape:export-ydpi="95.279228" inkscape:version="0.47 r22583">
+  <title id="title3707">netalloy info icon</title>
+  <defs id="defs5520">
+    <filter id="filter4471" height="1.3199" width="1.2805" y="-.15996" x="-.14027" inkscape:collect="always">
+      <feGaussianBlur id="feGaussianBlur4473" stdDeviation="5.4252821" inkscape:collect="always"/>
+    </filter>
+    <filter id="filter4475" inkscape:collect="always">
+      <feGaussianBlur id="feGaussianBlur4477" stdDeviation="5.4252821" inkscape:collect="always"/>
+    </filter>
+    <filter id="filter4140" inkscape:collect="always">
+      <feGaussianBlur id="feGaussianBlur4142" stdDeviation="19.809523" inkscape:collect="always"/>
+    </filter>
+    <filter id="filter4224" height="1.3619" width="1.2111" y="-.18095" x="-.10556" inkscape:collect="always">
+      <feGaussianBlur id="feGaussianBlur4226" stdDeviation="1.1515151" inkscape:collect="always"/>
+    </filter>
+    <linearGradient id="linearGradient3676" y2="17.818" gradientUnits="userSpaceOnUse" x2="75.273" gradientTransform="matrix(.89441 0 0 1 7.0536 1.474e-8)" y1="5.4545" x1="76.909" inkscape:collect="always">
+      <stop id="stop4194" style="stop-color:#d5e5ff" offset="0"/>
+      <stop id="stop4196" style="stop-color:#d5e5ff;stop-opacity:0" offset="1"/>
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview id="base" bordercolor="#666666" inkscape:pageshadow="2" inkscape:window-y="-4" pagecolor="#ffffff" inkscape:window-height="744" inkscape:grid-bbox="true" inkscape:window-maximized="0" inkscape:zoom="1" inkscape:window-x="-4" showgrid="true" borderopacity="1.0" inkscape:current-layer="layer1" inkscape:cx="5.2727273" inkscape:cy="32" inkscape:window-width="1280" inkscape:pageopacity="0.0" inkscape:document-units="px"/>
+  <g id="layer1" inkscape:label="Layer 1" inkscape:groupmode="layer">
+    <g id="g3696">
+      <g id="g3686">
+        <rect id="rect2171" style="opacity:0;stroke-width:0" inkscape:export-ydpi="67.5" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\stories\info.png" height="64" width="64" inkscape:export-xdpi="67.5" y="0" x="0"/>
+        <path id="path4431" sodipodi:rx="281.42856" sodipodi:ry="267.14285" style="stroke-linejoin:round;stroke:#204a87;stroke-width:10.631;fill:#3771c8" sodipodi:type="arc" d="m480 448.08a281.43 267.14 0 1 1 -562.86 0 281.43 267.14 0 1 1 562.86 0z" inkscape:export-ydpi="67.5" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\stories\info.png" transform="matrix(.094064 0 0 .094064 14.049 -10.875)" sodipodi:cy="448.07648" sodipodi:cx="198.57143" inkscape:export-xdpi="67.5"/>
+        <path id="path4114" sodipodi:rx="281.42856" sodipodi:ry="267.14285" style="filter:url(#filter4140);stroke-width:0;fill:#3465a4" sodipodi:type="arc" d="m480 448.08a281.43 267.14 0 1 1 -562.86 0 281.43 267.14 0 1 1 562.86 0z" inkscape:export-ydpi="67.5" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\stories\info.png" sodipodi:cy="448.07648" transform="matrix(.086958 0 0 .086958 15.46 -7.6909)" inkscape:export-xdpi="67.5" sodipodi:cx="198.57143"/>
+        <path id="path3450" sodipodi:rx="44.285713" sodipodi:ry="38.57143" style="stroke-linejoin:round;filter:url(#filter4471);stroke:#484ba6;stroke-width:4.8895;fill:#333333" sodipodi:type="arc" d="m368.57 308.08a44.286 38.571 0 1 1 -88.571 0 44.286 38.571 0 1 1 88.571 0z" inkscape:export-ydpi="67.5" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\stories\info.png" transform="matrix(.094064 0 0 .094064 1.8109 -10.913)" sodipodi:cy="308.07648" sodipodi:cx="324.28571" inkscape:export-xdpi="67.5"/>
+        <path id="path3452" style="fill-rule:evenodd;filter:url(#filter4475);stroke:#3b3f82;stroke-width:6.5221;fill:#333333" d="m-575.84 339.59 0.71428 41.429 31.429 0.00001v120l-45.714 1.4286 0.00001 58.571 148.57-2.8571v-60l-35.714 0.71429 1.4286-157.86-100.71-1.4286z" inkscape:export-ydpi="67.5" sodipodi:nodetypes="ccccccccccc" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\stories\info.png" transform="matrix(.094064 0 0 .094064 80.969 -7.3814)" inkscape:export-xdpi="67.5"/>
+        <path id="path4437" style="fill-rule:evenodd;stroke:#3b3f82;stroke-width:.038296;fill:#ffffff" d="m25.853 25.512 0.06719 3.897h2.9563v11.288l-4.3001 0.13438v5.5095l13.975-0.26875v-5.6439l-3.3594 0.06718 0.13438-14.849-9.4736-0.13438z" inkscape:export-ydpi="67.5" sodipodi:nodetypes="ccccccccccc" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\stories\info.png" inkscape:export-xdpi="67.5"/>
+        <path id="path4154" sodipodi:rx="13.090909" sodipodi:ry="7.6363635" style="filter:url(#filter4224);stroke-width:0;fill:url(#linearGradient3676)" sodipodi:type="arc" d="m88.364 10.182a13.091 7.6364 0 1 1 -26.182 0 13.091 7.6364 0 1 1 26.182 0z" transform="matrix(1.1181 0 0 1 -50.068 6.1818)" sodipodi:cy="10.181818" sodipodi:cx="75.272728"/>
+        <path id="path4435" sodipodi:rx="44.285713" sodipodi:ry="38.57143" style="stroke-linejoin:round;stroke:#484ba6;stroke-width:.41119;fill:#ffffff" sodipodi:type="arc" d="m368.57 308.08a44.286 38.571 0 1 1 -88.571 0 44.286 38.571 0 1 1 88.571 0z" inkscape:export-ydpi="67.5" inkscape:export-filename="C:\Documents and Settings\Venkat D\Desktop\stories\info.png" transform="matrix(.094064 0 0 .094064 .86071 -9.9632)" sodipodi:cy="308.07648" sodipodi:cx="324.28571" inkscape:export-xdpi="67.5"/>
+      </g>
+    </g>
+  </g>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>netalloy info</dc:title>
+        <dc:date>2010-04-04T21:24:15</dc:date>
+        <dc:description>icon info</dc:description>
+        <dc:source>https://openclipart.org/detail/37255/netalloy-info-by-netalloy</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>netalloy</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>data</rdf:li>
+            <rdf:li>info</rdf:li>
+            <rdf:li>information</rdf:li>
+            <rdf:li>tips</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>
