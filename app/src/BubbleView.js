@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {m3App} from "./main";
+
 /**
  * A BubbleView creates and maintains the SVG elements to show a bubble
  * around the node text
@@ -25,7 +27,7 @@
  * @param {NodeModel} nodeModel - the NodeModel corresponding to this bubble
  * @param {TextView} textView - the TextView that this bubble must enclose
  */
-function BubbleView(nodeView, nodeModel, textView) {
+export function BubbleView(nodeView, nodeModel, textView) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._myNodeModel = nodeModel;

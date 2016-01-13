@@ -16,6 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {m3App} from "./main";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
+
 /**
  * A EditNodeDialog object will handle displaying a dialog to edit node text
  * (just node text--not rich text)
@@ -24,7 +28,7 @@
  * @param {Controller} controller - The controller for the app
  * @param {NodeModel} nodeToEdit - The node that is being edited.
  */
-function EditNodeDialog(controller, nodeToEdit) {
+export function EditNodeDialog(controller, nodeToEdit) {
    this._controller = controller;
    this._nodeToEdit = nodeToEdit;
 

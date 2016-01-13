@@ -16,14 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {App} from "./App";
+
 /** The App */
-let m3App;
+export let m3App;
 
 /**
  * Mainline
  * @return {void}
  */
-function main() {
+export function main() {
    m3App = new App();   // Prefix with m3 to ensure no namespace clashes
                         // (debug environment not wrapped in IIFE)
    m3App.run();

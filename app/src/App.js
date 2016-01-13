@@ -16,12 +16,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {Controller} from "./Controller";
+import {Diagnostics} from "./Diagnostics";
+import {ErrorDialog} from "./ErrorDialog";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
+
 /**
  * This object contains the entire state of the app.
  *
  * @constructor
  */
-function App() {
+export function App() {
    this._diagnostics = new Diagnostics();
    this._globalState = new State();
 

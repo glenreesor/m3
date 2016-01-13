@@ -24,7 +24,7 @@
  * @param {NodeView} nodeView - the NodeView corresponding to this node (the child
  *                              that will connect to its parent)
  */
-function ConnectorView(nodeView) {
+export function ConnectorView(nodeView) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._svgConnector = document.createElementNS(SVGNS, "path");

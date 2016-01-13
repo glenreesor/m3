@@ -23,7 +23,7 @@
  *
  * @constructor
  */
-function Sizer() {
+export function Sizer() {
    let app;
    let appDrawingArea;
    let svgElement;

@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {m3App} from "./main";
+
 /**
  * A FoldingIconView creates and maintains the SVG elements to show a folding icon
  * from the specified node
@@ -24,7 +26,7 @@
  * @param {NodeView} nodeView - the NodeView corresponding to this node
  * @param {NodeModel} nodeModel - the NodeModel corresponding to this node
  */
-function FoldingIconView(nodeView, nodeModel) {
+export function FoldingIconView(nodeView, nodeModel) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._myNodeModel = nodeModel;

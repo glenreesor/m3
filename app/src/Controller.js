@@ -16,6 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {AppButtons} from "./AppButtons";
+import {EditNodeDialog} from "./EditNodeDialog";
+import {MapModel} from "./MapModel";
+import {MapViewController} from "./MapViewController";
+import {NodeView} from "./NodeView";
 /**
  * This is the controller that handles actions/events that interact with the model.
  * Events that do not interact with the model (e.g. scrolling) are handled by
@@ -23,7 +28,7 @@
  *
  * @constructor
  */
-function Controller() {
+export function Controller() {
    this._nodeViews = new Map();
 
    this._appButtons = new AppButtons(this);

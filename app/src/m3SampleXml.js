@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
-let m3SampleXml = ['<map version="1.0.1">' ,
+export let m3SampleXml = ['<map version="1.0.1">' ,
 '<node CREATED="1440736540515" ID="ID_1485642504" MODIFIED="1444867298001" TEXT="All about m3 (Mobile Mind Mapper)">',
 '<node CREATED="1444867514818" ID="ID_1602206614" MODIFIED="1444868187816" POSITION="right" TEXT="m3 Features">',
 '<cloud COLOR="#cccccc"/>',

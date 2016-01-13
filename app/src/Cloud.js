@@ -16,13 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {Diagnostics} from "./Diagnostics";
+import {m3App} from "./main";
+
 /**
  * A Cloud describes the cloud around one object. This is implemented as an
  * object to make saving and loading as XML straight forward.
  *
  * @constructor
  */
-function Cloud() {
+export function Cloud() {
    this._color = "#cccccc";
 } // Cloud()
 

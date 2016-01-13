@@ -6,6 +6,10 @@
       "es6": true
    },
 
+   "ecmaFeatures": {
+      "modules": true
+   },
+
    "rules": {
       "arrow-spacing": 2,           // Require spaces around =>
       "brace-style": [2, "1tbs"],   // One true brace style
@@ -25,43 +29,6 @@
    },
 
    "globals": {
-
-      // Constructors
-
-      "AboutDialog":           false,
-      "App":                   false,
-      "AppButtons":            false,
-      "ArrowLink":             false,
-      "BubbleView":            false,
-      "Cloud":                 false,
-      "CloudView":             false,
-      "ConnectorView":         false,
-      "Controller":            false,
-      "Diagnostics":           false,
-      "EditNodeDialog":        false,
-      "ErrorDialog":           false,
-      "ExportDialog":          false,
-      "FoldingIconView":       false,
-      "Font":                  false,
-      "GraphicalLinkView":     false,
-      "ImportExportDialog":    false,
-      "LinkTarget":            false,
-      "LoadDialog":            false,
-      "ManageSavedMapsDialog": false,
-      "MapModel":              false,
-      "MapViewController":     false,
-      "NodeModel":             false,
-      "NodeView":              false,
-      "RichTextView":          false,
-      "SaveDialog":            false,
-      "RenameMapDialog":       false,
-      "Sizer":                 false,
-      "State":                 false,
-      "TextView":              false,
-
-      // Global vars
-      "m3App":       true,
-      "m3SampleXml": true,
       "localforage": false
    }
 }

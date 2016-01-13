@@ -16,13 +16,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {App} from "./App";
+import {ErrorDialog} from "./ErrorDialog";
+import {m3App} from "./main";
+import {RenameMapDialog} from "./RenameMapDialog";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
+
 /**
  * A ManageSavedMapsDialog object will handle displaying all saved maps and
  * allowing the user to rename or delete them
  *
  * @constructor
  */
-function ManageSavedMapsDialog() {
+export function ManageSavedMapsDialog() {
    let domParser;
    let html;
    let htmlAsDoc;

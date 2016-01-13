@@ -16,12 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {App} from "./App";
+import {m3App} from "./main";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
+
 /**
  * An AboutDialog object displays information about this m3App.
  *
  * @constructor
  */
-function AboutDialog() {
+export function AboutDialog() {
    let domParser;
    let html;
    let htmlAsDoc;

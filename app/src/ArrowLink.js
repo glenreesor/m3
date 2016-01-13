@@ -16,12 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {Diagnostics} from "./Diagnostics";
+import {m3App} from "./main";
+
 /**
  * A ArrowLink describes the starting point of a graphic link.
  *
  * @constructor
  */
-function ArrowLink() {
+export function ArrowLink() {
    // Attributes that get saved
    this._destinationId = null;    // This is the ID (a string), not a pointer to the actual NodeModel object
    this._color = "#000000";

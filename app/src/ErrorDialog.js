@@ -16,12 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {App} from "./App";
+import {m3App} from "./main";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
+
 /**
  * An ErrorDialog object displays the specified error message.
  * @constructor
  * @param {String} errorMsg - The error message to be displayed
  */
-function ErrorDialog(errorMsg) {
+export function ErrorDialog(errorMsg) {
    let domParser;
    let html;
    let htmlAsDoc;

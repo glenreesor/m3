@@ -16,12 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {Diagnostics} from "./Diagnostics";
+import {m3App} from "./main";
+
 /**
  * A Font describes the font properties for a non-html node.
  *
  * @constructor
  */
-function Font() {
+export function Font() {
    this._bold = false;
    this._italic = false;
    this._size = "12";

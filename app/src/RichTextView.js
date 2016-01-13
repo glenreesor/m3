@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {m3App} from "./main";
+
 /**
  * A RichTextView creates and maintains the SVG elements to show HTML text
  * associated with a node text
@@ -24,7 +26,7 @@
  * @param {NodeView} nodeView - the NodeView corresponding to this bubble
  * @param {NodeModel} nodeModel - the NodeModel corresponding to this bubble
  */
-function RichTextView(nodeView, nodeModel) {
+export function RichTextView(nodeView, nodeModel) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._myNodeModel = nodeModel;

@@ -16,6 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {App} from "./App";
+import {ErrorDialog} from "./ErrorDialog";
+import {m3App} from "./main";
+import {m3SampleXml} from "./m3SampleXml";
+import {MapModel} from "./MapModel";
+import {RenameMapDialog} from "./RenameMapDialog";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
+
 /**
  * A LoadDialog object will handle displaying a dialog to load a saved map
  * and then trigger the actual loading.
@@ -23,7 +32,7 @@
  * @constructor
  * @param {Controller} controller - this app's controller
  */
-function LoadDialog(controller) {
+export function LoadDialog(controller) {
    let domParser;
    let html;
    let htmlAsDoc;

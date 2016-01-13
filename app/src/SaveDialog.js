@@ -16,13 +16,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {App} from "./App";
+import {ErrorDialog} from "./ErrorDialog";
+import {m3App} from "./main";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
 /**
  * A SaveDialog object will handle displaying a dialog to save the current map
  * and then trigger the actual saving.
  *
  * @constructor
  */
-function SaveDialog() {
+export function SaveDialog() {
    let domParser;
    let html;
    let htmlAsDoc;

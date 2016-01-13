@@ -16,12 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {Diagnostics} from "./Diagnostics";
+import {m3App} from "./main";
+
 /**
  * A LinkTarget describes the the endpoint of a graphic link.
  *
  * @constructor
  */
-function LinkTarget() {
+export function LinkTarget() {
    // Attributes that get saved
    this._color = null;
    this._destination = null;     // This is the ID, not a pointer to the actual NodeModel object

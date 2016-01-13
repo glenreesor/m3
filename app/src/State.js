@@ -21,7 +21,7 @@
  *
  * @constructor
  */
-function State() {
+export function State() {
    this._state = State.STATE_IDLE;
 
 } // State()

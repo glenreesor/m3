@@ -16,6 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {m3App} from "./main";
+import {NodeModel} from "./NodeModel";
+
 /**
  * A GraphicalLinkView creates and maintains the SVG elements to show a link
  * between two nodesbetween two nodes
@@ -24,7 +27,7 @@
  * @param {NodeView} myNodeView - the NodeView that the link comes from
  * @param {ArrowLink} arrowLink - the ArrowLink that contains the link information
  */
-function GraphicalLinkView(myNodeView, arrowLink) {
+export function GraphicalLinkView(myNodeView, arrowLink) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._arrowLink = arrowLink;

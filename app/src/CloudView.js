@@ -23,7 +23,7 @@
  * @constructor
  * @param {Cloud} cloud - the Cloud corresponding to this CloudView
  */
-function CloudView(cloud) {
+export function CloudView(cloud) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._svgCloud = document.createElementNS(SVGNS, "path");

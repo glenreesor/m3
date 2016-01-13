@@ -16,6 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {AboutDialog} from "./AboutDialog";
+import {ImportExportDialog} from "./ImportExportDialog";
+import {LoadDialog} from "./LoadDialog";
+import {m3App} from "./main";
+import {ManageSavedMapsDialog} from "./ManageSavedMapsDialog";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
 
 /**
  * A AppButtons object is a singleton that will create all the app buttons
@@ -24,7 +31,7 @@
  * @constructor
  * @param {Controller} controller - The controller for this app
  */
-function AppButtons(controller) {
+export function AppButtons(controller) {
    let buttonsDivBottom;
    let buttonsDivRight;
    let domParser;

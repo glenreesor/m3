@@ -23,7 +23,7 @@
  *
  * @constructor
  */
-function Diagnostics() {
+export function Diagnostics() {
    this._LOG_TYPE = {TASK_IMPORT_XML  : "none",
                      TASK_VIEWS       : "none",
                      TASK_VIEW_STATE  : "none"};

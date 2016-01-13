@@ -16,6 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {App} from "./App";
+import {Diagnostics} from "./Diagnostics";
+import {ErrorDialog} from "./ErrorDialog";
+import {m3App} from "./main";
+import {NodeModel} from "./NodeModel";
+import {SaveDialog} from "./SaveDialog";
+
 /**
  * A MapModel contains everything for a mind map.
  * @constructor
@@ -26,7 +33,7 @@
  * @param {String} mapName - the name of this map
  * @param {String} xml - The XML describing this map (if newType is xml)
  */
-function MapModel(controller, newType, dbKey, mapName, xml) {
+export function MapModel(controller, newType, dbKey, mapName, xml) {
    this._controller = controller;
    this._mapName = mapName;
    this._modifiedStatus = false;

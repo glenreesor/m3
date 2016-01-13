@@ -16,6 +16,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {BubbleView} from "./BubbleView";
+import {CloudView} from "./CloudView";
+import {ConnectorView} from "./ConnectorView";
+import {FoldingIconView} from "./FoldingIconView";
+import {GraphicalLinkView} from "./GraphicalLinkView";
+import {NodeModel} from "./NodeModel";
+import {RichTextView} from "./RichTextView";
+import {TextView} from "./TextView";
+
 /**
  * A NodeView orchestrates the creation of all visual components for a node,
  * such as the text, bubble, connector, cloud, etc.
@@ -25,7 +34,7 @@
  *
  */
 
-function NodeView(controller, myModel) {
+export function NodeView(controller, myModel) {
 
    this._controller = controller;
    this._myNodeModel = myModel;

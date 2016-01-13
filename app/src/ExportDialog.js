@@ -16,13 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {m3App} from "./main";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
 /**
  * An ExportDialog object will display the current map in a popup div and wait
  * for OK to be pressed.
  *
  * @constructor
  */
-function ExportDialog() {
+export function ExportDialog() {
    let domParser;
    let html;
    let htmlAsDoc;

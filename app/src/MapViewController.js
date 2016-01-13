@@ -16,6 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {Diagnostics} from "./Diagnostics";
+import {EditNodeDialog} from "./EditNodeDialog";
+import {m3App} from "./main";
+import {State} from "./State";
+
 /**
  * This object handles all events related to the current map that do not
  * interact with the Map Model (e.g. scrolling, examining current state to
@@ -24,7 +29,7 @@
  * @constructor
  * @param {Controller} controller - The controller for this app
  */
-function MapViewController(controller) {
+export function MapViewController(controller) {
    this._controller = controller;
 
    this._state = {state: MapViewController._STATE_IDLE,

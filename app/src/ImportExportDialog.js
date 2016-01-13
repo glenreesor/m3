@@ -16,13 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {ExportDialog} from "./ExportDialog";
+import {m3App} from "./main";
+import {MapModel} from "./MapModel";
+import {Sizer} from "./Sizer";
+import {State} from "./State";
+
 /**
  * A ImportExportDialog object will handle displaying a dialog to import or
  * export maps, and then trigger the actual action.
  *
  * @constructor
  */
-function ImportExportDialog() {
+export function ImportExportDialog() {
    let domParser;
    let html;
    let htmlAsDoc;

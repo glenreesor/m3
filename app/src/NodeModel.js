@@ -16,6 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
+import {ArrowLink} from "./ArrowLink";
+import {Cloud} from "./Cloud";
+import {Diagnostics} from "./Diagnostics";
+import {Font} from "./Font";
+import {LinkTarget} from "./LinkTarget";
+import {m3App} from "./main";
+import {NodeView} from "./NodeView";
+
 /**
  * A NodeModel contains everything for a mind map node. The constructor
  * creates a mind map node using the specified text.
@@ -29,7 +37,7 @@
  * @param {string} text - The text for this node (if type NEW)
  * @param {Element} xml - The xml used to create this node (if type XML)
  */
-function NodeModel(controller, myMapModel, newType, parent, text, xml) {
+export function NodeModel(controller, myMapModel, newType, parent, text, xml) {
    this._controller = controller;
    this._myMapModel = myMapModel;
 
