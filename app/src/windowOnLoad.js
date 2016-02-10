@@ -16,16 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
-import {App} from "./App";
+//----------------------------------------------------------------------------
+// This can't be in a source file that gets pulled in for testing because:
+//   - the test environment doesn't understand browser globals
+//   - with proxyquire, you can only stub out functions--not immediately
+//     executed code.
+//----------------------------------------------------------------------------
 
-/** The App */
-export let m3App;
-
-/**
- * Mainline
- * @return {void}
- */
-export function main() {
-   m3App = new App();
-   m3App.run();
-} // main()
+import {main} from './main';
+window.onload = main;

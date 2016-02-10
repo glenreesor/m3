@@ -1,9 +1,10 @@
 var gulp          = require('gulp'),
     browserify    = require('browserify'),
     buffer        = require('gulp-buffer'),
+    eslint        = require('gulp-eslint'),
     footer        = require('gulp-footer'),
     gutil         = require('gulp-util'),
-    eslint        = require('gulp-eslint'),
+    shell         = require('gulp-shell'),
     source        = require('vinyl-source-stream'),
     sourcemaps    = require('gulp-sourcemaps'),
     uglify        = require('gulp-uglify');
@@ -28,10 +29,28 @@ gulp.task('css', function() {
 });
 
 //-----------------------------------------------------------------------------
-// JS Linting
+// HTML Processing
+//-----------------------------------------------------------------------------
+gulp.task('html', function() {
+   return gulp.src('app/src/*.html')
+      .pipe(gulp.dest('out/debug'))
+      .pipe(gulp.dest('out/production'))
+});
+
+//-----------------------------------------------------------------------------
+// Image Processing
+//-----------------------------------------------------------------------------
+gulp.task('images', function() {
+   return gulp.src('app/images/*')
+      .pipe(gulp.dest('out/debug/images'))
+      .pipe(gulp.dest('out/production/images'))
+});
+
+//-----------------------------------------------------------------------------
+// JS Lint
 //-----------------------------------------------------------------------------
 gulp.task('js-lint', function() {
-   return gulp.src('app/src/*.js')
+   return gulp.src(['app/src/*.js'])
       .pipe(eslint())
       .pipe(eslint.format())
 });
@@ -51,7 +70,7 @@ gulp.task('js-lint', function() {
 gulp.task('js-debug', function() {
    // Set up the browserify instance on a task basis
    var b = browserify({
-      entries: './app/src/main.js',
+      entries: ['./app/src/main.js', './app/src/windowOnLoad.js'],
       debug: true
    });
 
@@ -67,7 +86,7 @@ gulp.task('js-debug', function() {
 gulp.task('js-production', function() {
    // Set up the browserify instance on a task basis
    var b = browserify({
-      entries: './app/src/main.js',
+      entries: ['./app/src/main.js', './app/src/windowOnLoad.js'],
       debug: true
    });
 
@@ -82,24 +101,6 @@ gulp.task('js-production', function() {
 });
 
 //-----------------------------------------------------------------------------
-// HTML Processing
-//-----------------------------------------------------------------------------
-gulp.task('html', function() {
-   return gulp.src('app/src/*.html')
-      .pipe(gulp.dest('out/debug'))
-      .pipe(gulp.dest('out/production'))
-});
-
-//-----------------------------------------------------------------------------
-// Image Processing
-//-----------------------------------------------------------------------------
-gulp.task('images', function() {
-   return gulp.src('app/images/*')
-      .pipe(gulp.dest('out/debug/images'))
-      .pipe(gulp.dest('out/production/images'))
-});
-
-//-----------------------------------------------------------------------------
 // Lib Processing
 //-----------------------------------------------------------------------------
 gulp.task('lib', function() {
@@ -107,6 +108,22 @@ gulp.task('lib', function() {
       .pipe(gulp.dest('out/debug'))
       .pipe(gulp.dest('out/production'))
 });
+
+//-----------------------------------------------------------------------------
+// Test Linting
+//-----------------------------------------------------------------------------
+gulp.task('test-lint', function() {
+   return gulp.src(['test/unit/*.js'])
+      .pipe(eslint())
+      .pipe(eslint.format())
+});
+
+//-----------------------------------------------------------------------------
+// Test Running
+//-----------------------------------------------------------------------------
+gulp.task('test-run', shell.task(
+   ["./node_modules/babel-tape-runner/bin/babel-tape-runner test/unit/*.js|faucet"]
+));
 
 //-----------------------------------------------------------------------------
 // Webmanifest
@@ -121,8 +138,9 @@ gulp.task('manifest', function() {
 // Default
 //-----------------------------------------------------------------------------
 gulp.task('default', function() {
-   gulp.start('appcache', 'css', 'html', 'images', 'lib', 'js-lint',
-              'js-debug', 'js-production', 'manifest');
+   gulp.start('appcache', 'css', 'html', 'images',
+              'js-lint', 'js-debug', 'js-production',
+              'lib', 'manifest', 'test-lint', 'test-run');
 });
 
 //-----------------------------------------------------------------------------
@@ -136,5 +154,6 @@ gulp.watch('app/src/*.html', ['html', 'appcache']);
 gulp.watch('app/images/*', ['images', 'appcache']);
 gulp.watch('app/lib/*', ['lib', 'appcache']);
 gulp.watch('app/src/*.js', ['js-lint', 'js-debug', 'js-production',
-           'appcache']);
+           'appcache', 'test-run']);
+gulp.watch('test/unit/*.js', ['test-lint', 'test-run']);
 gulp.watch('app/*.webmanifest', ['manifest']);

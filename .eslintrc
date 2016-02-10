@@ -29,6 +29,7 @@
    },
 
    "globals": {
-      "localforage": false
+      "localforage": false,
+      "require": false              // For tests
    }
 }

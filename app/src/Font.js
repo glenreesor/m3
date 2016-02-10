@@ -97,6 +97,7 @@ Font.prototype.isItalic = function isItalic() {
 Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let attribute;
+   let attributeName;
    let numAttributes;
 
    //-----------------------------------------------------------------------
@@ -107,22 +108,23 @@ Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 
    for (i=0; i<numAttributes; i++) {
       attribute = element.attributes[i];
+      attributeName = attribute.name.toLowerCase();
 
-      if (attribute.name === "BOLD") {
+      if (attributeName === "bold") {
          if (attribute.value === "true") {
             this._bold = true;
          } else {
             this._bold = false;
          }
 
-      } else if (attribute.name === "ITALIC") {
+      } else if (attributeName === "italic") {
          if (attribute.value === "true") {
             this._italic = true;
          } else  {
             this._italic = false;
          }
 
-      } else if (attribute.name === "SIZE") {
+      } else if (attributeName === "size") {
          this._size = attribute.value;
 
       } else {
@@ -132,3 +134,33 @@ Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created font.");
 }; // loadFromXml1_0_1()
+
+/**
+ * Set whether this font is bold
+ *
+ * @param {boolean} isBold - Is the text bold (true/false)
+ * @return {void}
+ */
+Font.prototype.setBold = function setBold(isBold) {
+   this._bold = isBold;
+}; // setBold()
+
+/**
+ * Set whether this font is italic
+ *
+ * @param {boolean} isItalic - Is the text italic (true/false)
+ * @return {void}
+ */
+Font.prototype.setItalic = function setItalic(isItalic) {
+   this._italic = isItalic;
+}; // setItalic()
+
+/**
+ * Set the font size
+ *
+ * @param {String} size - Font size
+ * @return {void}
+ */
+Font.prototype.setSize = function setSize(size) {
+   this._size = size;
+}; // setSize()

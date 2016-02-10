@@ -22,7 +22,6 @@ import {Diagnostics} from "./Diagnostics";
 import {Font} from "./Font";
 import {LinkTarget} from "./LinkTarget";
 import {m3App} from "./main";
-import {NodeView} from "./NodeView";
 
 /**
  * A NodeModel contains everything for a mind map node. The constructor
@@ -35,9 +34,11 @@ import {NodeView} from "./NodeView";
  *                           (See NodeModel.TYPE*)
  * @param {NodeModel} parent - The parent of this new NodeModel
  * @param {string} text - The text for this node (if type NEW)
- * @param {Element} xml - The xml used to create this node (if type XML)
+ * @param {Element} parsedXml - The parsed xml used to create this node
+                                (if type XML)
  */
-export function NodeModel(controller, myMapModel, newType, parent, text, xml) {
+export function NodeModel(controller, myMapModel, newType, parent, text,
+                          parsedXml) {
    this._controller = controller;
    this._myMapModel = myMapModel;
 
@@ -74,7 +75,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text, xml) {
 
    } else {
       this._text = null;
-      this.loadFromXml1_0_1(xml);
+      this.loadFromXml1_0_1(parsedXml);
    }
 } // NodeModel()
 
@@ -261,6 +262,15 @@ NodeModel.prototype.getCloud = function getCloud() {
 }; // getCloud()
 
 /**
+ *
+ * Return this node's created timestamp
+ * @return {String} - This node's created timestamp
+ */
+NodeModel.prototype.getCreatedTimestamp = function getCreatedTimestamp() {
+   return this._created;
+}; // getCreatedTimestamp()
+
+/**
  * Return this node's font object
  *
  * @return {Font} This node's font object (null if no non-default values)
@@ -277,6 +287,33 @@ NodeModel.prototype.getFont = function getFont() {
 NodeModel.prototype.getId = function getId() {
    return this._id;
 }; // getId()
+
+/**
+ * Return the linkTarget objects for this node.
+ * @return {LinkTarget[]} - This node's linkTargets (empty array if none)
+ *
+ */
+NodeModel.prototype.getLinkTargets = function getLinkTargets() {
+   return this._linkTargets;
+}; // getLinkTargets()
+
+/**
+ *
+ * Return this node's modified timestamp
+ * @return {String} - This node's modified timestamp
+ */
+NodeModel.prototype.getModifiedTimestamp = function getModifiedTimestamp() {
+   return this._modified;
+}; // getModifiedTimestamp()
+
+/**
+ *
+ * Return this node's note
+ * @return {String} - This node's note (null if none)
+ */
+NodeModel.prototype.getNote = function getNote() {
+   return this._note;
+}; // getNote()
 
 /**
  * Return the parent node of this node
@@ -297,22 +334,6 @@ NodeModel.prototype.getRichText = function getRichText() {
 }; // getParent()
 
 /**
- * Return the root for this node
- *
- * @return {NodeModel} - the root for this node
- */
-NodeModel.prototype.getRoot = function getRoot() {
-   let returnValue;
-
-   if (this._parent === null) {
-      returnValue = this;
-   } else {
-      returnValue = this._parent.getRoot();
-   }
-   return returnValue;
-}; // getRoot()
-
-/**
   * Return the side this node should be drawn on. If this node doesn't know
   * what side it should be drawn on, return the side of its parent
   *
@@ -327,7 +348,7 @@ NodeModel.prototype.getSide = function getSide() {
       if (this._parent !== null) {
          returnVal = this._parent.getSide();
       } else {
-         returnVal = NodeView.POSITION_NONE;
+         returnVal = NodeModel.POSITION_NONE;
       }
    }
 
@@ -386,13 +407,16 @@ NodeModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let arrowLink;
    let attribute;
+   let attributeName;
    let xmlChildNode;
    let newNode;
    let numAttributes;
    let numXmlChildNodes;
    let richTextAttributes;
    let richTextType;
+   let richTextTypeValue;
    let linkTarget;
+   let tagName;
 
    //-----------------------------------------------------------------------
    // Loop through attributes. Set the ones I know about and warn about the
@@ -402,33 +426,34 @@ NodeModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 
    for (i=0; i<numAttributes; i++) {
       attribute = element.attributes[i];
+      attributeName = attribute.name.toLowerCase();
 
-      if (attribute.name === "BACKGROUND_COLOR") {
+      if (attributeName === "background_color") {
          this._backgroundColor = attribute.value;
 
-      } else if (attribute.name === "CREATED") {
+      } else if (attributeName === "created") {
          this._created = attribute.value;
 
-      } else if (attribute.name === "COLOR") {
+      } else if (attributeName === "color") {
          this._textColor = attribute.value;
 
-      } else if (attribute.name === "FOLDED") {
+      } else if (attributeName === "folded") {
          if (attribute.value === "true") {
             this._isFolded = true;
          } else {
             this._isFolded = false;
          }
 
-      } else if (attribute.name === "ID") {
+      } else if (attributeName === "id") {
          this._id = attribute.value;
 
-      } else if (attribute.name === "MODIFIED") {
+      } else if (attributeName === "modified") {
          this._modified = attribute.value;
 
-      } else if (attribute.name === "POSITION") {
+      } else if (attributeName === "position") {
          this._position = attribute.value;
 
-      } else if (attribute.name === "TEXT") {
+      } else if (attributeName === "text") {
          this._text = attribute.value;
 
       } else {
@@ -455,36 +480,42 @@ NodeModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 
       // Only process this if it is an Element
       if (xmlChildNode.nodeType === 1) {
-         if (xmlChildNode.tagName === "node") {
+         tagName = xmlChildNode.tagName.toLowerCase();
+
+         if (tagName === "node") {
             m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
                   "Loading <" + xmlChildNode.tagName + ">");
             newNode = new NodeModel(this._controller, this._myMapModel, NodeModel.TYPE_XML, this, "", xmlChildNode);
             this._children.push(newNode);
 
-         } else if (xmlChildNode.tagName === "arrowlink") {
+         } else if (tagName === "arrowlink") {
             arrowLink = new ArrowLink();
             arrowLink.loadFromXml1_0_1(xmlChildNode);
             this._arrowLinks.push(arrowLink);
 
-         } else if (xmlChildNode.tagName === "cloud") {
+         } else if (tagName === "cloud") {
             this._cloud = new Cloud();
             this._cloud.loadFromXml1_0_1(xmlChildNode);
 
-         } else if (xmlChildNode.tagName === "font") {
+         } else if (tagName === "font") {
             this._font = new Font();
             this._font.loadFromXml1_0_1(xmlChildNode);
 
-         } else if (xmlChildNode.tagName === "linktarget") {
+         } else if (tagName === "linktarget") {
             linkTarget = new LinkTarget();
             linkTarget.loadFromXml1_0_1(xmlChildNode);
             this._linkTargets.push(linkTarget);
 
-         } else if (xmlChildNode.tagName === "richcontent") {
+         } else if (tagName === "richcontent") {
             richTextAttributes = xmlChildNode.attributes;
-            richTextType = richTextAttributes.getNamedItem("TYPE").value;
-            if (richTextType === "NODE") {
+            richTextType = richTextAttributes.getNamedItem("TYPE") ||
+                           richTextAttributes.getNamedItem("type");
+
+            richTextTypeValue = richTextType.value.toLowerCase();
+
+            if (richTextTypeValue === "node") {
                this._richText = xmlChildNode.innerHTML;
-            } else if (richTextType === "NOTE") {
+            } else if (richTextTypeValue === "note") {
                this._note = xmlChildNode.innerHTML;
             } else {
                m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
@@ -500,6 +531,18 @@ NodeModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 }; // loadFromXml1_0_1()
 
 /**
+ * Set the background color to something new.
+ *
+ * @param {String} color - the new background color for this node.
+ * @return {void}
+ */
+NodeModel.prototype.setBackgroundColor = function setBackgroundColor(color) {
+   this._backgroundColor = color;
+   this._modified = Date.now();
+   this._myMapModel.setModifiedStatus(true);
+}; // setBackgroundColor()
+
+/**
  * Set the text to something new.
  *
  * @param {String} text - the new text for this node.
@@ -510,6 +553,18 @@ NodeModel.prototype.setText = function setText(text) {
    this._modified = Date.now();
    this._myMapModel.setModifiedStatus(true);
 }; // setText()
+
+/**
+ * Set the text color
+ *
+ * @param {String} textColor - the new text color for this node.
+ * @return {void}
+ */
+NodeModel.prototype.setTextColor = function setTextColor(textColor) {
+   this._textColor = textColor;
+   this._modified = Date.now();
+   this._myMapModel.setModifiedStatus(true);
+}; // setTextColor()
 
 /**
  * Toggle the cloud

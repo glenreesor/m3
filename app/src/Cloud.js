@@ -66,6 +66,7 @@ Cloud.prototype.getColor = function getColor() {
 Cloud.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let attribute;
+   let attributeName;
    let numAttributes;
 
    //-----------------------------------------------------------------------
@@ -76,8 +77,9 @@ Cloud.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 
    for (i=0; i<numAttributes; i++) {
       attribute = element.attributes[i];
+      attributeName = attribute.name.toLowerCase();
 
-      if (attribute.name === "COLOR") {
+      if (attributeName === "color") {
          this.setColor(attribute.value);
 
       } else {

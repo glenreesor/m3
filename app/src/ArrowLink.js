@@ -84,8 +84,16 @@ ArrowLink.prototype.getColor = function getColor() {
 }; // getcolor()
 
 /**
+  * Get the ArrowLink's destination ID
+  * @return {String} - The destination ID
+  */
+ArrowLink.prototype.getDestinationId = function getDestinationId() {
+   return this._destinationId;
+}; // setDestinationId()
+
+/**
   * Get the ArrowLink's destination node
-  * @return {NodeModel} - The destination
+  * @return {NodeModel} - The destination node (not an ID)
   */
 ArrowLink.prototype.getDestinationNode = function getDestinationNode() {
    return this._destinationNode;
@@ -113,7 +121,7 @@ ArrowLink.prototype.getEndInclination = function getEndInclination() {
   */
 ArrowLink.prototype.getId = function getId() {
    return this._id;
-}; // setId()
+}; // getId()
 
 /**
   * Get the ArrowLink's start arrow type
@@ -140,6 +148,7 @@ ArrowLink.prototype.getStartInclination = function getStartInclination() {
 ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let attribute;
+   let attributeName;
    let numAttributes;
 
    //-----------------------------------------------------------------------
@@ -150,26 +159,27 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 
    for (i=0; i<numAttributes; i++) {
       attribute = element.attributes[i];
+      attributeName = attribute.name.toLowerCase();
 
-      if (attribute.name === "COLOR") {
+      if (attributeName === "color") {
          this.setColor(attribute.value);
 
-      } else if (attribute.name === "DESTINATION") {
+      } else if (attributeName === "destination") {
          this.setDestinationId(attribute.value);
 
-      } else if (attribute.name === "ENDARROW") {
+      } else if (attributeName === "endarrow") {
          this.setEndArrow(attribute.value);
 
-      } else if (attribute.name === "ENDINCLINATION") {
+      } else if (attributeName === "endinclination") {
          this.setEndInclination(attribute.value);
 
-      } else if (attribute.name === "ID") {
+      } else if (attributeName === "id") {
          this.setId(attribute.value);
 
-      } else if (attribute.name === "STARTARROW") {
+      } else if (attributeName === "startarrow") {
          this.setStartArrow(attribute.value);
 
-      } else if (attribute.name === "STARTINCLINATION") {
+      } else if (attributeName === "startinclination") {
          this.setStartInclination(attribute.value);
 
       } else {
