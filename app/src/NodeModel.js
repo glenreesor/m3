@@ -17,7 +17,7 @@
 // along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
 
 import {ArrowLink} from "./ArrowLink";
-import {Cloud} from "./Cloud";
+import {CloudModel} from "./CloudModel";
 import {Diagnostics} from "./Diagnostics";
 import {Font} from "./Font";
 import {LinkTarget} from "./LinkTarget";
@@ -49,7 +49,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._arrowLinks = [];
    this._backgroundColor = "#ffffff";
    this._children = [];
-   this._cloud = null;                 // Will point to Cloud object if there is a cloud
+   this._cloudModel = null;     
    this._font = null;                  // Will point to Font object if there are non-default font properties
    this._isFolded = false;
    this._linkTargets = [];
@@ -196,8 +196,8 @@ NodeModel.prototype.getAsXml = function getAsXml() {
       xml = xml.concat(arrowLink.getAsXml());
    });
 
-   if (this._cloud !== null) {
-      xml = xml.concat(this._cloud.getAsXml());
+   if (this._cloudModel !== null) {
+      xml = xml.concat(this._cloudModel.getAsXml());
    }
 
    if (this._font !== null) {
@@ -253,13 +253,13 @@ NodeModel.prototype.getChildren = function getChildren() {
 }; // getChildren()
 
 /**
- * Return this node's cloud object
+ * Return this node's CloudModel object
  *
- * @return {Cloud} This node's cloud object (null if no cloud)
+ * @return {CloudModel} This node's CloudModel object (null if no cloud)
  */
-NodeModel.prototype.getCloud = function getCloud() {
-   return this._cloud;
-}; // getCloud()
+NodeModel.prototype.getCloudModel = function getCloudModel() {
+   return this._cloudModel;
+}; // getCloudModel()
 
 /**
  *
@@ -379,7 +379,7 @@ NodeModel.prototype.getTextColor = function getTextColor() {
  * @return {boolean} - true (this is a cloud) or false (there isn't a cloud)
  */
 NodeModel.prototype.hasCloud = function hasCloud() {
-   if (this._cloud !== null) {
+   if (this._cloudModel !== null) {
       return true;
    } else {
       return false;
@@ -494,8 +494,8 @@ NodeModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
             this._arrowLinks.push(arrowLink);
 
          } else if (tagName === "cloud") {
-            this._cloud = new Cloud();
-            this._cloud.loadFromXml1_0_1(xmlChildNode);
+            this._cloudModel = new CloudModel();
+            this._cloudModel.loadFromXml1_0_1(xmlChildNode);
 
          } else if (tagName === "font") {
             this._font = new Font();
@@ -571,10 +571,10 @@ NodeModel.prototype.setTextColor = function setTextColor(textColor) {
  * @return {void}
  */
 NodeModel.prototype.toggleCloud = function toggleCloud() {
-   if (this._cloud === null) {
-      this._cloud = new Cloud();
+   if (this._cloudModel === null) {
+      this._cloudModel = new CloudModel();
    } else {
-      this._cloud = null;
+      this._cloudModel = null;
    }
 
    this._hasCloud = !this._hasCloud;

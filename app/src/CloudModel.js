@@ -20,20 +20,20 @@ import {Diagnostics} from "./Diagnostics";
 import {m3App} from "./main";
 
 /**
- * A Cloud describes the cloud around one object. This is implemented as an
+ * A CloudModel describes the cloud around one object. This is implemented as an
  * object to make saving and loading as XML straight forward.
  *
  * @constructor
  */
-export function Cloud() {
+export function CloudModel() {
    this._color = "#cccccc";
-} // Cloud()
+} // CloudModel()
 
 /**
- * Return this cloud representation as an array of XML strings.
+ * Return this cloudModel representation as an array of XML strings.
  * @return {string[]}   - Array of strings containing xml
  */
-Cloud.prototype.getAsXml = function getAsXml() {
+CloudModel.prototype.getAsXml = function getAsXml() {
    let myAttributes;
    let xml = [];
 
@@ -54,16 +54,16 @@ Cloud.prototype.getAsXml = function getAsXml() {
  *
  * @return {string} - Current cloud color.
  */
-Cloud.prototype.getColor = function getColor() {
+CloudModel.prototype.getColor = function getColor() {
       return this._color;
 }; // getColor()
 
 /**
- * Load this cloud definition from XML.
+ * Load this cloudModel definition from XML.
  * @param {Element} element - the Element to be parsed
  * @return {void}
  */
-Cloud.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
+CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let attribute;
    let attributeName;
@@ -87,7 +87,7 @@ Cloud.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
       }
    }
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created cloud.");
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created cloudModel.");
 }; // loadFromXml1_0_1()
 
 /**
@@ -96,6 +96,6 @@ Cloud.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
  * @param {string} color - Current cloud color.
  * @return {void}
  */
-Cloud.prototype.setColor = function setColor(color) {
+CloudModel.prototype.setColor = function setColor(color) {
       this._color = color;
 }; // getColor()

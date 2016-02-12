@@ -54,11 +54,11 @@ mainStub.m3App.getDiagnostics = function getDiagnostics() {
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-let Cloud = proxyquire('../../app/src/Cloud',
-                        {
-                           './Diagnostics': diagnosticsStub,
-                           './main': mainStub
-                        }).Cloud;
+let CloudModel = proxyquire('../../app/src/CloudModel',
+                           {
+                              './Diagnostics': diagnosticsStub,
+                              './main': mainStub
+                           }).CloudModel;
 
 //-----------------------------------------------------------------------------
 // List of all attributes and non-default values, used by multiple tests
@@ -72,10 +72,10 @@ const allAttributes = {
 /**
   * Test allAttributes as listed above
   * @param {String} t - test object from Tape
-  * @param {Cloud} cloud - the Cloud to be tested
+  * @param {CloudModel} cloudModel - the CloudModel to be tested
   * @return {void}
   */
-function testAllAttributes(t, cloud) {
+function testAllAttributes(t, cloudModel) {
 
    //--------------------------------------------------------------------------
    // First test is to make sure when attributes are added to this file,
@@ -84,7 +84,7 @@ function testAllAttributes(t, cloud) {
    t.equal(Object.keys(allAttributes).length, 1,
       "all attributes listed in this file must be tested");
 
-   t.equal(cloud.getColor(), allAttributes["color"],
+   t.equal(cloudModel.getColor(), allAttributes["color"],
       "color must match value that was loaded");
 
 } // testAllAttributes
@@ -92,12 +92,12 @@ function testAllAttributes(t, cloud) {
 //-----------------------------------------------------------------------------
 // Constructor - Defaults
 //-----------------------------------------------------------------------------
-test('Cloud - Constructor', function (t) {
-   let cloud;
+test('CloudModel - Constructor', function (t) {
+   let cloudModel;
 
-   cloud = new Cloud();
+   cloudModel = new CloudModel();
 
-   t.equal(cloud.getColor(), "#cccccc",
+   t.equal(cloudModel.getColor(), "#cccccc",
       "default color should be '#cccccc'");
 
    t.end();
@@ -106,14 +106,14 @@ test('Cloud - Constructor', function (t) {
 //-----------------------------------------------------------------------------
 // set/get pairs
 //-----------------------------------------------------------------------------
-test('Cloud - set/get Color()', function (t) {
+test('CloudModel - set/get Color()', function (t) {
    const newColor = "#111111";
-   let cloud;
+   let cloudModel;
 
-   cloud = new Cloud();
-   cloud.setColor(newColor);
+   cloudModel = new CloudModel();
+   cloudModel.setColor(newColor);
 
-   t.equal(cloud.getColor(), newColor,
+   t.equal(cloudModel.getColor(), newColor,
       "getColor() should return the new color");
 
    t.end();
@@ -122,11 +122,11 @@ test('Cloud - set/get Color()', function (t) {
 //-----------------------------------------------------------------------------
 // getAsXml - Exported XML same as source XML
 //-----------------------------------------------------------------------------
-test('Cloud - getAsXml()', function (t) {
+test('CloudModel - getAsXml()', function (t) {
    let origXml;
 
    //--------------------------------------------------------------------------
-   // Setup XML to load the Cloud
+   // Setup XML to load the CloudModel
    //--------------------------------------------------------------------------
    origXml = "<cloud ";
    for (let a in allAttributes) {
@@ -140,7 +140,7 @@ test('Cloud - getAsXml()', function (t) {
    testExportedXml(origXml, t, function(docElement) {
       let origObject;
 
-      origObject = new Cloud();
+      origObject = new CloudModel();
       origObject.loadFromXml1_0_1(docElement);
       return origObject;
    });
@@ -149,18 +149,18 @@ test('Cloud - getAsXml()', function (t) {
 });
 
 //-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Creation of Cloud gets logged
+// loadFromXml1_0_1 - Creation of CloudModel gets logged
 //-----------------------------------------------------------------------------
-test('Cloud - loadFromXml1_0_1() - Creation of Cloud gets logged',
+test('CloudModel - loadFromXml1_0_1() - Creation of CloudModel gets logged',
    function (t) {
 
-   let cloud;
+   let cloudModel;
    let docElement;
    let parser;
    let xml;
 
    //--------------------------------------------------------------------------
-   // Setup XML to load the Cloud
+   // Setup XML to load the CloudModel
    //--------------------------------------------------------------------------
    xml = "<cloud ";
    for (let a in allAttributes) {
@@ -171,12 +171,12 @@ test('Cloud - loadFromXml1_0_1() - Creation of Cloud gets logged',
    parser = new DOMParser();
    docElement = parser.parseFromString(xml, "text/xml").documentElement;
 
-   cloud = new Cloud();
+   cloudModel = new CloudModel();
    logCount = 0;
-   cloud.loadFromXml1_0_1(docElement);
+   cloudModel.loadFromXml1_0_1(docElement);
 
    t.equal(logCount, 1,
-      "creation of Cloud should be logged");
+      "creation of CloudModel should be logged");
 
    t.end();
 });
@@ -184,16 +184,16 @@ test('Cloud - loadFromXml1_0_1() - Creation of Cloud gets logged',
 //-----------------------------------------------------------------------------
 // loadFromXml1_0_1 - Lowercase tag and attribute names
 //-----------------------------------------------------------------------------
-test('Cloud - loadFromXml1_0_1() - Lowercase tag and attribute names',
+test('CloudModel - loadFromXml1_0_1() - Lowercase tag and attribute names',
    function (t) {
 
-   let cloud;
+   let cloudModel;
    let docElement;
    let parser;
    let xml;
 
    //--------------------------------------------------------------------------
-   // Setup XML to load the Cloud
+   // Setup XML to load the CloudModel
    //--------------------------------------------------------------------------
    xml = "<cloud ";
    for (let a in allAttributes) {
@@ -206,9 +206,9 @@ test('Cloud - loadFromXml1_0_1() - Lowercase tag and attribute names',
    parser = new DOMParser();
    docElement = parser.parseFromString(xml, "text/xml").documentElement;
 
-   cloud = new Cloud();
+   cloudModel = new CloudModel();
    warningCount = 0;
-   cloud.loadFromXml1_0_1(docElement);
+   cloudModel.loadFromXml1_0_1(docElement);
 
    t.equal(warningCount, 0,
       "no warnings should be generated on XML import");
@@ -216,7 +216,7 @@ test('Cloud - loadFromXml1_0_1() - Lowercase tag and attribute names',
    //--------------------------------------------------------------------------
    // Test all attributes and tags
    //--------------------------------------------------------------------------
-   testAllAttributes(t, cloud);
+   testAllAttributes(t, cloudModel);
 
    t.end();
 });
@@ -224,16 +224,16 @@ test('Cloud - loadFromXml1_0_1() - Lowercase tag and attribute names',
 //-----------------------------------------------------------------------------
 // loadFromXml1_0_1 - Uppercase tag and attribute names
 //-----------------------------------------------------------------------------
-test('Cloud - loadFromXml1_0_1() - Uppercase tag and attribute names',
+test('CloudModel - loadFromXml1_0_1() - Uppercase tag and attribute names',
    function (t) {
 
-   let cloud;
+   let cloudModel;
    let docElement;
    let parser;
    let xml;
 
    //--------------------------------------------------------------------------
-   // Setup XML to load the Cloud
+   // Setup XML to load the CloudModel
    //--------------------------------------------------------------------------
    xml = "<CLOUD ";
    for (let a in allAttributes) {
@@ -246,9 +246,9 @@ test('Cloud - loadFromXml1_0_1() - Uppercase tag and attribute names',
    parser = new DOMParser();
    docElement = parser.parseFromString(xml, "text/xml").documentElement;
 
-   cloud = new Cloud();
+   cloudModel = new CloudModel();
    warningCount = 0;
-   cloud.loadFromXml1_0_1(docElement);
+   cloudModel.loadFromXml1_0_1(docElement);
 
    t.equal(warningCount, 0,
       "no warnings should be generated on XML import");
@@ -256,7 +256,7 @@ test('Cloud - loadFromXml1_0_1() - Uppercase tag and attribute names',
    //--------------------------------------------------------------------------
    // Test all attributes and tags
    //--------------------------------------------------------------------------
-   testAllAttributes(t, cloud);
+   testAllAttributes(t, cloudModel);
 
    t.end();
 });
@@ -264,16 +264,16 @@ test('Cloud - loadFromXml1_0_1() - Uppercase tag and attribute names',
 //-----------------------------------------------------------------------------
 // loadFromXml1_0_1 - Unknown attributes get logged
 //-----------------------------------------------------------------------------
-test('Cloud - loadFromXml1_0_1() - Unknown Attributes Get Logged',
+test('CloudModel - loadFromXml1_0_1() - Unknown Attributes Get Logged',
    function (t) {
 
-   let cloud;
+   let cloudModel;
    let docElement;
    let parser;
    let xml;
 
    //--------------------------------------------------------------------------
-   // Setup XML to load the Cloud
+   // Setup XML to load the CloudModel
    //--------------------------------------------------------------------------
    xml = "<cloud ";
    xml += 'unknownAttribute1="unknownValue1" ';
@@ -289,12 +289,12 @@ test('Cloud - loadFromXml1_0_1() - Unknown Attributes Get Logged',
    parser = new DOMParser();
    docElement = parser.parseFromString(xml, "text/xml").documentElement;
 
-   cloud = new Cloud();
+   cloudModel = new CloudModel();
 
    warningCount = 0;
-   cloud.loadFromXml1_0_1(docElement);
+   cloudModel.loadFromXml1_0_1(docElement);
    t.equal(warningCount, 2);
 
-   testAllAttributes(t, cloud);
+   testAllAttributes(t, cloudModel);
    t.end();
 });

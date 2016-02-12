@@ -65,7 +65,7 @@ export function NodeView(controller, myModel) {
    // Must create cloud here, even though we don't know the size, to ensure proper
    // z-order of clouds (parent clouds must be under child clouds)
    if (this._myNodeModel.hasCloud()) {
-      this._myCloud = new CloudView(this._myNodeModel.getCloud());
+      this._myCloud = new CloudView(this._myNodeModel.getCloudModel());
    } else {
       this._myCloud = null;
    }
@@ -603,7 +603,7 @@ NodeView.prototype.update = function update() {
    //--------------------------------------------------------------------------
    // Handle addition of cloud
    if (this._myNodeModel.hasCloud() && this._myCloud === null) {
-      this._myCloud = new CloudView(this._myNodeModel.getCloud());
+      this._myCloud = new CloudView(this._myNodeModel.getCloudModel());
    }
 
    // Handle deletion of cloud

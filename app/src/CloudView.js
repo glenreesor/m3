@@ -21,14 +21,15 @@
  * around a node and its children
  *
  * @constructor
- * @param {Cloud} cloud - the Cloud corresponding to this CloudView
+ * @param {CloudModel} cloudModel - the CloudModel corresponding to this
+ *                                  CloudView
  */
-export function CloudView(cloud) {
+export function CloudView(cloudModel) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._svgCloud = document.createElementNS(SVGNS, "path");
-   this._svgCloud.setAttribute("stroke", cloud.getColor());
-   this._svgCloud.setAttribute("fill", cloud.getColor());
+   this._svgCloud.setAttribute("stroke", cloudModel.getColor());
+   this._svgCloud.setAttribute("fill", cloudModel.getColor());
    this._svgCloud.setAttribute("fill-opacity", "1");
 
    document.getElementById("svgCloudLayer").appendChild(this._svgCloud);

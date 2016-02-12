@@ -26,7 +26,7 @@ let testExportedXml = require('./helperFunctions').testExportedXml;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 let arrowLinkStub;
-let cloudStub;
+let cloudModelStub;
 let connectToNodeModelCount;
 let controllerStub;
 let diagnosticsStub;
@@ -61,12 +61,13 @@ arrowLinkStub.ArrowLink.prototype.loadFromXml1_0_1 = function
    loadFromXml1_0_1(xml) {
 };
 
-cloudStub = {};
-cloudStub.Cloud = function Cloud() {};
-cloudStub.Cloud.prototype.getAsXml = function getAsXml() {
+cloudModelStub = {};
+cloudModelStub.CloudModel = function CloudModel() {};
+cloudModelStub.CloudModel.prototype.getAsXml = function getAsXml() {
    return ("<cloud/>");
 };
-cloudStub.Cloud.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1() {};
+cloudModelStub.CloudModel.prototype.loadFromXml1_0_1 =
+   function loadFromXml1_0_1() {};
 
 diagnosticsStub = {};
 diagnosticsStub.Diagnostics = function Diagnostics(){};
@@ -115,7 +116,7 @@ mapModelStub.setModifiedStatus = function() {
 let NodeModel = proxyquire('../../app/src/NodeModel',
                            {
                               './ArrowLink': arrowLinkStub,
-                              './Cloud': cloudStub,
+                              './CloudModel': cloudModelStub,
                               './Diagnostics': diagnosticsStub,
                               './Font': fontStub,
                               './LinkTarget': linkTargetStub,
@@ -196,7 +197,7 @@ function testAllEmbeddedTags(t, nodeModel) {
    t.equal(nodeModel.getArrowLinks().length, 1,
       "there must be one ArrowLink present");
 
-   t.notEqual(nodeModel.getCloud(), null,
+   t.notEqual(nodeModel.getCloudModel(), null,
       "there must be a Cloud present");
 
    t.notEqual(nodeModel.getFont(), null,
@@ -231,7 +232,7 @@ test('NodeModel - Constructor', function (t) {
    t.equal(nodeModel.getChildren().length, [].length,
       "Default nodeModel should have no children");
 
-   t.equal(nodeModel.getCloud(), null,
+   t.equal(nodeModel.getCloudModel(), null,
       "Default nodeModel should have no Cloud");
 
    t.equal(nodeModel.getFont(), null,
@@ -685,9 +686,9 @@ test('NodeModel - getChildren()', function(t) {
 });
 
 //-----------------------------------------------------------------------------
-// getCloud
+// getCloudModel
 //-----------------------------------------------------------------------------
-test('NodeModel - getCloud()', function(t) {
+test('NodeModel - getCloudModel()', function(t) {
    let docElement;
    let domParser;
    let nodeModel;
@@ -718,7 +719,7 @@ test('NodeModel - getCloud()', function(t) {
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
                              null, null, docElement);
-   t.equal(nodeModel.getCloud(), null,
+   t.equal(nodeModel.getCloudModel(), null,
       "there should be no Cloud on the nodeModel");
 
    //
@@ -728,7 +729,7 @@ test('NodeModel - getCloud()', function(t) {
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
                              null, null, docElement);
-   t.notEqual(nodeModel.getCloud(), null,
+   t.notEqual(nodeModel.getCloudModel(), null,
       "there should be a Cloud on the nodeModel");
 
    t.end();
