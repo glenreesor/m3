@@ -215,9 +215,8 @@ function testAllEmbeddedTags(t, nodeModel) {
 
 //-----------------------------------------------------------------------------
 // Constructor - Defaults
-//             - Constructor using XML is tested by multiple other tests
 //-----------------------------------------------------------------------------
-test('NodeModel - Constructor', function (t) {
+test('NodeModel - Constructor - Defaults', function (t) {
    let nodeModel;
 
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
@@ -258,6 +257,168 @@ test('NodeModel - Constructor', function (t) {
 
    t.equal(nodeModel.isFolded(), false,
       "Default folded status should be false");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// Constuctor - XML - Creation of NodeModel gets logged
+//-----------------------------------------------------------------------------
+test('NodeModel - Constructor - XML - Creation of NodeModel gets logged',
+   function (t) {
+
+   let nodeModel;
+   let docElement;
+   let parser;
+   let xml;
+
+   //--------------------------------------------------------------------------
+   // Setup XML to load the NodeModel
+   //--------------------------------------------------------------------------
+   xml = "<node ";
+   for (let a in allAttributes) {
+      xml += `${a}="${allAttributes[a]}" `;
+   }
+   xml += ">";
+   allEmbeddedTags.forEach(function (t) {
+      xml += t.toLowerCase();
+   });
+
+   xml += "</node>";
+
+   //--------------------------------------------------------------------------
+   //--------------------------------------------------------------------------
+   parser = new DOMParser();
+   docElement = parser.parseFromString(xml, "text/xml").documentElement;
+
+   logCount = 0;
+   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
+                             null, null, docElement);
+
+   t.equal(logCount, 1,
+      "Creation of NodeModel should be logged");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// Constructor - XML - Lowercase tag and attribute names
+//-----------------------------------------------------------------------------
+test("NodeModel - Constructor - XML - Lower Case", function(t) {
+   let docElement;
+   let nodeModel;
+   let parser;
+   let xml;
+
+   //--------------------------------------------------------------------------
+   // Setup XML to load the NodeModel. All attributes and embedded tags
+   // lowercase
+   //--------------------------------------------------------------------------
+   xml = "<node ";
+   for (let a in allAttributes) {
+      xml += `${a.toLowerCase()}="${allAttributes[a]}" `;
+   }
+   xml += ">";
+   allEmbeddedTags.forEach(function (t) {
+      xml += t.toLowerCase();
+   });
+
+   xml += "</node>";
+
+   //--------------------------------------------------------------------------
+   // Load the NodeModel
+   //--------------------------------------------------------------------------
+   parser = new DOMParser();
+   docElement = parser.parseFromString(xml, "text/xml").documentElement;
+   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
+                             null, null, docElement);
+
+   //--------------------------------------------------------------------------
+   // Test all attributes and tags
+   //--------------------------------------------------------------------------
+   testAllAttributes(t, nodeModel);
+   testAllEmbeddedTags(t, nodeModel);
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// Constructor - XML - Uppercase tag and attribute names
+//-----------------------------------------------------------------------------
+test("NodeModel - Constructor - XML - Upper Case", function(t) {
+   let docElement;
+   let nodeModel;
+   let parser;
+   let xml;
+
+   //--------------------------------------------------------------------------
+   // Setup XML to load the NodeModel. All attributes and embedded tags
+   // uppercase
+   //--------------------------------------------------------------------------
+   xml = "<NODE ";
+   for (let a in allAttributes) {
+      xml += `${a.toUpperCase()}="${allAttributes[a]}" `;
+   }
+   xml += ">";
+   allEmbeddedTags.forEach(function (t) {
+      xml += t.toUpperCase();
+   });
+
+   xml += "</NODE>";
+
+   //--------------------------------------------------------------------------
+   // Load the NodeModel
+   //--------------------------------------------------------------------------
+   parser = new DOMParser();
+   docElement = parser.parseFromString(xml, "text/xml").documentElement;
+   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
+                             null, null, docElement);
+
+   //--------------------------------------------------------------------------
+   // Test all attributes and tags
+   //--------------------------------------------------------------------------
+   testAllAttributes(t, nodeModel);
+   testAllEmbeddedTags(t, nodeModel);
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// Constructor - XML - Unknown attributes get logged
+//-----------------------------------------------------------------------------
+test('NodeModel - Constructor - XML - Unknown attributes get logged',
+   function (t) {
+
+   let nodeModel;
+   let docElement;
+   let parser;
+   let xml;
+
+   //--------------------------------------------------------------------------
+   // Setup XML to load the NodeModel
+   //--------------------------------------------------------------------------
+   xml = "<node ";
+   xml += 'unknownAttribute1="unknownValue1" ';
+
+   for (let a in allAttributes) {
+      xml += `${a}="${allAttributes[a]}" `;
+   }
+   xml += 'unknownAttribute2="unknownValue2" ';
+   xml += "></node>";
+
+   //--------------------------------------------------------------------------
+   //--------------------------------------------------------------------------
+   parser = new DOMParser();
+   docElement = parser.parseFromString(xml, "text/xml").documentElement;
+
+   warningCount = 0;
+
+   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
+                             null, null, docElement);
+
+   testAllAttributes(t, nodeModel);
+   t.equal(warningCount, 2,
+      "unknown attributes should get logged");
 
    t.end();
 });
@@ -1115,170 +1276,6 @@ test("NodeModel - isFolded()", function(t) {
 
    t.equal(parentModel.isFolded(), true,
       "NodeModel should now be folded.");
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Creation of NodeModel gets logged
-//-----------------------------------------------------------------------------
-test('NodeModel - loadFromXml1_0_1() - Creation of NodeModel gets logged',
-   function (t) {
-
-   let nodeModel;
-   let docElement;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel
-   //--------------------------------------------------------------------------
-   xml = "<node ";
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
-   }
-   xml += ">";
-   allEmbeddedTags.forEach(function (t) {
-      xml += t.toLowerCase();
-   });
-
-   xml += "</node>";
-
-   //--------------------------------------------------------------------------
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-   logCount = 0;
-   nodeModel.loadFromXml1_0_1(docElement);
-
-   t.equal(logCount, 1,
-      "Creation of NodeModel should be logged");
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Lowercase tag and attribute names
-//-----------------------------------------------------------------------------
-test("NodeModel - loadFromXml1_0_1() - Lower Case", function(t) {
-   let docElement;
-   let nodeModel;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel. All attributes and embedded tags
-   // lowercase
-   //--------------------------------------------------------------------------
-   xml = "<node ";
-   for (let a in allAttributes) {
-      xml += `${a.toLowerCase()}="${allAttributes[a]}" `;
-   }
-   xml += ">";
-   allEmbeddedTags.forEach(function (t) {
-      xml += t.toLowerCase();
-   });
-
-   xml += "</node>";
-
-   //--------------------------------------------------------------------------
-   // Load the NodeModel
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-
-   //--------------------------------------------------------------------------
-   // Test all attributes and tags
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, nodeModel);
-   testAllEmbeddedTags(t, nodeModel);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Uppercase tag and attribute names
-//-----------------------------------------------------------------------------
-test("NodeModel - loadFromXml1_0_1() - Upper Case", function(t) {
-   let docElement;
-   let nodeModel;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel. All attributes and embedded tags
-   // uppercase
-   //--------------------------------------------------------------------------
-   xml = "<NODE ";
-   for (let a in allAttributes) {
-      xml += `${a.toUpperCase()}="${allAttributes[a]}" `;
-   }
-   xml += ">";
-   allEmbeddedTags.forEach(function (t) {
-      xml += t.toUpperCase();
-   });
-
-   xml += "</NODE>";
-
-   //--------------------------------------------------------------------------
-   // Load the NodeModel
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-
-   //--------------------------------------------------------------------------
-   // Test all attributes and tags
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, nodeModel);
-   testAllEmbeddedTags(t, nodeModel);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Unknown attributes get logged
-//-----------------------------------------------------------------------------
-test('NodeModel - loadFromXml1_0_1() - Unknown attributes get logged',
-   function (t) {
-
-   let nodeModel;
-   let docElement;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel
-   //--------------------------------------------------------------------------
-   xml = "<node ";
-   xml += 'unknownAttribute1="unknownValue1" ';
-
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
-   }
-   xml += 'unknownAttribute2="unknownValue2" ';
-   xml += "></node>";
-
-   //--------------------------------------------------------------------------
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-
-   warningCount = 0;
-   nodeModel.loadFromXml1_0_1(docElement);
-
-   testAllAttributes(t, nodeModel);
-   t.equal(warningCount, 2,
-      "unknown attributes should get logged");
 
    t.end();
 });

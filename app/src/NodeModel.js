@@ -76,7 +76,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
 
    } else {
       this._text = null;
-      this.loadFromXml1_0_1(parsedXml);
+      this._loadFromXml1_0_1(parsedXml);
    }
 } // NodeModel()
 
@@ -404,7 +404,7 @@ NodeModel.prototype.isFolded = function isFolded() {
  * @param {Element} element - The XML element to be parsed
  * @return {void}
  */
-NodeModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
+NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    let i;
    let arrowLink;
    let attribute;
@@ -529,7 +529,7 @@ NodeModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          }
       }
    }
-}; // loadFromXml1_0_1()
+}; // _loadFromXml1_0_1()
 
 /**
  * Set the background color to something new.
