@@ -4,9 +4,9 @@
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
-// m3 - Mobile Mind Mapper is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License, version 3, as published by
-// the Free Software Foundation.
+// m3 - Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License, version 3, as
+// published by the Free Software Foundation.
 //
 // m3 - Mobile Mind Mapper is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,7 +14,8 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Mobile Mind Mapper.  If not, see <http://www.gnu.org/licenses/>.
+// along with m3 - Mobile Mind Mapper.  If not, see
+// <http://www.gnu.org/licenses/>.
 
 export let m3SampleXml = ['<map version="1.0.1">' ,
 '<node CREATED="1440736540515" ID="ID_1485642504" MODIFIED="1444867298001" TEXT="All about m3 (Mobile Mind Mapper)">',
