@@ -220,6 +220,15 @@ Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
 }; // newMap()
 
 /**
+  * Set the name of this map in UI
+  * @param {String} name - This map's name
+  * @return {void}
+  */
+Controller.prototype.setMapName = function setMapName(name) {
+   document.getElementById("mapName").innerHTML = name;
+}; // setMapName()
+
+/**
   * Set the modified indicator of this map.
   *
   * @param {boolean} status - Either false (unmodified) or true (modified/unsaved)

@@ -329,7 +329,7 @@ MapModel.prototype.setDbKey = function setDbKey(key) {
   */
 MapModel.prototype.setMapName = function setMapName(name) {
    this._mapName = name;
-   document.getElementById("mapName").innerHTML = name;
+   this._controller.setMapName(name);
 }; // setMapName()
 
 /**
