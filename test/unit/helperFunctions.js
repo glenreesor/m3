@@ -105,7 +105,7 @@ export function testExportedXml(origXml, t, constructorFn) {
 
    //-----------------------------------------------------------------------
    // Test that all attributes in the original XML are present in the
-   // expored XML
+   // exported XML
    //-----------------------------------------------------------------------
    t.equal(exportedAttributes.length, origAttributes.length,
       "number of exported attributes must match number imported");

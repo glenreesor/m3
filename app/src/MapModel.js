@@ -32,7 +32,8 @@ import {SaveDialog} from "./SaveDialog";
  *                           (See MapModel.TYPE_* constants)
  * @param {String} dbKey - the DB key associaetd with this map
  * @param {String} mapName - the name of this map
- * @param {String} xml - The XML describing this map (if newType is xml)
+ * @param {String[]} xml - The array of XML strings describing this map
+ *                         (if newType is xml)
  */
 export function MapModel(controller, newType, dbKey, mapName, xml) {
    this._controller = controller;
@@ -48,7 +49,7 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
       this.setModifiedStatus(true);
    } else {
       this._dbKey = dbKey;
-      this.loadFromXml(xml);
+      this._loadFromXml(xml);
       this.setModifiedStatus(false);
    }
 } // MapModel()
@@ -62,35 +63,13 @@ MapModel.TYPE_XML = "xml";               // Used by constructor
  * @param {NodeModel} startNode - The node at which to start (recursively)
  * @return {void}
  */
-MapModel.prototype.connectArrowLinks = function connectArrowLinks(startNode) {
+MapModel.prototype._connectArrowLinks = function _connectArrowLinks(startNode) {
    startNode.connectArrowLinks();
 
    startNode.getChildren().forEach((child) => {
-      this.connectArrowLinks(child);
+      this._connectArrowLinks(child);
    });
-}; // connectArrowLinks();
-
-/**
- * Return the NodeModel that has the specified ID.
- * @param  {NodeModel} startNode - The node to start searching from recursively
- * @param  {String} id - The ID being searched for
- * @return {NodeModel} - The NodeModel with the specified ID.
- */
-MapModel.prototype.getNodeModelById = function getNodeModelById(startNode, id) {
-   let child;
-   let i;
-   let nodeToReturn = null;
-
-   if (startNode.getId() === id) {
-      nodeToReturn = startNode;
-   } else {
-      for (i=0; i< startNode.getChildren().length && nodeToReturn === null; i++) {
-         child = startNode.getChildren()[i];
-         nodeToReturn = this.getNodeModelById(child, id);
-      }
-   }
-   return nodeToReturn;
-}; // getNodeModelById()
+}; // _connectArrowLinks()
 
 /**
  * Return an array of strings containing this map as xml
@@ -123,6 +102,16 @@ MapModel.prototype.getDbKey = function getDbKey() {
 }; // getDbKey()
 
 /**
+ * Return a DOMParser object for parsing a map's XML. This is a hack that gets
+ * replaced during testing, since DOMParser is not available in test
+ * environment.
+ * @return {DOMParser} - A DOMParser
+ */
+MapModel.prototype._getDomParser = function _getDomParser() {
+   return new DOMParser();
+}; // _getDomParser()
+
+/**
  * Return the name to use when saving this map.
  *
  * @return {string}  - Map name for saving
@@ -141,6 +130,28 @@ MapModel.prototype.getModifiedStatus = function getModifiedStatus() {
 }; // getModifiedStatus()
 
 /**
+ * Return the NodeModel that has the specified ID.
+ * @param  {NodeModel} startNode - The node to start searching from recursively
+ * @param  {String} id - The ID being searched for
+ * @return {NodeModel} - The NodeModel with the specified ID.
+ */
+MapModel.prototype.getNodeModelById = function getNodeModelById(startNode, id) {
+   let child;
+   let i;
+   let nodeToReturn = null;
+
+   if (startNode.getId() === id) {
+      nodeToReturn = startNode;
+   } else {
+      for (i=0; i< startNode.getChildren().length && nodeToReturn === null; i++) {
+         child = startNode.getChildren()[i];
+         nodeToReturn = this.getNodeModelById(child, id);
+      }
+   }
+   return nodeToReturn;
+}; // getNodeModelById()
+
+/**
  * Return the root node of this map
  *
  * @return {NodeModel} - The root node
@@ -150,15 +161,26 @@ MapModel.prototype.getRoot = function getRoot() {
 }; // getRoot()
 
 /**
+ * Return the XML version that was used to load this map
+ *
+ * @return {String} - The XML Version
+ */
+MapModel.prototype.getVersion = function getVersion() {
+   return this._version;
+}; // getVersion()
+
+/**
   * Load the nodes for this map from the specified XML document.
   * @param {[String]} mapAsXml - The map stored as an array of XML strings
   * @return {void}
   */
-MapModel.prototype.loadFromXml = function loadFromXml(mapAsXml) {
+MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
    let domDocument;
    let mapElement;
    let mapAsOneXmlString;
    let parser;
+
+   parser = this._getDomParser();
 
    //--------------------------------------------------------------------------
    // Parse the XML
@@ -171,7 +193,6 @@ MapModel.prototype.loadFromXml = function loadFromXml(mapAsXml) {
 
    if (mapAsOneXmlString !== null) {
       try {
-         parser = new DOMParser();
          domDocument = parser.parseFromString(mapAsOneXmlString, "text/xml");
       } catch (e) {
          m3App.getDiagnostics().err(Diagnostics.TASK_IMPORT_XML, "Error parsing XML.");
@@ -183,7 +204,7 @@ MapModel.prototype.loadFromXml = function loadFromXml(mapAsXml) {
    // Get the <map> tag
    // ---------------------------------------------------------------------
    mapElement = domDocument.documentElement;
-   if (mapElement.nodeName !== "map") {
+   if (mapElement.nodeName.toLowerCase() !== "map") {
       m3App.getDiagnostics().err(Diagnostics.TASK_IMPORT_XML,
                       "This doesn't look like a mind map file. Doesn't start with " +
                       "<map>");
@@ -193,26 +214,29 @@ MapModel.prototype.loadFromXml = function loadFromXml(mapAsXml) {
    // ---------------------------------------------------------------------
    // We have a map tag. Now call the loader for this particular version.
    // ---------------------------------------------------------------------
-   this._version = mapElement.getAttribute("version");
+   this._version = mapElement.getAttribute("version") ||
+                   mapElement.getAttribute("VERSION");
+
    if (this._version === "1.0.1") {
       this._loadFromXml1_0_1(mapElement);
    } else {
       m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
                        "I'm not familiar with version '" + this._version +
                        "'. I'll pretend it's version '1.0.1'.");
+      this._version = "1.0.1";
       this._loadFromXml1_0_1(mapElement);
    }
 
    // ---------------------------------------------------------------------
    // Map is loaded, so link up all the ArrowLink objects
    // ---------------------------------------------------------------------
-   this.connectArrowLinks(this._rootNode);
+   this._connectArrowLinks(this._rootNode);
 
    // ---------------------------------------------------------------------
    // Done loading root node (and thus all children recursively)
    // Tell this top-level node's view to draw itself
    // ---------------------------------------------------------------------
-}; // loadFromXml()
+}; // _loadFromXml()
 
 /**
   * Load this map assuming a 1.0.1 (freemind) format. Any attributes in this
@@ -252,7 +276,7 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
 
    for (i = 0; i < numAttributes; i++) {
       attribute = mapElement.attributes[i];
-      if (attribute.name !== "version") {
+      if (attribute.name.toLowerCase() !== "version") {
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected attribute '" +
                           attribute.name + "' on tag <map>.");
       }
@@ -276,21 +300,20 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
       // Only process if it is an Element
       if (childNode.nodeType === 1) {
 
-         if (childNode.tagName === "node") {
+         if (childNode.tagName.toLowerCase() === "node") {
             m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Loading <" +
                             childNode.tagName + ">");
 
             // Create the new NodeModel
             newNode = new NodeModel(this._controller, this, NodeModel.TYPE_XML, null, "", childNode);
             this._rootNode = newNode;
-
          } else {
             m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected tag: <" +
                              childNode.tagName + ">");
          }
       }
    }
-}; // loadVersion1_0_1()
+}; // _loadVersion1_0_1()
 
 /**
   * Save this map to the DB.
