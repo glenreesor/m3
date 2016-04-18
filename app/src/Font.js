@@ -29,6 +29,9 @@ export function Font() {
    this._bold = false;
    this._italic = false;
    this._size = "12";
+   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+                                    // We save these so they can be included
+                                    // in getAsXml() output
 } // Font()
 
 /**
@@ -51,7 +54,12 @@ Font.prototype.getAsXml = function getAsXml() {
       myAttributes += ' ITALIC = "true"';
    }
 
-   myAttributes += ' SIZE="' + this._size + '"';
+   myAttributes += ` SIZE="${this._size}" `;
+
+   // Include attributes that were in the input file that m3 didn't understand
+   this._unknownAttributes.forEach(function(a) {
+      myAttributes += `${a.attribute}="${a.value}" `;
+   });
 
    xml.push('<font ' + myAttributes + '>');
 
@@ -129,6 +137,9 @@ Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          this._size = attribute.value;
 
       } else {
+         // Preserve attributes we don't understand so they can be exported
+         this._unknownAttributes.push({attribute:`${attributeName}`,
+                                       value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <font> attribute: " + attribute.name);
       }
    }
