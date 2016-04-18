@@ -292,6 +292,8 @@ test('ArrowLink - getAsXml()', function (t) {
    for (let a in allAttributes) {
       origXml += `${a}="${allAttributes[a]}" `;
    }
+   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
+
    origXml += "></arrowlink>";
 
    //--------------------------------------------------------------------------

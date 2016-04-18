@@ -28,6 +28,9 @@ import {m3App} from "./main";
  */
 export function CloudModel() {
    this._color = "#cccccc";
+   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+                                    // We save these so they can be included in
+                                    // getAsXml() output
 } // CloudModel()
 
 /**
@@ -39,7 +42,12 @@ CloudModel.prototype.getAsXml = function getAsXml() {
    let xml = [];
 
    // Generate my XML
-   myAttributes = 'COLOR="' + this._color + '"';
+   myAttributes = `COLOR="${this._color}" `;
+
+   // Include attributes that were in the input file that m3 didn't understand
+   this._unknownAttributes.forEach(function(a) {
+      myAttributes += `${a.attribute}="${a.value}" `;
+   });
 
    xml.push('<cloud ' + myAttributes + '>');
 
@@ -84,6 +92,9 @@ CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          this.setColor(attribute.value);
 
       } else {
+         // Preserve attributes we don't understand so they can be exported
+         this._unknownAttributes.push({attribute:`${attributeName}`,
+                                       value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <cloud> attribute: " + attribute.name);
       }
    }
