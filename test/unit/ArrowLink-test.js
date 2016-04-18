@@ -274,14 +274,21 @@ test('ArrowLink - connectToNodeModel()', function (t) {
 
 //-----------------------------------------------------------------------------
 // getAsXml - Exported XML same as source XML
+//            This includes attributes that m3 doesn't understand
 //-----------------------------------------------------------------------------
 test('ArrowLink - getAsXml()', function (t) {
+   const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
+   const UNKNOWN_VALUE1 = 'unknownvalue1';
+   const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
+   const UNKNOWN_VALUE2 = 'unknownvalue2';
    let origXml;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the ArrowLink
    //--------------------------------------------------------------------------
    origXml = "<arrowlink ";
+   origXml += `${UNKNOWN_ATTRIBUTE1}="${UNKNOWN_VALUE1}" `;
+
    for (let a in allAttributes) {
       origXml += `${a}="${allAttributes[a]}" `;
    }
@@ -452,6 +459,9 @@ test('ArrowLink - loadFromXml1_0_1() - Unknown Attributes Get Logged',
    arrowLink.loadFromXml1_0_1(docElement);
    t.equal(warningCount, 2);
 
+   //--------------------------------------------------------------------------
+   // Test all known attributes
+   //--------------------------------------------------------------------------
    testAllAttributes(t, arrowLink);
 
    t.end();
