@@ -58,6 +58,9 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._richText = null;              // Will point to the rich text as a string, if this node is formatted as rich text
    this._textColor = "#000000";
 
+   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+                                    // We save these so they can be included
+                                    // in getAsXml() output
 
    // First level children must have their position set. For now only allow
    // right side
@@ -160,9 +163,9 @@ NodeModel.prototype.getAsXml = function getAsXml() {
    let tempText;           // Used for removing special XML characters
 
    // Generate my XML
-   myAttributes = 'CREATED="' + this._created + '"' +
-                  ' ID="' + this._id + '"' +
-                  ' MODIFIED="' + this._modified + '"';
+   myAttributes = `CREATED="${this._created}" ` +
+                  `ID="${this._id}" ` +
+                  `MODIFIED="${this._modified}" `;
 
    if (this._text !== null) {
       // Remove the following from text: & < > " '
@@ -172,24 +175,29 @@ NodeModel.prototype.getAsXml = function getAsXml() {
       tempText = tempText.replace(new RegExp(">", "g"), "&gt;");
       tempText = tempText.replace(new RegExp('"', "g"), "&quot;");
       tempText = tempText.replace(new RegExp("'", "g"), "&apos;");
-      myAttributes += ' TEXT="' + tempText + '"';
+      myAttributes += `TEXT="${tempText}" `;
    }
 
    if (this._position !== null) {
-      myAttributes += ' POSITION = "' + this._position + '"';
+      myAttributes += `POSITION="${this._position}" `;
    }
 
    if (this._backgroundColor !== "#ffffff") {
-      myAttributes += ' BACKGROUND_COLOR = "' + this._backgroundColor + '"';
+      myAttributes += `BACKGROUND_COLOR="${this._backgroundColor}" `;
    }
 
    if (this._isFolded === true) {
-      myAttributes += ' FOLDED = "' + this._isFolded +'"';
+      myAttributes += `FOLDED="${this._isFolded}" `;
    }
 
    if (this._textColor !== "#000000") {
-      myAttributes += ' COLOR = "' + this._textColor + '"';
+      myAttributes += `COLOR="${this._textColor}" `;
    }
+
+   // Include attributes that were in the input file that m3 didn't understand
+   this._unknownAttributes.forEach(function(a) {
+      myAttributes += `${a.attribute}="${a.value}" `;
+   });
 
    xml.push('<node ' + myAttributes + '>');
 
@@ -458,6 +466,9 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
          this._text = attribute.value;
 
       } else {
+         // Preserve attributes we don't understand so they can be exported
+         this._unknownAttributes.push({attribute:`${attributeName}`,
+                                       value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <node> attribute: " + attribute.name);
       }
    }
