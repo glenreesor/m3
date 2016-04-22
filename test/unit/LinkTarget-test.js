@@ -261,17 +261,26 @@ test('LinkTarget - set/get StartInclination()', function (t) {
 
 //-----------------------------------------------------------------------------
 // getAsXml - Exported XML same as source XML
+//            This includes attributes that m3 doesn't understand
 //-----------------------------------------------------------------------------
 test('LinkTarget - getAsXml()', function (t) {
+   const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
+   const UNKNOWN_VALUE1 = 'unknownvalue1';
+   const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
+   const UNKNOWN_VALUE2 = 'unknownvalue2';
    let origXml;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the LinkTarget
    //--------------------------------------------------------------------------
    origXml = "<linktarget ";
+   origXml += `${UNKNOWN_ATTRIBUTE1}="${UNKNOWN_VALUE1}" `;
+
    for (let a in allAttributes) {
       origXml += `${a}="${allAttributes[a]}" `;
    }
+   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
+
    origXml += "></linktarget>";
 
    //--------------------------------------------------------------------------

@@ -36,6 +36,9 @@ export function LinkTarget() {
    this._startArrow = null;
    this._startInclination = null;
 
+   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+                                    // We save these so they can be included
+                                    // in getAsXml() output
    // Computed attributes that don't get saved
 } // LinkTarget()
 
@@ -49,14 +52,19 @@ LinkTarget.prototype.getAsXml = function getAsXml() {
    let xml = [];
 
    // Generate my XML
-   myAttributes = 'COLOR="' + this._color + '"' +
-                  ' DESTINATION="' + this._destination + '"' +
-                  ' ENDARROW="' + this._endArrow + '"' +
-                  ' ENDINCLINATION="' + this._endInclination + '"' +
-                  ' ID="' + this._id + '"' +
-                  ' SOURCE="' + this._source + '"' +
-                  ' STARTARROW="' + this._startArrow + '"' +
-                  ' STARTINCLINATION="' + this._startInclination + '"';
+   myAttributes = `COLOR="${this._color}" ` +
+                  `DESTINATION="${this._destination}" ` +
+                  `ENDARROW="${this._endArrow}" ` +
+                  `ENDINCLINATION="${this._endInclination}" ` +
+                  `ID="${this._id}" ` +
+                  `SOURCE="${this._source}" ` +
+                  `STARTARROW="${this._startArrow}" ` +
+                  `STARTINCLINATION="${this._startInclination}" `;
+
+   // Include attributes that were in the input file that m3 didn't understand
+   this._unknownAttributes.forEach(function(a) {
+      myAttributes += `${a.attribute}="${a.value}" `;
+   });
 
    xml.push('<linktarget ' + myAttributes + '>');
 
@@ -177,6 +185,9 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          this.setStartInclination(attribute.value);
 
       } else {
+         // Preserve attributes we don't understand so they can be exported
+         this._unknownAttributes.push({attribute:`${attributeName}`,
+                                       value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <linktarget> attribute: " + attribute.name);
       }
    }
