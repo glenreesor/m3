@@ -42,6 +42,10 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
    this._version = MapModel._DEFAULT_VERSION;
    this.setMapName(mapName);
 
+   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+                                    // We save these so they can be included
+                                    // in getAsXml() output
+
    if (newType === MapModel.TYPE_EMPTY) {
       this._dbKey = null;
       this._rootNode = new NodeModel(this._controller, this, NodeModel.TYPE_NEW,
@@ -76,10 +80,18 @@ MapModel.prototype._connectArrowLinks = function _connectArrowLinks(startNode) {
  * @return {string[]} - This map in xml format, as an array of strings
  */
 MapModel.prototype.getAsXml = function getAsXml() {
+   let myAttributes;
    let mapAsXml = [];
 
+   myAttributes = `version="${MapModel._DEFAULT_VERSION}" `;
+
+   // Include attributes that were in the input file that m3 didn't understand
+   this._unknownAttributes.forEach(function(a) {
+      myAttributes += `${a.attribute}="${a.value}" `;
+   });
+
    // Preamble
-   mapAsXml.push('<map version="' + MapModel._DEFAULT_VERSION + '">');
+   mapAsXml.push(`<map ${myAttributes}>`);
 
    // Loop through all root nodes of this map
    mapAsXml = mapAsXml.concat(this._rootNode.getAsXml());
@@ -213,6 +225,8 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
 
    // ---------------------------------------------------------------------
    // We have a map tag. Now call the loader for this particular version.
+   // Warning about unknown attributes is done in the version-specific loader,
+   // not here.
    // ---------------------------------------------------------------------
    this._version = mapElement.getAttribute("version") ||
                    mapElement.getAttribute("VERSION");
@@ -249,6 +263,7 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
 MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    let i;
    let attribute;
+   let attributeName;
    let childNode;
    let newNode;
    let numAttributes;
@@ -276,7 +291,12 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
 
    for (i = 0; i < numAttributes; i++) {
       attribute = mapElement.attributes[i];
-      if (attribute.name.toLowerCase() !== "version") {
+      attributeName = attribute.name.toLowerCase();
+
+      if (attributeName !== "version") {
+         // Preserve attributes we don't understand so they can be exported
+         this._unknownAttributes.push({attribute:`${attributeName}`,
+                                       value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected attribute '" +
                           attribute.name + "' on tag <map>.");
       }

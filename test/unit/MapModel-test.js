@@ -300,7 +300,7 @@ test("MapModel - Constructor - XML - Upper Case", function(t) {
 //-----------------------------------------------------------------------------
 // Constructor - XML - Unknown attributes get logged
 //-----------------------------------------------------------------------------
-test('NodeModel - Constructor - XML - Unknown attributes get logged',
+test('MapModel - Constructor - XML - Unknown attributes get logged',
    function (t) {
 
    let mapModel;
@@ -398,9 +398,15 @@ test('MapModel - set/get ModifiedStatus()', function (t) {
 // getAsXml
 //
 // Note: This has been written generically to handle future cases where map
-//       tag can have multiple attributes and multipled embedded tags
+//       tag can have multiple attributes and multipled embedded tags.
+//
+//       This includes attributes that m3 doesn't understand
 //-----------------------------------------------------------------------------
 test('MapModel - getAsXml()', function (t) {
+   const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
+   const UNKNOWN_VALUE1 = 'unknownvalue1';
+   const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
+   const UNKNOWN_VALUE2 = 'unknownvalue2';
    let mapModel;
    let origXml;
 
@@ -408,6 +414,8 @@ test('MapModel - getAsXml()', function (t) {
    // Setup XML to load the MapModel.
    //--------------------------------------------------------------------------
    origXml = "<map ";
+   origXml += `${UNKNOWN_ATTRIBUTE1}="${UNKNOWN_VALUE1}" `;
+
    for (let a in allAttributes) {
       origXml += `${a}="${allAttributes[a]}" `;
    }
@@ -416,6 +424,7 @@ test('MapModel - getAsXml()', function (t) {
    allEmbeddedTags.forEach(function (t) {
       origXml += t;
    });
+   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
 
    origXml += "</map>";
 
