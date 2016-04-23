@@ -297,7 +297,7 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
          // Preserve attributes we don't understand so they can be exported
          this._unknownAttributes.push({attribute:`${attributeName}`,
                                        value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected attribute '" +
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <map> attribute '" +
                           attribute.name + "' on tag <map>.");
       }
    }

@@ -195,7 +195,7 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          // Preserve attributes we don't understand so they can be exported
          this._unknownAttributes.push({attribute:`${attributeName}`,
                                        value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <linktarget> attribute: " + attribute.name);
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <arrowlink> attribute: " + attribute.name);
       }
    }
 
