@@ -109,8 +109,9 @@ RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          this._type = attribute.value;
 
       } else {
-         // Preserve attributes we don't understand so they can be exported
-         this._unknownAttributes.push({attribute:`${attributeName}`,
+         // Preserve attributes (and case) we don't understand so they can be
+         // exported
+         this._unknownAttributes.push({attribute:`${attribute.name}`,
                                        value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
                                      "Unexpected <richcontent> attribute: " +

@@ -96,7 +96,7 @@ MapModel.prototype.getAsXml = function getAsXml() {
 
    // For now, this must stay here because FreeMind expects
    // embedded tag <attribute_registry> to be first embedded tab.
-   
+
    // Embedded tags that I don't understand
    this._unknownTags.forEach(function(t) {
       mapAsXml.push(t);
@@ -294,8 +294,9 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
       attributeName = attribute.name.toLowerCase();
 
       if (attributeName !== "version") {
-         // Preserve attributes we don't understand so they can be exported
-         this._unknownAttributes.push({attribute:`${attributeName}`,
+         // Preserve attributes (and case) we don't understand so they can be
+         // exported
+         this._unknownAttributes.push({attribute:`${attribute.name}`,
                                        value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <map> attribute '" +
                           attribute.name + "' on tag <map>.");
