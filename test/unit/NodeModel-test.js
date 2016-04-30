@@ -36,6 +36,7 @@ let logCount;           // Number of times diagnosticsStub.log() called
 let mainStub;
 let mapModelStub;
 let nodeViewStub;
+let richContentStub;
 let setModifiedStatusCount;   // mapModel.setModifiedStatus() call count
 let warningCount;       // Number of times diagnosticsStub.warn() called
 
@@ -95,6 +96,32 @@ linkTargetStub.LinkTarget.prototype.getAsXml = function getAsXml() {
 linkTargetStub.LinkTarget.prototype.loadFromXml1_0_1 = function
    loadFromXml1_0_1() {};
 
+richContentStub = {};
+richContentStub.RichContent = function RichContent() {};
+richContentStub.RichContent.prototype.getAsXml = function getAsXml() {
+   return (`<richcontent type="${this._type}">${this._content}</richcontent>`);
+};
+
+richContentStub.RichContent.prototype.getContent = function getContent() {
+   return this._content;
+};
+
+richContentStub.RichContent.prototype.getType = function getType() {
+   return this._type;
+};
+
+richContentStub.RichContent.prototype.loadFromXml1_0_1 = function
+   loadFromXml1_0_1(parsedXml) {
+
+   if (parsedXml.attributes[0].value.toLowerCase() === "node") {
+      this._type = "node";
+      this._content = "<html>content:node</html>";
+   } else {
+      this._type = "note";
+      this._content = "<html>content:note</html>";
+   }
+};
+
 mainStub = {};
 mainStub.m3App = {};
 mainStub.m3App.getDiagnostics = function getDiagnostics() {
@@ -120,6 +147,7 @@ let NodeModel = proxyquire('../../app/src/NodeModel',
                               './Diagnostics': diagnosticsStub,
                               './Font': fontStub,
                               './LinkTarget': linkTargetStub,
+                              './RichContent': richContentStub,
                               './main': mainStub
                            }).NodeModel;
 
@@ -140,8 +168,8 @@ const allAttributes = {
 // Leaving out <node> as an embedded tag, since requires much more effort
 // for testing. This is tested in integration testing.
 const allEmbeddedTags = ['<arrowlink/>', '<cloud/>', '<font/>', '<linktarget/>',
-                         '<richcontent TYPE="NODE"/>',
-                         '<richcontent TYPE="NOTE"/>'];
+                         '<richcontent TYPE="NODE"><html>content:node</html></richcontent>',
+                         '<richcontent TYPE="NOTE"><html>content:note</html></richcontent>'];
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------

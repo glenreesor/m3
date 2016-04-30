@@ -23,6 +23,6 @@
     "gulp-uglify": "^1.5.1",
     "tape": "^4.4.0",
     "vinyl-source-stream": "^1.1.0",
-    "xmldom": "^0.1.21"
+    "xmldom": "^0.1.22"
   }
 }

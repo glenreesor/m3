@@ -22,6 +22,7 @@ import {CloudModel} from "./CloudModel";
 import {Diagnostics} from "./Diagnostics";
 import {Font} from "./Font";
 import {LinkTarget} from "./LinkTarget";
+import {RichContent} from "./RichContent";
 import {m3App} from "./main";
 
 /**
@@ -54,8 +55,8 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._font = null;                  // Will point to Font object if there are non-default font properties
    this._isFolded = false;
    this._linkTargets = [];
-   this._note = null;                  // Will point to the Note as a string, if there is one
-   this._richText = null;              // Will point to the rich text as a string, if this node is formatted as rich text
+   this._note = null;                  // Will point to the corresponding RichContent object
+   this._richText = null;              // Will point to the corresponding RichContent object
    this._textColor = "#000000";
 
    this._unknownAttributes = [];    // Attributes that m3 doesn't understand
@@ -218,15 +219,11 @@ NodeModel.prototype.getAsXml = function getAsXml() {
    });
 
    if (this._richText !== null) {
-      xml = xml.concat('<richcontent TYPE="NODE">');
-      xml = xml.concat(this._richText);
-      xml = xml.concat('</richcontent>');
+      xml = xml.concat(this._richText.getAsXml());
    }
 
    if (this._note !== null) {
-      xml = xml.concat('<richcontent TYPE="NOTE">');
-      xml = xml.concat(this._note);
-      xml = xml.concat('</richcontent>');
+      xml = xml.concat(this._note.getAsXml());
    }
 
    // Loop through all of my child nodes
@@ -321,7 +318,14 @@ NodeModel.prototype.getModifiedTimestamp = function getModifiedTimestamp() {
  * @return {String} - This node's note (null if none)
  */
 NodeModel.prototype.getNote = function getNote() {
-   return this._note;
+   let returnVal;
+
+   returnVal = null;
+   if (this._note !== null) {
+      returnVal = this._note.getContent();
+   }
+
+   return returnVal;
 }; // getNote()
 
 /**
@@ -339,8 +343,15 @@ NodeModel.prototype.getParent = function getParent() {
  * @return {Element} - the rich text of this node
  */
 NodeModel.prototype.getRichText = function getRichText() {
-   return this._richText;
-}; // getParent()
+   let returnVal;
+
+   returnVal = null;
+   if (this._richText !== null) {
+      returnVal = this._richText.getContent();
+   }
+
+   return returnVal;
+}; // getRichText()
 
 /**
   * Return the side this node should be drawn on. If this node doesn't know
@@ -421,9 +432,8 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    let newNode;
    let numAttributes;
    let numXmlChildNodes;
-   let richTextAttributes;
-   let richTextType;
-   let richTextTypeValue;
+   let richContent;
+   let richContentType;
    let linkTarget;
    let tagName;
 
@@ -519,19 +529,17 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
             this._linkTargets.push(linkTarget);
 
          } else if (tagName === "richcontent") {
-            richTextAttributes = xmlChildNode.attributes;
-            richTextType = richTextAttributes.getNamedItem("TYPE") ||
-                           richTextAttributes.getNamedItem("type");
+            richContent = new RichContent();
+            richContent.loadFromXml1_0_1(xmlChildNode);
+            richContentType = richContent.getType().toLowerCase();
 
-            richTextTypeValue = richTextType.value.toLowerCase();
-
-            if (richTextTypeValue === "node") {
-               this._richText = xmlChildNode.innerHTML;
-            } else if (richTextTypeValue === "note") {
-               this._note = xmlChildNode.innerHTML;
+            if (richContentType === "node") {
+               this._richText = richContent;
+            } else if (richContentType === "note") {
+               this._note = richContent;
             } else {
                m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                  "Unexpect type of richcontent: " + richTextType);
+                  "Unexpected type of richcontent: " + richContent.getType());
             }
 
          } else {

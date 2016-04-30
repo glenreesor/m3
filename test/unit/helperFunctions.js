@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 let DOMParser = require('xmldom').DOMParser;
+let XMLSerializer = require('xmldom').XMLSerializer;
 
 /**
  * A function to compare XML used to load an object with the XML exported
@@ -34,6 +35,7 @@ let DOMParser = require('xmldom').DOMParser;
 export function testExportedXml(origXml, t, constructorFn) {
 
    let attributes;
+   let element;
    let exportedAttributes;
    let exportedDocElement;
    let exportedEmbeddedTags;
@@ -43,8 +45,10 @@ export function testExportedXml(origXml, t, constructorFn) {
    let origDocElement;
    let origEmbeddedTags;
    let parser;
+   let serializer;
 
    parser = new DOMParser();
+   serializer = new XMLSerializer();
 
    //-----------------------------------------------------------------------
    // Create the object and get the exported XML
@@ -74,9 +78,14 @@ export function testExportedXml(origXml, t, constructorFn) {
    // text within a tag, etc). So when processing, we only care about
    // Elements (i.e. when nodeType is 1)
    origEmbeddedTags = [];
+
    for (let i = 0; i < origDocElement.childNodes.length; i++) {
-      if (origDocElement.childNodes[i].nodeType === 1) {
-         origEmbeddedTags.push(origDocElement.childNodes[i].tagName);
+      element = origDocElement.childNodes[i];
+      if (element.nodeType === 1) {
+
+         // Serialize so we get this tag, it's attributes, and all
+         // sub tags.
+         origEmbeddedTags.push(serializer.serializeToString(element));
       }
    }
 
@@ -95,9 +104,14 @@ export function testExportedXml(origXml, t, constructorFn) {
    });
 
    exportedEmbeddedTags = [];
+
    for (let i = 0; i < exportedDocElement.childNodes.length; i++) {
-      if (exportedDocElement.childNodes[i].nodeType === 1) {
-         exportedEmbeddedTags.push(exportedDocElement.childNodes[i].tagName);
+      element = exportedDocElement.childNodes[i];
+      if (element.nodeType === 1) {
+         
+         // Serialize so we get this tag, it's attributes, and all
+         // sub tags.
+         exportedEmbeddedTags.push(serializer.serializeToString(element));
       }
    }
 
