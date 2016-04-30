@@ -129,7 +129,7 @@ gulp.task('test-run', shell.task(
 // Webmanifest
 //-----------------------------------------------------------------------------
 gulp.task('manifest', function() {
-   return gulp.src('app/appcache.webmanifest')
+   return gulp.src('app/manifest.webmanifest')
       .pipe(gulp.dest('out/debug'))
       .pipe(gulp.dest('out/production'));
 });
