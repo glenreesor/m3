@@ -94,13 +94,16 @@ MapModel.prototype.getAsXml = function getAsXml() {
    // Preamble
    mapAsXml.push(`<map ${myAttributes}>`);
 
-   // Loop through all root nodes of this map
-   mapAsXml = mapAsXml.concat(this._rootNode.getAsXml());
-
+   // For now, this must stay here because FreeMind expects
+   // embedded tag <attribute_registry> to be first embedded tab.
+   
    // Embedded tags that I don't understand
    this._unknownTags.forEach(function(t) {
       mapAsXml.push(t);
    });
+
+   // Loop through all root nodes of this map
+   mapAsXml = mapAsXml.concat(this._rootNode.getAsXml());
 
    // Closing map node
    mapAsXml.push('</map>');
