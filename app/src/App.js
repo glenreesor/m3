@@ -54,7 +54,7 @@ App.KEY_MAPLIST = "mapList";
 App.myDB = null;                          // This will be populated by _start()
 App.MY_NAME = "m3 - Mobile Mind Mapper";
 App.MY_VERSION = {major: 0,
-                  minor: 8,
+                  minor: 9,
                   patch: 999};
 
 /**
