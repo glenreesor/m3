@@ -20,7 +20,7 @@
 let test = require('tape');
 let proxyquire = require('proxyquire');
 
-let DOMParser = require('xmldom').DOMParser;
+global.DOMParser = require('xmldom').DOMParser;
 let testExportedXml = require('./helperFunctions').testExportedXml;
 
 //-----------------------------------------------------------------------------

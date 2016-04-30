@@ -114,16 +114,6 @@ MapModel.prototype.getDbKey = function getDbKey() {
 }; // getDbKey()
 
 /**
- * Return a DOMParser object for parsing a map's XML. This is a hack that gets
- * replaced during testing, since DOMParser is not available in test
- * environment.
- * @return {DOMParser} - A DOMParser
- */
-MapModel.prototype._getDomParser = function _getDomParser() {
-   return new DOMParser();
-}; // _getDomParser()
-
-/**
  * Return the name to use when saving this map.
  *
  * @return {string}  - Map name for saving
@@ -192,7 +182,7 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
    let mapAsOneXmlString;
    let parser;
 
-   parser = this._getDomParser();
+   parser = new DOMParser();
 
    //--------------------------------------------------------------------------
    // Parse the XML
