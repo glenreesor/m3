@@ -156,7 +156,7 @@ MapModel.prototype._getDomParser = function _getDomParser() {
 // List of all attributes and non-default values, used by multiple tests.
 //-----------------------------------------------------------------------------
 const allAttributes = {
-   version: "1.0.1"
+   version: "55.0.1"
 };
 
 const allEmbeddedTags = ['<node/>'];
@@ -336,7 +336,7 @@ test('MapModel - Constructor - XML - Unknown attributes get logged',
    testAllAttributes(t, mapModel);
    testAllEmbeddedTags(t, mapModel);
 
-   t.equal(diagnosticsWarnCount, 2,
+   t.equal(diagnosticsWarnCount, 3, // 2 unknown attributes + unknown version
       "unknown attributes should get logged");
 
    t.end();

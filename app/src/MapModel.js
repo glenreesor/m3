@@ -84,7 +84,7 @@ MapModel.prototype.getAsXml = function getAsXml() {
    let myAttributes;
    let mapAsXml = [];
 
-   myAttributes = `version="${MapModel._DEFAULT_VERSION}" `;
+   myAttributes = `version="${this._version}" `;
 
    // Include attributes that were in the input file that m3 didn't understand
    this._unknownAttributes.forEach(function(a) {
@@ -236,7 +236,6 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
       m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
                        "I'm not familiar with version '" + this._version +
                        "'. I'll pretend it's version '1.0.1'.");
-      this._version = "1.0.1";
       this._loadFromXml1_0_1(mapElement);
    }
 
