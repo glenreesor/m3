@@ -45,6 +45,7 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
    this._unknownAttributes = [];    // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
+   this._unknownTags = [];          // As above
 
    if (newType === MapModel.TYPE_EMPTY) {
       this._dbKey = null;
@@ -95,6 +96,11 @@ MapModel.prototype.getAsXml = function getAsXml() {
 
    // Loop through all root nodes of this map
    mapAsXml = mapAsXml.concat(this._rootNode.getAsXml());
+
+   // Embedded tags that I don't understand
+   this._unknownTags.forEach(function(t) {
+      mapAsXml.push(t);
+   });
 
    // Closing map node
    mapAsXml.push('</map>');
@@ -258,6 +264,7 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    let newNode;
    let numAttributes;
    let numChildren;
+   let serializer;
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Loading a version '" +
                    this._version + "' file.");
@@ -303,6 +310,7 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    // Safari
    // ---------------------------------------------------------------------
    numChildren = mapElement.childNodes.length;
+   serializer = new XMLSerializer;
 
    for (i = 0; i < numChildren; i++) {
       childNode = mapElement.childNodes[i];
@@ -318,7 +326,8 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
             newNode = new NodeModel(this._controller, this, NodeModel.TYPE_XML, null, "", childNode);
             this._rootNode = newNode;
          } else {
-            m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected tag: <" +
+            this._unknownTags.push(serializer.serializeToString(childNode));
+            m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <map> embedded tag: <" +
                              childNode.tagName + ">");
          }
       }

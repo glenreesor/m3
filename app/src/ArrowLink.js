@@ -37,6 +37,7 @@ export function ArrowLink() {
    this._unknownAttributes = [];    // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
+   this._unknownTags = [];          // As above
 
    // Computed attributes that don't get saved
    this._destinationNode = null;      // This is a pointer to the actual NodeModel object
@@ -76,6 +77,11 @@ ArrowLink.prototype.getAsXml = function getAsXml() {
    });
 
    xml.push('<arrowlink ' + myAttributes + '>');
+
+   // Embedded tags that I don't understand
+   this._unknownTags.forEach(function(t) {
+      xml.push(t);
+   });
 
    // Close my own tag
    xml.push('</arrowlink>');
@@ -158,7 +164,10 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let attribute;
    let attributeName;
+   let childNode;
    let numAttributes;
+   let numEmbeddedTags;
+   let serializer;
 
    //-----------------------------------------------------------------------
    // Loop through attributes. Set the ones I know about and warn about the
@@ -199,7 +208,23 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
       }
    }
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created linktarget.");
+   //-----------------------------------------------------------------------
+   // Save embedded tags that I don't know about
+   //-----------------------------------------------------------------------
+   numEmbeddedTags = element.childNodes.length;
+   serializer = new XMLSerializer();
+
+   for (i=0; i< numEmbeddedTags; i++) {
+      childNode = element.childNodes[i];
+      if (childNode.nodeType === 1) {
+         this._unknownTags.push(serializer.serializeToString(childNode));
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+                                     `Unexpected <arrowlink> embedded tag: ` +
+                                     `${childNode.tagName}`);
+      }
+   }
+
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created arrowlink.");
 }; // loadFromXml1_0_1()
 
 /**

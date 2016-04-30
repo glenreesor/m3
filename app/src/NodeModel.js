@@ -62,6 +62,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._unknownAttributes = [];    // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
+   this._unknownTags = [];          // As above
 
    // First level children must have their position set. For now only allow
    // right side
@@ -230,6 +231,11 @@ NodeModel.prototype.getAsXml = function getAsXml() {
    for (i=0; i<this._children.length; i++) {
       xml = xml.concat(this._children[i].getAsXml());
    }
+
+   // Embedded tags that I don't understand
+   this._unknownTags.forEach(function(t) {
+      xml.push(t);
+   });
 
    // Close my own tag
    xml.push('</node>');
@@ -435,6 +441,7 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    let richContent;
    let richContentType;
    let linkTarget;
+   let serializer;
    let tagName;
 
    //-----------------------------------------------------------------------
@@ -496,6 +503,7 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    //        Safari
    //---------------------------------------------------------------------
    numXmlChildNodes = element.childNodes.length;
+   serializer = new XMLSerializer;
 
    for (i=0; i<numXmlChildNodes; i++) {
       xmlChildNode = element.childNodes[i];
@@ -543,8 +551,9 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
             }
 
          } else {
+            this._unknownTags.push(serializer.serializeToString(xmlChildNode));
             m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                  "Unexpected tag: <" + xmlChildNode.tagName + ">");
+                  "Unexpected <node> embedded tag: <" + xmlChildNode.tagName + ">");
          }
       }
    }

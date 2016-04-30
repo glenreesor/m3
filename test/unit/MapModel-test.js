@@ -404,8 +404,14 @@ test('MapModel - set/get ModifiedStatus()', function (t) {
 //-----------------------------------------------------------------------------
 test('MapModel - getAsXml()', function (t) {
    const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
-   const UNKNOWN_VALUE1 = 'unknownvalue1';
    const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
+   const UNKNOWN_TAG1 = "<unknownTag1 att1='value1'>" +
+                        "<embeddedTag att2='value2'>a bunch of content" +
+                        "</embeddedTag></unknownTag1>";
+   const UNKNOWN_TAG2 = "<unknownTag2 att1='value1'>" +
+                        "<embeddedTag att2='value2'>a bunch of content" +
+                        "</embeddedTag></unknownTag2>";
+   const UNKNOWN_VALUE1 = 'unknownvalue1';
    const UNKNOWN_VALUE2 = 'unknownvalue2';
    let mapModel;
    let origXml;
@@ -419,13 +425,15 @@ test('MapModel - getAsXml()', function (t) {
    for (let a in allAttributes) {
       origXml += `${a}="${allAttributes[a]}" `;
    }
+
+   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
    origXml += ">";
 
    allEmbeddedTags.forEach(function (t) {
       origXml += t;
    });
-   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
 
+   origXml += `${UNKNOWN_TAG1}${UNKNOWN_TAG2}`;
    origXml += "</map>";
 
    //--------------------------------------------------------------------------

@@ -39,6 +39,8 @@ export function LinkTarget() {
    this._unknownAttributes = [];    // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
+   this._unknownTags = [];          // As above
+
    // Computed attributes that don't get saved
 } // LinkTarget()
 
@@ -67,6 +69,11 @@ LinkTarget.prototype.getAsXml = function getAsXml() {
    });
 
    xml.push('<linktarget ' + myAttributes + '>');
+
+   // Embedded tags that I don't understand
+   this._unknownTags.forEach(function(t) {
+      xml.push(t);
+   });
 
    // Close my own tag
    xml.push('</linktarget>');
@@ -148,7 +155,10 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let attribute;
    let attributeName;
+   let childNode;
    let numAttributes;
+   let numEmbeddedTags;
+   let serializer;
 
    //-----------------------------------------------------------------------
    // Loop through attributes. Set the ones I know about and warn about the
@@ -189,6 +199,22 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          this._unknownAttributes.push({attribute:`${attributeName}`,
                                        value:`${attribute.value}`});
          m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <linktarget> attribute: " + attribute.name);
+      }
+   }
+
+   //-----------------------------------------------------------------------
+   // Save embedded tags that I don't know about
+   //-----------------------------------------------------------------------
+   numEmbeddedTags = element.childNodes.length;
+   serializer = new XMLSerializer;
+
+   for (i=0; i< numEmbeddedTags; i++) {
+      childNode = element.childNodes[i];
+      if (childNode.nodeType === 1) {
+         this._unknownTags.push(serializer.serializeToString(childNode));
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+                                     `Unexpected <linktarget> embedded tag: ` +
+                                     `${childNode.tagName}`);
       }
    }
 

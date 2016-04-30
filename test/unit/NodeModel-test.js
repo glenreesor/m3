@@ -813,12 +813,19 @@ test('NodeModel - getArrowLinks()', function(t) {
 
 //-----------------------------------------------------------------------------
 // getAsXml - Exported XML same as source XML
-//            This includes attributes that m3 doesn't understand
+//            This includes attributes and embedded tags that m3 doesn't
+//            understand
 //-----------------------------------------------------------------------------
 test('NodeModel - getAsXml()', function (t) {
    const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
-   const UNKNOWN_VALUE1 = 'unknownvalue1';
    const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
+   const UNKNOWN_TAG1 = "<unknownTag1 att1='value1'>" +
+                        "<embeddedTag att2='value2'>a bunch of content" +
+                        "</embeddedTag></unknownTag1>";
+   const UNKNOWN_TAG2 = "<unknownTag2 att1='value1'>" +
+                        "<embeddedTag att2='value2'>a bunch of content" +
+                        "</embeddedTag></unknownTag2>";
+   const UNKNOWN_VALUE1 = 'unknownvalue1';
    const UNKNOWN_VALUE2 = 'unknownvalue2';
    let origXml;
 
@@ -838,6 +845,8 @@ test('NodeModel - getAsXml()', function (t) {
    allEmbeddedTags.forEach( function(t) {
       origXml += t;
    });
+   
+   origXml += `${UNKNOWN_TAG1}${UNKNOWN_TAG2}`;
 
    origXml += "</node>";
 
