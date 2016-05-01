@@ -100,7 +100,7 @@ function testAllAttributes(t, arrowLink) {
    t.equal(arrowLink.getEndArrow(), allAttributes["endarrow"],
       "endArrow must match value that was loaded");
 
-   t.equal(arrowLink.getEndInclination() , allAttributes["endinclination"],
+   t.equal(arrowLink.getEndInclination(), allAttributes["endinclination"],
       "endInclination must match value that was loaded");
 
    t.equal(arrowLink.getId(), allAttributes["id"],

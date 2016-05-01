@@ -845,7 +845,7 @@ test('NodeModel - getAsXml()', function (t) {
    allEmbeddedTags.forEach( function(t) {
       origXml += t;
    });
-   
+
    origXml += `${UNKNOWN_TAG1}${UNKNOWN_TAG2}`;
 
    origXml += "</node>";

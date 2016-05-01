@@ -11,16 +11,26 @@
    },
 
    "rules": {
-      "arrow-spacing": 2,           // Require spaces around =>
-      "brace-style": [2, "1tbs"],   // One true brace style
+      // Exceptions to "eslint:recommended"
+      "no-console": 0,              // Allow console interactions (for Diagnostics)
+
+      // Other Best Practices
       "curly": 2,                   // Require brackets for single-statement blocks
       "eqeqeq": 2,                  // Require non-casting comparison
-      "no-console": 0,              // Allow console things (for Diagnostics)
-      "no-spaced-func": 2,          // No space between fn name and ()
       "no-var": 2,                  // Don't allow var
-      "semi": 2,                    // Require semicolons to end statements
-      "sort-vars": 2,               // Require variable declarations to be sorted
-      "valid-jsdoc": 2,             // Require valid JSDOC
+
+      // Style Issues
+      "arrow-spacing": 2,                     // Require spaces around =>
+      "arrow-body-style": [2, "always"],      // Require {} around bodies
+      "arrow-parens": [2, "always"],          // Require () around arguments
+      "array-bracket-spacing": [2, "never"],  // No spaces immediately before/after
+      "brace-style": [2, "1tbs"],             // One true brace style
+      "comma-spacing": [2, {"before": false, "after": true}],
+      "no-spaced-func": 2,                    // No space between fn name and ()
+      "no-trailing-spaces": 2,
+      "semi": 2,                              // Require semicolons to end statements
+      "sort-vars": 2,                         // Require variable declarations to be sorted
+      "valid-jsdoc": 2,                       // Require valid JSDOC
 
       // These rules are good, but flag too much
       // so just use once in a while

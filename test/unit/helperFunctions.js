@@ -108,7 +108,7 @@ export function testExportedXml(origXml, t, constructorFn) {
    for (let i = 0; i < exportedDocElement.childNodes.length; i++) {
       element = exportedDocElement.childNodes[i];
       if (element.nodeType === 1) {
-         
+
          // Serialize so we get this tag, it's attributes, and all
          // sub tags.
          exportedEmbeddedTags.push(serializer.serializeToString(element));
