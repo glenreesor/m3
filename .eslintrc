@@ -21,7 +21,6 @@
 
       // Style Issues
       "arrow-spacing": 2,                     // Require spaces around =>
-      "arrow-body-style": [2, "always"],      // Require {} around bodies
       "arrow-parens": [2, "always"],          // Require () around arguments
       "array-bracket-spacing": [2, "never"],  // No spaces immediately before/after
       "brace-style": [2, "1tbs"],             // One true brace style
