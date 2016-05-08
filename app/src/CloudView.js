@@ -69,7 +69,9 @@ CloudView.prototype.getWidth = function getWidth() {
  * @param {number} height - Height of the region to be enclosed
  * @return {void}
  */
-CloudView.prototype.setAreaToEnclose = function setAreaToEnclose(width, height) {
+CloudView.prototype.setAreaToEnclose =
+   function setAreaToEnclose(width, height) {
+
    this._height = height + 2*CloudView.PADDING_VERTICAL;
    this._width = width + 2*CloudView.PADDING_HORIZONTAL;
 }; // setAreaToEnclose()
@@ -92,7 +94,8 @@ CloudView.prototype.setPosition = function setPosition(x, y) {
    bottomY = y + this._height/2;
 
    path = `M ${leftX} ${bottomY} ` +
-          `v-${this._height} h ${this._width} v ${this._height} h -${this._width}`;
+          `v-${this._height} h ${this._width} v ${this._height} ` +
+          `h -${this._width}`;
 
    this._svgCloud.setAttribute("d", path);
 }; // setPosition()

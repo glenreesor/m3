@@ -22,8 +22,8 @@
  * from the specified node to its parent
  *
  * @constructor
- * @param {NodeView} nodeView - the NodeView corresponding to this node (the child
- *                              that will connect to its parent)
+ * @param {NodeView} nodeView - the NodeView corresponding to this node (the
+ *                              child that will connect to its parent)
  */
 export function ConnectorView(nodeView) {
    const SVGNS = "http://www.w3.org/2000/svg";

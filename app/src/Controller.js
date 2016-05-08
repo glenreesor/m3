@@ -23,9 +23,9 @@ import {MapModel} from "./MapModel";
 import {MapViewController} from "./MapViewController";
 import {NodeView} from "./NodeView";
 /**
- * This is the controller that handles actions/events that interact with the model.
- * Events that do not interact with the model (e.g. scrolling) are handled by
- * MapViewController
+ * This is the controller that handles actions/events that interact with the
+ * model. Events that do not interact with the model (e.g. scrolling) are
+ * handled by MapViewController
  *
  * @constructor
  */
@@ -33,7 +33,8 @@ export function Controller() {
    this._nodeViews = new Map();
 
    this._appButtons = new AppButtons(this);
-   this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map", null);
+   this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map",
+                                 null);
    this._mapViewController = new MapViewController(this);
 
    this.createNodeView(this._mapModel.getRoot());
@@ -58,7 +59,9 @@ Controller.prototype.addChild = function addChild(parent) {
    //--------------------------------------------------------------------------
    // Update the views
    //--------------------------------------------------------------------------
-   this.getNodeView(parent).update();  // It might not have had a folding icon before
+
+   // It might not have had a folding icon before
+   this.getNodeView(parent).update();
    this.createNodeView(child);
    this.redrawMain();
 
@@ -72,10 +75,12 @@ Controller.prototype.addChild = function addChild(parent) {
  * Add a child to the specified node, after the specified child
  *
  * @param {NodeModel} parent - The node that will get a new child
- * @param {NodeModel} relativeChild - The child after which a new one will be added
+ * @param {NodeModel} relativeChild - The child after which a new one will be
+ *                                    added
  * @return {void}
  */
-Controller.prototype.addChildAfter = function addChildAfter(parent, relativeChild) {
+Controller.prototype.addChildAfter = function addChildAfter(parent,
+                                                            relativeChild) {
    let child;
    let editNodeDialog;
 
@@ -163,13 +168,16 @@ Controller.prototype._deleteView = function _deleteView(node) {
    });
 
    // Delete the specified node
-   this.getNodeView(node).deleteMyself();    // Deletes all svg elements and listeners
+
+   // Deletes all svg elements and listeners
+   this.getNodeView(node).deleteMyself();
    this._nodeViews.delete(node.getId());
 }; // _deleteView()
 
 /**
  * Return the current mapModel.
- * Note: While a new model is being loaded, this method will return the old model
+ * Note: While a new model is being loaded, this method will return the old
+ *       model
  *
  * @return {MapModel} - the mapModel this controller is associated with.
  */
@@ -189,7 +197,8 @@ Controller.prototype.getMapViewController = function getMapViewController() {
 /**
  * Get the view for the specified model. If it doesn't exist, create it
  *
- * @param {NodeModel} nodeModel - The NodeModel whose corresponding NodeView is to be returned
+ * @param {NodeModel} nodeModel - The NodeModel whose corresponding NodeView is
+ *                                to be returned
  * @return {NodeView} - The newly created NodeView
  */
 Controller.prototype.getNodeView = function getNodeView(nodeModel) {
@@ -213,7 +222,7 @@ Controller.prototype.getNodeView = function getNodeView(nodeModel) {
  * @return {void}
  */
 Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
-   this._deleteView(this._mapModel.getRoot());   // This recursively deletes all nodes
+   this._deleteView(this._mapModel.getRoot());   // Recursively delete all nodes
    this._mapModel = new MapModel(this, type, dbKey, mapName, xml);
    this.createNodeView(this._mapModel.getRoot());
    this.redrawMain();
@@ -231,10 +240,13 @@ Controller.prototype.setMapName = function setMapName(name) {
 /**
   * Set the modified indicator of this map.
   *
-  * @param {boolean} status - Either false (unmodified) or true (modified/unsaved)
+  * @param {boolean} status - Either false (unmodified) or true
+  *                           (modified/unsaved)
   * @return {void}
   */
-Controller.prototype.setModifiedIndicator = function setModifiedIndicator(status) {
+Controller.prototype.setModifiedIndicator =
+   function setModifiedIndicator(status) {
+
    if (status) {
       document.getElementById("modified").removeAttribute("hidden");
    } else {
@@ -287,7 +299,9 @@ Controller.prototype.toggleFoldedStatus = function toggleFoldedStatus(node) {
  * @param {NodeModel} nodeModel - The node whose graphical links should be drawn
  * @return {void}
  */
-Controller.prototype.redrawGraphicalLinks = function redrawGraphicalLinks(nodeModel) {
+Controller.prototype.redrawGraphicalLinks =
+   function redrawGraphicalLinks(nodeModel) {
+
    // Draw the graphical links for the specified node
    this.getNodeView(nodeModel).drawGraphicalLinks();
 

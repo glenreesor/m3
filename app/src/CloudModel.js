@@ -105,7 +105,8 @@ CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          // exported
          this._unknownAttributes.push({attribute:`${attribute.name}`,
                                        value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <cloud> attribute: " + attribute.name);
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+            "Unexpected <cloud> attribute: " + attribute.name);
       }
    }
 
@@ -125,7 +126,8 @@ CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
       }
    }
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created cloudModel.");
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+      "Created cloudModel.");
 }; // loadFromXml1_0_1()
 
 /**

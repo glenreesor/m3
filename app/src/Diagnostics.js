@@ -18,9 +18,9 @@
 // <http://www.gnu.org/licenses/>.
 
 /**
- * Diagnostics formatter that can send output to different locations (possibly none)
- * depending on the type of task being performed. Only expecting one instance of this
- * object.
+ * Diagnostics formatter that can send output to different locations
+ * (possibly none) depending on the type of task being performed. Only
+ * expecting one instance of this object.
  *
  * @constructor
  */
@@ -40,8 +40,8 @@ export function Diagnostics() {
    this._popupWindow = null;
 } // Diagnostics()
 
-// Note: These strings must be the same as the identifier in the *_TYPE arrays in
-//       the constructor
+// Note: These strings must be the same as the identifier in the *_TYPE arrays
+//       in the constructor
 Diagnostics.TASK_IMPORT_XML   = "TASK_IMPORT_XML";
 Diagnostics.TASK_VIEWS        = "TASK_VIEWS";
 Diagnostics.TASK_VIEW_STATE   = "TASK_VIEW_STATE";
