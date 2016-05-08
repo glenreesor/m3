@@ -27,7 +27,8 @@ import {m3App} from "./main";
  */
 export function ArrowLink() {
    // Attributes that get saved
-   this._destinationId = null;    // This is the ID (a string), not a pointer to the actual NodeModel object
+   this._destinationId = null;    // This is the ID (a string), not a pointer
+                                  // to the actual NodeModel object
    this._color = "#000000";
    this._endArrow = null;
    this._endInclination = null;
@@ -40,7 +41,8 @@ export function ArrowLink() {
    this._unknownTags = [];          // As above
 
    // Computed attributes that don't get saved
-   this._destinationNode = null;      // This is a pointer to the actual NodeModel object
+   this._destinationNode = null;      // This is a pointer to the actual
+                                      // NodeModel object
 } // ArrowLink()
 
 /**
@@ -50,7 +52,8 @@ export function ArrowLink() {
  * @return {void}
  */
 ArrowLink.prototype.connectToNodeModel = function connectToNodeModel(mapModel) {
-   this._destinationNode = mapModel.getNodeModelById(mapModel.getRoot(), this._destinationId);
+   this._destinationNode = mapModel.getNodeModelById(mapModel.getRoot(),
+                                                     this._destinationId);
 }; // connectToNodeModel()
 
 /**
@@ -205,7 +208,8 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          // exported
          this._unknownAttributes.push({attribute:`${attribute.name}`,
                                        value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <arrowlink> attribute: " + attribute.name);
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+            "Unexpected <arrowlink> attribute: " + attribute.name);
       }
    }
 
@@ -225,7 +229,8 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
       }
    }
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created arrowlink.");
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+                              "Created arrowlink.");
 }; // loadFromXml1_0_1()
 
 /**
@@ -242,7 +247,9 @@ ArrowLink.prototype.setColor = function setColor(color) {
  * @param {String} destinationId - The destination
  * @return {void}
  */
-ArrowLink.prototype.setDestinationId = function setDestinationId(destinationId) {
+ArrowLink.prototype.setDestinationId =
+   function setDestinationId(destinationId) {
+
    this._destinationId = destinationId;
 }; // setDestination()
 
@@ -260,7 +267,9 @@ ArrowLink.prototype.setEndArrow = function setEndArrow(endArrow) {
  * @param {String} endInclination - The end inclination
  * @return {void}
  */
-ArrowLink.prototype.setEndInclination = function setEndInclination(endInclination) {
+ArrowLink.prototype.setEndInclination =
+   function setEndInclination(endInclination) {
+
    this._endInclination = endInclination;
 }; // setEndInclination()
 
@@ -287,6 +296,8 @@ ArrowLink.prototype.setStartArrow = function setStartArrow(startArrow) {
  * @param {String} startInclination - The start inclincation
  * @return {void}
  */
-ArrowLink.prototype.setStartInclination = function setStartInclination(startInclination) {
+ArrowLink.prototype.setStartInclination =
+   function setStartInclination(startInclination) {
+
    this._startInclination = startInclination;
 }; // setStartInclination()

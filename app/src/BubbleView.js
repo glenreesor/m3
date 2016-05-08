@@ -59,7 +59,8 @@ export function BubbleView(nodeView, nodeModel, textView) {
 
 } // BubbleView()
 
-BubbleView.TEXT_BUBBLE_INNER_PADDING = 5; // Padding between bubble and inner text
+// Padding between bubble and inner text
+BubbleView.TEXT_BUBBLE_INNER_PADDING = 5;
 
 /**
  * Listener function for this bubble

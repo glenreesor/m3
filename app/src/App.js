@@ -55,7 +55,7 @@ App.myDB = null;                          // This will be populated by _start()
 App.MY_NAME = "m3 - Mobile Mind Mapper";
 App.MY_VERSION = {major: 0,
                   minor: 9,
-                  patch: 0};
+                  patch: 999};
 
 /**
  * Return the controller object
@@ -99,7 +99,9 @@ App.prototype.getMapModel = function getMapModel() {
  * @return {string} - the version of this app formatted as a string.
  */
 App.prototype.getVersionAsString = function getVersionAsString() {
-   return `${App.MY_VERSION.major}.${App.MY_VERSION.minor}.${App.MY_VERSION.patch}`;
+   return `${App.MY_VERSION.major}.` +
+          `${App.MY_VERSION.minor}.` +
+          `${App.MY_VERSION.patch}`;
 }; // getAppVersionAsString()
 
 /**
@@ -130,8 +132,8 @@ App.prototype.setMapModel = function setMapModel(mapModel) {
       numChildren = children.length;
 
       for (let i=0; i<numChildren; i++) {
-         // Note: Can't use [i], because as we delete nodes, the "i" indexes will
-         //       no longer be valid
+         // Note: Can't use [i], because as we delete nodes, the "i" indexes
+         //       will no longer be valid
          oldRootNode.deleteChild(children[0]);
       }
       oldRootNode.getView().deleteMyself();
@@ -146,7 +148,8 @@ App.prototype.setMapModel = function setMapModel(mapModel) {
  *
  * @return {void}
  */
-App.prototype._upgradeFrom0_0_0_To_0_7_0 = function _upgradeFrom0_0_0_To_0_7_0() {
+App.prototype._upgradeFrom0_0_0_To_0_7_0 =
+   function _upgradeFrom0_0_0_To_0_7_0() {
    //--------------------------------------------------------------------
    // This corresponds to either first time user has run m3, or they
    // had previously run a version prior to 0.7.0
@@ -155,7 +158,7 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 = function _upgradeFrom0_0_0_To_0_7_0()
    //    - Save our mapList (empty or the one above)
    //    - Save lastVersionRun
    //--------------------------------------------------------------------
-   const MAP_LIST_EMPTY = "Map list should be empty"; // For promise return value
+   const MAP_LIST_EMPTY = "Map list should be empty"; // For promise return val
    const NEW_MAP1_KEY = `map-${Date.now()}`;
    const OLD_MAP1_KEY = "m3-map1";
    const OLD_MAP1_NAME = "Map 1";
@@ -164,7 +167,8 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 = function _upgradeFrom0_0_0_To_0_7_0()
 
    localforage.getItem(OLD_MAP1_KEY).then(function resaveOldMap(map1Value) {
       if (map1Value !== null) {
-         promiseToWaitFor = App.myDB.setItem(NEW_MAP1_KEY, [map1Value]); // Promise returns value that was set
+         // Promise returns value that was set
+         promiseToWaitFor = App.myDB.setItem(NEW_MAP1_KEY, [map1Value]);
       } else {
          promiseToWaitFor = Promise.resolve(null);
       }
@@ -172,7 +176,8 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 = function _upgradeFrom0_0_0_To_0_7_0()
 
    }).then(function removeOldMap(map1Value){
       if (map1Value !== null) {
-         promiseToWaitFor = localforage.removeItem(OLD_MAP1_KEY); // Promise returns undefined
+         // Promise returns undefined
+         promiseToWaitFor = localforage.removeItem(OLD_MAP1_KEY);
       } else {
          promiseToWaitFor = Promise.resolve(MAP_LIST_EMPTY);
       }
@@ -189,7 +194,8 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 = function _upgradeFrom0_0_0_To_0_7_0()
       return App.myDB.setItem(App.KEY_LAST_VERSION_RUN, App.MY_VERSION);
 
    }).catch(function catchError(err) {
-      let errorDialog = new ErrorDialog(`Error upgrading DB from previous version: ${err}`);
+      let errorDialog = new ErrorDialog(
+         `Error upgrading DB from previous version: ${err}`);
    });
 };
 
@@ -200,8 +206,10 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 = function _upgradeFrom0_0_0_To_0_7_0()
  * @return {void}
  */
 App.prototype._startup = function _startup() {
-   // Must use either INDEXEDDB or WEBSQL, because localStorage may get unexpectedly cleared by browser
-   let dbConfig = {name: App.DB_NAME, driver: [localforage.INDEXEDDB, localforage.WEBSQL]};
+   // Must use either INDEXEDDB or WEBSQL, because localStorage may get
+   // unexpectedly cleared by browser
+   let dbConfig = {name: App.DB_NAME,
+                   driver: [localforage.INDEXEDDB, localforage.WEBSQL]};
    App.myDB = localforage.createInstance(dbConfig);
 
    App.myDB.getItem(App.KEY_LAST_VERSION_RUN).then((lastVersionRun) => {
@@ -210,11 +218,14 @@ App.prototype._startup = function _startup() {
          // or a first run
          this._upgradeFrom0_0_0_To_0_7_0();
       } else {
-         // This corresponds to user having previously run version 0.7.0 or greater
-         return App.myDB.setItem(App.KEY_LAST_VERSION_RUN, this.getVersionAsString());
+         // This corresponds to user having previously run version 0.7.0 or
+         // greater
+         return App.myDB.setItem(App.KEY_LAST_VERSION_RUN,
+                                 this.getVersionAsString());
       }
    }).catch(function(err) {
-      let errorDialog = new ErrorDialog("Error trying to save last run version: " + err);
+      let errorDialog = new ErrorDialog("Error trying to save last run " +
+                                        `version: ${err}`);
       // Error trying to get lastVersionRun
    });
 }; // _startup()

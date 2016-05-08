@@ -12,27 +12,31 @@
 
    "rules": {
       // Exceptions to "eslint:recommended"
-      "no-console": 0,              // Allow console interactions (for Diagnostics)
+      "no-console": 0,           // Allow console.*
 
       // Other Best Practices
-      "curly": 2,                   // Require brackets for single-statement blocks
-      "eqeqeq": 2,                  // Require non-casting comparison
-      "no-var": 2,                  // Don't allow var
+      "curly": 2,                // Require brackets for single-statement blocks
+      "eqeqeq": 2,               // Require non-casting comparison
+      "no-var": 2,               // Don't allow var
 
       // Style Issues
-      "arrow-spacing": 2,                     // Require spaces around =>
-      "arrow-parens": [2, "always"],          // Require () around arguments
-      "array-bracket-spacing": [2, "never"],  // No spaces immediately before/after
-      "brace-style": [2, "1tbs"],             // One true brace style
-      "comma-spacing": [2, {"before": false, "after": true}],
-      "no-spaced-func": 2,                    // No space between fn name and ()
+      "arrow-spacing": 2,                 // Require spaces around =>
+      "arrow-parens": [2,                 // Require () around arguments
+                       "always"],
+      "array-bracket-spacing": [2,        // No spaces immediately before/after
+                                "never"],
+      "brace-style": [2, "1tbs"],         // One true brace style
+      "comma-spacing": [2,                // Comma requirements
+         {"before": false, "after": true}],
+      "max-len": [2, 80],                 // Max line length
+      "no-spaced-func": 2,                // No space between fn name and ()
       "no-trailing-spaces": 2,
-      "semi": 2,                              // Require semicolons to end statements
-      "sort-vars": 2,                         // Require variable declarations to be sorted
-      "valid-jsdoc": 2,                       // Require valid JSDOC
+      "semi": 2,                          // Require semicolons to end statements
+      "sort-vars": 2,                     // Variable declarations must be sorted
+      "valid-jsdoc": 2,                   // Require valid JSDOC
 
       // These rules are good, but flag too much
-      // so just use once in a while
+      // so just use them once in a while
       "camelcase": 0,               // Flags xml versions since have "_" in middle
       "no-unused-vars": 0           // Enable every now and then
    },
