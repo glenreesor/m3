@@ -35,10 +35,12 @@ export function ErrorDialog(errorMsg) {
    //--------------------------------------------------------------------------
    // Tags to be added
    //--------------------------------------------------------------------------
-   html = `<div id='${ErrorDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-          "   <p style='text-align: center; font-weight: bold;'>" + App.MY_NAME + " - Error</p>" +
-          "   <p>" + errorMsg + "</p>" +
-          `   <button id='${ErrorDialog.OK_ID}'>Ok</button>` +
+   html = `<div id='${ErrorDialog.DIALOG_ID}' class='popup' style='height: ` +
+             `${Sizer.popupHeight}px'>` +
+             "<p style='text-align: center; font-weight: bold;'>" +
+             `${App.MY_NAME} - Error</p>` +
+             "<p>" + errorMsg + "</p>" +
+             `<button id='${ErrorDialog.OK_ID}'>Ok</button>` +
           "</div>";
 
    //--------------------------------------------------------------------------
@@ -46,13 +48,15 @@ export function ErrorDialog(errorMsg) {
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
    htmlAsDoc = domParser.parseFromString(html, "text/html");
-   this._errorDialog = document.importNode(htmlAsDoc.getElementById(ErrorDialog.DIALOG_ID), true);
+   this._errorDialog = document.importNode(
+      htmlAsDoc.getElementById(ErrorDialog.DIALOG_ID), true);
    document.getElementById("app-popups").appendChild(this._errorDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
    //--------------------------------------------------------------------------
-   document.getElementById(ErrorDialog.OK_ID).addEventListener("click", () => this.close());
+   document.getElementById(ErrorDialog.OK_ID).addEventListener("click",
+      () => this.close());
 
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state

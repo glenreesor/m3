@@ -40,11 +40,12 @@ export function EditNodeDialog(controller, nodeToEdit) {
    //--------------------------------------------------------------------------
    // Tags to be added
    //--------------------------------------------------------------------------
-   html = `<div id='${EditNodeDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-         "    <p> Edit Node </p>" +
-          `   <input type='text' id='${EditNodeDialog.TEXT_ENTRY_FIELD_ID}' size='20'/><br><br>` +
-          `   <button id='${EditNodeDialog.SAVE_ID}'>Save</button>` +
-          `   <button id='${EditNodeDialog.CANCEL_ID}'>Cancel</button>` +
+   html = `<div id='${EditNodeDialog.DIALOG_ID}' class='popup' ` +
+             `style='height: ${Sizer.popupHeight}px'> <p> Edit Node </p>` +
+             `<input type='text' id='${EditNodeDialog.TEXT_ENTRY_FIELD_ID}' ` +
+             "size='20'/><br><br>" +
+             `<button id='${EditNodeDialog.SAVE_ID}'>Save</button>` +
+             `<button id='${EditNodeDialog.CANCEL_ID}'>Cancel</button>` +
           "</div>";
 
    //--------------------------------------------------------------------------
@@ -52,15 +53,19 @@ export function EditNodeDialog(controller, nodeToEdit) {
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
    htmlAsDoc = domParser.parseFromString(html, "text/html");
-   this._editNodeDialog = document.importNode(htmlAsDoc.getElementById(EditNodeDialog.DIALOG_ID), true);
+   this._editNodeDialog = document.importNode(
+      htmlAsDoc.getElementById(EditNodeDialog.DIALOG_ID), true);
    document.getElementById("app-popups").appendChild(this._editNodeDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
    //--------------------------------------------------------------------------
-   document.getElementById(EditNodeDialog.SAVE_ID).addEventListener("click", () => this.save());
-   document.getElementById(EditNodeDialog.CANCEL_ID).addEventListener("click", () => this.close());
-   document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID).addEventListener("keypress", (e) => this.keyPress(e));
+   document.getElementById(EditNodeDialog.SAVE_ID).addEventListener("click",
+      () => this.save());
+   document.getElementById(EditNodeDialog.CANCEL_ID).addEventListener("click",
+      () => this.close());
+   document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)
+      .addEventListener("keypress", (e) => this.keyPress(e));
 
    //--------------------------------------------------------------------------
    // Make the app-popups div visible and set state
@@ -71,7 +76,8 @@ export function EditNodeDialog(controller, nodeToEdit) {
    //--------------------------------------------------------------------------
    // Populate the input field, give it focus, and select all the text
    //--------------------------------------------------------------------------
-   (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).value = this._nodeToEdit.getText();
+   (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).value =
+      this._nodeToEdit.getText();
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).select();
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).focus();
 } // EditNodeDialog()
@@ -102,7 +108,8 @@ EditNodeDialog.prototype.close = function close() {
    // Making the edited node the currently selected one means the user
    // can use addchild or addSibling to create anything without having
    // to select a different node first.
-   this._controller.getMapViewController().setSelectedNodeView(this._controller.getNodeView(this._nodeToEdit));
+   this._controller.getMapViewController().setSelectedNodeView(
+      this._controller.getNodeView(this._nodeToEdit));
 }; // close()
 
 /**

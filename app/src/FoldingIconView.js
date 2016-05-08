@@ -20,8 +20,8 @@
 import {m3App} from "./main";
 
 /**
- * A FoldingIconView creates and maintains the SVG elements to show a folding icon
- * from the specified node
+ * A FoldingIconView creates and maintains the SVG elements to show a folding
+ * icon from the specified node
  *
  * @constructor
  * @param {NodeView} nodeView - the NodeView corresponding to this node
@@ -98,13 +98,15 @@ FoldingIconView.prototype.getWidth = function getWidth() {
  * @return {void}
  */
 FoldingIconView.prototype.setPosition = function setPosition(x, y) {
-   this._svgFoldingIcon.setAttribute("cx", x + FoldingIconView.FOLDING_ICON_RADIUS);
+   this._svgFoldingIcon.setAttribute("cx",
+                                     x + FoldingIconView.FOLDING_ICON_RADIUS);
    this._svgFoldingIcon.setAttribute("cy", y);
 }; // setPosition()
 
 /**
  * Make this FoldingIcon visible or invisible
- * @param {boolean} visible - Make the folding icon visible (true) or not (false)
+ * @param {boolean} visible - Make the folding icon visible (true) or not
+ *                           (false)
  * @return {void}
  */
 FoldingIconView.prototype.setVisible = function setVisible(visible) {

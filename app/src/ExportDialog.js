@@ -37,13 +37,16 @@ export function ExportDialog() {
    //--------------------------------------------------------------------------
    mapAsXml = m3App.getController().getMapModel().getAsXml();
 
-   html = `<div id='${ExportDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-          `   <textarea id='${ExportDialog.TEXT_AREA_ID}' rows=20 cols=30>`;
+   html = `<div id='${ExportDialog.DIALOG_ID}' class='popup' style='height:` +
+             `${Sizer.popupHeight}px'>` +
+             `<textarea id='${ExportDialog.TEXT_AREA_ID}' rows=20 cols=30>`;
+
    mapAsXml.forEach(function (xmlLine) {
-      // Don't want the export dialog rendering to render the special characters.
+      // Don't want the export dialog rendering to render the special chars.
       xmlLine = xmlLine.replace(new RegExp("&", "g"), "&amp;");
       html+= xmlLine+"\n";
    });
+
    html += "   </textarea><br><br>" +
            `<button id='${ExportDialog.OK_ID}'>Ok</button>` +
            "</div>";
@@ -53,13 +56,15 @@ export function ExportDialog() {
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
    htmlAsDoc = domParser.parseFromString(html, "text/html");
-   this._exportDialog = document.importNode(htmlAsDoc.getElementById(ExportDialog.DIALOG_ID), true);
+   this._exportDialog = document.importNode(
+      htmlAsDoc.getElementById(ExportDialog.DIALOG_ID), true);
    document.getElementById("app-popups").appendChild(this._exportDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
    //--------------------------------------------------------------------------
-   document.getElementById(ExportDialog.OK_ID).addEventListener("click", () => this.close());
+   document.getElementById(ExportDialog.OK_ID).addEventListener("click",
+      () => this.close());
 
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state

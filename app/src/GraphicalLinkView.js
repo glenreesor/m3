@@ -26,7 +26,7 @@ import {NodeModel} from "./NodeModel";
  *
  * @constructor
  * @param {NodeView} myNodeView - the NodeView that the link comes from
- * @param {ArrowLink} arrowLink - the ArrowLink that contains the link information
+ * @param {ArrowLink} arrowLink - the ArrowLink that contains the link info
  */
 export function GraphicalLinkView(myNodeView, arrowLink) {
    const SVGNS = "http://www.w3.org/2000/svg";
@@ -135,7 +135,8 @@ GraphicalLinkView.prototype.draw = function draw() {
 /**
  * Make this GraphicalLink visible or invisible
  *
- * @param {boolean} visible - Make the graphical link visible (true) or not (false)
+ * @param {boolean} visible - Make the graphical link visible (true) or not
+ *                            (false)
  * @return {void}
  */
 GraphicalLinkView.prototype.setVisible = function setVisible(visible) {
