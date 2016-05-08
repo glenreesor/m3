@@ -29,7 +29,8 @@ import {State} from "./State";
  *
  * @constructor
  * @param {[{String, String}]} mapList - The entire list of saved maps
- * @param {Number} indexToRename - The index of the map entry in mapList to be renamed
+ * @param {Number} indexToRename - The index of the map entry in mapList to be
+ *                                 renamed
  */
 export function RenameMapDialog(mapList, indexToRename) {
    let domParser;
@@ -38,7 +39,8 @@ export function RenameMapDialog(mapList, indexToRename) {
    let sanitizedMapName;
 
    // Remove the following from mapName: & < > " '
-   sanitizedMapName = mapList[indexToRename].name.replace(new RegExp("&", "g"), "&amp;");
+   sanitizedMapName = mapList[indexToRename].name.replace(new RegExp("&", "g"),
+                                                          "&amp;");
    sanitizedMapName = sanitizedMapName.replace(new RegExp("<", "g"), "&lt;");
    sanitizedMapName = sanitizedMapName.replace(new RegExp(">", "g"), "&gt;");
    sanitizedMapName = sanitizedMapName.replace(new RegExp('"', "g"), "&quot;");
@@ -47,20 +49,22 @@ export function RenameMapDialog(mapList, indexToRename) {
    //--------------------------------------------------------------------------
    // Tags to be added
    //--------------------------------------------------------------------------
-   html = `<div id='${RenameMapDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-          "   <p style='text-align: center; font-weight: bold'>Saved Maps</p>";
+   html = `<div id='${RenameMapDialog.DIALOG_ID}' class='popup' ` +
+             `style='height: ${Sizer.popupHeight}px'>` +
+             "<p style='text-align: center; font-weight: bold'>Saved Maps</p>";
 
    // Add the list of saved maps, except the map to rename
    mapList.forEach(function(map, index) {
       if (index !== indexToRename) {
-         html += `   <p>${map.name}</p>`;
+         html += `<p>${map.name}</p>`;
       }
    });
 
    // Show the old name and allow them to rename
-   html += `   <p>Old name: ${sanitizedMapName}</p>`;
-   html += `   <p>New name: <input type='text' id='${RenameMapDialog.INPUT_FIELD_ID}'` +
-                      `size='30' value='${sanitizedMapName}'/>`;
+   html += `<p>Old name: ${sanitizedMapName}</p>`;
+   html += "<p>New name: <input type='text' id='" +
+              `${RenameMapDialog.INPUT_FIELD_ID}'` +
+               `size='30' value='${sanitizedMapName}'/>`;
 
    // Add the buttons
    html += `   <br><br><button id='${RenameMapDialog.OK_ID}'>Ok</button>` +
@@ -72,7 +76,8 @@ export function RenameMapDialog(mapList, indexToRename) {
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
    htmlAsDoc = domParser.parseFromString(html, "text/html");
-   this._renameMapDialog = document.importNode(htmlAsDoc.getElementById(RenameMapDialog.DIALOG_ID), true);
+   this._renameMapDialog = document.importNode(htmlAsDoc
+      .getElementById(RenameMapDialog.DIALOG_ID), true);
    document.getElementById("app-popups").appendChild(this._renameMapDialog);
 
    //--------------------------------------------------------------------------
@@ -84,7 +89,8 @@ export function RenameMapDialog(mapList, indexToRename) {
    document.getElementById(RenameMapDialog.CANCEL_ID).addEventListener("click",
       () => this.close());
 
-   document.getElementById(RenameMapDialog.INPUT_FIELD_ID).addEventListener("keypress",
+   document.getElementById(RenameMapDialog.INPUT_FIELD_ID)
+      .addEventListener("keypress",
       (e) => this.keyPress(e, mapList, indexToRename));
 
    //--------------------------------------------------------------------------
@@ -133,7 +139,9 @@ RenameMapDialog.prototype.close = function close() {
  * @param {number} indexToRename - the index of the map to be renamed
  * @return {void}
  */
-RenameMapDialog.prototype.keyPress = function keyPress(e, mapList, indexToRename) {
+RenameMapDialog.prototype.keyPress =
+   function keyPress(e, mapList, indexToRename) {
+
    if (e.keyCode === 13) {
       this.renameMap(mapList, indexToRename);
    }
@@ -146,16 +154,20 @@ RenameMapDialog.prototype.keyPress = function keyPress(e, mapList, indexToRename
  * @param {number} indexToRename - the index of the map to be renamed
  * @return {void}
  */
-RenameMapDialog.prototype.renameMap = function renameMap(mapList, indexToRename) {
+RenameMapDialog.prototype.renameMap =
+   function renameMap(mapList, indexToRename) {
+
    let newMapListEntry;
    let newName;
 
-   //----------------------------------------------------------------------
-   // Update the name to be saved, and if it's currently being edited, make sure the MapModel is updated.
-   //----------------------------------------------------------------------
+   //--------------------------------------------------------------------------
+   // Update the name to be saved, and if it's currently being edited, make
+   // sure the MapModel is updated.
+   //--------------------------------------------------------------------------
    newName = document.getElementById(RenameMapDialog.INPUT_FIELD_ID).value;
    if (newName !== mapList[indexToRename].name) {
-      if (m3App.getController().getMapModel().getDbKey() === mapList[indexToRename].key) {
+      if (m3App.getController().getMapModel().getDbKey() ===
+             mapList[indexToRename].key) {
          m3App.getController().getMapModel().setMapName(newName);
       }
 
@@ -166,7 +178,8 @@ RenameMapDialog.prototype.renameMap = function renameMap(mapList, indexToRename)
          this.close();
 
       }).catch( (err) => {
-         let error = new ErrorDialog(`Error trying to rename map from ${mapList[indexToRename].name} to ${newName}: ${err}`);
+         let error = new ErrorDialog("Error trying to rename map from " +
+            `${mapList[indexToRename].name} to ${newName}: ${err}`);
       });
    }
 }; // renameMap()

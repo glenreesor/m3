@@ -36,48 +36,56 @@ export function SaveDialog() {
    //--------------------------------------------------------------------------
    // Tags to be added
    //--------------------------------------------------------------------------
-   html = `<div id='${SaveDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-          "   <p style='text-align: center; font-weight: bold'>Save Map</p>";
+   html = `<div id='${SaveDialog.DIALOG_ID}' class='popup' style='height: ` +
+             `${Sizer.popupHeight}px'>` +
+             "<p style='text-align: center; font-weight: bold'>Save Map</p>";
 
    // Add the list of saved maps
    App.myDB.getItem(App.KEY_MAPLIST).then((mapList) => {
       mapList.forEach(function(map) {
-         html += `   <p>${map.name}</p>`;
+         html += `<p>${map.name}</p>`;
       });
 
       // Allow them to specify the name
-      html += `   <input type='text' id='${SaveDialog.INPUT_FIELD_ID}'` +
-                         `size='20' value='${m3App.getController().getMapModel().getMapName()}'/>`;
+      html += `<input type='text' id='${SaveDialog.INPUT_FIELD_ID}'` +
+                 "size='20' value='" +
+                 `${m3App.getController().getMapModel().getMapName()}'/>`;
 
       // Add the buttons
       html += `   <br><br><button id='${SaveDialog.SAVE_ID}'>Save</button>` +
               `   <button id='${SaveDialog.CANCEL_ID}'>Cancel</button>` +
               "</div>";
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Create the dialog
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       domParser = new DOMParser();
       htmlAsDoc = domParser.parseFromString(html, "text/html");
-      this._saveDialog = document.importNode(htmlAsDoc.getElementById(SaveDialog.DIALOG_ID), true);
+      this._saveDialog = document.importNode(htmlAsDoc
+         .getElementById(SaveDialog.DIALOG_ID), true);
       document.getElementById("app-popups").appendChild(this._saveDialog);
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Add our listeners
-      //--------------------------------------------------------------------------
-      document.getElementById(SaveDialog.SAVE_ID).addEventListener("click", () => this.saveMap());
-      document.getElementById(SaveDialog.CANCEL_ID).addEventListener("click", () => this.close());
-      document.getElementById(SaveDialog.INPUT_FIELD_ID).addEventListener("keypress", (e) => this.keyPress(e));
+      //-----------------------------------------------------------------------
+      document.getElementById(SaveDialog.SAVE_ID).addEventListener("click",
+         () => this.saveMap());
 
-      //--------------------------------------------------------------------------
+      document.getElementById(SaveDialog.CANCEL_ID).addEventListener("click",
+         () => this.close());
+
+      document.getElementById(SaveDialog.INPUT_FIELD_ID)
+         .addEventListener("keypress", (e) => this.keyPress(e));
+
+      //-----------------------------------------------------------------------
       // Finally, make the app-popups div visible and set state
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       document.getElementById("app-popups").removeAttribute("hidden");
       m3App.getGlobalState().setState(State.STATE_DIALOG_SAVE);
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Select all text and give it focus
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       (document.getElementById(SaveDialog.INPUT_FIELD_ID)).select();
       (document.getElementById(SaveDialog.INPUT_FIELD_ID)).focus();
    });
@@ -147,7 +155,9 @@ SaveDialog.prototype.saveMap = function saveMap() {
    //----------------------------------------------------------------------
    // Save the current map
    //----------------------------------------------------------------------
-   App.myDB.setItem(mapKey, m3App.getController().getMapModel().getAsXml()).then( () => {
+   App.myDB.setItem(mapKey,
+                    m3App.getController().getMapModel().getAsXml()).then(
+                       () => {
       m3App.getController().getMapModel().setModifiedStatus(false);
       return App.myDB.getItem(App.KEY_MAPLIST);
 

@@ -37,7 +37,9 @@ export function TextView(nodeView, nodeModel) {
    // One-time creation of required html/svg elements
    //---------------------------------------------------------------------------
    this._svgText = document.createElementNS(SVGNS, "text");
-   this._svgText.appendChild(document.createTextNode("")); // Will be replaced by update()
+
+   // Will be replaced by update()
+   this._svgText.appendChild(document.createTextNode(""));
    document.getElementById("svgTextLayer").appendChild(this._svgText);
 
    //---------------------------------------------------------------------------
@@ -137,7 +139,8 @@ TextView.prototype.update = function update() {
          this._svgText.setAttribute("font-style", "italic");
       }
 
-      this._svgText.setAttribute("font-size", this._myNodeModel.getFont().getSize());
+      this._svgText.setAttribute("font-size",
+                                 this._myNodeModel.getFont().getSize());
    }
    this._svgText.setAttribute("fill", this._myNodeModel.getTextColor());
 }; // update()

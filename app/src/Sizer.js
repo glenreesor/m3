@@ -19,8 +19,8 @@
 
 /**
  * Sizer is an object to handle initializing the size of the app, and setting
- * up event handlers to deal with resize events. Only expect one of these objects
- * to be instantiated.
+ * up event handlers to deal with resize events. Only expect one of these
+ * objects to be instantiated.
  *
  * @constructor
  */
@@ -44,7 +44,8 @@ export function Sizer() {
    appDrawingArea.style.marginRight = Sizer._SIDE_ICONS_WIDTH + "px";
    appDrawingArea.style.marginBottom = Sizer._BOTTOM_ICONS_HEIGHT + "px";
 
-   svgElement.setAttribute("style", "border: " + Sizer._SVG_BORDER_WIDTH + "px solid black;");
+   svgElement.setAttribute("style", `border: ${Sizer._SVG_BORDER_WIDTH}px` +
+                           "solid black;");
 
    //-------------------------------------------------------------------------
    // Resize whenever window changes dimensions
@@ -56,8 +57,8 @@ export function Sizer() {
 
 Sizer._MARGINS = {appMarginTop: 1,          appMarginBottom: 1,
                   appMarginLeft: 1,         appMarginRight: 1};
-Sizer._BOTTOM_ICONS_HEIGHT = 44; // Includes blank space as well as active border width
-Sizer._SIDE_ICONS_WIDTH = 38; // Includes blank space as well as active border width
+Sizer._BOTTOM_ICONS_HEIGHT = 44; // Includes blank space and active border width
+Sizer._SIDE_ICONS_WIDTH = 38; // Includes blank space and active border width
 Sizer._SVG_BORDER_WIDTH = 1;
 
 /**
@@ -93,8 +94,11 @@ Sizer.setSize = function () {
    appTopHeight = document.getElementById("app-top").clientHeight;
 
    svgElement = document.getElementById("svg-element");
-   svgHeight = totalAppHeight - appTopHeight - 2*Sizer._SVG_BORDER_WIDTH - Sizer._BOTTOM_ICONS_HEIGHT;
-   svgWidth = totalAppWidth - 2*Sizer._SVG_BORDER_WIDTH - Sizer._SIDE_ICONS_WIDTH;
+   svgHeight = totalAppHeight - appTopHeight - 2*Sizer._SVG_BORDER_WIDTH -
+               Sizer._BOTTOM_ICONS_HEIGHT;
+
+   svgWidth = totalAppWidth - 2*Sizer._SVG_BORDER_WIDTH -
+              Sizer._SIDE_ICONS_WIDTH;
 
    svgElement.setAttribute("height", svgHeight + "px");
    svgElement.setAttribute("width", svgWidth + "px");

@@ -134,7 +134,8 @@ RichTextView.prototype.update = function update() {
    //       height, because clientHeight doesn't include margins.
    //-----------------------------------------------------------------------
    domParser = new DOMParser();
-   richTextAsDoc = domParser.parseFromString(this._myNodeModel.getRichText(), "text/html");
+   richTextAsDoc = domParser.parseFromString(this._myNodeModel.getRichText(),
+                                             "text/html");
    richTextRootNode = document.importNode(richTextAsDoc.documentElement, true);
 
    document.getElementById("app-html-sizing").appendChild(richTextRootNode);

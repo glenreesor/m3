@@ -139,7 +139,8 @@ RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
                                   "No content in <richcontent>");
    }
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created richcontent.");
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+      "Created richcontent.");
 }; // loadFromXml1_0_1()
 
 /**
