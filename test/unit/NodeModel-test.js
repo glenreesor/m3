@@ -167,9 +167,10 @@ const allAttributes = {
 
 // Leaving out <node> as an embedded tag, since requires much more effort
 // for testing. This is tested in integration testing.
-const allEmbeddedTags = ['<arrowlink/>', '<cloud/>', '<font/>', '<linktarget/>',
-                         '<richcontent TYPE="NODE"><html>content:node</html></richcontent>',
-                         '<richcontent TYPE="NOTE"><html>content:note</html></richcontent>'];
+const allEmbeddedTags =
+   ['<arrowlink/>', '<cloud/>', '<font/>', '<linktarget/>',
+    '<richcontent TYPE="NODE"><html>content:node</html></richcontent>',
+    '<richcontent TYPE="NOTE"><html>content:note</html></richcontent>'];
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
