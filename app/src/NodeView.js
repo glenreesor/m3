@@ -63,8 +63,8 @@ export function NodeView(controller, myModel) {
 
    this._myBubble = new BubbleView(this, this._myNodeModel, this._myText);
 
-   // Must create cloud here, even though we don't know the size, to ensure proper
-   // z-order of clouds (parent clouds must be under child clouds)
+   // Must create cloud here, even though we don't know the size, to ensure
+   // proper z-order of clouds (parent clouds must be under child clouds)
    if (this._myNodeModel.hasCloud()) {
       this._myCloud = new CloudView(this._myNodeModel.getCloudModel());
    } else {
@@ -82,7 +82,7 @@ export function NodeView(controller, myModel) {
    });
 } // NodeView()
 
-NodeView.VERTICAL_SEPARATION = 15;  // Vertical separation between two child nodes
+NodeView.VERTICAL_SEPARATION = 15;  // Vertical separation between 2 child nodes
 
 /**
  * Calculate the dimensions required to display this node. This requires
@@ -98,7 +98,9 @@ NodeView.prototype.calcDimensions = function calcDimensions() {
    // depend on width/height of my children, so have the children calculate
    // their dimensions first
    //--------------------------------------------------------------------------
-   if (this._myNodeModel.getChildren().length !== 0 && !this._myNodeModel.isFolded()) {
+   if (this._myNodeModel.getChildren().length !== 0 &&
+       !this._myNodeModel.isFolded()) {
+
       this._myNodeModel.getChildren().forEach( (child) => {
          this._controller.getNodeView(child).calcDimensions();
       });
@@ -137,10 +139,10 @@ NodeView.prototype.calcDimensions = function calcDimensions() {
       // Height
       this._myTotalHeight = this._myHeight;
       this._myTotalHeight = Math.max(this._myTotalHeight,
-                                     this.getTotalChildrenHeight(NodeModel.POSITION_LEFT));
+         this.getTotalChildrenHeight(NodeModel.POSITION_LEFT));
 
       this._myTotalHeight = Math.max(this._myTotalHeight,
-                                     this.getTotalChildrenHeight(NodeModel.POSITION_RIGHT));
+         this.getTotalChildrenHeight(NodeModel.POSITION_RIGHT));
 
    } else {
       //-----------------------------------------------------------------------
@@ -163,11 +165,12 @@ NodeView.prototype.calcDimensions = function calcDimensions() {
       this._myTotalHeight = this._myBubble.getHeight();
 
       if (this._myNodeModel.getChildren().length !== 0) {
-         this._myTotalHeight = Math.max(this._myHeight, this._myFoldingIcon.getHeight());
+         this._myTotalHeight = Math.max(this._myHeight,
+            this._myFoldingIcon.getHeight());
 
          if (this._myNodeModel.isFolded() !== true) {
             this._myTotalHeight = Math.max(this._myTotalHeight,
-                                           this.getTotalChildrenHeight(this._mySide));
+               this.getTotalChildrenHeight(this._mySide));
          }
       }
    }
@@ -216,13 +219,15 @@ NodeView.prototype.deleteMyself = function deleteMyself() {
  *
  * @param {number} x - The x-coordinate of the left edge of the bubble
  * @param {number} y - The y-coordinate of the vertical middle of the bubbble
- * @param {number} parentConnectorX - The x-coordinate where connector attaches to
- *                                    this node's parent
- * @param {number} parentConnectorY - The y-coordinate where connector attaches to
- *                                    this node-s parent
+ * @param {number} parentConnectorX - The x-coordinate where connector attaches
+ *                                    to this node's parent
+ * @param {number} parentConnectorY - The y-coordinate where connector attaches
+ *                                    to this node-s parent
  * @return {void}
  */
-NodeView.prototype.drawAt = function drawAt(x, y, parentConnectorX, parentConnectorY) {
+NodeView.prototype.drawAt =
+   function drawAt(x, y, parentConnectorX, parentConnectorY) {
+
    this._x = x;
    this._y = y;
 
@@ -242,7 +247,8 @@ NodeView.prototype.drawAt = function drawAt(x, y, parentConnectorX, parentConnec
          this._myConnector.setPosition(x + this.getBubbleWidth(), y,
                                        parentConnectorX, parentConnectorY);
       } else {
-         this._myConnector.setPosition(x, y, parentConnectorX, parentConnectorY);
+         this._myConnector.setPosition(x, y, parentConnectorX,
+                                       parentConnectorY);
       }
    }
 
@@ -280,8 +286,8 @@ NodeView.prototype.drawAt = function drawAt(x, y, parentConnectorX, parentConnec
             cloudX = x - this._myFoldingIcon.getWidth();
             childWidthTmp = this.getMaxChildTotalWidth(NodeModel.POSITION_LEFT);
             if (childWidthTmp !== 0) {
-               cloudX = x - this._myFoldingIcon.getWidth() - ConnectorView.WIDTH -
-                        childWidthTmp;
+               cloudX = x - this._myFoldingIcon.getWidth() -
+                        ConnectorView.WIDTH - childWidthTmp;
             }
          }
       } else {
@@ -316,7 +322,8 @@ NodeView.prototype.drawAt = function drawAt(x, y, parentConnectorX, parentConnec
 
          // Position the FoldingIcon
          if (this._mySide === NodeModel.POSITION_LEFT) {
-            this._myFoldingIcon.setPosition(x - this._myFoldingIcon.getWidth(), y);
+            this._myFoldingIcon.setPosition(x - this._myFoldingIcon.getWidth(),
+                                            y);
          } else {
             this._myFoldingIcon.setPosition(x + this._myBubble.getWidth(), y);
          }
@@ -336,7 +343,8 @@ NodeView.prototype.drawAt = function drawAt(x, y, parentConnectorX, parentConnec
 
 /**
  * Draw the children of this node that are on the specified side
- * @param {String} side - Either NodeModel.POSITION_LEFT or NodeModel.POSITION_RIGHT
+ * @param {String} side - Either NodeModel.POSITION_LEFT or
+ *                        NodeModel.POSITION_RIGHT
  * @return {void}
  */
 NodeView.prototype._drawChildren = function _drawChildren(side) {
@@ -379,23 +387,28 @@ NodeView.prototype._drawChildren = function _drawChildren(side) {
 
          // Position child properly
          if (side === NodeModel.POSITION_LEFT) {
-            childPositionX = myConnectorX - ConnectorView.WIDTH - childView.getBubbleWidth();
+            childPositionX = myConnectorX - ConnectorView.WIDTH -
+                             childView.getBubbleWidth();
          } else {
             childPositionX = myConnectorX + ConnectorView.WIDTH;
          }
 
          childPositionY += childView.getTotalHeight() / 2;
 
-         childView.drawAt(childPositionX, childPositionY, myConnectorX, this._y);
+         childView.drawAt(childPositionX, childPositionY, myConnectorX,
+                          this._y);
 
-         // Top of next child will be below this one, including vertical separation
-         childPositionY += childView.getTotalHeight()/2 + NodeView.VERTICAL_SEPARATION;
+         // Top of next child will be below this one, including vertical
+         // separation
+         childPositionY += childView.getTotalHeight()/2 +
+                           NodeView.VERTICAL_SEPARATION;
       } // if child was on the side to be drawn
    }); // for each child
 }; // drawChildren()
 
 /**
- * Tell each of my graphical links (where this node is the source) to draw themselves
+ * Tell each of my graphical links (where this node is the source) to draw
+ * themselves
  * @return {void}
  */
 NodeView.prototype.drawGraphicalLinks = function drawGraphicalLinks() {
@@ -413,8 +426,10 @@ NodeView.prototype.getGraphicalLinkCoords = function getGraphicalLinkCoords() {
    let coords = {x: null, y: null};
 
    if (this.isRoot || this._mySide === NodeModel.POSITION_RIGHT) {
-      // Root and nodes on the right have their graphical links on the right side
-      coords.x = this._x + this._myBubble.getWidth() + GraphicalLinkView.ARROW_WIDTH;
+      // Root and nodes on the right have their graphical links on right side
+      coords.x = this._x + this._myBubble.getWidth() +
+                 GraphicalLinkView.ARROW_WIDTH;
+
       if (this._myFoldingIcon !== null) {
          coords.x += this._myFoldingIcon.getWidth();
       }
@@ -439,14 +454,17 @@ NodeView.prototype.getGraphicalLinkCoords = function getGraphicalLinkCoords() {
  * @param {String} - NodeModel.POSITION_LEFT or NodeModel.POSITION_RIGHT
  * @return {number} - Maximum width of all the children on the specified side
  */
-NodeView.prototype.getMaxChildTotalWidth = function getMaxChildTotalWidth(side) {
+NodeView.prototype.getMaxChildTotalWidth =
+   function getMaxChildTotalWidth(side) {
+
    let returnValue = 0;
 
    if (this._myNodeModel.isFolded() !== true) {
       this._myNodeModel.getChildren().forEach( (child) => {
          if (child.getSide() === side) {
             returnValue = Math.max(returnValue,
-                                   this._controller.getNodeView(child).getTotalWidth()
+                                   this._controller.getNodeView(child)
+                                      .getTotalWidth()
                                   );
          }
       });
@@ -459,11 +477,14 @@ NodeView.prototype.getMaxChildTotalWidth = function getMaxChildTotalWidth(side) 
  * Get the total height of all my children. This includes clouds and separation
  * between them
  *
- * @param {String} side - Either NodeModel.POSITION_LEFT or NodeModel.POSITION_RIGHT
+ * @param {String} side - Either NodeModel.POSITION_LEFT or
+  *                       NodeModel.POSITION_RIGHT
  * @return {number} - Total height of all my children on the specified side
  *                    (0 if I'm folded)
  */
-NodeView.prototype.getTotalChildrenHeight = function getChildrenTotalHeight(side) {
+NodeView.prototype.getTotalChildrenHeight =
+   function getChildrenTotalHeight(side) {
+
    let numChildrenOnSide = 0;
    let totalHeight = 0;
 

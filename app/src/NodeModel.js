@@ -52,11 +52,11 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._backgroundColor = "#ffffff";
    this._children = [];
    this._cloudModel = null;
-   this._font = null;                  // Will point to Font object if there are non-default font properties
+   this._font = null;             // Points to Font object
    this._isFolded = false;
    this._linkTargets = [];
-   this._note = null;                  // Will point to the corresponding RichContent object
-   this._richText = null;              // Will point to the corresponding RichContent object
+   this._note = null;             // Points to corresponding RichContent object
+   this._richText = null;         // Points to corresponding RichContent object
    this._textColor = "#000000";
 
    this._unknownAttributes = [];    // Attributes that m3 doesn't understand
@@ -86,8 +86,8 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
 } // NodeModel()
 
 NodeModel.POSITION_NONE = "none";
-NodeModel.POSITION_RIGHT = "right";   // XML value used only for first level nodes
-NodeModel.POSITION_LEFT = "left";     // XML value used only for first level nodes
+NodeModel.POSITION_RIGHT = "right";   // XML value. Only for first level nodes
+NodeModel.POSITION_LEFT = "left";     // XML value. Only for first level nodes
 NodeModel.TYPE_NEW = "new";            // Used by constructor
 NodeModel.TYPE_XML = "xml";            // Used by constructor
 
@@ -99,7 +99,8 @@ NodeModel.TYPE_XML = "xml";            // Used by constructor
  * @return {NodeModel} - The child NodeModel that was created.
  */
 NodeModel.prototype.addChild = function addChild(text) {
-   let childNode = new NodeModel(this._controller, this._myMapModel, NodeModel.TYPE_NEW, this, text);
+   let childNode = new NodeModel(this._controller, this._myMapModel,
+                                 NodeModel.TYPE_NEW, this, text);
    this._children.push(childNode);
    this._myMapModel.setModifiedStatus(true);
    return childNode;
@@ -108,20 +109,25 @@ NodeModel.prototype.addChild = function addChild(text) {
 /**
  * Create a new child node after the specified child, using the specified text.
  *
- * @param {NodeModel} previousSibling - the sibling before the newly created node
+ * @param {NodeModel} previousSibling - the sibling before the newly created
+ *                                      node
  * @param {String} text - The text to be put in the newly created child node
  *
  * @return {NodeModel} - The child NodeModel that was created.
  */
-NodeModel.prototype.addChildAfter = function addChildAfter(previousSibling, text) {
-   let childNode = new NodeModel(this._controller, this._myMapModel, NodeModel.TYPE_NEW, this, text);
-   this._children.splice(this._children.indexOf(previousSibling)+1, 0, childNode);
+NodeModel.prototype.addChildAfter = function addChildAfter(previousSibling,
+                                                           text) {
+   let childNode = new NodeModel(this._controller, this._myMapModel,
+                                 NodeModel.TYPE_NEW, this, text);
+   this._children.splice(this._children.indexOf(previousSibling)+1, 0,
+                         childNode);
    this._myMapModel.setModifiedStatus(true);
    return childNode;
 }; // addChildAfter()
 
 /**
- * Link the ArrowLink objects to corresponding NodeModel objects, for this NodeModel
+ * Link the ArrowLink objects to corresponding NodeModel objects, for this
+ * NodeModel
  *
  * @return {void}
  */
@@ -487,11 +493,14 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
          // exported
          this._unknownAttributes.push({attribute:`${attribute.name}`,
                                        value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <node> attribute: " + attribute.name);
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+                                     "Unexpected <node> attribute: " +
+                                     attribute.name);
       }
    }
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created node: " + this._text);
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+                              "Created node: " + this._text);
 
    //-----------------------------------------------------------------------
    // Load child mind map nodes.
@@ -516,7 +525,10 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
          if (tagName === "node") {
             m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
                   "Loading <" + xmlChildNode.tagName + ">");
-            newNode = new NodeModel(this._controller, this._myMapModel, NodeModel.TYPE_XML, this, "", xmlChildNode);
+            newNode = new NodeModel(this._controller,
+                                    this._myMapModel, NodeModel.TYPE_XML, this,
+                                    "", xmlChildNode);
+
             this._children.push(newNode);
 
          } else if (tagName === "arrowlink") {
@@ -554,7 +566,8 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
          } else {
             this._unknownTags.push(serializer.serializeToString(xmlChildNode));
             m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                  "Unexpected <node> embedded tag: <" + xmlChildNode.tagName + ">");
+                  "Unexpected <node> embedded tag: <" +
+                  xmlChildNode.tagName + ">");
          }
       }
    }

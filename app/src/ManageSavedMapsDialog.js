@@ -38,49 +38,62 @@ export function ManageSavedMapsDialog() {
    //--------------------------------------------------------------------------
    // Tags to be added
    //--------------------------------------------------------------------------
-   html = `<div id='${ManageSavedMapsDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-          "   <p style='text-align: center; font-weight: bold;'>Saved Maps</p>";
+   html = `<div id='${ManageSavedMapsDialog.DIALOG_ID}' class='popup' ` +
+            `style='height: ${Sizer.popupHeight}px'>` +
+             "<p style='text-align: center; font-weight: bold;'>Saved Maps</p>";
 
    // Add the list of saved maps
    App.myDB.getItem(App.KEY_MAPLIST).then((mapList) => {
       mapList.forEach(function(map) {
-         html += `   <span>${map.name}</span>` +
-                 `      <button id='${ManageSavedMapsDialog.RENAME_ID_PREFIX}${map.key}'>Rename</button>` +
-                 `      <button id='${ManageSavedMapsDialog.DELETE_ID_PREFIX}${map.key}'>` +
-                 `Delete</button><br><br>`;
+         html += `<span>${map.name}</span>` +
+                    `<button id='${ManageSavedMapsDialog.RENAME_ID_PREFIX}` +
+                       `${map.key}'>Rename</button>` +
+                    `<button id='${ManageSavedMapsDialog.DELETE_ID_PREFIX}` +
+                       `${map.key}'>Delete</button><br><br>`;
       });
 
       // Add closing tags
-      html += `   <button id='${ManageSavedMapsDialog.CANCEL_ID}'>Cancel</button>` +
+      html += `<button id='${ManageSavedMapsDialog.CANCEL_ID}'>Cancel` +
+              "</button>" +
               "</div>";
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Create the dialog
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       domParser = new DOMParser();
       htmlAsDoc = domParser.parseFromString(html, "text/html");
-      this._manageSavedMapsDialog = document.importNode(htmlAsDoc.getElementById(ManageSavedMapsDialog.DIALOG_ID), true);
-      document.getElementById("app-popups").appendChild(this._manageSavedMapsDialog);
+      this._manageSavedMapsDialog = document.importNode(htmlAsDoc
+         .getElementById(ManageSavedMapsDialog.DIALOG_ID), true);
 
-      //--------------------------------------------------------------------------
+      document.getElementById("app-popups").appendChild(
+         this._manageSavedMapsDialog);
+
+      //-----------------------------------------------------------------------
       // Add the event listeners
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       mapList.forEach((map, index) => {
          // Note: Pass the mapList to event handlers because so they don't have
          //       to query the DB again
-         document.getElementById(`${ManageSavedMapsDialog.RENAME_ID_PREFIX}${map.key}`).addEventListener("click", () => this.renameMap(mapList, index));
-         document.getElementById(`${ManageSavedMapsDialog.DELETE_ID_PREFIX}${map.key}`).addEventListener("click", () => this.deleteMap(mapList, index));
+         document.getElementById(
+            `${ManageSavedMapsDialog.RENAME_ID_PREFIX}${map.key}`)
+            .addEventListener("click", () => this.renameMap(mapList, index));
+
+         document.getElementById(
+            `${ManageSavedMapsDialog.DELETE_ID_PREFIX}${map.key}`)
+            .addEventListener("click", () => this.deleteMap(mapList, index));
       });
 
-      document.getElementById(ManageSavedMapsDialog.CANCEL_ID).addEventListener("click", () => this.close());
+      document.getElementById(ManageSavedMapsDialog.CANCEL_ID)
+         .addEventListener("click", () => this.close());
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Finally, make the app-popups div visible and set state
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       document.getElementById("app-popups").removeAttribute("hidden");
       m3App.getGlobalState().setState(State.STATE_DIALOG_MANAGE_SAVED_MAPS);
    }).catch(function (err) {
-      let errorDialog = new ErrorDialog("Unable to load list of saved maps: " + err);
+      let errorDialog = new ErrorDialog("Unable to load list of saved maps: " +
+                                        err);
    });
 } // ManageSavedMapsDialog()
 
@@ -113,10 +126,14 @@ ManageSavedMapsDialog.prototype.close = function close() {
  * @param {number} indexToDelete - the index of the map to delete
  * @return {void}
  */
-ManageSavedMapsDialog.prototype.deleteMap = function deleteMap(mapList, indexToDelete) {
+ManageSavedMapsDialog.prototype.deleteMap =
+   function deleteMap(mapList, indexToDelete) {
+
    let error;
 
-   if (mapList[indexToDelete].key === m3App.getController().getMapModel().getDbKey()) {
+   if (mapList[indexToDelete].key ===
+          m3App.getController().getMapModel().getDbKey()) {
+
       this.close();
       error = new ErrorDialog("Error: Cannot delete map being edited");
 
@@ -130,7 +147,8 @@ ManageSavedMapsDialog.prototype.deleteMap = function deleteMap(mapList, indexToD
 
       }).catch( (err) => {
          error = new ErrorDialog("Error trying to delete map " +
-               `"${mapList[indexToDelete].name}" with key ${mapList[indexToDelete].key}: ${err}`);
+               `"${mapList[indexToDelete].name}" with key ` +
+               `${mapList[indexToDelete].key}: ${err}`);
       });
 
    }
@@ -142,7 +160,9 @@ ManageSavedMapsDialog.prototype.deleteMap = function deleteMap(mapList, indexToD
  * @param {number} indexToRename - the index of the map to rename
  * @return {void}
  */
-ManageSavedMapsDialog.prototype.renameMap = function renameMap(mapList, indexToRename) {
+ManageSavedMapsDialog.prototype.renameMap =
+   function renameMap(mapList, indexToRename) {
+
    let renameMapDialog;
 
    this.close();

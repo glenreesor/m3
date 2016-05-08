@@ -59,12 +59,13 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
    }
 } // MapModel()
 
-MapModel._DEFAULT_VERSION = "1.0.1";     // Right now we read and write Freemind version 1.0.1
+MapModel._DEFAULT_VERSION = "1.0.1";
 MapModel.TYPE_EMPTY = "empty";           // Used by constructor
 MapModel.TYPE_XML = "xml";               // Used by constructor
 
 /**
- * Connect arrowLinks to the appropriate NodeModel, starting at the specified node
+ * Connect arrowLinks to the appropriate NodeModel, starting at the specified
+ * node
  * @param {NodeModel} startNode - The node at which to start (recursively)
  * @return {void}
  */
@@ -154,7 +155,9 @@ MapModel.prototype.getNodeModelById = function getNodeModelById(startNode, id) {
    if (startNode.getId() === id) {
       nodeToReturn = startNode;
    } else {
-      for (i=0; i< startNode.getChildren().length && nodeToReturn === null; i++) {
+      for (i=0; i< startNode.getChildren().length &&
+                   nodeToReturn === null; i++) {
+
          child = startNode.getChildren()[i];
          nodeToReturn = this.getNodeModelById(child, id);
       }
@@ -206,7 +209,8 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
       try {
          domDocument = parser.parseFromString(mapAsOneXmlString, "text/xml");
       } catch (e) {
-         m3App.getDiagnostics().err(Diagnostics.TASK_IMPORT_XML, "Error parsing XML.");
+         m3App.getDiagnostics().err(Diagnostics.TASK_IMPORT_XML,
+                                    "Error parsing XML.");
          m3App.getDiagnostics().err(Diagnostics.TASK_IMPORT_XML, e.message);
       }
    }
@@ -217,8 +221,8 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
    mapElement = domDocument.documentElement;
    if (mapElement.nodeName.toLowerCase() !== "map") {
       m3App.getDiagnostics().err(Diagnostics.TASK_IMPORT_XML,
-                      "This doesn't look like a mind map file. Doesn't start with " +
-                      "<map>");
+                      "This doesn't look like a mind map file. " +
+                      "Doesn't start with <map>");
       return;
    }
 
@@ -268,8 +272,9 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    let numChildren;
    let serializer;
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Loading a version '" +
-                   this._version + "' file.");
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+                              "Loading a version '" +
+                              this._version + "' file.");
    // ---------------------------------------------------------------------
    // Here's how to deal with parsing errors:
    // For missing required tags/attributes:
@@ -297,8 +302,9 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
          // exported
          this._unknownAttributes.push({attribute:`${attribute.name}`,
                                        value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <map> attribute '" +
-                          attribute.name + "' on tag <map>.");
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+                                     "Unexpected <map> attribute '" +
+                                     attribute.name + "' on tag <map>.");
       }
    }
 
@@ -322,16 +328,19 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
       if (childNode.nodeType === 1) {
 
          if (childNode.tagName.toLowerCase() === "node") {
-            m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Loading <" +
-                            childNode.tagName + ">");
+            m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+                                       "Loading <" +
+                                       childNode.tagName + ">");
 
             // Create the new NodeModel
-            newNode = new NodeModel(this._controller, this, NodeModel.TYPE_XML, null, "", childNode);
+            newNode = new NodeModel(this._controller, this, NodeModel.TYPE_XML,
+                                    null, "", childNode);
             this._rootNode = newNode;
          } else {
             this._unknownTags.push(serializer.serializeToString(childNode));
-            m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <map> embedded tag: <" +
-                             childNode.tagName + ">");
+            m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+                                        "Unexpected <map> embedded tag: <" +
+                                        childNode.tagName + ">");
          }
       }
    }
@@ -353,7 +362,9 @@ MapModel.prototype.save = function save() {
       App.myDB.setItem(this._dbKey, this.getAsXml()).then( () => {
          this.setModifiedStatus(false);
       }).catch( (err) => {
-         let errorDialog = new ErrorDialog(`Error saving map '${this._mapName}' using key '${this._dbKey}': ${err}`);
+         let errorDialog = new ErrorDialog("Error saving map " +
+                                           `${this._mapName}' using key ` +
+                                           `'${this._dbKey}': ${err}`);
       });
    }
 }; // save()
@@ -379,7 +390,8 @@ MapModel.prototype.setMapName = function setMapName(name) {
 
 /**
   * Set the modified status of this map.
-  * @param {boolean} status - Either false (unmodified) or true (modified/unsaved)
+  * @param {boolean} status - Either false (unmodified) or true
+  *                           (modified/unsaved)
   * @return {void}
   */
 MapModel.prototype.setModifiedStatus = function setModifiedStatus(status) {
