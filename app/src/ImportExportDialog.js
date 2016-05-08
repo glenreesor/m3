@@ -37,18 +37,20 @@ export function ImportExportDialog() {
    //--------------------------------------------------------------------------
    // Tags to be added
    //--------------------------------------------------------------------------
-   html = `<div id='${ImportExportDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-          "   <p>" +
-          "      Import from .mm file:" +
-          `      <input id='${ImportExportDialog.FILE_INPUT_ID}' type='file'` +
-          "   </p>" +
-          "   <br>" +
-          "   <p>" +
-          "      Export to .mm file:" +
-          `      <button id='${ImportExportDialog.EXPORT_ID}'>Export</button>` +
-          "   </p>" +
-          "   <br>" +
-          `   <button id='${ImportExportDialog.CANCEL_ID}'>Cancel</button>` +
+   html = `<div id='${ImportExportDialog.DIALOG_ID}' class='popup' ` +
+             `style='height: ${Sizer.popupHeight}px'>` +
+             "<p>" +
+                "Import from .mm file:" +
+                `<input id='${ImportExportDialog.FILE_INPUT_ID}' type='file'` +
+                "</p>" +
+                "<br>" +
+                "<p>" +
+                   "Export to .mm file:" +
+                   `<button id='${ImportExportDialog.EXPORT_ID}'>` +
+                   `Export</button>` +
+                "</p>" +
+                "<br>" +
+             `<button id='${ImportExportDialog.CANCEL_ID}'>Cancel</button>` +
           "</div>";
 
    //--------------------------------------------------------------------------
@@ -56,15 +58,22 @@ export function ImportExportDialog() {
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
    htmlAsDoc = domParser.parseFromString(html, "text/html");
-   this._importExportDialog = document.importNode(htmlAsDoc.getElementById(ImportExportDialog.DIALOG_ID), true);
+   this._importExportDialog = document.importNode(
+      htmlAsDoc.getElementById(ImportExportDialog.DIALOG_ID), true);
+
    document.getElementById("app-popups").appendChild(this._importExportDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
    //--------------------------------------------------------------------------
-   document.getElementById(ImportExportDialog.CANCEL_ID).addEventListener("click", () => this.close());
-   document.getElementById(ImportExportDialog.EXPORT_ID).addEventListener("click", () => this.exportMap());
-   document.getElementById(ImportExportDialog.FILE_INPUT_ID).addEventListener("change", (event) => this.fileInput(event));
+   document.getElementById(ImportExportDialog.CANCEL_ID)
+      .addEventListener("click", () => this.close());
+
+   document.getElementById(ImportExportDialog.EXPORT_ID)
+      .addEventListener("click", () => this.exportMap());
+
+   document.getElementById(ImportExportDialog.FILE_INPUT_ID)
+   .addEventListener("change", (event) => this.fileInput(event));
 
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state
@@ -118,7 +127,8 @@ ImportExportDialog.prototype.fileInput = function fileInput(event) {
 
    fileReader = new FileReader();
    fileReader.onloadend = () => {
-      m3App.getController().newMap(MapModel.TYPE_XML, null, "Imported Map", [fileReader.result]); // Remember constructor is expecting an array of XML strings
+      m3App.getController().newMap(MapModel.TYPE_XML, null, "Imported Map",
+                                   [fileReader.result]);
       this.close();
    };
    fileReader.readAsText(event.target.files[0]);

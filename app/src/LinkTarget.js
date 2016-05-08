@@ -28,11 +28,11 @@ import {m3App} from "./main";
 export function LinkTarget() {
    // Attributes that get saved
    this._color = null;
-   this._destination = null;     // This is the ID, not a pointer to the actual NodeModel object
+   this._destination = null;     // This is the ID string
    this._endArrow = null;
    this._endInclination = null;
    this._id = null;
-   this._source = null;          // This is the ID, not a pointer to the actual NodeModel object
+   this._source = null;          // This is the ID string
    this._startArrow = null;
    this._startInclination = null;
 
@@ -199,7 +199,8 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
          // exported
          this._unknownAttributes.push({attribute:`${attribute.name}`,
                                        value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML, "Unexpected <linktarget> attribute: " + attribute.name);
+         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
+            "Unexpected <linktarget> attribute: " + attribute.name);
       }
    }
 
@@ -219,7 +220,8 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
       }
    }
 
-   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created linktarget.");
+   m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+      "Created linktarget.");
 }; // loadFromXml1_0_1()
 
 /**
@@ -254,7 +256,9 @@ LinkTarget.prototype.setEndArrow = function setEndArrow(endArrow) {
   * @param {String} endInclination - The end inclination
   * @return {void}
   */
-LinkTarget.prototype.setEndInclination = function setEndInclination(endInclination) {
+LinkTarget.prototype.setEndInclination =
+   function setEndInclination(endInclination) {
+
    this._endInclination = endInclination;
 }; // setEndInclination()
 
@@ -290,6 +294,8 @@ LinkTarget.prototype.setStartArrow = function setStartArrow(startArrow) {
   * @param {String} startInclination - The start inclincation
   * @return {void}
   */
-LinkTarget.prototype.setStartInclination = function setStartInclination(startInclination) {
+LinkTarget.prototype.setStartInclination =
+   function setStartInclination(startInclination) {
+
    this._startInclination = startInclination;
 }; // setStartInclination()

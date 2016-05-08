@@ -1,4 +1,5 @@
 "use strict";
+/*eslint max-len: [2, 200]*/
 
 // Copyright 2015, 2016 Glen Reesor
 //

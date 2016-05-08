@@ -43,8 +43,9 @@ export function LoadDialog(controller) {
    //--------------------------------------------------------------------------
    // Tags to be added
    //--------------------------------------------------------------------------
-   html = `<div id='${LoadDialog.DIALOG_ID}' class='popup' style='height: ${Sizer.popupHeight}px'>` +
-          "   <p style='text-align: center; font-weight: bold;'>Load Map</p>";
+   html = `<div id='${LoadDialog.DIALOG_ID}' class='popup' style='height: ` +
+             `${Sizer.popupHeight}px'>` +
+             "<p style='text-align: center; font-weight: bold;'>Load Map</p>";
 
    // Warn the user if current map hasn't been saved
    if (this._controller.getMapModel().getModifiedStatus()) {
@@ -54,31 +55,37 @@ export function LoadDialog(controller) {
    // Add the list of saved maps
    App.myDB.getItem(App.KEY_MAPLIST).then((mapList) => {
       mapList.forEach(function(map) {
-         html += `   <p id=${RenameMapDialog.MAP_LIST_PREFIX}${map.key} class='clickableText'>${map.name}</p>`;
+         html += `<p id=${RenameMapDialog.MAP_LIST_PREFIX}${map.key} ` +
+                 `class='clickableText'>${map.name}</p>`;
       });
 
       // Add the sample map
-      html += "   <hr>" +
-              `   <p id='${LoadDialog.SAMPLE_ID}' class='clickableText'>m3 Sample</p>` +
-              `   <p id='${LoadDialog.NEW_MAP_ID}' class='clickableText'>New Map</p>`;
+      html += "<hr>" +
+              `<p id='${LoadDialog.SAMPLE_ID}' class='clickableText'>` +
+              "m3 Sample</p>" +
+              `<p id='${LoadDialog.NEW_MAP_ID}' ` +
+              "class='clickableText'>New Map</p>";
 
       // Add closing tags
       html += `   <button id='${LoadDialog.CANCEL_ID}'>Cancel</button>` +
               "</div>";
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Create the dialog
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       domParser = new DOMParser();
       htmlAsDoc = domParser.parseFromString(html, "text/html");
-      this._loadDialog = document.importNode(htmlAsDoc.getElementById(LoadDialog.DIALOG_ID), true);
+      this._loadDialog = document.importNode(htmlAsDoc
+         .getElementById(LoadDialog.DIALOG_ID), true);
+
       document.getElementById("app-popups").appendChild(this._loadDialog);
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Add the event listeners
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       mapList.forEach((map) => {
-         document.getElementById(RenameMapDialog.MAP_LIST_PREFIX + map.key).addEventListener("click", () => this.loadMap(map.key, map.name));
+         document.getElementById(RenameMapDialog.MAP_LIST_PREFIX + map.key)
+            .addEventListener("click", () => this.loadMap(map.key, map.name));
       });
       document.getElementById(LoadDialog.SAMPLE_ID).addEventListener("click",
          () => this.loadMap(LoadDialog.SAMPLE_ID, "m3 Sample"));
@@ -86,15 +93,17 @@ export function LoadDialog(controller) {
       document.getElementById(LoadDialog.NEW_MAP_ID).addEventListener("click",
          () => this.loadMap(LoadDialog.NEW_MAP_ID, ""));
 
-      document.getElementById(LoadDialog.CANCEL_ID).addEventListener("click", () => this.close());
+      document.getElementById(LoadDialog.CANCEL_ID).addEventListener("click",
+         () => this.close());
 
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       // Finally, make the app-popups div visible and set state
-      //--------------------------------------------------------------------------
+      //-----------------------------------------------------------------------
       document.getElementById("app-popups").removeAttribute("hidden");
       m3App.getGlobalState().setState(State.STATE_DIALOG_LOAD);
    }).catch(function (err) {
-      let errorDialog = new ErrorDialog("Unable to load list of saved maps: " + err);
+      let errorDialog = new ErrorDialog("Unable to load list of saved maps: " +
+                                        err);
    });
 } // LoadDialog()
 
@@ -136,7 +145,8 @@ LoadDialog.prototype.loadMap = function loadMap(mapKey, mapName) {
       this.close();
 
    } else if (mapKey === LoadDialog.SAMPLE_ID) {
-      this._controller.newMap(MapModel.TYPE_XML,  null, "m3 Sample", m3SampleXml);
+      this._controller.newMap(MapModel.TYPE_XML,  null, "m3 Sample",
+                              m3SampleXml);
       this.close();
 
    } else {
@@ -145,7 +155,9 @@ LoadDialog.prototype.loadMap = function loadMap(mapKey, mapName) {
          this.close();
       }).catch( (err) => {
          this.close();
-         let error = new ErrorDialog(`Error loading map '${mapName}' using key '${mapKey}'': ${err} ${err.stack}`);
+         let error = new ErrorDialog(`Error loading map '${mapName}'` +
+                                     `using key '${mapKey}'': ` +
+                                     `${err} ${err.stack}`);
       });
    }
 }; // loadMap()
