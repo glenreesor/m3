@@ -44,7 +44,7 @@ export function Sizer() {
    appDrawingArea.style.marginRight = Sizer._SIDE_ICONS_WIDTH + "px";
    appDrawingArea.style.marginBottom = Sizer._BOTTOM_ICONS_HEIGHT + "px";
 
-   svgElement.setAttribute("style", `border: ${Sizer._SVG_BORDER_WIDTH}px` +
+   svgElement.setAttribute("style", `border: ${Sizer._SVG_BORDER_WIDTH}px ` +
                            "solid black;");
 
    //-------------------------------------------------------------------------
