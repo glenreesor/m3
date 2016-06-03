@@ -18,7 +18,12 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
+import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
+
+const attributeDefaults = new Map([["BOLD", "false"],
+                                   ["ITALIC", "size"],
+                                   ["SIZE", "12"]]);
 
 /**
  * A Font describes the font properties for a non-html node.
@@ -29,10 +34,10 @@ export function Font() {
    this._bold = false;
    this._italic = false;
    this._size = "12";
-   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
-   this._unknownTags = [];          // As above
+   this._unexpectedTags = [];       // As above
 } // Font()
 
 /**
@@ -41,38 +46,33 @@ export function Font() {
  *
  */
 Font.prototype.getAsXml = function getAsXml() {
-   let myAttributes;
+   let attributes = new Map();
    let xml = [];
 
-   // Generate my XML
-   myAttributes = "";
-
-   if (this._bold) {
-      myAttributes += ' BOLD = "true"';
+   //-------------------------------------------------------------------------
+   // Load up attributes
+   //-------------------------------------------------------------------------
+   if (this._bold === true) {
+      attributes.set("BOLD", "true");
+   } else {
+      attributes.set("BOLD", "false");
    }
 
-   if (this._italic) {
-      myAttributes += ' ITALIC = "true"';
+   if (this._italic === true) {
+      attributes.set("ITALIC", "true");
+   } else {
+      attributes.set("ITALIC", "false");
    }
 
-   myAttributes += ` SIZE="${this._size}" `;
+   attributes.set("SIZE", this._size);
 
-   // Include attributes that were in the input file that m3 didn't understand
-   this._unknownAttributes.forEach(function(a) {
-      myAttributes += `${a.attribute}="${a.value}" `;
-   });
+   //-------------------------------------------------------------------------
+   // Get my complete xml
+   //-------------------------------------------------------------------------
+   xml = createXml("font", attributeDefaults, attributes,
+                   this._unexpectedAttributes, [],
+                   this._unexpectedTags);
 
-   xml.push('<font ' + myAttributes + '>');
-
-   // Embedded tags that I don't understand
-   this._unknownTags.forEach(function(t) {
-      xml.push(t);
-   });
-
-   // Close my own tag
-   xml.push('</font>');
-
-   // Return
    return xml;
 }; // getAsXml()
 
@@ -110,67 +110,36 @@ Font.prototype.isItalic = function isItalic() {
  * @return {void}
  */
 Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
-   let i;
-   let attribute;
-   let attributeName;
-   let childNode;
-   let numAttributes;
-   let numEmbeddedTags;
-   let serializer;
+   let expectedTags;
+   let loadedAttributes;
+   let loadedTags;
+   let unexpectedAttributes;
+   let unexpectedTags;
 
    //-----------------------------------------------------------------------
-   // Loop through attributes. Set the ones I know about and warn about the
-   // ones I don't.
+   // Process our XML
    //-----------------------------------------------------------------------
-   numAttributes = element.attributes.length;
+   expectedTags = [];
 
-   for (i=0; i<numAttributes; i++) {
-      attribute = element.attributes[i];
-      attributeName = attribute.name.toLowerCase();
+   [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
+      processXml(element, attributeDefaults, expectedTags);
 
-      if (attributeName === "bold") {
-         if (attribute.value === "true") {
-            this._bold = true;
-         } else {
-            this._bold = false;
-         }
-
-      } else if (attributeName === "italic") {
-         if (attribute.value === "true") {
-            this._italic = true;
-         } else  {
-            this._italic = false;
-         }
-
-      } else if (attributeName === "size") {
-         this._size = attribute.value;
-
-      } else {
-         // Preserve attributes (and case) we don't understand so they can be
-         // exported
-         this._unknownAttributes.push({attribute:`${attribute.name}`,
-                                       value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                     "Unexpected <font> attribute: " +
-                                        attribute.name);
-      }
+   if (loadedAttributes.get("BOLD") === "true") {
+      this._bold = true;
+   } else {
+      this._bold = false;
    }
 
-   //-----------------------------------------------------------------------
-   // Save embedded tags that I don't know about
-   //-----------------------------------------------------------------------
-   numEmbeddedTags = element.childNodes.length;
-   serializer = new XMLSerializer();
-
-   for (i=0; i< numEmbeddedTags; i++) {
-      childNode = element.childNodes[i];
-      if (childNode.nodeType === 1) {
-         this._unknownTags.push(serializer.serializeToString(childNode));
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                     `Unexpected <font> embedded tag: ` +
-                                     `${childNode.tagName}`);
-      }
+   if (loadedAttributes.get("ITALIC") === "true") {
+      this._italic = true;
+   } else {
+      this._italic = false;
    }
+
+   this._size = loadedAttributes.get("SIZE");
+
+   this._unexpectedAttributes = unexpectedAttributes;
+   this._unexpectedTags = unexpectedTags;
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML, "Created font.");
 }; // loadFromXml1_0_1()

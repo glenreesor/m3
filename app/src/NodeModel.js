@@ -22,8 +22,18 @@ import {CloudModel} from "./CloudModel";
 import {Diagnostics} from "./Diagnostics";
 import {Font} from "./Font";
 import {LinkTarget} from "./LinkTarget";
+import {createXml, processXml} from "./xmlHelpers";
 import {RichContent} from "./RichContent";
 import {m3App} from "./main";
+
+const attributeDefaults = new Map([["BACKGROUND_COLOR", "#ffffff"],
+                                   ["CREATED", ""],
+                                   ["COLOR", "#000000"],
+                                   ["FOLDED", "false"],
+                                   ["ID", ""],
+                                   ["MODIFIED", ""],
+                                   ["POSITION", ""],
+                                   ["TEXT", ""]]);
 
 /**
  * A NodeModel contains everything for a mind map node. The constructor
@@ -59,10 +69,10 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._richText = null;         // Points to corresponding RichContent object
    this._textColor = "#000000";
 
-   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
-   this._unknownTags = [];          // As above
+   this._unexpectedTags = [];       // As above
 
    // First level children must have their position set. For now only allow
    // right side
@@ -166,14 +176,19 @@ NodeModel.prototype.getArrowLinks = function getArrowLinks() {
  */
 NodeModel.prototype.getAsXml = function getAsXml() {
    let i;
-   let myAttributes;
+   let attributes;
+   let embeddedTags;
    let xml = [];
    let tempText;           // Used for removing special XML characters
 
-   // Generate my XML
-   myAttributes = `CREATED="${this._created}" ` +
-                  `ID="${this._id}" ` +
-                  `MODIFIED="${this._modified}" `;
+   attributes = new Map();
+
+   //-------------------------------------------------------------------------
+   // Load up attributes
+   //-------------------------------------------------------------------------
+   attributes.set("CREATED", this._created);
+   attributes.set("ID", this._id);
+   attributes.set("MODIFIED", this._modified);
 
    if (this._text !== null) {
       // Remove the following from text: & < > " '
@@ -183,70 +198,65 @@ NodeModel.prototype.getAsXml = function getAsXml() {
       tempText = tempText.replace(new RegExp(">", "g"), "&gt;");
       tempText = tempText.replace(new RegExp('"', "g"), "&quot;");
       tempText = tempText.replace(new RegExp("'", "g"), "&apos;");
-      myAttributes += `TEXT="${tempText}" `;
+      attributes.set("TEXT", tempText);
    }
 
-   if (this._position !== null) {
-      myAttributes += `POSITION="${this._position}" `;
+   // Only save the position for children of the root
+   if (this._parent !== null && this._parent.getParent() === null) {
+      attributes.set("POSITION", this._position);
    }
 
-   if (this._backgroundColor !== "#ffffff") {
-      myAttributes += `BACKGROUND_COLOR="${this._backgroundColor}" `;
-   }
+   attributes.set("BACKGROUND_COLOR", this._backgroundColor);
 
    if (this._isFolded === true) {
-      myAttributes += `FOLDED="${this._isFolded}" `;
+      attributes.set("FOLDED", "true");
+   } else {
+      attributes.set("FOLDED", "false");
    }
 
-   if (this._textColor !== "#000000") {
-      myAttributes += `COLOR="${this._textColor}" `;
-   }
+   attributes.set("COLOR", this._textColor);
 
-   // Include attributes that were in the input file that m3 didn't understand
-   this._unknownAttributes.forEach(function(a) {
-      myAttributes += `${a.attribute}="${a.value}" `;
-   });
-
-   xml.push('<node ' + myAttributes + '>');
+   //-------------------------------------------------------------------------
+   // Load up embedded tags
+   //-------------------------------------------------------------------------
+   embeddedTags = [];
 
    this._arrowLinks.forEach( (arrowLink) => {
-      xml = xml.concat(arrowLink.getAsXml());
+      embeddedTags.push(arrowLink);
    });
 
    if (this._cloudModel !== null) {
-      xml = xml.concat(this._cloudModel.getAsXml());
+      embeddedTags.push(this._cloudModel);
    }
 
    if (this._font !== null) {
-      xml = xml.concat(this._font.getAsXml());
+      embeddedTags.push(this._font);
    }
 
    this._linkTargets.forEach( (linkTarget) => {
-      xml = xml.concat(linkTarget.getAsXml());
+      embeddedTags.push(linkTarget);
    });
 
    if (this._richText !== null) {
-      xml = xml.concat(this._richText.getAsXml());
+      embeddedTags.push(this._richText);
    }
 
    if (this._note !== null) {
-      xml = xml.concat(this._note.getAsXml());
+      embeddedTags.push(this._note);
    }
 
    // Loop through all of my child nodes
    for (i=0; i<this._children.length; i++) {
-      xml = xml.concat(this._children[i].getAsXml());
+      embeddedTags.push(this._children[i]);
    }
 
-   // Embedded tags that I don't understand
-   this._unknownTags.forEach(function(t) {
-      xml.push(t);
-   });
+   //-------------------------------------------------------------------------
+   // Get my complete xml
+   //-------------------------------------------------------------------------
+   xml = createXml("node", attributeDefaults, attributes,
+                   this._unexpectedAttributes, embeddedTags,
+                   this._unexpectedTags);
 
-   // Close my own tag
-   xml.push('</node>');
-
-   // Return
    return xml;
 }; // getAsXml()
 
@@ -366,22 +376,21 @@ NodeModel.prototype.getRichText = function getRichText() {
 }; // getRichText()
 
 /**
-  * Return the side this node should be drawn on. If this node doesn't know
-  * what side it should be drawn on, return the side of its parent
+  * Return the side this node should be drawn on. Only the root or children
+  * of the root know which side they should be drawn on.
+  * All others ask their parents.
   *
   * @return {String} - NodeModel.POSITION_LEFT or NodeModel.POSITION_RIGHT
   */
 NodeModel.prototype.getSide = function getSide() {
    let returnVal;
 
-   if (this._position !== null) {
+   if (this._parent === null) {
+      returnVal = NodeModel.POSITION_NONE;
+   } else if (this._parent.getParent() === null) {
       returnVal = this._position;
    } else {
-      if (this._parent !== null) {
-         returnVal = this._parent.getSide();
-      } else {
-         returnVal = NodeModel.POSITION_NONE;
-      }
+      returnVal = this._parent.getSide();
    }
 
    return returnVal;
@@ -438,139 +447,103 @@ NodeModel.prototype.isFolded = function isFolded() {
 NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    let i;
    let arrowLink;
-   let attribute;
-   let attributeName;
-   let xmlChildNode;
+   let embeddedTag;
+   let expectedTags;
    let newNode;
-   let numAttributes;
-   let numXmlChildNodes;
+   let loadedAttributes;
+   let loadedTags;
+   let numEmbeddedTags;
    let richContent;
    let richContentType;
    let linkTarget;
-   let serializer;
    let tagName;
+   let unexpectedAttributes;
+   let unexpectedTags;
 
    //-----------------------------------------------------------------------
-   // Loop through attributes. Set the ones I know about and warn about the
-   // ones I don't.
+   // Process our XML
    //-----------------------------------------------------------------------
-   numAttributes = element.attributes.length;
+   expectedTags = ["arrowlink", "cloud", "font", "linktarget", "node",
+                   "richcontent"];
 
-   for (i=0; i<numAttributes; i++) {
-      attribute = element.attributes[i];
-      attributeName = attribute.name.toLowerCase();
+   [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
+      processXml(element, attributeDefaults, expectedTags);
 
-      if (attributeName === "background_color") {
-         this._backgroundColor = attribute.value;
+   //-----------------------------------------------------------------------
+   // Load our attributes
+   //-----------------------------------------------------------------------
+   this._backgroundColor = loadedAttributes.get("BACKGROUND_COLOR");
+   this._created = loadedAttributes.get("CREATED");
+   this._textColor = loadedAttributes.get("COLOR");
 
-      } else if (attributeName === "created") {
-         this._created = attribute.value;
-
-      } else if (attributeName === "color") {
-         this._textColor = attribute.value;
-
-      } else if (attributeName === "folded") {
-         if (attribute.value === "true") {
-            this._isFolded = true;
-         } else {
-            this._isFolded = false;
-         }
-
-      } else if (attributeName === "id") {
-         this._id = attribute.value;
-
-      } else if (attributeName === "modified") {
-         this._modified = attribute.value;
-
-      } else if (attributeName === "position") {
-         this._position = attribute.value;
-
-      } else if (attributeName === "text") {
-         this._text = attribute.value;
-
-      } else {
-         // Preserve attributes (and case) we don't understand so they can be
-         // exported
-         this._unknownAttributes.push({attribute:`${attribute.name}`,
-                                       value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                     "Unexpected <node> attribute: " +
-                                     attribute.name);
-      }
+   if (loadedAttributes.get("FOLDED" === "true")) {
+      this._isFolded = true;
+   } else {
+      this._isFolded = false;
    }
+
+   this._id = loadedAttributes.get("ID");
+   this._modified = loadedAttributes.get("MODIFIED");
+   this._position = loadedAttributes.get("POSITION");
+   this._text = loadedAttributes.get("TEXT");
+
+   this._unexpectedAttributes = unexpectedAttributes;
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
                               "Created node: " + this._text);
 
    //-----------------------------------------------------------------------
-   // Load child mind map nodes.
-   // Note:
-   //      - mapElement.childNodes is an array of xml "nodes" (things like
-   //        the text within a tag, comments in the xml, etc)
-   //
-   //      - mapElement.children is an array of actual child tags. This would
-   //        be better than childNodes, but childNodes is not supported by
-   //        Safari
+   // Load embedded tags
    //---------------------------------------------------------------------
-   numXmlChildNodes = element.childNodes.length;
-   serializer = new XMLSerializer;
+   numEmbeddedTags = loadedTags.length;
 
-   for (i=0; i<numXmlChildNodes; i++) {
-      xmlChildNode = element.childNodes[i];
+   for (i=0; i<numEmbeddedTags; i++) {
+      embeddedTag = loadedTags[i];
 
-      // Only process this if it is an Element
-      if (xmlChildNode.nodeType === 1) {
-         tagName = xmlChildNode.tagName.toLowerCase();
+      tagName = embeddedTag.tagName;
 
-         if (tagName === "node") {
-            m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
-                  "Loading <" + xmlChildNode.tagName + ">");
-            newNode = new NodeModel(this._controller,
-                                    this._myMapModel, NodeModel.TYPE_XML, this,
-                                    "", xmlChildNode);
+      if (tagName === "node") {
+         newNode = new NodeModel(this._controller,
+                                 this._myMapModel, NodeModel.TYPE_XML, this,
+                                 "", embeddedTag);
 
-            this._children.push(newNode);
+         this._children.push(newNode);
 
-         } else if (tagName === "arrowlink") {
-            arrowLink = new ArrowLink();
-            arrowLink.loadFromXml1_0_1(xmlChildNode);
-            this._arrowLinks.push(arrowLink);
+      } else if (tagName === "arrowlink") {
+         arrowLink = new ArrowLink();
+         arrowLink.loadFromXml1_0_1(embeddedTag);
+         this._arrowLinks.push(arrowLink);
 
-         } else if (tagName === "cloud") {
-            this._cloudModel = new CloudModel();
-            this._cloudModel.loadFromXml1_0_1(xmlChildNode);
+      } else if (tagName === "cloud") {
+         this._cloudModel = new CloudModel();
+         this._cloudModel.loadFromXml1_0_1(embeddedTag);
 
-         } else if (tagName === "font") {
-            this._font = new Font();
-            this._font.loadFromXml1_0_1(xmlChildNode);
+      } else if (tagName === "font") {
+         this._font = new Font();
+         this._font.loadFromXml1_0_1(embeddedTag);
 
-         } else if (tagName === "linktarget") {
-            linkTarget = new LinkTarget();
-            linkTarget.loadFromXml1_0_1(xmlChildNode);
-            this._linkTargets.push(linkTarget);
+      } else if (tagName === "linktarget") {
+         linkTarget = new LinkTarget();
+         linkTarget.loadFromXml1_0_1(embeddedTag);
+         this._linkTargets.push(linkTarget);
 
-         } else if (tagName === "richcontent") {
-            richContent = new RichContent();
-            richContent.loadFromXml1_0_1(xmlChildNode);
-            richContentType = richContent.getType().toLowerCase();
+      } else if (tagName === "richcontent") {
+         richContent = new RichContent();
+         richContent.loadFromXml1_0_1(embeddedTag);
+         richContentType = richContent.getType();
 
-            if (richContentType === "node") {
-               this._richText = richContent;
-            } else if (richContentType === "note") {
-               this._note = richContent;
-            } else {
-               m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                  "Unexpected type of richcontent: " + richContent.getType());
-            }
-
+         if (richContentType === "NODE") {
+            this._richText = richContent;
+         } else if (richContentType === "NOTE") {
+            this._note = richContent;
          } else {
-            this._unknownTags.push(serializer.serializeToString(xmlChildNode));
             m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                  "Unexpected <node> embedded tag: <" +
-                  xmlChildNode.tagName + ">");
+               "<node>: Unexpected type of richcontent: " +
+               richContent.getType());
          }
       }
    }
+   this._unexpectedTags = unexpectedTags;
 }; // _loadFromXml1_0_1()
 
 /**

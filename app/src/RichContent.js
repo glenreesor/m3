@@ -18,7 +18,10 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
+import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
+
+const attributeDefaults = new Map([["TYPE", ""]]);
 
 /**
  * A RichContent describes either a node's note, or the rich text of a note.
@@ -28,9 +31,10 @@ import {m3App} from "./main";
 export function RichContent() {
    this._content = null;
    this._type = null;
-   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
+   this._unexpectedTags = [];       // As above
 } // RichContent()
 
 /**
@@ -39,24 +43,35 @@ export function RichContent() {
  *
  */
 RichContent.prototype.getAsXml = function getAsXml() {
-   let myAttributes;
+   let attributes = new Map();
+   let contentObject;
+   let embeddedTags;
    let xml = [];
 
-   // Generate my XML
-   myAttributes = `TYPE="${this._type}" `;
+   //-------------------------------------------------------------------------
+   // Load up attributes
+   //-------------------------------------------------------------------------
+   attributes.set("TYPE", this._type);
 
-   // Include attributes that were in the input file that m3 didn't understand
-   this._unknownAttributes.forEach(function(a) {
-      myAttributes += `${a.attribute}="${a.value}" `;
-   });
+   //-------------------------------------------------------------------------
+   // There is one embedded tag, which is the content, but we have to fake
+   // out an object that has a getAsXml() method.
+   //-------------------------------------------------------------------------
+   contentObject = {};
+   contentObject._content = this._content;
+   contentObject.getAsXml = function getAsXml() {
+      return [this._content];
+   };
 
-   xml.push('<richcontent ' + myAttributes + '>');
-   xml.push(this._content);
+   embeddedTags = [contentObject];
 
-   // Close my own tag
-   xml.push('</richcontent>');
+   //-------------------------------------------------------------------------
+   // Get my complete xml
+   //-------------------------------------------------------------------------
+   xml = createXml("richcontent", attributeDefaults, attributes,
+                   this._unexpectedAttributes, embeddedTags,
+                   this._unexpectedTags);
 
-   // Return
    return xml;
 }; // getAsXml()
 
@@ -86,51 +101,41 @@ RichContent.prototype.getType = function getType() {
  */
 RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
-   let attribute;
-   let attributeName;
-   let numAttributes;
-   let numXmlChildNodes;
+   let embeddedTag;
+   let expectedTags;
+   let loadedAttributes;
+   let loadedTags;
+   let numEmbeddedTags;
    let serializer;
-   let xmlChildNode;
+   let tagName;
+   let unexpectedAttributes;
+   let unexpectedTags;
 
    serializer = new XMLSerializer();
 
    //-----------------------------------------------------------------------
-   // Loop through attributes. Set the ones I know about and warn about the
-   // ones I don't.
+   // Process our XML
    //-----------------------------------------------------------------------
-   numAttributes = element.attributes.length;
+   expectedTags = ["html"];
 
-   for (i=0; i<numAttributes; i++) {
-      attribute = element.attributes[i];
-      attributeName = attribute.name.toLowerCase();
+   [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
+      processXml(element, attributeDefaults, expectedTags);
 
-      if (attributeName === "type") {
-         this._type = attribute.value;
+   this._type = loadedAttributes.get("TYPE");
 
-      } else {
-         // Preserve attributes (and case) we don't understand so they can be
-         // exported
-         this._unknownAttributes.push({attribute:`${attribute.name}`,
-                                       value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                     "Unexpected <richcontent> attribute: " +
-                                     attribute.name);
-      }
-   }
+   this._unexpectedAttributes = unexpectedAttributes;
+   this._unexpectedTags = unexpectedTags;
 
    //-----------------------------------------------------------------------
-   // Pick out the content. Since it's rich content (as opposed to straight
-   // text), it'll have a nodeType of 1
+   // Pick out the content.
    //-----------------------------------------------------------------------
-   numXmlChildNodes = element.childNodes.length;
+   numEmbeddedTags = loadedTags.length;
 
-   for (i=0; i<numXmlChildNodes; i++) {
-      xmlChildNode = element.childNodes[i];
-
-      if (xmlChildNode.nodeType === 1) {
-         this._content = serializer.serializeToString(xmlChildNode);
-         break;
+   for (i=0; i<numEmbeddedTags; i++) {
+      embeddedTag = loadedTags[i];
+      tagName = embeddedTag.tagName;
+      if (tagName === "html") {
+         this._content = serializer.serializeToString(embeddedTag);
       }
    }
 

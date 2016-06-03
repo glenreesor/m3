@@ -18,7 +18,16 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
+import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
+
+const attributeDefaults = new Map([["COLOR", "#000000"],
+                                  ["DESTINATION", ""],
+                                  ["ENDARROW", ""],
+                                  ["ENDINCLINATION", ""],
+                                  ["ID", ""],
+                                  ["STARTARROW", ""],
+                                  ["STARTINCLINATION", ""]]);
 
 /**
  * A ArrowLink describes the starting point of a graphic link.
@@ -35,10 +44,10 @@ export function ArrowLink() {
    this._id = null;
    this._startArrow = null;
    this._startInclination = null;
-   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
-   this._unknownTags = [];          // As above
+   this._unexpectedTags = [];       // As above
 
    // Computed attributes that don't get saved
    this._destinationNode = null;      // This is a pointer to the actual
@@ -62,34 +71,27 @@ ArrowLink.prototype.connectToNodeModel = function connectToNodeModel(mapModel) {
  *
  */
 ArrowLink.prototype.getAsXml = function getAsXml() {
-   let myAttributes;
+   let attributes = new Map();
    let xml = [];
 
-   // Generate my XML
-   myAttributes = `DESTINATION="${this._destinationId}" ` +
-                  `COLOR="${this._color}" ` +
-                  `ENDARROW="${this._endArrow}" ` +
-                  `ENDINCLINATION="${this._endInclination}" ` +
-                  `ID="${this._id}" ` +
-                  `STARTARROW="${this._startArrow}" ` +
-                  `STARTINCLINATION="${this._startInclination}" `;
+   //-------------------------------------------------------------------------
+   // Load up attributes
+   //-------------------------------------------------------------------------
+   attributes.set("DESTINATION", this._destinationId);
+   attributes.set("COLOR", this._color);
+   attributes.set("ENDARROW", this._endArrow);
+   attributes.set("ENDINCLINATION", this._endInclination);
+   attributes.set("ID", this._id);
+   attributes.set("STARTARROW", this._startArrow);
+   attributes.set("STARTINCLINATION", this._startInclination);
 
-   // Include attributes that were in the input file that m3 didn't understand
-   this._unknownAttributes.forEach(function(a) {
-      myAttributes += `${a.attribute}="${a.value}" `;
-   });
+   //-------------------------------------------------------------------------
+   // Get my complete xml
+   //-------------------------------------------------------------------------
+   xml = createXml("arrowlink", attributeDefaults, attributes,
+                   this._unexpectedAttributes, [],
+                   this._unexpectedTags);
 
-   xml.push('<arrowlink ' + myAttributes + '>');
-
-   // Embedded tags that I don't understand
-   this._unknownTags.forEach(function(t) {
-      xml.push(t);
-   });
-
-   // Close my own tag
-   xml.push('</arrowlink>');
-
-   // Return
    return xml;
 }; // getAsXml()
 
@@ -164,70 +166,32 @@ ArrowLink.prototype.getStartInclination = function getStartInclination() {
  * @return {void}
  */
 ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
-   let i;
-   let attribute;
-   let attributeName;
-   let childNode;
-   let numAttributes;
-   let numEmbeddedTags;
-   let serializer;
+   let expectedTags;
+   let loadedAttributes;
+   let loadedTags;
+   let unexpectedAttributes;
+   let unexpectedTags;
 
    //-----------------------------------------------------------------------
-   // Loop through attributes. Set the ones I know about and warn about the
-   // ones I don't.
+   // Process our XML
    //-----------------------------------------------------------------------
-   numAttributes = element.attributes.length;
-
-   for (i=0; i<numAttributes; i++) {
-      attribute = element.attributes[i];
-      attributeName = attribute.name.toLowerCase();
-
-      if (attributeName === "color") {
-         this.setColor(attribute.value);
-
-      } else if (attributeName === "destination") {
-         this.setDestinationId(attribute.value);
-
-      } else if (attributeName === "endarrow") {
-         this.setEndArrow(attribute.value);
-
-      } else if (attributeName === "endinclination") {
-         this.setEndInclination(attribute.value);
-
-      } else if (attributeName === "id") {
-         this.setId(attribute.value);
-
-      } else if (attributeName === "startarrow") {
-         this.setStartArrow(attribute.value);
-
-      } else if (attributeName === "startinclination") {
-         this.setStartInclination(attribute.value);
-
-      } else {
-         // Preserve attributes (and case) we don't understand so they can be
-         // exported
-         this._unknownAttributes.push({attribute:`${attribute.name}`,
-                                       value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-            "Unexpected <arrowlink> attribute: " + attribute.name);
-      }
-   }
+   expectedTags = [];
+   [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
+      processXml(element, attributeDefaults, expectedTags);
 
    //-----------------------------------------------------------------------
-   // Save embedded tags that I don't know about
+   // Load our attributes
    //-----------------------------------------------------------------------
-   numEmbeddedTags = element.childNodes.length;
-   serializer = new XMLSerializer();
+   this.setColor(loadedAttributes.get("COLOR"));
+   this.setDestinationId(loadedAttributes.get("DESTINATION"));
+   this.setEndArrow(loadedAttributes.get("ENDARROW"));
+   this.setEndInclination(loadedAttributes.get("ENDINCLINATION"));
+   this.setId(loadedAttributes.get("ID"));
+   this.setStartArrow(loadedAttributes.get("STARTARROW"));
+   this.setStartInclination(loadedAttributes.get("STARTINCLINATION"));
 
-   for (i=0; i< numEmbeddedTags; i++) {
-      childNode = element.childNodes[i];
-      if (childNode.nodeType === 1) {
-         this._unknownTags.push(serializer.serializeToString(childNode));
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                     `Unexpected <arrowlink> embedded tag: ` +
-                                     `${childNode.tagName}`);
-      }
-   }
+   this._unexpectedAttributes = unexpectedAttributes;
+   this._unexpectedTags = unexpectedTags;
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
                               "Created arrowlink.");

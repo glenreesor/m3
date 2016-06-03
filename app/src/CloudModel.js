@@ -18,7 +18,10 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
+import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
+
+const attributeDefaults = new Map([["COLOR", "#cccccc"]]);
 
 /**
  * A CloudModel describes the cloud around one object. This is implemented as an
@@ -28,10 +31,10 @@ import {m3App} from "./main";
  */
 export function CloudModel() {
    this._color = "#cccccc";
-   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
                                     // We save these so they can be included in
                                     // getAsXml() output
-   this._unknownTags = [];          // As above
+   this._unexpectedTags = [];       // As above
 } // CloudModel()
 
 /**
@@ -39,26 +42,20 @@ export function CloudModel() {
  * @return {string[]}   - Array of strings containing xml
  */
 CloudModel.prototype.getAsXml = function getAsXml() {
-   let myAttributes;
+   let attributes = new Map();
    let xml = [];
 
-   // Generate my XML
-   myAttributes = `COLOR="${this._color}" `;
+   //-------------------------------------------------------------------------
+   // Load up attributes
+   //-------------------------------------------------------------------------
+   attributes.set("COLOR", this._color);
 
-   // Include attributes that were in the input file that m3 didn't understand
-   this._unknownAttributes.forEach(function(a) {
-      myAttributes += `${a.attribute}="${a.value}" `;
-   });
-
-   xml.push('<cloud ' + myAttributes + '>');
-
-   // Embedded tags that I don't understand
-   this._unknownTags.forEach(function(t) {
-      xml.push(t);
-   });
-
-   // Close my own tag
-   xml.push('</cloud>');
+   //-------------------------------------------------------------------------
+   // Get my complete xml
+   //-------------------------------------------------------------------------
+   xml = createXml("cloud", attributeDefaults, attributes,
+                   this._unexpectedAttributes, [],
+                   this._unexpectedTags);
 
    // Return
    return xml;
@@ -79,52 +76,24 @@ CloudModel.prototype.getColor = function getColor() {
  * @return {void}
  */
 CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
-   let i;
-   let attribute;
-   let attributeName;
-   let childNode;
-   let numAttributes;
-   let numEmbeddedTags;
-   let serializer;
+   let expectedTags;
+   let loadedAttributes;
+   let loadedTags;
+   let unexpectedAttributes;
+   let unexpectedTags;
 
    //-----------------------------------------------------------------------
-   // Loop through attributes. Set the ones I know about and warn about the
-   // ones I don't.
+   // Process our XML
    //-----------------------------------------------------------------------
-   numAttributes = element.attributes.length;
+   expectedTags = [];
 
-   for (i=0; i<numAttributes; i++) {
-      attribute = element.attributes[i];
-      attributeName = attribute.name.toLowerCase();
+   [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
+      processXml(element, attributeDefaults, expectedTags);
 
-      if (attributeName === "color") {
-         this.setColor(attribute.value);
+   this.setColor(loadedAttributes.get("COLOR"));
 
-      } else {
-         // Preserve attributes (and case) we don't understand so they can be
-         // exported
-         this._unknownAttributes.push({attribute:`${attribute.name}`,
-                                       value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-            "Unexpected <cloud> attribute: " + attribute.name);
-      }
-   }
-
-   //-----------------------------------------------------------------------
-   // Save embedded tags that I don't know about
-   //-----------------------------------------------------------------------
-   numEmbeddedTags = element.childNodes.length;
-   serializer = new XMLSerializer;
-
-   for (i=0; i< numEmbeddedTags; i++) {
-      childNode = element.childNodes[i];
-      if (childNode.nodeType === 1) {
-         this._unknownTags.push(serializer.serializeToString(childNode));
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                     `Unexpected <cloud> embedded tag: ` +
-                                     `${childNode.tagName}`);
-      }
-   }
+   this._unexpectedAttributes = unexpectedAttributes;
+   this._unexpectedTags = unexpectedTags;
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
       "Created cloudModel.");

@@ -20,9 +20,12 @@
 import {App} from "./App";
 import {Diagnostics} from "./Diagnostics";
 import {ErrorDialog} from "./ErrorDialog";
+import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 import {NodeModel} from "./NodeModel";
 import {SaveDialog} from "./SaveDialog";
+
+const attributeDefaults = new Map([["version", ""]]);
 
 /**
  * A MapModel contains everything for a mind map.
@@ -42,10 +45,10 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
    this._version = MapModel._DEFAULT_VERSION;
    this.setMapName(mapName);
 
-   this._unknownAttributes = [];    // Attributes that m3 doesn't understand
+   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
                                     // We save these so they can be included
                                     // in getAsXml() output
-   this._unknownTags = [];          // As above
+   this._unexpectedTags = [];       // As above
 
    if (newType === MapModel.TYPE_EMPTY) {
       this._dbKey = null;
@@ -82,34 +85,28 @@ MapModel.prototype._connectArrowLinks = function _connectArrowLinks(startNode) {
  * @return {string[]} - This map in xml format, as an array of strings
  */
 MapModel.prototype.getAsXml = function getAsXml() {
-   let myAttributes;
+   let attributes = new Map();
+   let embeddedTags;
    let mapAsXml = [];
 
-   myAttributes = `version="${this._version}" `;
+   //-------------------------------------------------------------------------
+   // Load up attributes
+   //-------------------------------------------------------------------------
+   attributes.set("version", this._version);
 
-   // Include attributes that were in the input file that m3 didn't understand
-   this._unknownAttributes.forEach(function(a) {
-      myAttributes += `${a.attribute}="${a.value}" `;
-   });
+   //-------------------------------------------------------------------------
+   // Load up embedded tags
+   //-------------------------------------------------------------------------
+   embeddedTags = [];
+   embeddedTags.push(this._rootNode);
 
-   // Preamble
-   mapAsXml.push(`<map ${myAttributes}>`);
+   //-------------------------------------------------------------------------
+   // Get my complete xml
+   //-------------------------------------------------------------------------
+   mapAsXml = createXml("map", attributeDefaults, attributes,
+                        this._unexpectedAttributes, embeddedTags,
+                        this._unexpectedTags);
 
-   // For now, this must stay here because FreeMind expects
-   // embedded tag <attribute_registry> to be first embedded tab.
-
-   // Embedded tags that I don't understand
-   this._unknownTags.forEach(function(t) {
-      mapAsXml.push(t);
-   });
-
-   // Loop through all root nodes of this map
-   mapAsXml = mapAsXml.concat(this._rootNode.getAsXml());
-
-   // Closing map node
-   mapAsXml.push('</map>');
-
-   // Return the full map
    return mapAsXml;
 
 }; // getAsXml()
@@ -264,86 +261,52 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
   */
 MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    let i;
-   let attribute;
-   let attributeName;
-   let childNode;
+   let embeddedTag;
+   let expectedTags;
+   let loadedAttributes;
+   let loadedTags;
    let newNode;
-   let numAttributes;
-   let numChildren;
-   let serializer;
+   let numEmbeddedTags;
+   let tagName;
+   let unexpectedAttributes;
+   let unexpectedTags;
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
                               "Loading a version '" +
                               this._version + "' file.");
-   // ---------------------------------------------------------------------
-   // Here's how to deal with parsing errors:
-   // For missing required tags/attributes:
-   // - If appropriate values can be created, issue warning and continue
-   // - If no appropriate values can be created, issue error and stop
-   //
-   // For unexpected tags/attributes:
-   // - Issue warning and continue
-   //
-   // For unimplemented tags/attributes:
-   // - Issue warning and continue
-   // ---------------------------------------------------------------------
 
-   // ---------------------------------------------------------------------
-   // <map> attributes
-   // ---------------------------------------------------------------------
-   numAttributes = mapElement.attributes.length;
+   //-----------------------------------------------------------------------
+   // Process our XML
+   //-----------------------------------------------------------------------
+   expectedTags = ["node"];
 
-   for (i = 0; i < numAttributes; i++) {
-      attribute = mapElement.attributes[i];
-      attributeName = attribute.name.toLowerCase();
+   [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
+      processXml(mapElement, attributeDefaults, expectedTags);
 
-      if (attributeName !== "version") {
-         // Preserve attributes (and case) we don't understand so they can be
-         // exported
-         this._unknownAttributes.push({attribute:`${attribute.name}`,
-                                       value:`${attribute.value}`});
-         m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                     "Unexpected <map> attribute '" +
-                                     attribute.name + "' on tag <map>.");
+   // Version was parsed in the calling method, so all we have to do
+   // is save the unexpected attributes
+   this._unexpectedAttributes = unexpectedAttributes;
+
+   //-----------------------------------------------------------------------
+   // Load embedded tags
+   //---------------------------------------------------------------------
+   numEmbeddedTags = loadedTags.length;
+
+   for (i = 0; i < numEmbeddedTags; i++) {
+      embeddedTag = loadedTags[i];
+      tagName = embeddedTag.tagName;
+
+      if (tagName === "node") {
+         m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
+                                    `Loading <${tagName}?`);
+
+         // Create the new NodeModel
+         newNode = new NodeModel(this._controller, this, NodeModel.TYPE_XML,
+                                 null, "", embeddedTag);
+         this._rootNode = newNode;
       }
    }
-
-   // ---------------------------------------------------------------------
-   // Now the children of the <map> element.
-   // Note:
-   // - mapElement.childNodes is an array of xml "nodes" (things like
-   // the text within a tag, comments in the xml, etc)
-   //
-   // - mapElement.children is an array of actual child tags. This would
-   // be better than childNodes, but childNodes is not supported by
-   // Safari
-   // ---------------------------------------------------------------------
-   numChildren = mapElement.childNodes.length;
-   serializer = new XMLSerializer;
-
-   for (i = 0; i < numChildren; i++) {
-      childNode = mapElement.childNodes[i];
-
-      // Only process if it is an Element
-      if (childNode.nodeType === 1) {
-
-         if (childNode.tagName.toLowerCase() === "node") {
-            m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
-                                       "Loading <" +
-                                       childNode.tagName + ">");
-
-            // Create the new NodeModel
-            newNode = new NodeModel(this._controller, this, NodeModel.TYPE_XML,
-                                    null, "", childNode);
-            this._rootNode = newNode;
-         } else {
-            this._unknownTags.push(serializer.serializeToString(childNode));
-            m3App.getDiagnostics().warn(Diagnostics.TASK_IMPORT_XML,
-                                        "Unexpected <map> embedded tag: <" +
-                                        childNode.tagName + ">");
-         }
-      }
-   }
+   this._unexpectedTags = unexpectedTags;
 }; // _loadVersion1_0_1()
 
 /**
