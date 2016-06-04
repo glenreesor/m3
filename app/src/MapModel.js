@@ -26,6 +26,7 @@ import {NodeModel} from "./NodeModel";
 import {SaveDialog} from "./SaveDialog";
 
 const ATTRIBUTE_DEFAULTS = new Map([["version", ""]]);
+const EXPECTED_EMBEDDED_TAGS = ["node"];
 
 /**
  * A MapModel contains everything for a mind map.
@@ -262,7 +263,6 @@ MapModel.prototype._loadFromXml = function _loadFromXml(mapAsXml) {
 MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    let i;
    let embeddedTag;
-   let expectedTags;
    let loadedAttributes;
    let loadedTags;
    let newNode;
@@ -278,10 +278,8 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    //-----------------------------------------------------------------------
    // Process our XML
    //-----------------------------------------------------------------------
-   expectedTags = ["node"];
-
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(mapElement, ATTRIBUTE_DEFAULTS, expectedTags);
+      processXml(mapElement, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    // Version was parsed in the calling method, so all we have to do
    // is save the unexpected attributes

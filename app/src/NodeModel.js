@@ -34,6 +34,8 @@ const ATTRIBUTE_DEFAULTS = new Map([["BACKGROUND_COLOR", "#ffffff"],
                                     ["MODIFIED", ""],
                                     ["POSITION", ""],
                                     ["TEXT", ""]]);
+const EXPECTED_EMBEDDED_TAGS = ["arrowlink", "cloud", "font", "linktarget",
+                                "node", "richcontent"];
 
 /**
  * A NodeModel contains everything for a mind map node. The constructor
@@ -448,7 +450,6 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    let i;
    let arrowLink;
    let embeddedTag;
-   let expectedTags;
    let newNode;
    let loadedAttributes;
    let loadedTags;
@@ -463,11 +464,8 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    //-----------------------------------------------------------------------
    // Process our XML
    //-----------------------------------------------------------------------
-   expectedTags = ["arrowlink", "cloud", "font", "linktarget", "node",
-                   "richcontent"];
-
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    //-----------------------------------------------------------------------
    // Load our attributes

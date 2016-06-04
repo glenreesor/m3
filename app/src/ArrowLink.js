@@ -28,6 +28,7 @@ const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
                                     ["ID", ""],
                                     ["STARTARROW", ""],
                                     ["STARTINCLINATION", ""]]);
+const EXPECTED_EMBEDDED_TAGS = [];
 
 /**
  * A ArrowLink describes the starting point of a graphic link.
@@ -166,7 +167,6 @@ ArrowLink.prototype.getStartInclination = function getStartInclination() {
  * @return {void}
  */
 ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
-   let expectedTags;
    let loadedAttributes;
    let loadedTags;
    let unexpectedAttributes;
@@ -175,9 +175,8 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    //-----------------------------------------------------------------------
    // Process our XML
    //-----------------------------------------------------------------------
-   expectedTags = [];
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    //-----------------------------------------------------------------------
    // Load our attributes

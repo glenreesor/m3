@@ -22,6 +22,7 @@ import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
 const ATTRIBUTE_DEFAULTS = new Map([["TYPE", ""]]);
+const EXPECTED_EMBEDDED_TAGS = ["html"];
 
 /**
  * A RichContent describes either a node's note, or the rich text of a note.
@@ -102,7 +103,6 @@ RichContent.prototype.getType = function getType() {
 RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    let i;
    let embeddedTag;
-   let expectedTags;
    let loadedAttributes;
    let loadedTags;
    let numEmbeddedTags;
@@ -116,10 +116,8 @@ RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    //-----------------------------------------------------------------------
    // Process our XML
    //-----------------------------------------------------------------------
-   expectedTags = ["html"];
-
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    this._type = loadedAttributes.get("TYPE");
 

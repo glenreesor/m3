@@ -24,6 +24,7 @@ import {m3App} from "./main";
 const ATTRIBUTE_DEFAULTS = new Map([["BOLD", "false"],
                                     ["ITALIC", "size"],
                                     ["SIZE", "12"]]);
+const EXPECTED_EMBEDDED_TAGS = [];
 
 /**
  * A Font describes the font properties for a non-html node.
@@ -110,7 +111,6 @@ Font.prototype.isItalic = function isItalic() {
  * @return {void}
  */
 Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
-   let expectedTags;
    let loadedAttributes;
    let loadedTags;
    let unexpectedAttributes;
@@ -119,10 +119,8 @@ Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    //-----------------------------------------------------------------------
    // Process our XML
    //-----------------------------------------------------------------------
-   expectedTags = [];
-
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    if (loadedAttributes.get("BOLD") === "true") {
       this._bold = true;

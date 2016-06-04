@@ -29,6 +29,7 @@ const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
                                     ["SOURCE", ""],
                                     ["STARTARROW", ""],
                                     ["STARTINCLINATION", ""]]);
+const EXPECTED_EMBEDDED_TAGS = [];
 
 /**
  * A LinkTarget describes the the endpoint of a graphic link.
@@ -155,7 +156,6 @@ LinkTarget.prototype.getStartInclination = function getStartInclination() {
  * @return {void}
  */
 LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
-   let expectedTags;
    let loadedAttributes;
    let loadedTags;
    let unexpectedAttributes;
@@ -164,10 +164,8 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    //-----------------------------------------------------------------------
    // Process our XML
    //-----------------------------------------------------------------------
-   expectedTags = [];
-
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    this.setColor(loadedAttributes.get("COLOR"));
    this.setDestination(loadedAttributes.get("DESTINATION"));

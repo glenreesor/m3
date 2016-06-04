@@ -22,6 +22,7 @@ import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
 const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#cccccc"]]);
+const EXPECTED_EMBEDDED_TAGS = [];
 
 /**
  * A CloudModel describes the cloud around one object. This is implemented as an
@@ -76,7 +77,6 @@ CloudModel.prototype.getColor = function getColor() {
  * @return {void}
  */
 CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
-   let expectedTags;
    let loadedAttributes;
    let loadedTags;
    let unexpectedAttributes;
@@ -85,10 +85,8 @@ CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    //-----------------------------------------------------------------------
    // Process our XML
    //-----------------------------------------------------------------------
-   expectedTags = [];
-
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    this.setColor(loadedAttributes.get("COLOR"));
 
