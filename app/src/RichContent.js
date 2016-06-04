@@ -21,7 +21,7 @@ import {Diagnostics} from "./Diagnostics";
 import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
-const attributeDefaults = new Map([["TYPE", ""]]);
+const ATTRIBUTE_DEFAULTS = new Map([["TYPE", ""]]);
 
 /**
  * A RichContent describes either a node's note, or the rich text of a note.
@@ -68,7 +68,7 @@ RichContent.prototype.getAsXml = function getAsXml() {
    //-------------------------------------------------------------------------
    // Get my complete xml
    //-------------------------------------------------------------------------
-   xml = createXml("richcontent", attributeDefaults, attributes,
+   xml = createXml("richcontent", ATTRIBUTE_DEFAULTS, attributes,
                    this._unexpectedAttributes, embeddedTags,
                    this._unexpectedTags);
 
@@ -119,7 +119,7 @@ RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    expectedTags = ["html"];
 
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, attributeDefaults, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
 
    this._type = loadedAttributes.get("TYPE");
 

@@ -26,14 +26,14 @@ import {createXml, processXml} from "./xmlHelpers";
 import {RichContent} from "./RichContent";
 import {m3App} from "./main";
 
-const attributeDefaults = new Map([["BACKGROUND_COLOR", "#ffffff"],
-                                   ["CREATED", ""],
-                                   ["COLOR", "#000000"],
-                                   ["FOLDED", "false"],
-                                   ["ID", ""],
-                                   ["MODIFIED", ""],
-                                   ["POSITION", ""],
-                                   ["TEXT", ""]]);
+const ATTRIBUTE_DEFAULTS = new Map([["BACKGROUND_COLOR", "#ffffff"],
+                                    ["CREATED", ""],
+                                    ["COLOR", "#000000"],
+                                    ["FOLDED", "false"],
+                                    ["ID", ""],
+                                    ["MODIFIED", ""],
+                                    ["POSITION", ""],
+                                    ["TEXT", ""]]);
 
 /**
  * A NodeModel contains everything for a mind map node. The constructor
@@ -253,7 +253,7 @@ NodeModel.prototype.getAsXml = function getAsXml() {
    //-------------------------------------------------------------------------
    // Get my complete xml
    //-------------------------------------------------------------------------
-   xml = createXml("node", attributeDefaults, attributes,
+   xml = createXml("node", ATTRIBUTE_DEFAULTS, attributes,
                    this._unexpectedAttributes, embeddedTags,
                    this._unexpectedTags);
 
@@ -467,7 +467,7 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
                    "richcontent"];
 
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, attributeDefaults, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
 
    //-----------------------------------------------------------------------
    // Load our attributes

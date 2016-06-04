@@ -21,14 +21,14 @@ import {Diagnostics} from "./Diagnostics";
 import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
-const attributeDefaults = new Map([["COLOR", "#000000"],
-                                   ["DESTINATION", ""],
-                                   ["ENDARROW", ""],
-                                   ["ENDINCLINATION", ""],
-                                   ["ID", ""],
-                                   ["SOURCE", ""],
-                                   ["STARTARROW", ""],
-                                   ["STARTINCLINATION", ""]]);
+const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
+                                    ["DESTINATION", ""],
+                                    ["ENDARROW", ""],
+                                    ["ENDINCLINATION", ""],
+                                    ["ID", ""],
+                                    ["SOURCE", ""],
+                                    ["STARTARROW", ""],
+                                    ["STARTINCLINATION", ""]]);
 
 /**
  * A LinkTarget describes the the endpoint of a graphic link.
@@ -78,7 +78,7 @@ LinkTarget.prototype.getAsXml = function getAsXml() {
    //-------------------------------------------------------------------------
    // Get my complete xml
    //-------------------------------------------------------------------------
-   xml = createXml("linktarget", attributeDefaults, attributes,
+   xml = createXml("linktarget", ATTRIBUTE_DEFAULTS, attributes,
                    this._unexpectedAttributes, [],
                    this._unexpectedTags);
 
@@ -167,7 +167,7 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    expectedTags = [];
 
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, attributeDefaults, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
 
    this.setColor(loadedAttributes.get("COLOR"));
    this.setDestination(loadedAttributes.get("DESTINATION"));

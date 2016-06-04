@@ -25,7 +25,7 @@ import {m3App} from "./main";
 import {NodeModel} from "./NodeModel";
 import {SaveDialog} from "./SaveDialog";
 
-const attributeDefaults = new Map([["version", ""]]);
+const ATTRIBUTE_DEFAULTS = new Map([["version", ""]]);
 
 /**
  * A MapModel contains everything for a mind map.
@@ -103,7 +103,7 @@ MapModel.prototype.getAsXml = function getAsXml() {
    //-------------------------------------------------------------------------
    // Get my complete xml
    //-------------------------------------------------------------------------
-   mapAsXml = createXml("map", attributeDefaults, attributes,
+   mapAsXml = createXml("map", ATTRIBUTE_DEFAULTS, attributes,
                         this._unexpectedAttributes, embeddedTags,
                         this._unexpectedTags);
 
@@ -281,7 +281,7 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    expectedTags = ["node"];
 
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(mapElement, attributeDefaults, expectedTags);
+      processXml(mapElement, ATTRIBUTE_DEFAULTS, expectedTags);
 
    // Version was parsed in the calling method, so all we have to do
    // is save the unexpected attributes

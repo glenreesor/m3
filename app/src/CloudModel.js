@@ -21,7 +21,7 @@ import {Diagnostics} from "./Diagnostics";
 import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
-const attributeDefaults = new Map([["COLOR", "#cccccc"]]);
+const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#cccccc"]]);
 
 /**
  * A CloudModel describes the cloud around one object. This is implemented as an
@@ -53,7 +53,7 @@ CloudModel.prototype.getAsXml = function getAsXml() {
    //-------------------------------------------------------------------------
    // Get my complete xml
    //-------------------------------------------------------------------------
-   xml = createXml("cloud", attributeDefaults, attributes,
+   xml = createXml("cloud", ATTRIBUTE_DEFAULTS, attributes,
                    this._unexpectedAttributes, [],
                    this._unexpectedTags);
 
@@ -88,7 +88,7 @@ CloudModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    expectedTags = [];
 
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, attributeDefaults, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
 
    this.setColor(loadedAttributes.get("COLOR"));
 

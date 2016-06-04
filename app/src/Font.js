@@ -21,9 +21,9 @@ import {Diagnostics} from "./Diagnostics";
 import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
-const attributeDefaults = new Map([["BOLD", "false"],
-                                   ["ITALIC", "size"],
-                                   ["SIZE", "12"]]);
+const ATTRIBUTE_DEFAULTS = new Map([["BOLD", "false"],
+                                    ["ITALIC", "size"],
+                                    ["SIZE", "12"]]);
 
 /**
  * A Font describes the font properties for a non-html node.
@@ -69,7 +69,7 @@ Font.prototype.getAsXml = function getAsXml() {
    //-------------------------------------------------------------------------
    // Get my complete xml
    //-------------------------------------------------------------------------
-   xml = createXml("font", attributeDefaults, attributes,
+   xml = createXml("font", ATTRIBUTE_DEFAULTS, attributes,
                    this._unexpectedAttributes, [],
                    this._unexpectedTags);
 
@@ -122,7 +122,7 @@ Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    expectedTags = [];
 
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, attributeDefaults, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
 
    if (loadedAttributes.get("BOLD") === "true") {
       this._bold = true;

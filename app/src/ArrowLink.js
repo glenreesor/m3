@@ -21,13 +21,13 @@ import {Diagnostics} from "./Diagnostics";
 import {createXml, processXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
-const attributeDefaults = new Map([["COLOR", "#000000"],
-                                  ["DESTINATION", ""],
-                                  ["ENDARROW", ""],
-                                  ["ENDINCLINATION", ""],
-                                  ["ID", ""],
-                                  ["STARTARROW", ""],
-                                  ["STARTINCLINATION", ""]]);
+const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
+                                    ["DESTINATION", ""],
+                                    ["ENDARROW", ""],
+                                    ["ENDINCLINATION", ""],
+                                    ["ID", ""],
+                                    ["STARTARROW", ""],
+                                    ["STARTINCLINATION", ""]]);
 
 /**
  * A ArrowLink describes the starting point of a graphic link.
@@ -88,7 +88,7 @@ ArrowLink.prototype.getAsXml = function getAsXml() {
    //-------------------------------------------------------------------------
    // Get my complete xml
    //-------------------------------------------------------------------------
-   xml = createXml("arrowlink", attributeDefaults, attributes,
+   xml = createXml("arrowlink", ATTRIBUTE_DEFAULTS, attributes,
                    this._unexpectedAttributes, [],
                    this._unexpectedTags);
 
@@ -177,7 +177,7 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    //-----------------------------------------------------------------------
    expectedTags = [];
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, attributeDefaults, expectedTags);
+      processXml(element, ATTRIBUTE_DEFAULTS, expectedTags);
 
    //-----------------------------------------------------------------------
    // Load our attributes
