@@ -101,7 +101,7 @@ export function createXml(tagName, attributeDefaults, attributes,
  *                                       their default values
  * @param {string[]} expectedTags      - a list of valid embeddable tag names
  *
- * @return {[Map, Map, Object[], string[]]}
+ * @return {[Map, Map, Element[], string[]]}
  *          {Map} loadedAttributes     - Loaded attributes. All attributes
  *                                       specified in the defaults will be
  *                                       present. Their values will either come
