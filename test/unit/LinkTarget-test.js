@@ -21,7 +21,11 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 let DOMParser = require('xmldom').DOMParser;
-let testExportedXml = require('./helperFunctions').testExportedXml;
+let testExportedAttributesAndTags =
+   require('./helperFunctions').testExportedAttributesAndTags;
+
+let xmlHelpersStub = {};
+xmlHelpersStub.createXml = require('./helperFunctions').createXml;
 
 //-----------------------------------------------------------------------------
 // Create proxyquire stubs
@@ -52,70 +56,43 @@ mainStub.m3App.getDiagnostics = function getDiagnostics() {
    return diagnosticsStub.Diagnostics;
 };
 
+// What's important is what's returned. Don't care what was passed in.
+xmlHelpersStub.loadXml = function(xmlElement, attributeDefaults,
+                                  expectedTags) {
+   return [
+      ATTRIBUTES,
+      UNEXPECTED_ATTRIBUTES,
+      [],
+      UNEXPECTED_TAGS
+   ];
+};
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 let LinkTarget = proxyquire('../../app/src/LinkTarget',
                             {
                                './Diagnostics': diagnosticsStub,
-                               './main': mainStub
+                               './main': mainStub,
+                               './xmlHelpers': xmlHelpersStub
                             }).LinkTarget;
 
 //-----------------------------------------------------------------------------
-// List of all attributes and non-default values, used by multiple tests
+// Various constants
 //-----------------------------------------------------------------------------
-const allAttributes = {
-   color: "#123456",
-   destination: "ID_123456",
-   endarrow: "none",
-   endinclination: "150;5;",
-   id: "ID_654321",
-   source: "ID_11223344",
-   startarrow: "none",
-   startinclination: "160;6;"
-};
+const ATTRIBUTES = new Map([["COLOR", "#123456"],
+                            ["DESTINATION", "ID_123456"],
+                            ["ENDARROW", "none"],
+                            ["ENDINCLINATION", "150;5;"],
+                            ["ID", "ID_654321"],
+                            ["SOURCE", "ID_11223344"],
+                            ["STARTARROW", "none"],
+                            ["STARTINCLINATION", "160;6;"]
+]);
+const UNEXPECTED_ATTRIBUTES = new Map([["UNEXPECTEDATTRIBUTE1", "value1"]]);
+const UNEXPECTED_TAGS = ["<unexpectedTag/>"];
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-/**
-  * Test allAttributes as listed above
-  * @param {String} t - test object from Tape
-  * @param {LinkTarget} linkTarget - the LinkTarget to be tested
-  * @return {void}
-  */
-function testAllAttributes(t, linkTarget) {
-
-   //--------------------------------------------------------------------------
-   // First test is to make sure when attributes are added to this file,
-   // we actually test them
-   //--------------------------------------------------------------------------
-   t.equal(Object.keys(allAttributes).length, 8,
-      "all attributes listed in this file must be tested");
-
-   t.equal(linkTarget.getColor(), allAttributes["color"],
-      "color must match value that was loaded");
-
-   t.equal(linkTarget.getDestination(), allAttributes["destination"],
-      "destination must match value that was loaded");
-
-   t.equal(linkTarget.getEndArrow(), allAttributes["endarrow"],
-      "endArrow must match value that was loaded");
-
-   t.equal(linkTarget.getEndInclination(), allAttributes["endinclination"],
-      "endInclination must match value that was loaded");
-
-   t.equal(linkTarget.getId(), allAttributes["id"],
-      "id must match value that was loaded");
-
-   t.equal(linkTarget.getSource(), allAttributes["source"],
-      "source must match value that was loaded");
-
-   t.equal(linkTarget.getStartArrow(), allAttributes["startarrow"],
-      "startArrow must match value that was loaded");
-
-   t.equal(linkTarget.getStartInclination(), allAttributes["startinclination"],
-      "startInclination must match value that was loaded");
-
-} // testAllAttributes
 
 //-----------------------------------------------------------------------------
 // Constructor - Defaults
@@ -260,199 +237,69 @@ test('LinkTarget - set/get StartInclination()', function (t) {
 });
 
 //-----------------------------------------------------------------------------
-// getAsXml - Exported XML same as source XML
-//            This includes attributes and embedded tags that m3 doesn't
-//            understand
+// loadFromXml - Values are loaded properly
+//             - Embedded objects (if any) are constructed
+//
+// getAsXml    - All regular attributes are passed to helper
+//             - All unexpected attributes are passed to helper
+//             - All unexpected tags, and their contents, are in the output
 //-----------------------------------------------------------------------------
-test('LinkTarget - getAsXml()', function (t) {
-   const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
-   const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
-   const UNKNOWN_TAG1 = "<unknownTag1 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag1>";
-   const UNKNOWN_TAG2 = "<unknownTag2 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag2>";
-   const UNKNOWN_VALUE1 = 'unknownvalue1';
-   const UNKNOWN_VALUE2 = 'unknownvalue2';
-   let origXml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the LinkTarget
-   //--------------------------------------------------------------------------
-   origXml = "<linktarget ";
-   origXml += `${UNKNOWN_ATTRIBUTE1}="${UNKNOWN_VALUE1}" `;
-
-   for (let a in allAttributes) {
-      origXml += `${a}="${allAttributes[a]}" `;
-   }
-   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
-   origXml += ">";
-   origXml += `${UNKNOWN_TAG1}${UNKNOWN_TAG2}`;
-
-   origXml += "</linktarget>";
-
-   //--------------------------------------------------------------------------
-   // Test
-   //--------------------------------------------------------------------------
-   testExportedXml(origXml, t, function(docElement) {
-      let origObject;
-
-      origObject = new LinkTarget();
-      origObject.loadFromXml1_0_1(docElement);
-      return origObject;
-   });
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Creation of LinkTarget gets logged
-//-----------------------------------------------------------------------------
-test('LinkTarget - loadFromXml1_0_1() - Creation of LinkTarget gets logged',
-   function (t) {
-
-   let docElement;
+test('LinkTarget - loadFromXml, getAsXml', function (t) {
    let linkTarget;
-   let parser;
    let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the LinkTarget
-   //--------------------------------------------------------------------------
-   xml = "<linktarget ";
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
-   }
-   xml += "></linktarget>";
-
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   linkTarget = new LinkTarget();
-   logCount = 0;
-   linkTarget.loadFromXml1_0_1(docElement);
-
-   t.equal(logCount, 1,
-      "creation of LinkTarget should be logged");
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Lowercase tag and attribute names
-//-----------------------------------------------------------------------------
-test('LinkTarget - loadFromXml1_0_1() - Lowercase tag and attribute names',
-   function (t) {
-
-   let docElement;
-   let linkTarget;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the LinkTarget
-   //--------------------------------------------------------------------------
-   xml = "<linktarget ";
-   for (let a in allAttributes) {
-      xml += `${a.toLowerCase()}="${allAttributes[a]}" `;
-   }
-   xml += "></linktarget>";
-
-   //--------------------------------------------------------------------------
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   linkTarget = new LinkTarget();
-   warningCount = 0;
-   linkTarget.loadFromXml1_0_1(docElement);
-
-   t.equal(warningCount, 0,
-      "no warnings should be generated on XML import");
-
-   //--------------------------------------------------------------------------
-   // Test all attributes and tags
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, linkTarget);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Uppercase tag and attribute names
-//-----------------------------------------------------------------------------
-test('LinkTarget - loadFromXml1_0_1() - Uppercase tag and attribute names',
-   function (t) {
-
-   let docElement;
-   let linkTarget;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the LinkTarget
-   //--------------------------------------------------------------------------
-   xml = "<LINKTARGET ";
-   for (let a in allAttributes) {
-      xml += `${a.toUpperCase()}="${allAttributes[a]}" `;
-   }
-   xml += "></LINKTARGET>";
-
-   //--------------------------------------------------------------------------
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   linkTarget = new LinkTarget();
-   warningCount = 0;
-   linkTarget.loadFromXml1_0_1(docElement);
-
-   t.equal(warningCount, 0,
-      "no warnings should be generated on XML import");
-
-   //--------------------------------------------------------------------------
-   // Test all attributes and tags
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, linkTarget);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Unknown attributes get logged
-//-----------------------------------------------------------------------------
-test('LinkTarget - loadFromXml1_0_1() - Unknown Attributes Get Logged',
-   function (t) {
-
-   let docElement;
-   let linkTarget;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the LinkTarget
-   //--------------------------------------------------------------------------
-   xml = "<linktarget ";
-   xml += 'unknownAttribute1="unknownValue1" ';
-
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
-   }
-   xml += 'unknownAttribute2="unknownValue2" ';
-   xml += "></linktarget>";
-
-   //--------------------------------------------------------------------------
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
 
    linkTarget = new LinkTarget();
 
-   warningCount = 0;
-   linkTarget.loadFromXml1_0_1(docElement);
-   t.equal(warningCount, 2);
+   //-------------------------------------------------------------------------
+   // First test loading
+   //-------------------------------------------------------------------------
+   // Doesn't matter what we pass it, because the stubs ignore it anyway
+   linkTarget.loadFromXml1_0_1();
 
-   testAllAttributes(t, linkTarget);
+   // First test is to make sure when attributes are added to this file,
+   // we actually test them
+   t.equal(ATTRIBUTES.size, 8,
+      "all attributes listed in this file must be tested");
+
+   t.equal(linkTarget.getColor(), ATTRIBUTES.get("COLOR"),
+      "color must match value that was loaded");
+
+   t.equal(linkTarget.getDestination(), ATTRIBUTES.get("DESTINATION"),
+      "destination must match value that was loaded");
+
+   t.equal(linkTarget.getEndArrow(), ATTRIBUTES.get("ENDARROW"),
+      "endArrow must match value that was loaded");
+
+   t.equal(linkTarget.getEndInclination(), ATTRIBUTES.get("ENDINCLINATION"),
+      "endInclination must match value that was loaded");
+
+   t.equal(linkTarget.getId(), ATTRIBUTES.get("ID"),
+      "id must match value that was loaded");
+
+   t.equal(linkTarget.getSource(), ATTRIBUTES.get("SOURCE"),
+      "source must match value that was loaded");
+
+   t.equal(linkTarget.getStartArrow(), ATTRIBUTES.get("STARTARROW"),
+      "startArrow must match value that was loaded");
+
+   t.equal(linkTarget.getStartInclination(), ATTRIBUTES.get("STARTINCLINATION"),
+      "startInclination must match value that was loaded");
+
+   //-------------------------------------------------------------------------
+   // Test getting as xml, now that it's loaded.
+   // Since the generation of the actual XML is tested elsewhere,
+   // all we care about is that proper args are passed to the helper
+   //-------------------------------------------------------------------------
+   xml = linkTarget.getAsXml();
+
+   t.equal(xmlHelpersStub.createXml.tagName, "linktarget",
+      "tagname must be passed properly");
+
+   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
+                         UNEXPECTED_ATTRIBUTES, "COLOR", "#000000",
+                         [], UNEXPECTED_TAGS);
+
+   //-------------------------------------------------------------------------
+
    t.end();
 });

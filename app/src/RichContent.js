@@ -18,7 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
-import {createXml, processXml} from "./xmlHelpers";
+import {createXml, loadXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
 const ATTRIBUTE_DEFAULTS = new Map([["TYPE", ""]]);
@@ -32,10 +32,10 @@ const EXPECTED_EMBEDDED_TAGS = ["html"];
 export function RichContent() {
    this._content = null;
    this._type = null;
-   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
-                                    // We save these so they can be included
-                                    // in getAsXml() output
-   this._unexpectedTags = [];       // As above
+   this._unexpectedAttributes = null; // Attributes that m3 doesn't understand
+                                      // We save these so they can be included
+                                      // in getAsXml() output
+   this._unexpectedTags = null;       // As above
 } // RichContent()
 
 /**
@@ -117,7 +117,7 @@ RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    // Process our XML
    //-----------------------------------------------------------------------
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
+      loadXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    this._type = loadedAttributes.get("TYPE");
 
@@ -147,16 +147,6 @@ RichContent.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 }; // loadFromXml1_0_1()
 
 /**
- * Set the type
- *
- * @param {String} type - This richcontent's type
- * @return {void}
- */
-RichContent.prototype.setType = function setType(type) {
-   this._type = type;
-}; // setType()
-
-/**
  * Set the content
  *
  * @param {String} content - This richcontent's content
@@ -165,3 +155,13 @@ RichContent.prototype.setType = function setType(type) {
 RichContent.prototype.setContent = function setContent(content) {
    this._content = content;
 }; // setContent()
+
+/**
+ * Set the type
+ *
+ * @param {String} type - This richcontent's type
+ * @return {void}
+ */
+RichContent.prototype.setType = function setType(type) {
+   this._type = type;
+}; // setType()

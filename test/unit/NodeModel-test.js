@@ -21,7 +21,11 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 let DOMParser = require('xmldom').DOMParser;
-let testExportedXml = require('./helperFunctions').testExportedXml;
+let testExportedAttributesAndTags =
+   require('./helperFunctions').testExportedAttributesAndTags;
+
+let xmlHelpersStub = {};
+xmlHelpersStub.createXml =require('./helperFunctions').createXml;
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -96,6 +100,12 @@ linkTargetStub.LinkTarget.prototype.getAsXml = function getAsXml() {
 linkTargetStub.LinkTarget.prototype.loadFromXml1_0_1 = function
    loadFromXml1_0_1() {};
 
+mainStub = {};
+mainStub.m3App = {};
+mainStub.m3App.getDiagnostics = function getDiagnostics() {
+   return diagnosticsStub.Diagnostics;
+};
+
 richContentStub = {};
 richContentStub.RichContent = function RichContent() {};
 richContentStub.RichContent.prototype.getAsXml = function getAsXml() {
@@ -113,19 +123,47 @@ richContentStub.RichContent.prototype.getType = function getType() {
 richContentStub.RichContent.prototype.loadFromXml1_0_1 = function
    loadFromXml1_0_1(parsedXml) {
 
-   if (parsedXml.attributes[0].value.toLowerCase() === "node") {
-      this._type = "node";
+   if (parsedXml.attributes[0].value === "NODE") {
+      this._type = "NODE";
       this._content = "<html>content:node</html>";
    } else {
-      this._type = "note";
+      this._type = "NOTE";
       this._content = "<html>content:note</html>";
    }
 };
 
-mainStub = {};
-mainStub.m3App = {};
-mainStub.m3App.getDiagnostics = function getDiagnostics() {
-   return diagnosticsStub.Diagnostics;
+xmlHelpersStub.setupLoadXml = function setupLoadXml(
+   currentAttributes,
+   unexpectedAttributes,
+   embeddedTags,
+   unexpectedTags) {
+
+   xmlHelpersStub.setupLoadXml.currentAttributes = currentAttributes;
+   xmlHelpersStub.setupLoadXml.unexpectedAttributes = unexpectedAttributes;
+   xmlHelpersStub.setupLoadXml.embeddedTags = embeddedTags;
+   xmlHelpersStub.setupLoadXml.unexpectedTags = unexpectedTags;
+};
+
+// What's important is what's returned. Don't care what was passed in.
+xmlHelpersStub.loadXml = function loadXml(xmlElement, attributeDefaults,
+                                          expectedTags) {
+
+   let parser;
+   let parsedEmbeddedTags = [];
+
+   parser = new DOMParser();
+
+   xmlHelpersStub.setupLoadXml.embeddedTags.forEach(function(t) {
+      parsedEmbeddedTags.push(parser.parseFromString(t, "text/xml").
+         documentElement);
+   });
+
+   return [
+      xmlHelpersStub.setupLoadXml.currentAttributes,
+      xmlHelpersStub.setupLoadXml.unexpectedAttributes,
+      parsedEmbeddedTags,
+      xmlHelpersStub.setupLoadXml.unexpectedTags
+   ];
 };
 
 //-----------------------------------------------------------------------------
@@ -148,99 +186,33 @@ let NodeModel = proxyquire('../../app/src/NodeModel',
                               './Font': fontStub,
                               './LinkTarget': linkTargetStub,
                               './RichContent': richContentStub,
-                              './main': mainStub
+                              './main': mainStub,
+                              './xmlHelpers': xmlHelpersStub
                            }).NodeModel;
 
 //-----------------------------------------------------------------------------
-// List of all attributes and non-default values, used by multiple tests
+// Various constants
+//    - POSITION must be none since we're testing a root node
 //-----------------------------------------------------------------------------
-const allAttributes = {
-   background_color: "#123456",
-   created: "123456",
-   color: "#654321",
-   folded: "true",
-   id: "ID_123456",
-   modified: "1234567",
-   position: "left",
-   text: "test text"
-};
+const ATTRIBUTES = new Map([["BACKGROUND_COLOR", "#123456"],
+                            ["CREATED", "123456"],
+                            ["COLOR", "#654321"],
+                            ["FOLDED", "true"],
+                            ["ID", "ID_123456"],
+                            ["MODIFIED", "1234567"],
+                            ["POSITION", "none"],
+                            ["TEXT", "test text"]
+                         ]);
 
 // Leaving out <node> as an embedded tag, since requires much more effort
-// for testing. This is tested in integration testing.
-const allEmbeddedTags =
+// for testing.
+const EMBEDDED_TAGS =
    ['<arrowlink/>', '<cloud/>', '<font/>', '<linktarget/>',
     '<richcontent TYPE="NODE"><html>content:node</html></richcontent>',
     '<richcontent TYPE="NOTE"><html>content:note</html></richcontent>'];
 
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-/**
-  * Test allAttributes as listed above
-  * @param {String} t - test object from Tape
-  * @param {NodeModel} nodeModel - the nodeModel to be tested
-  * @return {void}
-  */
-function testAllAttributes(t, nodeModel) {
-   let booleanAsString;
-
-   //--------------------------------------------------------------------------
-   // First test is to make sure when attributes are added to this file,
-   // we actually test them
-   //--------------------------------------------------------------------------
-   t.equal(Object.keys(allAttributes).length, 8,
-      "all attributes listed in this file must be tested");
-
-   t.equal(nodeModel.getBackgroundColor(), allAttributes["background_color"],
-      "background color must match value that was loaded");
-
-   t.equal(nodeModel.getTextColor(), allAttributes["color"],
-      "color must match value that was loaded");
-
-   t.equal(nodeModel.getCreatedTimestamp(), allAttributes["created"],
-      "created timestamp must match value that was loaded");
-
-   booleanAsString = (new Boolean(nodeModel.isFolded())).toString();
-   t.equal(booleanAsString, allAttributes["folded"],
-      "folded status must match value that was loaded");
-
-   t.equal(nodeModel.getId(), allAttributes["id"],
-      "id must match value that was loaded");
-
-   t.equal(nodeModel.getModifiedTimestamp(), allAttributes["modified"],
-      "modified timestamp must match value that was loaded");
-
-   t.equal(nodeModel.getSide(), allAttributes["position"],
-      "side must match value that was loaded");
-
-   t.equal(nodeModel.getText(), allAttributes["text"],
-      "text must match value that was loaded");
-} // testAllAttributes
-
-/**
-  * Test allEmbeddedTags as listed above
-  * @param {String} t - test object from Tape
-  * @param {NodeModel} nodeModel - the nodeModel to be tested
-  * @return {void}
-  */
-function testAllEmbeddedTags(t, nodeModel) {
-   t.equal(nodeModel.getArrowLinks().length, 1,
-      "there must be one ArrowLink present");
-
-   t.notEqual(nodeModel.getCloudModel(), null,
-      "there must be a Cloud present");
-
-   t.notEqual(nodeModel.getFont(), null,
-      "there must be a Font present");
-
-   t.equal(nodeModel.getLinkTargets().length, 1,
-      "there must be one LinkTarget present");
-
-   t.notEqual(nodeModel.getRichText(), null,
-      "there must be a RichText node present");
-
-   t.notEqual(nodeModel.getNote(), null,
-      "there must be a RichText Note present");
-} // testAllEmbeddedTags()
+const UNEXPECTED_ATTRIBUTES = new Map([["UNEXPECTEDATTRIBUTE1", "value1"]]);
+const UNEXPECTED_TAGS = ["<unexpectedTag/>"];
 
 //-----------------------------------------------------------------------------
 // Constructor - Defaults
@@ -291,13 +263,17 @@ test('NodeModel - Constructor - Defaults', function (t) {
 });
 
 //-----------------------------------------------------------------------------
-// Constuctor - XML - Creation of NodeModel gets logged
+// Constructor from XML - Values are loaded properly
+//                      - Embedded objects (if any) are present
+//
+// getAsXml    - All regular attributes are passed to helper
+//             - All unexpected attributes are passed to helper
+//             - All unexpected tags, and their contents, are in the output
 //-----------------------------------------------------------------------------
-test('NodeModel - Constructor - XML - Creation of NodeModel gets logged',
-   function (t) {
-
-   let nodeModel;
+test('NodeModel - Constructor from XML, getAsXml', function(t) {
+   let booleanAsString;
    let docElement;
+   let nodeModel;
    let parser;
    let xml;
 
@@ -305,149 +281,108 @@ test('NodeModel - Constructor - XML - Creation of NodeModel gets logged',
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
    xml = "<node ";
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
+   for (let a of ATTRIBUTES) {
+      xml += `${a[0]}="${a[1]}" `;
+   }
+
+   for (let a of UNEXPECTED_ATTRIBUTES) {
+      xml += `${a[0]}="${a[1]}" `;
    }
    xml += ">";
-   allEmbeddedTags.forEach(function (t) {
-      xml += t.toLowerCase();
+
+   EMBEDDED_TAGS.forEach(function (t) {
+      xml += t;
+   });
+
+   UNEXPECTED_TAGS.forEach(function (t) {
+      xml += t;
    });
 
    xml += "</node>";
 
    //--------------------------------------------------------------------------
+   // Tell the helper stub what to return
    //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   logCount = 0;
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-
-   t.equal(logCount, 1,
-      "Creation of NodeModel should be logged");
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// Constructor - XML - Lowercase tag and attribute names
-//-----------------------------------------------------------------------------
-test("NodeModel - Constructor - XML - Lower Case", function(t) {
-   let docElement;
-   let nodeModel;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel. All attributes and embedded tags
-   // lowercase
-   //--------------------------------------------------------------------------
-   xml = "<node ";
-   for (let a in allAttributes) {
-      xml += `${a.toLowerCase()}="${allAttributes[a]}" `;
-   }
-   xml += ">";
-   allEmbeddedTags.forEach(function (t) {
-      xml += t.toLowerCase();
-   });
-
-   xml += "</node>";
-
-   //--------------------------------------------------------------------------
-   // Load the NodeModel
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-
-   //--------------------------------------------------------------------------
-   // Test all attributes and tags
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, nodeModel);
-   testAllEmbeddedTags(t, nodeModel);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// Constructor - XML - Uppercase tag and attribute names
-//-----------------------------------------------------------------------------
-test("NodeModel - Constructor - XML - Upper Case", function(t) {
-   let docElement;
-   let nodeModel;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel. All attributes and embedded tags
-   // uppercase
-   //--------------------------------------------------------------------------
-   xml = "<NODE ";
-   for (let a in allAttributes) {
-      xml += `${a.toUpperCase()}="${allAttributes[a]}" `;
-   }
-   xml += ">";
-   allEmbeddedTags.forEach(function (t) {
-      xml += t.toUpperCase();
-   });
-
-   xml += "</NODE>";
-
-   //--------------------------------------------------------------------------
-   // Load the NodeModel
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-
-   //--------------------------------------------------------------------------
-   // Test all attributes and tags
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, nodeModel);
-   testAllEmbeddedTags(t, nodeModel);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// Constructor - XML - Unknown attributes get logged
-//-----------------------------------------------------------------------------
-test('NodeModel - Constructor - XML - Unknown attributes get logged',
-   function (t) {
-
-   let nodeModel;
-   let docElement;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel
-   //--------------------------------------------------------------------------
-   xml = "<node ";
-   xml += 'unknownAttribute1="unknownValue1" ';
-
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
-   }
-   xml += 'unknownAttribute2="unknownValue2" ';
-   xml += "></node>";
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, UNEXPECTED_ATTRIBUTES,
+                               EMBEDDED_TAGS, UNEXPECTED_TAGS);
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    parser = new DOMParser();
    docElement = parser.parseFromString(xml, "text/xml").documentElement;
 
-   warningCount = 0;
-
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
                              null, null, docElement);
 
-   testAllAttributes(t, nodeModel);
-   t.equal(warningCount, 2,
-      "unknown attributes should get logged");
+   //--------------------------------------------------------------------------
+   // First test is to make sure when attributes are added to this file,
+   // we actually test them
+   //--------------------------------------------------------------------------
+   t.equal(ATTRIBUTES.size, 8,
+      "all attributes listed in this file must be tested");
+
+   //--------------------------------------------------------------------------
+   // Attributes
+   //--------------------------------------------------------------------------
+   t.equal(nodeModel.getBackgroundColor(), ATTRIBUTES.get("BACKGROUND_COLOR"),
+      "background color must match value that was loaded");
+
+   t.equal(nodeModel.getTextColor(), ATTRIBUTES.get("COLOR"),
+      "color must match value that was loaded");
+
+   t.equal(nodeModel.getCreatedTimestamp(), ATTRIBUTES.get("CREATED"),
+      "created timestamp must match value that was loaded");
+
+   booleanAsString = (new Boolean(nodeModel.isFolded())).toString();
+   t.equal(booleanAsString, ATTRIBUTES.get("FOLDED"),
+      "folded status must match value that was loaded");
+
+   t.equal(nodeModel.getId(), ATTRIBUTES.get("ID"),
+      "id must match value that was loaded");
+
+   t.equal(nodeModel.getModifiedTimestamp(), ATTRIBUTES.get("MODIFIED"),
+      "modified timestamp must match value that was loaded");
+
+   t.equal(nodeModel.getSide(), ATTRIBUTES.get("POSITION"),
+      "side must match value that was loaded");
+
+   t.equal(nodeModel.getText(), ATTRIBUTES.get("TEXT"),
+      "text must match value that was loaded");
+
+   //--------------------------------------------------------------------------
+   // Embedded Tags
+   //--------------------------------------------------------------------------
+   t.equal(nodeModel.getArrowLinks().length, 1,
+      "there must be one ArrowLink present");
+
+   t.notEqual(nodeModel.getCloudModel(), null,
+      "there must be a Cloud present");
+
+   t.notEqual(nodeModel.getFont(), null,
+      "there must be a Font present");
+
+   t.equal(nodeModel.getLinkTargets().length, 1,
+      "there must be one LinkTarget present");
+
+   t.notEqual(nodeModel.getRichText(), null,
+      "there must be a RichText node present");
+
+   t.notEqual(nodeModel.getNote(), null,
+      "there must be a RichText note present");
+
+   //-------------------------------------------------------------------------
+   // Test getting as xml, now that it's loaded.
+   // Since the generation of the actual XML is tested elsewhere,
+   // all we care about is that proper args are passed to the helper
+   //-------------------------------------------------------------------------
+   xml = nodeModel.getAsXml();
+
+   t.equal(xmlHelpersStub.createXml.tagName, "node",
+      "tagname must be passed properly");
+
+   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
+                         UNEXPECTED_ATTRIBUTES, "COLOR", "#000000",
+                         EMBEDDED_TAGS, UNEXPECTED_TAGS);
 
    t.end();
 });
@@ -622,28 +557,25 @@ test('NodeModel - connectArrowLinks()', function(t) {
    let xmlMultipleArrowLinks;
    let xmlNoArrowLinks;
    let xmlOneArrowLink;
-   let xmlTmp;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoArrowLinks = xmlTmp + "</node>";
-   xmlOneArrowLink = xmlTmp + "<arrowlink/></node>";
-   xmlMultipleArrowLinks = xmlTmp + "<arrowlink/><arrowlink/></node>";
+   xmlNoArrowLinks = "<node></node>";
+   xmlOneArrowLink = "<node><arrowlink/></node>";
+   xmlMultipleArrowLinks = "<node><arrowlink/><arrowlink/></node>";
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No ArrowLinks
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoArrowLinks, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -653,9 +585,13 @@ test('NodeModel - connectArrowLinks()', function(t) {
    t.equal(connectToNodeModelCount, 0,
       "connectToNodeModel() should not be called");
 
-   //
+   //--------------------------------------------------------------------------
    // One ArrowLink
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<arrowlink/>"], []);
+
    docElement = domParser.parseFromString(xmlOneArrowLink, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -665,9 +601,14 @@ test('NodeModel - connectArrowLinks()', function(t) {
    t.equal(connectToNodeModelCount, 1,
       "connectToNodeModel() should be called once");
 
-   //
+   //--------------------------------------------------------------------------
    // Multiple ArrowLinks
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
+                                  ["<arrowlink/>", "<arrowlink/>"], []);
+
    docElement = domParser.parseFromString(xmlMultipleArrowLinks, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -760,28 +701,25 @@ test('NodeModel - getArrowLinks()', function(t) {
    let xmlMultipleArrowLinks;
    let xmlNoArrowLinks;
    let xmlOneArrowLink;
-   let xmlTmp;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoArrowLinks = xmlTmp + "</node>";
-   xmlOneArrowLink = xmlTmp + "<arrowlink/></node>";
-   xmlMultipleArrowLinks = xmlTmp + "<arrowlink/><arrowlink/></node>";
+   xmlNoArrowLinks = "<node></node>";
+   xmlOneArrowLink = "<node><arrowlink/></node>";
+   xmlMultipleArrowLinks = "<node><arrowlink/><arrowlink/></node>";
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No ArrowLinks
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoArrowLinks, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -789,9 +727,13 @@ test('NodeModel - getArrowLinks()', function(t) {
    t.equal(nodeModel.getArrowLinks().length, 0,
       "there should be no ArrowLink on the nodeModel");
 
-   //
+   //--------------------------------------------------------------------------
    // One ArrowLink
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<arrowlink/>"], []);
+
    docElement = domParser.parseFromString(xmlOneArrowLink, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -799,9 +741,14 @@ test('NodeModel - getArrowLinks()', function(t) {
    t.equal(nodeModel.getArrowLinks().length, 1,
       "there should be one ArrowLink on the nodeModel");
 
-   //
+   //--------------------------------------------------------------------------
    // Multiple ArrowLinks
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
+                                  ["<arrowlink/>", "<arrowlink/>"], []);
+
    docElement = domParser.parseFromString(xmlMultipleArrowLinks, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -817,50 +764,6 @@ test('NodeModel - getArrowLinks()', function(t) {
 //            This includes attributes and embedded tags that m3 doesn't
 //            understand
 //-----------------------------------------------------------------------------
-test('NodeModel - getAsXml()', function (t) {
-   const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
-   const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
-   const UNKNOWN_TAG1 = "<unknownTag1 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag1>";
-   const UNKNOWN_TAG2 = "<unknownTag2 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag2>";
-   const UNKNOWN_VALUE1 = 'unknownvalue1';
-   const UNKNOWN_VALUE2 = 'unknownvalue2';
-   let origXml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the NodeModel
-   //--------------------------------------------------------------------------
-   origXml = "<node ";
-   origXml += `${UNKNOWN_ATTRIBUTE1}="${UNKNOWN_VALUE1}" `;
-
-   for (let a in allAttributes) {
-      origXml += `${a}="${allAttributes[a]}" `;
-   }
-   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
-
-   origXml += ">";
-
-   allEmbeddedTags.forEach( function(t) {
-      origXml += t;
-   });
-
-   origXml += `${UNKNOWN_TAG1}${UNKNOWN_TAG2}`;
-
-   origXml += "</node>";
-
-   //--------------------------------------------------------------------------
-   // Test
-   //--------------------------------------------------------------------------
-   testExportedXml(origXml, t, function(docElement) {
-      return new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                           null, null, docElement);
-   });
-
-   t.end();
-});
 
 //-----------------------------------------------------------------------------
 // getChildren
@@ -901,28 +804,25 @@ test('NodeModel - getCloudModel()', function(t) {
    let domParser;
    let nodeModel;
    let xmlNoCloud;
-   let xmlTmp;
    let xmlWithCloud;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoCloud = xmlTmp + "</node>";
-   xmlWithCloud = xmlTmp + "<cloud/></node>";
+   xmlNoCloud = "<node></node>";
+   xmlWithCloud = "<node><cloud/></node>";
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No Cloud
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoCloud, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -930,9 +830,12 @@ test('NodeModel - getCloudModel()', function(t) {
    t.equal(nodeModel.getCloudModel(), null,
       "there should be no Cloud on the nodeModel");
 
-   //
+   //--------------------------------------------------------------------------
    // One Cloud
-   //
+   //--------------------------------------------------------------------------
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<cloud/>"], []);
+
    docElement = domParser.parseFromString(xmlWithCloud, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -951,28 +854,25 @@ test('NodeModel - getFont()', function(t) {
    let domParser;
    let nodeModel;
    let xmlNoFont;
-   let xmlTmp;
    let xmlWithFont;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoFont = xmlTmp + "</node>";
-   xmlWithFont = xmlTmp + "<font/></node>";
+   xmlNoFont = "<node></node>";
+   xmlWithFont = "<node><font/></node>";
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No Font
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoFont, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -980,41 +880,19 @@ test('NodeModel - getFont()', function(t) {
    t.equal(nodeModel.getFont(), null,
       "there should be no Font on the nodeModel");
 
-   //
+   //--------------------------------------------------------------------------
    // One Font
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<font/>"], []);
+
    docElement = domParser.parseFromString(xmlWithFont, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
                              null, null, docElement);
    t.notEqual(nodeModel.getFont(), null,
       "there should be a Font on the nodeModel");
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// getId
-//-----------------------------------------------------------------------------
-test('NodeModel - getId()', function(t) {
-   const xml = '<node CREATED="1445227701475" ID="ID_728672746" ' +
-               'MODIFIED="1445227721295" TEXT="Node Text"> ' +
-               '</node>';
-
-   let docElement;
-   let domParser;
-   let nodeModel;
-
-   domParser = new DOMParser();
-
-   //
-   // No Font
-   //
-   docElement = domParser.parseFromString(xml, "text/xml").documentElement;
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-   t.equal(nodeModel.getId(), "ID_728672746",
-      "the ID should match the source xml");
 
    t.end();
 });
@@ -1029,28 +907,25 @@ test('NodeModel - getLinkTargets()', function(t) {
    let xmlMultipleLinkTargets;
    let xmlNoLinkTargets;
    let xmlOneLinkTarget;
-   let xmlTmp;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoLinkTargets = xmlTmp + "</node>";
-   xmlOneLinkTarget = xmlTmp + "<linktarget/></node>";
-   xmlMultipleLinkTargets = xmlTmp + "<linktarget/><linktarget/></node>";
+   xmlNoLinkTargets = "<node></node>";
+   xmlOneLinkTarget = "<node><linktarget/></node>";
+   xmlMultipleLinkTargets = "<node><linktarget/><linktarget/></node>";
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No LinkTargets
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoLinkTargets, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1058,9 +933,13 @@ test('NodeModel - getLinkTargets()', function(t) {
    t.equal(nodeModel.getLinkTargets().length, 0,
       "there should be no LinkTargets on the nodeModel");
 
-   //
+   //--------------------------------------------------------------------------
    // One LinkTarget
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<linktarget/>"], []);
+
    docElement = domParser.parseFromString(xmlOneLinkTarget, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1068,9 +947,14 @@ test('NodeModel - getLinkTargets()', function(t) {
    t.equal(nodeModel.getLinkTargets().length, 1,
       "there should be one LinkTarget on the nodeModel");
 
-   //
+   //--------------------------------------------------------------------------
    // Multiple LinkTargets
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
+                                  ["<linktarget/>", "<linktarget/>"], []);
+
    docElement = domParser.parseFromString(xmlMultipleLinkTargets, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1089,28 +973,25 @@ test("NodeModel - getNote()", function(t) {
    let domParser;
    let nodeModel;
    let xmlNoNote;
-   let xmlTmp;
    let xmlWithNote;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoNote = xmlTmp + "</node>";
-   xmlWithNote = xmlTmp + '<richcontent TYPE="NOTE"/></node>';
+   xmlNoNote = "<node></node>";
+   xmlWithNote = '<node><richcontent TYPE="NOTE"/></node>';
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No note
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoNote, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1118,9 +999,14 @@ test("NodeModel - getNote()", function(t) {
    t.equal(nodeModel.getNote(), null,
       "nodeModel should not have a note on it");
 
-   //
+   //--------------------------------------------------------------------------
    // With note
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
+                                  ['<richcontent TYPE="NOTE"/>'], []);
+
    docElement = domParser.parseFromString(xmlWithNote, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1160,28 +1046,25 @@ test("NodeModel - getRichText()", function(t) {
    let domParser;
    let nodeModel;
    let xmlNoRichText;
-   let xmlTmp;
    let xmlWithRichText;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoRichText = xmlTmp + "</node>";
-   xmlWithRichText = xmlTmp + '<richcontent TYPE="NODE"/></node>';
+   xmlNoRichText = "<node></node>";
+   xmlWithRichText = '<node><richcontent TYPE="NODE"/></node>';
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No RichText
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoRichText, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1189,9 +1072,13 @@ test("NodeModel - getRichText()", function(t) {
    t.equal(nodeModel.getRichText(), null,
       "nodeModel should not be richtext");
 
-   //
+   //--------------------------------------------------------------------------
    // With RichText
-   //
+   //--------------------------------------------------------------------------
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
+                                  ['<richcontent TYPE="NODE"/>'], []);
+
    docElement = domParser.parseFromString(xmlWithRichText, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1209,46 +1096,41 @@ test("NodeModel - getSide()", function(t) {
    let docElement;
    let domParser;
    let nodeModel;
-   let xmlNoSide;
-   let xmlWithSide;
+   let rootNodeModel;
+   let xml;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel.
    // xmlNoSide - All attributes except 'position'
    // XmlWithSide - All attributes
    //--------------------------------------------------------------------------
-   xmlNoSide = "<node ";
-   xmlWithSide = "<node ";
-   for (let a in allAttributes) {
-      if (a !== "position") {
-         xmlNoSide += `${a}="${allAttributes[a]}" `;
-      }
-      xmlWithSide += `${a}="${allAttributes[a]}" `;
-   }
-   xmlNoSide += "></node>";
-   xmlWithSide += "></node>";
+   xml = '<node POSITION="left"></node>';
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map([["POSITION", "left"]]), new Map(),
+                                  [], []);
 
    //--------------------------------------------------------------------------
-   // No Side
+   // Root node (no side)
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   docElement = domParser.parseFromString(xmlNoSide, "text/xml")
+   docElement = domParser.parseFromString(xml, "text/xml")
                 .documentElement;
-   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-   t.equal(nodeModel.getSide(), NodeModel.POSITION_NONE,
-      "nodeModel.getSide() should match input xml (none specified)");
+   rootNodeModel = new NodeModel(controllerStub, mapModelStub,
+                             NodeModel.TYPE_XML, null, null, docElement);
+   t.equal(rootNodeModel.getSide(), NodeModel.POSITION_NONE,
+      "nodeModel.getSide() should be 'none' for root nodes");
 
    //--------------------------------------------------------------------------
    // With side
    //--------------------------------------------------------------------------
-   docElement = domParser.parseFromString(xmlWithSide, "text/xml")
+   docElement = domParser.parseFromString(xml, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
-                             null, null, docElement);
-   t.equal(nodeModel.getSide(), allAttributes["position"],
-      "nodeModel.getSide() should match input xml");
+                             rootNodeModel, null, docElement);
+   t.equal(nodeModel.getSide(), "left",
+      "nodeModel.getSide() should match input xml for children of root");
 
    t.end();
 });
@@ -1261,28 +1143,25 @@ test("NodeModel - hasCloud()", function(t) {
    let domParser;
    let nodeModel;
    let xmlNoCloud;
-   let xmlTmp;
    let xmlWithCloud;
 
    //--------------------------------------------------------------------------
    // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   xmlTmp = "<node ";
-   for (let a in allAttributes) {
-      xmlTmp += `${a}="${allAttributes[a]}" `;
-   }
-   xmlTmp += ">";
-
-   xmlNoCloud = xmlTmp + "</node>";
-   xmlWithCloud = xmlTmp + '<cloud/></node>';
+   xmlNoCloud = "<node></node>";
+   xmlWithCloud = '<node><cloud/></node>';
 
    //--------------------------------------------------------------------------
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
 
-   //
+   //--------------------------------------------------------------------------
    // No cloud
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+
    docElement = domParser.parseFromString(xmlNoCloud, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
@@ -1290,9 +1169,13 @@ test("NodeModel - hasCloud()", function(t) {
    t.equal(nodeModel.hasCloud(), false,
       "nodeModel should not have a cloud");
 
-   //
+   //--------------------------------------------------------------------------
    // With cloud
-   //
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<cloud/>"], []);
+
    docElement = domParser.parseFromString(xmlWithCloud, "text/xml")
                 .documentElement;
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,

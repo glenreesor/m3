@@ -18,7 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
-import {createXml, processXml} from "./xmlHelpers";
+import {createXml, loadXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
 const ATTRIBUTE_DEFAULTS = new Map([["BOLD", "false"],
@@ -35,10 +35,10 @@ export function Font() {
    this._bold = false;
    this._italic = false;
    this._size = "12";
-   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
-                                    // We save these so they can be included
-                                    // in getAsXml() output
-   this._unexpectedTags = [];       // As above
+   this._unexpectedAttributes = null; // Attributes that m3 doesn't understand
+                                      // We save these so they can be included
+                                      // in getAsXml() output
+   this._unexpectedTags = null;       // As above
 } // Font()
 
 /**
@@ -120,7 +120,7 @@ Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    // Process our XML
    //-----------------------------------------------------------------------
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
+      loadXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    if (loadedAttributes.get("BOLD") === "true") {
       this._bold = true;

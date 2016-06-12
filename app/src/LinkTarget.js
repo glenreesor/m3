@@ -18,7 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
-import {createXml, processXml} from "./xmlHelpers";
+import {createXml, loadXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
 const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
@@ -47,10 +47,10 @@ export function LinkTarget() {
    this._startArrow = null;
    this._startInclination = null;
 
-   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
-                                    // We save these so they can be included
-                                    // in getAsXml() output
-   this._unexpectedTags = [];       // As above
+   this._unexpectedAttributes = null; // Attributes that m3 doesn't understand
+                                      // We save these so they can be included
+                                      // in getAsXml() output
+   this._unexpectedTags = null;       // As above
 
    // Computed attributes that don't get saved
 } // LinkTarget()
@@ -165,7 +165,7 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    // Process our XML
    //-----------------------------------------------------------------------
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
+      loadXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    this.setColor(loadedAttributes.get("COLOR"));
    this.setDestination(loadedAttributes.get("DESTINATION"));
@@ -176,7 +176,7 @@ LinkTarget.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    this.setStartArrow(loadedAttributes.get("STARTARROW"));
    this.setStartInclination(loadedAttributes.get("STARTINCLINATION"));
 
-   this._unexpectedAttribues = unexpectedAttributes;
+   this._unexpectedAttributes = unexpectedAttributes;
    this._unexpectedTags = unexpectedTags;
 
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,

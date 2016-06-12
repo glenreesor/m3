@@ -17,130 +17,114 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-let DOMParser = require('xmldom').DOMParser;
-let XMLSerializer = require('xmldom').XMLSerializer;
+/**
+ * A stub that just records what it received as input and returns dummy xml.
+ * @param {string}   tagName              - the name of the tag being processed
+ * @param {Map}      attributeDefaults    - a complete list of all valid
+ *                                          attributes for the tag being
+ *                                          processed, along with their default
+ *                                          values
+ * @param {Map}      currentAttributes    - a list of all attributes and their
+ *                                          current values
+ * @param {Map}      unexpectedAttributes - a list of all attributes that were
+ *                                          not expected (during loading), but
+ *                                          need to be preserved for
+ *                                          interoperability with Freeplane
+ * @param {Object[]} embeddedTags         - an array of objects, each having
+ *                                          a getAsXml() method that will be
+ *                                          used for generating XML
+ * @param {string[]} unexpectedTags       - an array of serialized tags that
+ *                                          were not expected (during loading),
+ *                                          but need to be preserved for
+ *                                          interoperability with Freeplane
+ *
+ * @return {string[]} An array of strings that correspond to the complete
+ *                    XML representation of the specified tag
+ */
+export function createXml (tagName, attributeDefaults, currentAttributes,
+                           unexpectedAttributes, embeddedTags, unexpectedTags) {
+
+   createXml.tagName = tagName;
+   createXml.attributeDefaults = attributeDefaults;
+   createXml.currentAttributes =  currentAttributes;
+   createXml.unexpectedAttributes = unexpectedAttributes;
+   createXml.embeddedTags = embeddedTags;
+   createXml.unexpectedTags = unexpectedTags;
+   return "<xml/>";
+}
 
 /**
- * A function to compare XML used to load an object with the XML exported
- * by that object to confirm:
- *    - all original attributes are present
- *    - all original embedded tags are present
+ * Test that an object's exported attributes and tags are correct. We do
+ * this by examining the objects that were saved by the stubbed createXml().
  *
- * @param {String} origXml - the XML to be used in creating the object
- * @param {String} t - test object from Tape
- * @param {Function} constructorFn - the function to be called when constructing
- *                                   the object
+ * @param {Object} t                    - test object from Tape
+ * @param {Object} exportSavingObject   - the stub object that had all the
+ *                                        passed-in parameters saved on it
+ * @param {Map}    loadedAttributes     - the attributes that were initially
+ *                                        loaded
+ * @param {Map}    unexpectedAttributes - the simulated unexpected attributes
+ *                                        from initial load
+ * @param {string} oneAttribute         - the name of an attribute that can be
+ *                                        used to confirm attributes list
+ * @param {string} defaultValue         - the default value for the above
+ *                                        attribute
+ * @param {[]}     embeddedTags         - the expected embedded tags
+ *                                        from initial load
+ * @param {string} unexpectedTags       - the simulated unexpected tags
+ *                                        from initial load
+ *
  * @return {void}
  */
-export function testExportedXml(origXml, t, constructorFn) {
+export function testExportedAttributesAndTags(t, exportSavingObject,
+                                              loadedAttributes,
+                                              unexpectedAttributes,
+                                              oneAttribute, defaultValue,
+                                              embeddedTags, unexpectedTags) {
+   let unexpectedAttributeName;
 
-   let attributes;
-   let element;
-   let exportedAttributes;
-   let exportedDocElement;
-   let exportedEmbeddedTags;
-   let exportedXml;
-   let origAttributes;
-   let origObject;
-   let origDocElement;
-   let origEmbeddedTags;
-   let parser;
-   let serializer;
+   // Overkill to test all attributeDefaults. Just need to confirm that
+   // the right Map was passed, so just test:
+   //    - attributeDefaults is the same size as our map of test attributes
+   //    - one of the defaults is correct
+   t.equal(exportSavingObject.attributeDefaults.size, loadedAttributes.size,
+      "attribute defaults must be passed to helper");
 
-   parser = new DOMParser();
-   serializer = new XMLSerializer();
+   t.equal(exportSavingObject.attributeDefaults.get(oneAttribute), defaultValue,
+      "attribute defaults must be passed to helper");
 
-   //-----------------------------------------------------------------------
-   // Create the object and get the exported XML
-   //-----------------------------------------------------------------------
-   origDocElement = parser.parseFromString(origXml, "text/xml")
-                    .documentElement;
-   origObject = constructorFn(origDocElement);
+   // Overkill to test all attributes, so just test:
+   //    - saved attributes is the same size as our map of test attributes
+   //    - one attribute is correct
+   t.equal(exportSavingObject.currentAttributes.size, loadedAttributes.size,
+      "attributes must be passed to helper");
 
-   exportedXml = origObject.getAsXml().join(" ");
+   t.equal(exportSavingObject.currentAttributes.get(oneAttribute),
+      loadedAttributes.get(oneAttribute),
+      "attributes must be passed to the helper");
 
-   exportedDocElement = parser.parseFromString(exportedXml, "text/xml")
-                        .documentElement;
+   // Overkill to test all unexpected attributes, so just test:
+   //    - saved unexpectedAttributes is the same size as our initial unexpected
+   //      attributes
+   //    - one unexpected attribute is correct
+   t.equal(exportSavingObject.unexpectedAttributes.size,
+      unexpectedAttributes.size,
+      "unexpected attributes must be preserved");
 
-   //-----------------------------------------------------------------------
-   // Create sorted arrays of original attributes and embedded tags
-   //-----------------------------------------------------------------------
-   origAttributes = [];
-   for (let i = 0; i < origDocElement.attributes.length; i++) {
-      origAttributes.push(origDocElement.attributes[i]);
-   }
+   unexpectedAttributeName = unexpectedAttributes.keys()[0];
+   t.equal(exportSavingObject.unexpectedAttributes.get(unexpectedAttributeName),
+      unexpectedAttributes.get(unexpectedAttributeName),
+      "unexpected attributes must be preserved");
 
-   origAttributes.sort(function(a, b) {
-      return a.name < b.name;
-   });
+   // Rather than test that all embedded tags are present, just
+   // make sure the number of exported tags is equal to the number loaded
+   t.equal(exportSavingObject.embeddedTags.length, embeddedTags.length,
+      "embedded tags must be preserved.");
 
-   // Note that childNodes is an array of xml "nodes" (things like
-   // text within a tag, etc). So when processing, we only care about
-   // Elements (i.e. when nodeType is 1)
-   origEmbeddedTags = [];
+   // Overkill to test all unexpected tags, so just test:
+   //    - saved unexpectedTags is the same size as our initial unexpected
+   //      tags
+   //    - one unexpected tag is correct
+   t.equal(exportSavingObject.unexpectedTags[0], unexpectedTags[0],
+      "unexpected tags must be preserved");
 
-   for (let i = 0; i < origDocElement.childNodes.length; i++) {
-      element = origDocElement.childNodes[i];
-      if (element.nodeType === 1) {
-
-         // Serialize so we get this tag, it's attributes, and all
-         // sub tags.
-         origEmbeddedTags.push(serializer.serializeToString(element));
-      }
-   }
-
-   origEmbeddedTags.sort();
-
-   //-----------------------------------------------------------------------
-   // Create sorted arrays of exported attributes and embedded tags
-   //-----------------------------------------------------------------------
-   exportedAttributes = [];
-   for (let i = 0; i < exportedDocElement.attributes.length; i++) {
-      exportedAttributes.push(exportedDocElement.attributes[i]);
-   }
-
-   exportedAttributes.sort(function(a, b) {
-      return a.name < b.name;
-   });
-
-   exportedEmbeddedTags = [];
-
-   for (let i = 0; i < exportedDocElement.childNodes.length; i++) {
-      element = exportedDocElement.childNodes[i];
-      if (element.nodeType === 1) {
-
-         // Serialize so we get this tag, it's attributes, and all
-         // sub tags.
-         exportedEmbeddedTags.push(serializer.serializeToString(element));
-      }
-   }
-
-   exportedEmbeddedTags.sort();
-
-   //-----------------------------------------------------------------------
-   // Test that all attributes in the original XML are present in the
-   // exported XML
-   //-----------------------------------------------------------------------
-   t.equal(exportedAttributes.length, origAttributes.length,
-      "number of exported attributes must match number imported");
-
-   exportedAttributes.forEach(function (el, i) {
-      t.equal(el.name.toLowerCase(), origAttributes[i].name.toLowerCase(),
-         "exported attribute names must match imported attribute names");
-
-      t.equal(el.value, origAttributes[i].value,
-         "exported attribute values must match imported attribute values");
-   });
-
-   //-----------------------------------------------------------------------
-   // Test that all embedded tags in the original XML are present in the
-   // exported XML
-   //-----------------------------------------------------------------------
-   t.equal(exportedEmbeddedTags.length, origEmbeddedTags.length,
-      "number of exported embedded tags must match number imported");
-
-   exportedEmbeddedTags.forEach(function (el, i) {
-      t.equal(el.toLowerCase(), origEmbeddedTags[i].toLowerCase(),
-         "exported embedded tags must match imported embedded tags");
-   });
 }

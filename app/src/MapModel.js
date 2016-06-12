@@ -20,7 +20,7 @@
 import {App} from "./App";
 import {Diagnostics} from "./Diagnostics";
 import {ErrorDialog} from "./ErrorDialog";
-import {createXml, processXml} from "./xmlHelpers";
+import {createXml, loadXml} from "./xmlHelpers";
 import {m3App} from "./main";
 import {NodeModel} from "./NodeModel";
 import {SaveDialog} from "./SaveDialog";
@@ -46,10 +46,10 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
    this._version = MapModel._DEFAULT_VERSION;
    this.setMapName(mapName);
 
-   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
-                                    // We save these so they can be included
-                                    // in getAsXml() output
-   this._unexpectedTags = [];       // As above
+   this._unexpectedAttributes = null; // Attributes that m3 doesn't understand
+                                      // We save these so they can be included
+                                      // in getAsXml() output
+   this._unexpectedTags = null;       // As above
 
    if (newType === MapModel.TYPE_EMPTY) {
       this._dbKey = null;
@@ -279,7 +279,7 @@ MapModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(mapElement) {
    // Process our XML
    //-----------------------------------------------------------------------
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(mapElement, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
+      loadXml(mapElement, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    // Version was parsed in the calling method, so all we have to do
    // is save the unexpected attributes

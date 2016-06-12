@@ -35,7 +35,7 @@ import {m3App} from "./main";
  *                                          attributes for the tag being
  *                                          processed, along with their default
  *                                          values
- * @param {Map}      attributes           - a list of all attributes and their
+ * @param {Map}      currentAttributes    - a list of all attributes and their
  *                                          current values
  * @param {Map}      unexpectedAttributes - a list of all attributes that were
  *                                          not expected (during loading), but
@@ -52,14 +52,15 @@ import {m3App} from "./main";
  * @return {string[]} An array of strings that correspond to the complete
  *                    XML representation of the specified tag
  */
-export function createXml(tagName, attributeDefaults, attributes,
+export function createXml(tagName, attributeDefaults, currentAttributes,
                           unexpectedAttributes, embeddedTags, unexpectedTags) {
 
    let attributesAsString;
    let xml;
 
    xml = [];
-   attributesAsString = getAttributesAsString(attributeDefaults, attributes,
+   attributesAsString = getAttributesAsString(attributeDefaults,
+                                              currentAttributes,
                                               unexpectedAttributes);
    xml.push(`<${tagName} ${attributesAsString}>`);
 
@@ -114,7 +115,7 @@ export function createXml(tagName, attributeDefaults, attributes,
  *                                       but must be maintained for
  *                                       interoperability with Freeplane
  */
-export function processXml(xmlElement, attributeDefaults, expectedTags) {
+export function loadXml(xmlElement, attributeDefaults, expectedTags) {
    let loadedAttributes;
    let loadedTags;
    let unexpectedAttributes;
@@ -128,7 +129,7 @@ export function processXml(xmlElement, attributeDefaults, expectedTags) {
 
    return [loadedAttributes, unexpectedAttributes,
            loadedTags, unexpectedTags];
-} // processXml()
+} // loadXml()
 
 /**
  * Return a string containing the specified attributes, suitable to be embedded
@@ -138,18 +139,19 @@ export function processXml(xmlElement, attributeDefaults, expectedTags) {
  *
  * @param {Map} defaults             - list of all valid attributes and their
  *                                     corresponding defaults
- * @param {Map} attributes           - list of all valid attributes and their
+ * @param {Map} currentAttributes    - list of all valid attributes and their
  *                                     current values
  * @param {Map} unexpectedAttributes - all attributes that were unexpected
  *                                     upon load
  * @return {String} - a string representation of all attributes attributes
  *                    with non-default values, and all unexpectedAttributes
  */
-function getAttributesAsString(defaults, attributes, unexpectedAttributes) {
+function getAttributesAsString(defaults, currentAttributes,
+                               unexpectedAttributes) {
    let result = "";
    let first = true;
 
-   attributes.forEach(function (value, attributeName) {
+   currentAttributes.forEach(function (value, attributeName) {
       if (value !== defaults.get(attributeName)) {
          if (first) {
             result = `${attributeName}="${value}"`;

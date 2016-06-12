@@ -21,7 +21,11 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 let DOMParser = require('xmldom').DOMParser;
-let testExportedXml = require('./helperFunctions').testExportedXml;
+let testExportedAttributesAndTags =
+   require('./helperFunctions'). testExportedAttributesAndTags;
+
+let xmlHelpersStub = {};
+xmlHelpersStub.createXml = require('./helperFunctions').createXml;
 
 //-----------------------------------------------------------------------------
 // Create proxyquire stubs
@@ -53,65 +57,39 @@ mainStub.m3App.getDiagnostics = function getDiagnostics() {
    return diagnosticsStub.Diagnostics;
 };
 
+// What's important is what's returned. Don't care what was passed in.
+xmlHelpersStub.loadXml = function(xmlElement, attributeDefaults,
+                                  expectedTags) {
+   return [
+      ATTRIBUTES,
+      UNEXPECTED_ATTRIBUTES,
+      [],
+      UNEXPECTED_TAGS
+   ];
+};
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 let ArrowLink = proxyquire('../../app/src/ArrowLink',
                            {
                               './Diagnostics': diagnosticsStub,
-                              './main': mainStub
+                              './main': mainStub,
+                              './xmlHelpers': xmlHelpersStub
                            }).ArrowLink;
 
 //-----------------------------------------------------------------------------
-// List of all attributes and non-default values, used by multiple tests
+// Various constants
 //-----------------------------------------------------------------------------
-const allAttributes = {
-   color: "#123456",
-   destination: "ID_123456",
-   endarrow: "none",
-   endinclination: "155;0;",
-   id: "ID_654321",
-   startarrow: "none",
-   startinclination: "150;0;"
-};
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-/**
-  * Test allAttributes as listed above
-  * @param {String} t - test object from Tape
-  * @param {ArrowLink} arrowLink - the arrowLink to be tested
-  * @return {void}
-  */
-function testAllAttributes(t, arrowLink) {
-
-   //--------------------------------------------------------------------------
-   // First test is to make sure when attributes are added to this file,
-   // we actually test them
-   //--------------------------------------------------------------------------
-   t.equal(Object.keys(allAttributes).length, 7,
-      "all attributes listed in this file must be tested");
-
-   t.equal(arrowLink.getColor(), allAttributes["color"],
-      "color must match value that was loaded");
-
-   t.equal(arrowLink.getDestinationId(), allAttributes["destination"],
-      "destination must match value that was loaded");
-
-   t.equal(arrowLink.getEndArrow(), allAttributes["endarrow"],
-      "endArrow must match value that was loaded");
-
-   t.equal(arrowLink.getEndInclination(), allAttributes["endinclination"],
-      "endInclination must match value that was loaded");
-
-   t.equal(arrowLink.getId(), allAttributes["id"],
-      "id must match value that was loaded");
-
-   t.equal(arrowLink.getStartArrow(), allAttributes["startarrow"],
-      "startArrow must match value that was loaded");
-
-   t.equal(arrowLink.getStartInclination(), allAttributes["startinclination"],
-      "startInclination must match value that was loaded");
-} // testAllAttributes
+const ATTRIBUTES = new Map([["COLOR", "#123456"],
+                            ["DESTINATION", "ID_123456"],
+                            ["ENDARROW", "none"],
+                            ["ENDINCLINATION", "155;0"],
+                            ["ID", "ID_654321"],
+                            ["STARTARROW", "none"],
+                            ["STARTINCLINATION", "150;0"]
+                           ]);
+const UNEXPECTED_ATTRIBUTES = new Map([["UNEXPECTEDATTRIBUTE1", "value1"]]);
+const UNEXPECTED_TAGS = ["<unexpectedTag/>"];
 
 //-----------------------------------------------------------------------------
 // Create local stubs
@@ -273,207 +251,66 @@ test('ArrowLink - connectToNodeModel()', function (t) {
 });
 
 //-----------------------------------------------------------------------------
-// getAsXml - Exported XML same as source XML
-//            This includes attributes and embedded tags that m3 doesn't
-//            understand
+// loadFromXml - Values are loaded properly
+//             - Embedded objects (if any) are constructed
+//
+// getAsXml    - All regular attributes are passed to helper
+//             - All unexpected attributes are passed to helper
+//             - All unexpected tags, and their contents, are in the output
 //-----------------------------------------------------------------------------
-test('ArrowLink - getAsXml()', function (t) {
-   const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
-   const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
-   const UNKNOWN_TAG1 = "<unknownTag1 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag1>";
-   const UNKNOWN_TAG2 = "<unknownTag2 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag2>";
-   const UNKNOWN_VALUE1 = 'unknownvalue1';
-   const UNKNOWN_VALUE2 = 'unknownvalue2';
-   let origXml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the ArrowLink
-   //--------------------------------------------------------------------------
-   origXml = "<arrowlink ";
-   origXml += `${UNKNOWN_ATTRIBUTE1}="${UNKNOWN_VALUE1}" `;
-
-   for (let a in allAttributes) {
-      origXml += `${a}="${allAttributes[a]}" `;
-   }
-   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
-   origXml += ">";
-   origXml += `${UNKNOWN_TAG1}${UNKNOWN_TAG2}`;
-
-   origXml += "</arrowlink>";
-
-   //--------------------------------------------------------------------------
-   // Test
-   //--------------------------------------------------------------------------
-   testExportedXml(origXml, t, function(docElement) {
-      let origObject;
-
-      origObject = new ArrowLink();
-      origObject.loadFromXml1_0_1(docElement);
-      return origObject;
-   });
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Creation of ArrowLink gets logged
-//-----------------------------------------------------------------------------
-test('ArrowLink - loadFromXml1_0_1() - Creation of ArrowLink gets logged',
-   function (t) {
-
+test('ArrowLink - loadFromXml, getAsXml', function (t) {
    let arrowLink;
-   let docElement;
-   let parser;
    let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the ArrowLink
-   //--------------------------------------------------------------------------
-   xml = "<arrowlink ";
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
-   }
-   xml += "></arrowlink>";
-
-   //--------------------------------------------------------------------------
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   arrowLink = new ArrowLink();
-   logCount = 0;
-   arrowLink.loadFromXml1_0_1(docElement);
-
-   t.equal(logCount, 1,
-      "creation of the ArrowLink should be logged");
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Lowercase tag and attribute names
-//-----------------------------------------------------------------------------
-test('ArrowLink - loadFromXml1_0_1() - Lowercase tag and attribute names',
-   function (t) {
-
-   let docElement;
-   let arrowLink;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the ArrowLink. All attributes lowercase
-   //--------------------------------------------------------------------------
-   xml = "<arrowlink ";
-   for (let a in allAttributes) {
-      xml += `${a.toLowerCase()}="${allAttributes[a]}" `;
-   }
-   xml += "></arrowlink>";
-
-   //--------------------------------------------------------------------------
-   // Load the ArrowLink
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   arrowLink = new ArrowLink();
-   warningCount = 0;
-   arrowLink.loadFromXml1_0_1(docElement);
-
-   t.equal(warningCount, 0,
-      "no warnings should be generated on XML import");
-
-   //--------------------------------------------------------------------------
-   // Test all attributes
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, arrowLink);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Uppercase tag and attribute names
-//-----------------------------------------------------------------------------
-test('ArrowLink - loadFromXml1_0_1() - Uppercase tag and attribute names',
-   function (t) {
-
-   let docElement;
-   let arrowLink;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the ArrowLink. All attributes uppercase
-   //--------------------------------------------------------------------------
-   xml = "<ARROWLINK ";
-   for (let a in allAttributes) {
-      xml += `${a.toUpperCase()}="${allAttributes[a]}" `;
-   }
-   xml += "></ARROWLINK>";
-
-   //--------------------------------------------------------------------------
-   // Load the ArrowLink
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
-
-   arrowLink = new ArrowLink();
-   warningCount = 0;
-   arrowLink.loadFromXml1_0_1(docElement);
-
-   t.equal(warningCount, 0,
-      "no warnings should be generated on XML import");
-
-   //--------------------------------------------------------------------------
-   // Test all attributes
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, arrowLink);
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// loadFromXml1_0_1 - Unknown attributes get logged
-//-----------------------------------------------------------------------------
-test('ArrowLink - loadFromXml1_0_1() - Unknown Attributes Get Logged',
-   function (t) {
-
-   let arrowLink;
-   let docElement;
-   let parser;
-   let xml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the ArrowLink
-   //--------------------------------------------------------------------------
-   xml = "<arrowlink ";
-   xml += 'unknownAttribute1="unknownValue1" ';
-
-   for (let a in allAttributes) {
-      xml += `${a}="${allAttributes[a]}" `;
-   }
-   xml += 'unknownAttribute2="unknownValue2" ';
-   xml += "></arrowlink>";
-
-   //--------------------------------------------------------------------------
-   //--------------------------------------------------------------------------
-   parser = new DOMParser();
-   docElement = parser.parseFromString(xml, "text/xml").documentElement;
 
    arrowLink = new ArrowLink();
 
-   warningCount = 0;
-   arrowLink.loadFromXml1_0_1(docElement);
-   t.equal(warningCount, 2);
+   //-------------------------------------------------------------------------
+   // First test loading
+   //-------------------------------------------------------------------------
+   // Doesn't matter what we pass it, because the stubs ignore it anyway
+   arrowLink.loadFromXml1_0_1();
 
-   //--------------------------------------------------------------------------
-   // Test all known attributes
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, arrowLink);
+   // First test is to make sure when attributes are added to this file,
+   // we actually test them
+   t.equal(ATTRIBUTES.size, 7,
+      "all attributes listed in this file must be tested");
+
+   t.equal(arrowLink.getColor(), ATTRIBUTES.get("COLOR"),
+      "color must match value that was loaded");
+
+   t.equal(arrowLink.getDestinationId(), ATTRIBUTES.get("DESTINATION"),
+      "destination must match value that was loaded");
+
+   t.equal(arrowLink.getEndArrow(), ATTRIBUTES.get("ENDARROW"),
+      "endArrow must match value that was loaded");
+
+   t.equal(arrowLink.getEndInclination(), ATTRIBUTES.get("ENDINCLINATION"),
+      "endInclination must match value that was loaded");
+
+   t.equal(arrowLink.getId(), ATTRIBUTES.get("ID"),
+      "id must match value that was loaded");
+
+   t.equal(arrowLink.getStartArrow(), ATTRIBUTES.get("STARTARROW"),
+      "startArrow must match value that was loaded");
+
+   t.equal(arrowLink.getStartInclination(), ATTRIBUTES.get("STARTINCLINATION"),
+      "startInclination must match value that was loaded");
+
+   //-------------------------------------------------------------------------
+   // Test getting as xml, now that it's loaded.
+   // Since the generation of the actual XML is tested elsewhere,
+   // all we care about is that proper args are passed to the helper
+   //-------------------------------------------------------------------------
+   xml = arrowLink.getAsXml();
+
+   t.equal(xmlHelpersStub.createXml.tagName, "arrowlink",
+      "tagname must be passed properly");
+
+   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
+                         UNEXPECTED_ATTRIBUTES, "COLOR", "#000000",
+                         [], UNEXPECTED_TAGS);
+
+   //-------------------------------------------------------------------------
 
    t.end();
 });

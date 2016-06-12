@@ -53,11 +53,11 @@ let createXml = proxyquire('../../app/src/xmlHelpers',
                               './main': mainStub
                            }).createXml;
 
-let processXml = proxyquire('../../app/src/xmlHelpers',
+let loadXml = proxyquire('../../app/src/xmlHelpers',
                            {
                               './Diagnostics': diagnosticsStub,
                               './main': mainStub
-                           }).processXml;
+                           }).loadXml;
 
 //-----------------------------------------------------------------------------
 // createXml
@@ -116,14 +116,14 @@ test('xmlHelpers - createXml', function (t) {
 });
 
 //-----------------------------------------------------------------------------
-// processXml
+// loadXml
 //    - all specified attributes get returned
 //    - attributes not present in XML get assigned default values
 //    - attributes present in XML override defaults
 //    - unexpected attributes are caught
 //    - unexpected embedded tags are caught
 //-----------------------------------------------------------------------------
-test('xmlHelpers - processXml', function (t) {
+test('xmlHelpers - loadXml', function (t) {
    const ATTRIBUTE_DEFAULTS = new Map([['ATTRIBUTE1', 'default1'],
                                        ['ATTRIBUTE2', 'default2'],
                                        ['ATTRIBUTE3', 'default3'],
@@ -149,7 +149,7 @@ test('xmlHelpers - processXml', function (t) {
    element = parser.parseFromString(XML, "text/xml").documentElement;
 
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_TAGS);
+      loadXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_TAGS);
 
    //-------------------------------------------------------------------------
    // loadedAttributes

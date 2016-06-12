@@ -21,7 +21,12 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 global.DOMParser = require('xmldom').DOMParser;
-let testExportedXml = require('./helperFunctions').testExportedXml;
+
+let testExportedAttributesAndTags =
+   require('./helperFunctions').testExportedAttributesAndTags;
+
+let xmlHelpersStub = {};
+xmlHelpersStub.createXml = require('./helperFunctions').createXml;
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -91,7 +96,7 @@ nodeModelStub.NodeModel = function NodeModel(controller, myMapModel, newType,
    this._children = [];
 
    if (this._parent === null) {
-      // Need non-null parent so getId() can return different IDs
+      // Need non-null child so getId() can return different IDs
       childNode = new nodeModelStub.NodeModel(null, null, null, this, null,
                                               null);
       this._children.push(childNode);
@@ -127,6 +132,27 @@ saveDialogStub.SaveDialog = function SaveDialog() {
    saveDialogConstructorCount += 1;
 };
 
+// What's important is what's returned. Don't care what was passed in.
+xmlHelpersStub.loadXml = function(xmlElement, attributeDefaults,
+                                  expectedTags) {
+   let parser;
+   let parsedEmbeddedTags = [];
+
+   parser = new DOMParser();
+
+   EMBEDDED_TAGS.forEach(function(t) {
+      parsedEmbeddedTags.push(parser.parseFromString(t, "text/xml").
+         documentElement);
+   });
+
+   return [
+      ATTRIBUTES,
+      UNEXPECTED_ATTRIBUTES,
+      parsedEmbeddedTags,
+      UNEXPECTED_TAGS
+   ];
+};
+
 //-----------------------------------------------------------------------------
 // Create local stubs
 //-----------------------------------------------------------------------------
@@ -143,56 +169,17 @@ let MapModel = proxyquire('../../app/src/MapModel',
                               './ErrorDialog': errorDialogStub,
                               './main': mainStub,
                               './NodeModel': nodeModelStub,
-                              './SaveDialog': saveDialogStub
+                              './SaveDialog': saveDialogStub,
+                              './xmlHelpers': xmlHelpersStub
                            }).MapModel;
 
-// MapModel wants to use DOMParser provided by browser, but we're not in
-// a browser environment, so replace with our local DOMParser
-MapModel.prototype._getDomParser = function _getDomParser() {
-   return new DOMParser();
-};
-
 //-----------------------------------------------------------------------------
-// List of all attributes and non-default values, used by multiple tests.
+// Various constants
 //-----------------------------------------------------------------------------
-const allAttributes = {
-   version: "55.0.1"
-};
-
-const allEmbeddedTags = ['<node/>'];
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-/**
-  * Test allAttributes as listed above
-  * @param {String} t - test object from Tape
-  * @param {MapModel} mapModel - the mapModel to be tested
-  * @return {void}
-  */
-function testAllAttributes(t, mapModel) {
-   //--------------------------------------------------------------------------
-   // First test is to make sure when attributes are added to this file,
-   // we actually test them
-   //--------------------------------------------------------------------------
-   t.equal(Object.keys(allAttributes).length, 1,
-      "all attributes listed in this file must be tested");
-
-   t.equal(mapModel.getVersion(), allAttributes["version"],
-      "version must match value that was loaded");
-
-} // testAllAttributes
-
-/**
-  * Test allEmbeddedTags as listed above
-  * @param {String} t - test object from Tape
-  * @param {MapModel} mapModel - the mapModel to be tested
-  * @return {void}
-  */
-function testAllEmbeddedTags(t, mapModel) {
-   t.notEqual(mapModel.getRoot(), null,
-      "there must be a NodeModel present");
-
-} // testAllEmbeddedTags()
+const ATTRIBUTES = new Map([["version", "55.0.1"]]);
+const EMBEDDED_TAGS = ['<node/>'];
+const UNEXPECTED_ATTRIBUTES = new Map([["UNEXPECTEDATTRIBUTE1", "value1"]]);
+const UNEXPECTED_TAGS = ["<unexpectedTag/>"];
 
 //-----------------------------------------------------------------------------
 // Constructor - Defaults
@@ -216,132 +203,80 @@ test('MapModel - Constructor - Defaults', function (t) {
 });
 
 //-----------------------------------------------------------------------------
-// Constructor - XML - Lowercase tag and attribute names
+// Constructor from XML - Values are loaded properly
+//                      - Embedded objects (if any) are constructed
+//
+// getAsXml    - All regular attributes are passed to helper
+//             - All unexpected attributes are passed to helper
+//             - All unexpected tags, and their contents, are in the output
 //-----------------------------------------------------------------------------
-test("MapModel - Constructor - XML - Lower Case", function(t) {
+test('MapModel - constructor from XML, getAsXml', function (t) {
    let mapModel;
-   let map;
-   let xml = [];
+   let xml;
 
    //--------------------------------------------------------------------------
-   // Setup XML to load the MapModel. All attributes and embedded tags
-   // lowercase
+   // Setup XML to load the NodeModel
    //--------------------------------------------------------------------------
-   map = "<map ";
-   for (let a in allAttributes) {
-      map += `${a.toLowerCase()}="${allAttributes[a]}" `;
+   xml = "<map ";
+   for (let a of ATTRIBUTES) {
+      xml += `${a[0]}="${a[1]}" `;
    }
-   map += ">";
 
-   allEmbeddedTags.forEach(function (t) {
-      map += t.toLowerCase();
+   for (let a of UNEXPECTED_ATTRIBUTES) {
+      xml += `${a[0]}="${a[1]}" `;
+   }
+   xml += ">";
+
+   EMBEDDED_TAGS.forEach(function (t) {
+      xml += t;
    });
 
-   map += "</map>";
+   UNEXPECTED_TAGS.forEach(function (t) {
+      xml += t;
+   });
 
-   xml.push(map);
+   xml += "</map>";
+
+   //-------------------------------------------------------------------------
+   // First test loading
+   //-------------------------------------------------------------------------
+   mapModel = new MapModel(controllerStub, MapModel.TYPE_XML, null,
+                           "test map", [xml]);
 
    //--------------------------------------------------------------------------
-   // Load the MapModel
+   // First test is to make sure when attributes are added to this file,
+   // we actually test them
    //--------------------------------------------------------------------------
-   mapModel = new MapModel(controllerStub, MapModel.TYPE_XML, null, "test map",
-                           xml);
+   t.equal(ATTRIBUTES.size, 1,
+      "all attributes listed in this file must be tested");
+
+   t.equal(mapModel.getVersion(), ATTRIBUTES.get("version"),
+      "version must match value that was loaded");
 
    //--------------------------------------------------------------------------
-   // Test all attributes and tags
+   // Embedded Tags
    //--------------------------------------------------------------------------
-   testAllAttributes(t, mapModel);
-   testAllEmbeddedTags(t, mapModel);
+   t.notEqual(mapModel.getRoot(), null,
+      "there must be a NodeModel present");
+
+   //-------------------------------------------------------------------------
+   // Test getting as xml, now that it's loaded.
+   // Since the generation of the actual XML is tested elsewhere,
+   // all we care about is that proper args are passed to the helper
+   //-------------------------------------------------------------------------
+   xml = mapModel.getAsXml();
+
+   t.equal(xmlHelpersStub.createXml.tagName, "map",
+      "tagname must be passed properly");
+
+   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
+                         UNEXPECTED_ATTRIBUTES, "version", "",
+                         EMBEDDED_TAGS, UNEXPECTED_TAGS);
+
+   //-------------------------------------------------------------------------
 
    t.end();
 });
-
-//-----------------------------------------------------------------------------
-// Constructor - XML - Uppercase tag and attribute names
-//-----------------------------------------------------------------------------
-test("MapModel - Constructor - XML - Upper Case", function(t) {
-
-   let mapModel;
-   let map;
-   let xml = [];
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the MapModel. All attributes and embedded tags
-   // uppercase
-   //--------------------------------------------------------------------------
-   map = "<MAP ";
-   for (let a in allAttributes) {
-      map += `${a.toUpperCase()}="${allAttributes[a]}" `;
-   }
-   map += ">";
-
-   allEmbeddedTags.forEach(function (t) {
-      map += t.toUpperCase();
-   });
-
-   map += "</MAP>";
-
-   xml.push(map);
-
-   //--------------------------------------------------------------------------
-   // Load the MapModel
-   //--------------------------------------------------------------------------
-   mapModel = new MapModel(controllerStub, MapModel.TYPE_XML, null, "test map",
-                           xml);
-
-   //--------------------------------------------------------------------------
-   // Test all attributes and tags
-   //--------------------------------------------------------------------------
-   testAllAttributes(t, mapModel);
-   testAllEmbeddedTags(t, mapModel);
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// Constructor - XML - Unknown attributes get logged
-//-----------------------------------------------------------------------------
-test('MapModel - Constructor - XML - Unknown attributes get logged',
-   function (t) {
-
-   let mapModel;
-   let map;
-   let xml = [];
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the MapModel
-   //--------------------------------------------------------------------------
-   map = "<map ";
-   map += 'unknownAttribute1="unknownValue1" ';
-
-   for (let a in allAttributes) {
-      map += `${a}="${allAttributes[a]}" `;
-   }
-   map += 'unknownAttribute2="unknownValue2">';
-
-   allEmbeddedTags.forEach(function (t) {
-      map += t;
-   });
-
-   map += "</map>";
-
-   xml.push(map);
-
-   //--------------------------------------------------------------------------
-   // Load the MapModel
-   //--------------------------------------------------------------------------
-   diagnosticsWarnCount = 0;
-   mapModel = new MapModel(controllerStub, MapModel.TYPE_XML, null, "test map",
-                           xml);
-
-   testAllAttributes(t, mapModel);
-   testAllEmbeddedTags(t, mapModel);
-
-   t.equal(diagnosticsWarnCount, 3, // 2 unknown attributes + unknown version
-      "unknown attributes should get logged");
-
-   t.end();
-});
-
 //-----------------------------------------------------------------------------
 // set/get pairs
 //-----------------------------------------------------------------------------
@@ -390,67 +325,6 @@ test('MapModel - set/get ModifiedStatus()', function (t) {
 
    t.equal(mapModel.getModifiedStatus(), true,
       "getModifiedStatus() should reflect the new status");
-
-   t.end();
-});
-
-//-----------------------------------------------------------------------------
-// getAsXml
-//
-// Note: This has been written generically to handle future cases where map
-//       tag can have multiple attributes and multipled embedded tags.
-//
-//       This includes attributes that m3 doesn't understand
-//-----------------------------------------------------------------------------
-test('MapModel - getAsXml()', function (t) {
-   const UNKNOWN_ATTRIBUTE1 = 'unknownattribute1';
-   const UNKNOWN_ATTRIBUTE2 = 'unknownattribute2';
-   const UNKNOWN_TAG1 = "<unknownTag1 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag1>";
-   const UNKNOWN_TAG2 = "<unknownTag2 att1='value1'>" +
-                        "<embeddedTag att2='value2'>a bunch of content" +
-                        "</embeddedTag></unknownTag2>";
-   const UNKNOWN_VALUE1 = 'unknownvalue1';
-   const UNKNOWN_VALUE2 = 'unknownvalue2';
-   let mapModel;
-   let origXml;
-
-   //--------------------------------------------------------------------------
-   // Setup XML to load the MapModel.
-   //--------------------------------------------------------------------------
-   origXml = "<map ";
-   origXml += `${UNKNOWN_ATTRIBUTE1}="${UNKNOWN_VALUE1}" `;
-
-   for (let a in allAttributes) {
-      origXml += `${a}="${allAttributes[a]}" `;
-   }
-
-   origXml += `${UNKNOWN_ATTRIBUTE2}="${UNKNOWN_VALUE2}" `;
-   origXml += ">";
-
-   allEmbeddedTags.forEach(function (t) {
-      origXml += t;
-   });
-
-   origXml += `${UNKNOWN_TAG1}${UNKNOWN_TAG2}`;
-   origXml += "</map>";
-
-   //--------------------------------------------------------------------------
-   // Test
-   //--------------------------------------------------------------------------
-   testExportedXml(origXml, t, function(docElement) {
-      // Note:
-      //    - testExportedXml() needs origXml as a single string, but we
-      //      need it as an array for constructing MapModel
-      //    - testExportedXml() will give us corresponding docElement, but
-      //      we just ignore it
-
-      let xmlAsArray = [];
-      xmlAsArray.push(origXml);
-      return new MapModel(controllerStub, MapModel.TYPE_XML, null, "test map",
-                          xmlAsArray);
-   });
 
    t.end();
 });

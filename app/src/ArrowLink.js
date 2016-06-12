@@ -18,7 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
-import {createXml, processXml} from "./xmlHelpers";
+import {createXml, loadXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
 const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
@@ -31,7 +31,7 @@ const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
 const EXPECTED_EMBEDDED_TAGS = [];
 
 /**
- * A ArrowLink describes the starting point of a graphic link.
+ * An ArrowLink describes the starting point of a graphic link.
  *
  * @constructor
  */
@@ -45,10 +45,11 @@ export function ArrowLink() {
    this._id = null;
    this._startArrow = null;
    this._startInclination = null;
-   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
-                                    // We save these so they can be included
-                                    // in getAsXml() output
-   this._unexpectedTags = [];       // As above
+   this._unexpectedAttributes = null; // Attributes that m3 doesn't
+                                      // understand We save these so they
+                                      // can be included in getAsXml()
+                                      // output
+   this._unexpectedTags = null;       // As above
 
    // Computed attributes that don't get saved
    this._destinationNode = null;      // This is a pointer to the actual
@@ -176,7 +177,7 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    // Process our XML
    //-----------------------------------------------------------------------
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
+      loadXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    //-----------------------------------------------------------------------
    // Load our attributes

@@ -22,7 +22,7 @@ import {CloudModel} from "./CloudModel";
 import {Diagnostics} from "./Diagnostics";
 import {Font} from "./Font";
 import {LinkTarget} from "./LinkTarget";
-import {createXml, processXml} from "./xmlHelpers";
+import {createXml, loadXml} from "./xmlHelpers";
 import {RichContent} from "./RichContent";
 import {m3App} from "./main";
 
@@ -71,10 +71,10 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._richText = null;         // Points to corresponding RichContent object
    this._textColor = "#000000";
 
-   this._unexpectedAttributes = []; // Attributes that m3 doesn't understand
-                                    // We save these so they can be included
-                                    // in getAsXml() output
-   this._unexpectedTags = [];       // As above
+   this._unexpectedAttributes = null; // Attributes that m3 doesn't understand
+                                      // We save these so they can be included
+                                      // in getAsXml() output
+   this._unexpectedTags = null;       // As above
 
    // First level children must have their position set. For now only allow
    // right side
@@ -206,6 +206,8 @@ NodeModel.prototype.getAsXml = function getAsXml() {
    // Only save the position for children of the root
    if (this._parent !== null && this._parent.getParent() === null) {
       attributes.set("POSITION", this._position);
+   } else {
+      attributes.set("POSITION", ATTRIBUTE_DEFAULTS.get("POSITION"));
    }
 
    attributes.set("BACKGROUND_COLOR", this._backgroundColor);
@@ -465,7 +467,7 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    // Process our XML
    //-----------------------------------------------------------------------
    [loadedAttributes, unexpectedAttributes, loadedTags, unexpectedTags] =
-      processXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
+      loadXml(element, ATTRIBUTE_DEFAULTS, EXPECTED_EMBEDDED_TAGS);
 
    //-----------------------------------------------------------------------
    // Load our attributes
@@ -474,7 +476,7 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    this._created = loadedAttributes.get("CREATED");
    this._textColor = loadedAttributes.get("COLOR");
 
-   if (loadedAttributes.get("FOLDED" === "true")) {
+   if (loadedAttributes.get("FOLDED") === "true") {
       this._isFolded = true;
    } else {
       this._isFolded = false;
