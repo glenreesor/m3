@@ -22,8 +22,7 @@ let proxyquire = require('proxyquire');
 
 global.DOMParser = require('xmldom').DOMParser;
 
-let testExportedAttributesAndTags =
-   require('./helperFunctions').testExportedAttributesAndTags;
+let validateCreateXmlArgs = require('./helperFunctions').validateCreateXmlArgs;
 
 let xmlHelpersStub = {};
 xmlHelpersStub.createXml = require('./helperFunctions').createXml;
@@ -176,6 +175,7 @@ let MapModel = proxyquire('../../app/src/MapModel',
 //-----------------------------------------------------------------------------
 // Various constants
 //-----------------------------------------------------------------------------
+const ATTRIBUTE_DEFAULTS = new Map([["version", ""]]);
 const ATTRIBUTES = new Map([["version", "55.0.1"]]);
 const EMBEDDED_TAGS = ['<node/>'];
 const UNEXPECTED_ATTRIBUTES = new Map([["UNEXPECTEDATTRIBUTE1", "value1"]]);
@@ -269,8 +269,8 @@ test('MapModel - constructor from XML, getAsXml', function (t) {
    t.equal(xmlHelpersStub.createXml.tagName, "map",
       "tagname must be passed properly");
 
-   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
-                         UNEXPECTED_ATTRIBUTES, "version", "",
+   validateCreateXmlArgs(t, xmlHelpersStub.createXml, ATTRIBUTE_DEFAULTS,
+                         ATTRIBUTES, UNEXPECTED_ATTRIBUTES,
                          EMBEDDED_TAGS, UNEXPECTED_TAGS);
 
    //-------------------------------------------------------------------------

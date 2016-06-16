@@ -55,76 +55,100 @@ export function createXml (tagName, attributeDefaults, currentAttributes,
 
 /**
  * Test that an object's exported attributes and tags are correct. We do
- * this by examining the objects that were saved by the stubbed createXml().
+ * this by examining all objects that were saved by the stubbed createXml().
  *
  * @param {Object} t                    - test object from Tape
  * @param {Object} exportSavingObject   - the stub object that had all the
  *                                        passed-in parameters saved on it
- * @param {Map}    loadedAttributes     - the attributes that were initially
- *                                        loaded
- * @param {Map}    unexpectedAttributes - the simulated unexpected attributes
- *                                        from initial load
- * @param {string} oneAttribute         - the name of an attribute that can be
- *                                        used to confirm attributes list
- * @param {string} defaultValue         - the default value for the above
- *                                        attribute
- * @param {[]}     embeddedTags         - the expected embedded tags
- *                                        from initial load
- * @param {string} unexpectedTags       - the simulated unexpected tags
- *                                        from initial load
- *
+ * @param {Map}    attributeDefaults    - expected default attributes
+ * @param {Map}    expectedAttributes   - expected test attributes
+ * @param {Map}    unexpectedAttributes - the unexpected attributes from
+ *                                        initial load
+ * @param {[]}     embeddedTags         - the expected embedded tags from
+ *                                        initial load
+ * @param {string} unexpectedTags       - the unexpected tags from initial
+ *                                        load
  * @return {void}
  */
-export function testExportedAttributesAndTags(t, exportSavingObject,
-                                              loadedAttributes,
-                                              unexpectedAttributes,
-                                              oneAttribute, defaultValue,
-                                              embeddedTags, unexpectedTags) {
-   let unexpectedAttributeName;
+export function validateCreateXmlArgs(
+   t,
+   exportSavingObject,
+   attributeDefaults,
+   expectedAttributes,
+   unexpectedAttributes,
+   embeddedTags,
+   unexpectedTags
+) {
 
-   // Overkill to test all attributeDefaults. Just need to confirm that
-   // the right Map was passed, so just test:
-   //    - attributeDefaults is the same size as our map of test attributes
-   //    - one of the defaults is correct
-   t.equal(exportSavingObject.attributeDefaults.size, loadedAttributes.size,
-      "attribute defaults must be passed to helper");
+   //-------------------------------------------------------------------------
+   // attributeDefaults
+   //-------------------------------------------------------------------------
+   t.equal(exportSavingObject.attributeDefaults.size, attributeDefaults.size,
+      "all attribute defaults must be passed to helper");
 
-   t.equal(exportSavingObject.attributeDefaults.get(oneAttribute), defaultValue,
-      "attribute defaults must be passed to helper");
+   attributeDefaults.forEach(function (value, attributeName) {
+      t.equal(exportSavingObject.attributeDefaults.get(attributeName),
+              attributeDefaults.get(attributeName),
+              `default attribute "${attributeName}" must be passed to ` +
+                 "createXml()");
+   });
 
-   // Overkill to test all attributes, so just test:
-   //    - saved attributes is the same size as our map of test attributes
-   //    - one attribute is correct
-   t.equal(exportSavingObject.currentAttributes.size, loadedAttributes.size,
-      "attributes must be passed to helper");
+   //-------------------------------------------------------------------------
+   // currentAttributes
+   //-------------------------------------------------------------------------
+   t.equal(exportSavingObject.currentAttributes.size, expectedAttributes.size,
+      "all current attributes must be passed to helper");
 
-   t.equal(exportSavingObject.currentAttributes.get(oneAttribute),
-      loadedAttributes.get(oneAttribute),
-      "attributes must be passed to the helper");
+   expectedAttributes.forEach(function (value, attributeName) {
+      t.equal(exportSavingObject.currentAttributes.get(attributeName),
+              expectedAttributes.get(attributeName),
+              `current attribute "${attributeName}='${value}'" must be ` +
+              "passed to createXml()");
+   });
 
-   // Overkill to test all unexpected attributes, so just test:
-   //    - saved unexpectedAttributes is the same size as our initial unexpected
-   //      attributes
-   //    - one unexpected attribute is correct
+   //-------------------------------------------------------------------------
+   // unexpectedAttributes
+   //-------------------------------------------------------------------------
    t.equal(exportSavingObject.unexpectedAttributes.size,
-      unexpectedAttributes.size,
-      "unexpected attributes must be preserved");
+           unexpectedAttributes.size,
+           "all unexpected attributes must be passed to createXml()");
 
-   unexpectedAttributeName = unexpectedAttributes.keys()[0];
-   t.equal(exportSavingObject.unexpectedAttributes.get(unexpectedAttributeName),
-      unexpectedAttributes.get(unexpectedAttributeName),
-      "unexpected attributes must be preserved");
+   unexpectedAttributes.forEach(function (value, attributeName) {
+      t.equal(exportSavingObject.unexpectedAttributes.get(attributeName),
+              unexpectedAttributes.get(attributeName),
+              `unexpected attribute "${attributeName}='${value}'" must be ` +
+              " passed to createXml()");
+   });
 
-   // Rather than test that all embedded tags are present, just
-   // make sure the number of exported tags is equal to the number loaded
-   t.equal(exportSavingObject.embeddedTags.length, embeddedTags.length,
-      "embedded tags must be preserved.");
+   //-------------------------------------------------------------------------
+   // embeddedTags
+   //-------------------------------------------------------------------------
+   t.equal(exportSavingObject.embeddedTags.length,
+           embeddedTags.length,
+           "all embedded tags must be passed to createXml()");
 
-   // Overkill to test all unexpected tags, so just test:
-   //    - saved unexpectedTags is the same size as our initial unexpected
-   //      tags
-   //    - one unexpected tag is correct
-   t.equal(exportSavingObject.unexpectedTags[0], unexpectedTags[0],
-      "unexpected tags must be preserved");
+   embeddedTags.forEach(function (embeddedTag) {
+      let found = false;
 
+      exportSavingObject.embeddedTags.forEach(function (exportedTag) {
+         if (embeddedTag.toString() === exportedTag.getAsXml().toString()) {
+            found = true;
+         }
+      });
+      t.equal(found, true,
+              `tag "${embeddedTag}" must be passed to createXml()`);
+   });
+
+   //-------------------------------------------------------------------------
+   // unexpectedTags
+   //-------------------------------------------------------------------------
+   t.equal(exportSavingObject.unexpectedTags.length,
+           unexpectedTags.length,
+           "all unexpected tags must be passed to createXml()");
+
+   unexpectedTags.forEach(function (tag, i) {
+      t.equal(exportSavingObject.unexpectedTags[i],
+              unexpectedTags[i],
+              `The following unexpected tag must be present: "${tag}"`);
+   });
 }

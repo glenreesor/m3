@@ -21,8 +21,7 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 let DOMParser = require('xmldom').DOMParser;
-let testExportedAttributesAndTags =
-   require('./helperFunctions').testExportedAttributesAndTags;
+let validateCreateXmlArgs = require('./helperFunctions').validateCreateXmlArgs;
 
 let xmlHelpersStub = {};
 xmlHelpersStub.createXml = require('./helperFunctions').createXml;
@@ -79,6 +78,7 @@ let CloudModel = proxyquire('../../app/src/CloudModel',
 //-----------------------------------------------------------------------------
 // Various constants
 //-----------------------------------------------------------------------------
+const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#cccccc"]]);
 const ATTRIBUTES = new Map([["COLOR", "#123456"]]);
 const UNEXPECTED_ATTRIBUTES = new Map([["UNEXPECTEDATTRIBUTE1", "value1"]]);
 const UNEXPECTED_TAGS = ["<unexpectedTag/>"];
@@ -154,8 +154,8 @@ test('CloudModel - loadFromXml, getAsXml', function (t) {
    t.equal(xmlHelpersStub.createXml.tagName, "cloud",
       "tagname must be passed properly");
 
-   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
-                         UNEXPECTED_ATTRIBUTES, "COLOR", "#cccccc",
+   validateCreateXmlArgs(t, xmlHelpersStub.createXml, ATTRIBUTE_DEFAULTS,
+                         ATTRIBUTES, UNEXPECTED_ATTRIBUTES,
                          [], UNEXPECTED_TAGS);
 
    //-------------------------------------------------------------------------

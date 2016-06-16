@@ -21,8 +21,7 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 let DOMParser = require('xmldom').DOMParser;
-let testExportedAttributesAndTags =
-   require('./helperFunctions').testExportedAttributesAndTags;
+let validateCreateXmlArgs = require('./helperFunctions').validateCreateXmlArgs;
 
 let xmlHelpersStub = {};
 xmlHelpersStub.createXml =require('./helperFunctions').createXml;
@@ -109,7 +108,7 @@ mainStub.m3App.getDiagnostics = function getDiagnostics() {
 richContentStub = {};
 richContentStub.RichContent = function RichContent() {};
 richContentStub.RichContent.prototype.getAsXml = function getAsXml() {
-   return (`<richcontent type="${this._type}">${this._content}</richcontent>`);
+   return (`<richcontent TYPE="${this._type}">${this._content}</richcontent>`);
 };
 
 richContentStub.RichContent.prototype.getContent = function getContent() {
@@ -194,13 +193,21 @@ let NodeModel = proxyquire('../../app/src/NodeModel',
 // Various constants
 //    - POSITION must be none since we're testing a root node
 //-----------------------------------------------------------------------------
+const ATTRIBUTE_DEFAULTS = new Map([["BACKGROUND_COLOR", "#ffffff"],
+                                    ["CREATED", ""],
+                                    ["COLOR", "#000000"],
+                                    ["FOLDED", "false"],
+                                    ["ID", ""],
+                                    ["MODIFIED", ""],
+                                    ["POSITION", ""],
+                                    ["TEXT", ""]]);
 const ATTRIBUTES = new Map([["BACKGROUND_COLOR", "#123456"],
                             ["CREATED", "123456"],
                             ["COLOR", "#654321"],
                             ["FOLDED", "true"],
                             ["ID", "ID_123456"],
                             ["MODIFIED", "1234567"],
-                            ["POSITION", "none"],
+                            ["POSITION", ""],
                             ["TEXT", "test text"]
                          ]);
 
@@ -343,8 +350,8 @@ test('NodeModel - Constructor from XML, getAsXml', function(t) {
    t.equal(nodeModel.getModifiedTimestamp(), ATTRIBUTES.get("MODIFIED"),
       "modified timestamp must match value that was loaded");
 
-   t.equal(nodeModel.getSide(), ATTRIBUTES.get("POSITION"),
-      "side must match value that was loaded");
+   t.equal(nodeModel.getSide(), NodeModel.POSITION_NONE,
+      "side for a root node is the special POSITION_NONE");
 
    t.equal(nodeModel.getText(), ATTRIBUTES.get("TEXT"),
       "text must match value that was loaded");
@@ -380,8 +387,8 @@ test('NodeModel - Constructor from XML, getAsXml', function(t) {
    t.equal(xmlHelpersStub.createXml.tagName, "node",
       "tagname must be passed properly");
 
-   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
-                         UNEXPECTED_ATTRIBUTES, "COLOR", "#000000",
+   validateCreateXmlArgs(t, xmlHelpersStub.createXml, ATTRIBUTE_DEFAULTS,
+                         ATTRIBUTES, UNEXPECTED_ATTRIBUTES,
                          EMBEDDED_TAGS, UNEXPECTED_TAGS);
 
    t.end();

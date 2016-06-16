@@ -21,8 +21,7 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 let DOMParser = require('xmldom').DOMParser;
-let testExportedAttributesAndTags =
-   require('./helperFunctions'). testExportedAttributesAndTags;
+let validateCreateXmlArgs = require('./helperFunctions').validateCreateXmlArgs;
 
 let xmlHelpersStub = {};
 xmlHelpersStub.createXml = require('./helperFunctions').createXml;
@@ -80,6 +79,15 @@ let ArrowLink = proxyquire('../../app/src/ArrowLink',
 //-----------------------------------------------------------------------------
 // Various constants
 //-----------------------------------------------------------------------------
+const ATTRIBUTE_DEFAULTS = new Map([["COLOR", "#000000"],
+                                    ["DESTINATION", ""],
+                                    ["ENDARROW", ""],
+                                    ["ENDINCLINATION", ""],
+                                    ["ID", ""],
+                                    ["STARTARROW", ""],
+                                    ["STARTINCLINATION", ""]
+                                   ]);
+
 const ATTRIBUTES = new Map([["COLOR", "#123456"],
                             ["DESTINATION", "ID_123456"],
                             ["ENDARROW", "none"],
@@ -110,9 +118,13 @@ MapModelStub.prototype.getRoot = function getRoot() {
 //-----------------------------------------------------------------------------
 test('ArrowLink - Constructor', function (t) {
    let arrowLink;
+   let xml;
 
    arrowLink = new ArrowLink();
 
+   //-------------------------------------------------------------------------
+   // Defaults
+   //-------------------------------------------------------------------------
    t.equal(arrowLink.getColor(), "#000000",
       "Default color should be '#000000'");
 
@@ -306,8 +318,8 @@ test('ArrowLink - loadFromXml, getAsXml', function (t) {
    t.equal(xmlHelpersStub.createXml.tagName, "arrowlink",
       "tagname must be passed properly");
 
-   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
-                         UNEXPECTED_ATTRIBUTES, "COLOR", "#000000",
+   validateCreateXmlArgs(t, xmlHelpersStub.createXml, ATTRIBUTE_DEFAULTS,
+                         ATTRIBUTES, UNEXPECTED_ATTRIBUTES,
                          [], UNEXPECTED_TAGS);
 
    //-------------------------------------------------------------------------

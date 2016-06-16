@@ -21,8 +21,7 @@ let test = require('tape');
 let proxyquire = require('proxyquire');
 
 let DOMParser = require('xmldom').DOMParser;
-let testExportedAttributesAndTags =
-   require('./helperFunctions').testExportedAttributesAndTags;
+let validateCreateXmlArgs = require('./helperFunctions').validateCreateXmlArgs;
 
 let xmlHelpersStub = {};
 xmlHelpersStub.createXml = require('./helperFunctions').createXml;
@@ -80,6 +79,9 @@ let Font = proxyquire('../../app/src/Font',
 //-----------------------------------------------------------------------------
 // Various constants
 //-----------------------------------------------------------------------------
+const ATTRIBUTE_DEFAULTS = new Map([["BOLD", "false"],
+                                    ["ITALIC", "size"],
+                                    ["SIZE", "12"]]);
 const ATTRIBUTES = new Map([["BOLD", "true"],
                             ["ITALIC", "true"],
                             ["SIZE", "14"]]);
@@ -201,8 +203,8 @@ test('Font - loadFromXml, getAsXml', function (t) {
    t.equal(xmlHelpersStub.createXml.tagName, "font",
       "tagname must be passed properly");
 
-   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
-                         UNEXPECTED_ATTRIBUTES, "BOLD", "false",
+   validateCreateXmlArgs(t, xmlHelpersStub.createXml, ATTRIBUTE_DEFAULTS,
+                         ATTRIBUTES, UNEXPECTED_ATTRIBUTES,
                          [], UNEXPECTED_TAGS);
 
    //-------------------------------------------------------------------------

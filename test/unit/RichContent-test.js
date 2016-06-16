@@ -20,8 +20,7 @@
 let test = require('tape');
 let proxyquire = require('proxyquire');
 let DOMParser = require('xmldom').DOMParser;
-let testExportedAttributesAndTags =
-   require('./helperFunctions').testExportedAttributesAndTags;
+let validateCreateXmlArgs = require('./helperFunctions').validateCreateXmlArgs;
 
 let xmlHelpersStub = {};
 xmlHelpersStub.createXml = require('./helperFunctions').createXml;
@@ -91,6 +90,7 @@ let RichContent = proxyquire('../../app/src/RichContent',
 //-----------------------------------------------------------------------------
 // Various constants
 //-----------------------------------------------------------------------------
+const ATTRIBUTE_DEFAULTS = new Map([["TYPE", ""]]);
 const ATTRIBUTES = new Map([["TYPE", "note"]]);
 const EMBEDDED_TAGS = ["<html/>"];
 const UNEXPECTED_ATTRIBUTES = new Map([["UNEXPECTEDATTRIBUTE1", "value1"]]);
@@ -183,8 +183,8 @@ test('RichContent - loadFromXml, getAsXml', function (t) {
    t.equal(xmlHelpersStub.createXml.tagName, "richcontent",
       "tagname must be passed properly");
 
-   testExportedAttributesAndTags(t, xmlHelpersStub.createXml, ATTRIBUTES,
-                         UNEXPECTED_ATTRIBUTES, "TYPE", "",
+   validateCreateXmlArgs(t, xmlHelpersStub.createXml, ATTRIBUTE_DEFAULTS,
+                         ATTRIBUTES, UNEXPECTED_ATTRIBUTES,
                          EMBEDDED_TAGS, UNEXPECTED_TAGS);
 
    //-------------------------------------------------------------------------
