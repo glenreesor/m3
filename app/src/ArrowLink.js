@@ -45,11 +45,11 @@ export function ArrowLink() {
    this._id = null;
    this._startArrow = null;
    this._startInclination = null;
-   this._unexpectedAttributes = null; // Attributes that m3 doesn't
-                                      // understand We save these so they
-                                      // can be included in getAsXml()
-                                      // output
-   this._unexpectedTags = null;       // As above
+   this._unexpectedAttributes = new Map(); // Attributes that m3 doesn't
+                                           // understand We save these so they
+                                           // can be included in getAsXml()
+                                           // output
+   this._unexpectedTags = [];              // As above
 
    // Computed attributes that don't get saved
    this._destinationNode = null;      // This is a pointer to the actual

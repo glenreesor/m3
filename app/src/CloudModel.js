@@ -32,10 +32,11 @@ const EXPECTED_EMBEDDED_TAGS = [];
  */
 export function CloudModel() {
    this._color = "#cccccc";
-   this._unexpectedAttributes = null; // Attributes that m3 doesn't understand
-                                      // We save these so they can be included
-                                      // in getAsXml() output
-   this._unexpectedTags = null;       // As above
+   this._unexpectedAttributes = new Map(); // Attributes that m3 doesn't
+                                           // understand We save these so they
+                                           // can be included in getAsXml()
+                                           // output
+   this._unexpectedTags = [];              // As above
 } // CloudModel()
 
 /**

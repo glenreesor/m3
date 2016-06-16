@@ -46,10 +46,11 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
    this._version = MapModel._DEFAULT_VERSION;
    this.setMapName(mapName);
 
-   this._unexpectedAttributes = null; // Attributes that m3 doesn't understand
-                                      // We save these so they can be included
-                                      // in getAsXml() output
-   this._unexpectedTags = null;       // As above
+   this._unexpectedAttributes = new Map(); // Attributes that m3 doesn't
+                                           // understand We save these so they
+                                           // can be included in getAsXml()
+                                           // output
+   this._unexpectedTags = [];              // As above
 
    if (newType === MapModel.TYPE_EMPTY) {
       this._dbKey = null;
