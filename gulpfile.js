@@ -1,49 +1,78 @@
-var gulp          = require('gulp'),
-    browserify    = require('browserify'),
-    buffer        = require('gulp-buffer'),
-    eslint        = require('gulp-eslint'),
-    footer        = require('gulp-footer'),
-    gutil         = require('gulp-util'),
-    shell         = require('gulp-shell'),
-    source        = require('vinyl-source-stream'),
-    sourcemaps    = require('gulp-sourcemaps'),
-    uglify        = require('gulp-uglify');
+/* eslint no-var: 0 */
 
 //-----------------------------------------------------------------------------
-// Appcache (this is the deprecated W3C appcache)
+// Gulp plugins
 //-----------------------------------------------------------------------------
-gulp.task('appcache', function() {
-   return gulp.src('app/m3.appcache*')
-      .pipe(footer('#Timestamp to force browser reload: ${timestamp}\n', {timestamp: Date.now()}))
-      .pipe(gulp.dest('out/debug'))
-      .pipe(gulp.dest('out/production'));
-});
+var browserify    = require('browserify');
+var buffer        = require('gulp-buffer');
+var eslint        = require('gulp-eslint');
+var footer        = require('gulp-footer');
+var gulp          = require('gulp');
+var gutil         = require('gulp-util');
+var shell         = require('gulp-shell');
+var source        = require('vinyl-source-stream');
+var sourcemaps    = require('gulp-sourcemaps');
+var uglify        = require('gulp-uglify');
 
 //-----------------------------------------------------------------------------
-// CSS Processing
+// Output folders
 //-----------------------------------------------------------------------------
-gulp.task('css', function() {
-   return gulp.src('app/src/*.css')
-      .pipe(gulp.dest('out/debug'))
-      .pipe(gulp.dest('out/production'));
-});
+var debugDir = 'out/debug';
+var productionDir = 'out/production';
 
 //-----------------------------------------------------------------------------
-// HTML Processing
+// Fast things that don't need to be in parallel, and which will finish before
+// everything else.
+//
+// If they are separate tasks, then output is polluted with all their start
+// and stop messages.
 //-----------------------------------------------------------------------------
-gulp.task('html', function() {
-   return gulp.src('app/src/*.html')
-      .pipe(gulp.dest('out/debug'))
-      .pipe(gulp.dest('out/production'))
-});
+gulp.task('fast', function() {
+   var result;
 
-//-----------------------------------------------------------------------------
-// Image Processing
-//-----------------------------------------------------------------------------
-gulp.task('images', function() {
-   return gulp.src('app/images/*')
-      .pipe(gulp.dest('out/debug/images'))
-      .pipe(gulp.dest('out/production/images'))
+   //--------------------------------------------------------------------------
+   // Deprecated appcache
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/m3.appcache*')
+      .pipe(footer('#Timestamp to force browser reload: ${timestamp}\n',
+                   {timestamp: Date.now()}))
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // CSS
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/src/*.css')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // HTML
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/src/*.html')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // Images
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/images/*')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // Libs
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/lib/*.js')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // Webmanifest
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/manifest.webmanifest')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
 });
 
 //-----------------------------------------------------------------------------
@@ -52,20 +81,14 @@ gulp.task('images', function() {
 gulp.task('js-lint', function() {
    return gulp.src(['app/src/*.js'])
       .pipe(eslint())
-      .pipe(eslint.format())
+      .pipe(eslint.format());
 });
 
 //-----------------------------------------------------------------------------
 // Javascript Processing
-//    - If we have just one task that creates uglified output, it makes
-//      debugging a pain because runtime errors are described in terms of
-//      the uglified line numbers and variable names,
-//      rather than original sources
-//
-// Therefore one task for debug and one for production
-//
-// Yes this is inefficient because the browserify and babelify steps are
-// performed for each of debug and production.
+//    - Although the debugger uses sourcemaps to show proper original source,
+//      Firefox runtime errors do not use sourcemaps
+//    - Therefore we need separate non-uglified output for debugging
 //-----------------------------------------------------------------------------
 gulp.task('js-debug', function() {
    // Set up the browserify instance on a task basis
@@ -80,7 +103,7 @@ gulp.task('js-debug', function() {
       .pipe(sourcemaps.init({loadMaps: true}))
          .on('error', gutil.log)
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./out/debug'));
+      .pipe(gulp.dest(debugDir));
 });
 
 gulp.task('js-production', function() {
@@ -97,16 +120,7 @@ gulp.task('js-production', function() {
          .pipe(uglify())
          .on('error', gutil.log)
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./out/production'));
-});
-
-//-----------------------------------------------------------------------------
-// Lib Processing
-//-----------------------------------------------------------------------------
-gulp.task('lib', function() {
-   return gulp.src('app/lib/*.js')
-      .pipe(gulp.dest('out/debug'))
-      .pipe(gulp.dest('out/production'))
+      .pipe(gulp.dest(productionDir));
 });
 
 //-----------------------------------------------------------------------------
@@ -115,45 +129,50 @@ gulp.task('lib', function() {
 gulp.task('test-lint', function() {
    return gulp.src(['test/unit/*.js'])
       .pipe(eslint())
-      .pipe(eslint.format())
+      .pipe(eslint.format());
 });
 
 //-----------------------------------------------------------------------------
 // Test Running
 //-----------------------------------------------------------------------------
+var cmd;
+cmd = "./node_modules/babel-tape-runner/bin/babel-tape-runner " +
+      "test/unit/*.js|faucet";
 gulp.task('test-run', shell.task(
-   ["./node_modules/babel-tape-runner/bin/babel-tape-runner test/unit/*.js|faucet"]
+   [cmd]
 ));
 
 //-----------------------------------------------------------------------------
-// Webmanifest
+// Tasks that are intended to be used from command line
 //-----------------------------------------------------------------------------
-gulp.task('manifest', function() {
-   return gulp.src('app/manifest.webmanifest')
-      .pipe(gulp.dest('out/debug'))
-      .pipe(gulp.dest('out/production'));
+
+//-----------------------------------------------------------------------------
+// dev (all tasks except test linting and running)
+// Setup with dependencies on other tasks, so it's always the last one to
+// print 'Finished'.
+//-----------------------------------------------------------------------------
+gulp.task('build', ['fast', 'js-lint', 'js-debug', 'js-production']);
+
+//-----------------------------------------------------------------------------
+// test (Run tests first, so linting output doesn't get lost)
+//-----------------------------------------------------------------------------
+gulp.task('test', ['test-run'], function() {
+   gulp.start('test-lint');
 });
 
 //-----------------------------------------------------------------------------
-// Default
+// All (all tasks)
 //-----------------------------------------------------------------------------
-gulp.task('default', function() {
-   gulp.start('appcache', 'css', 'html', 'images',
-              'js-lint', 'js-debug', 'js-production',
-              'lib', 'manifest', 'test-lint', 'test-run');
-});
+gulp.task('all', ['build', 'test']);
 
 //-----------------------------------------------------------------------------
-// Watch everything. Note that appcache must be processed if *anything*
-// changes so that appcache will always get a new timestamp, which forces
-// browser to reload
+// Default - Just provide options
 //-----------------------------------------------------------------------------
-gulp.watch('app/appcache.manifest*', ['appcache']);
-gulp.watch('app/src/*.css', ['css', 'appcache']);
-gulp.watch('app/src/*.html', ['html', 'appcache']);
-gulp.watch('app/images/*', ['images', 'appcache']);
-gulp.watch('app/lib/*', ['lib', 'appcache']);
-gulp.watch('app/src/*.js', ['js-lint', 'js-debug', 'js-production',
-           'appcache', 'test-run']);
-gulp.watch('test/unit/*.js', ['test-lint', 'test-run']);
-gulp.watch('app/*.webmanifest', ['manifest']);
+gulp.task('default', shell.task(
+   [
+      "echo 'Gulp Targets'",
+      "echo '   all      (All tasks)'",
+      "echo '   build    (All tasks except test linting and running)'",
+      "echo '   test     (Test linting and running)'"
+   ]
+));
