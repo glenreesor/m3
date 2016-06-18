@@ -225,6 +225,7 @@ Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
    this._deleteView(this._mapModel.getRoot());   // Recursively delete all nodes
    this._mapModel = new MapModel(this, type, dbKey, mapName, xml);
    this.createNodeView(this._mapModel.getRoot());
+   this._mapViewController.reset();
    this.redrawMain();
 }; // newMap()
 
