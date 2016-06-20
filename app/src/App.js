@@ -94,6 +94,43 @@ App.prototype.getMapModel = function getMapModel() {
 }; // getMapModel()
 
 /**
+ * Return the best type of localforage that is actually supported.
+ * Use this because localforage.supports() isn't always truthful.
+ * (In particular iOS Firefox and Chrome.)
+ *
+ * @return {Promise} - A promise that resolves to one of:
+ *                        - localforage.INDEXEDDB
+ *                        - localforage.WEBSQL
+ *                        - localforage.LOCALSTORAGE
+ */
+App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
+   let dbConfig;
+   let returnValue;
+   let testDb;
+
+   testDb = localforage.createInstance({name: 'storagetest'});
+
+   // Try storage methods in the preferred order, returning first one that
+   // doesn't generate an error.
+
+   return new Promise(function (resolve, reject) {
+      testDb.setDriver(localforage.INDEXEDDB);
+      testDb.getItem('test').then( function(testvalue) {
+         resolve(localforage.INDEXEDDB);
+      }).catch( function(err) {
+         testDb.setDriver(localforage.WEBSQL);
+         testDb.getItem('test').then( function(testvalue) {
+            resolve(localforage.WEBSQL);
+         }).catch( function(err) {
+
+            // We're going to assume that localstorage is available.
+            resolve(localforage.LOCALSTORAGE);
+         });
+      });
+   });
+}; // _getLocalForageDriver()
+
+/**
  * Return the app version as a string
  *
  * @return {string} - the version of this app formatted as a string.
@@ -143,7 +180,7 @@ App.prototype.setMapModel = function setMapModel(mapModel) {
 }; // setMapModel()
 
 /**
- * Create a new onfig because it doesn't exist yet (i.e. the user
+ * Create a new config because it doesn't exist yet (i.e. the user
  * has run a version prior to 0.7.0 before)
  *
  * @return {void}
@@ -206,26 +243,36 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 =
  * @return {void}
  */
 App.prototype._startup = function _startup() {
-   // Must use either INDEXEDDB or WEBSQL, because localStorage may get
-   // unexpectedly cleared by browser
-   let dbConfig = {name: App.DB_NAME,
-                   driver: [localforage.INDEXEDDB, localforage.WEBSQL]};
-   App.myDB = localforage.createInstance(dbConfig);
+   // localforage.supports(STORAGEMETHOD) sometimes reports true
+   // even though the method isn't actually available, thus use brute
+   // force tests to test for available storage types
+   this._getLocalForageDriver().then( (driverName) => {
+      let dbConfig;
 
-   App.myDB.getItem(App.KEY_LAST_VERSION_RUN).then((lastVersionRun) => {
-      if (lastVersionRun === null) {
-         // This corresponds to user having run versions prior to 0.7.0,
-         // or a first run
-         this._upgradeFrom0_0_0_To_0_7_0();
-      } else {
-         // This corresponds to user having previously run version 0.7.0 or
-         // greater
-         return App.myDB.setItem(App.KEY_LAST_VERSION_RUN,
-                                 this.getVersionAsString());
+      if (driverName === localforage.LOCALSTORAGE) {
+         alert("Warning: Your browser does not support the longterm " +
+               "reliable storage used by m3, therefore you shouldn't " +
+               "rely on longterm storage of maps created in m3.");
       }
-   }).catch(function(err) {
-      let errorDialog = new ErrorDialog("Error trying to save last run " +
-                                        `version: ${err}`);
-      // Error trying to get lastVersionRun
+
+      dbConfig = {name: App.DB_NAME, driver: driverName};
+      App.myDB = localforage.createInstance(dbConfig);
+
+      App.myDB.getItem(App.KEY_LAST_VERSION_RUN).then( (lastVersionRun) => {
+         if (lastVersionRun === null) {
+            // This corresponds to user having run versions prior to 0.7.0,
+            // or a first run
+            this._upgradeFrom0_0_0_To_0_7_0();
+         } else {
+            // This corresponds to user having previously run version 0.7.0 or
+            // greater
+            return App.myDB.setItem(App.KEY_LAST_VERSION_RUN,
+                                    this.getVersionAsString());
+         }
+      }).catch(function(err) {
+         // Error trying to get lastVersionRun
+         let errorDialog = new ErrorDialog("Error trying to save last run " +
+                                           `version: ${err}`);
+      });
    });
 }; // _startup()
