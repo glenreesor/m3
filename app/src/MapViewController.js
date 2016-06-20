@@ -233,6 +233,18 @@ MapViewController.prototype.nodeClicked =
 }; // nodeClicked()
 
 /**
+ * Reset the view of the current map (i.e. center it)
+ *
+ * @return {void}
+ */
+MapViewController.prototype.reset = function reset() {
+   this._state.currentTranslationX = 0;
+   this._state.currentTranslationY = 0;
+
+   this._svgGElement.setAttribute("transform", "translate(0,0)");
+}; // reset()
+
+/**
  * Set the specified nodeview as being selected
  *
  * @param {NodeView} nodeView - the NodeView that should be set as selected

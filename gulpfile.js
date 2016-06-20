@@ -57,8 +57,8 @@ gulp.task('fast', function() {
    // Images
    //--------------------------------------------------------------------------
    result = gulp.src('app/images/*')
-      .pipe(gulp.dest(debugDir))
-      .pipe(gulp.dest(productionDir));
+      .pipe(gulp.dest(debugDir + '/images'))
+      .pipe(gulp.dest(productionDir + '/images'));
 
    //--------------------------------------------------------------------------
    // Libs
