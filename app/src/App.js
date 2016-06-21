@@ -50,6 +50,7 @@ export function App() {
 App.DB_NAME = "m3 - Mobile Mind Mapper";
 App.KEY_LAST_VERSION_RUN = "lastVersionRun";
 App.KEY_MAPLIST = "mapList";
+App.KEY_INVOCATION_COUNT = "invocationCount";
 
 App.myDB = null;                          // This will be populated by _start()
 App.MY_NAME = "m3 - Mobile Mind Mapper";
@@ -239,6 +240,7 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 =
 /**
  * Do startup activities:
  *    - Check last version with current version and update storage as required
+ *    - Also increment a count of number of times app has been run
  *
  * @return {void}
  */
@@ -258,6 +260,21 @@ App.prototype._startup = function _startup() {
       dbConfig = {name: App.DB_NAME, driver: driverName};
       App.myDB = localforage.createInstance(dbConfig);
 
+      // Update invocation count
+      App.myDB.getItem(App.KEY_INVOCATION_COUNT).then( (count) => {
+         if (count === null) {
+            count = 0;
+         }
+
+         count += 1;
+         return App.myDB.setItem(App.KEY_INVOCATION_COUNT, count);
+      }).catch(function (err) {
+         // Error trying to set invocation count
+         let errorDialog = new ErrorDialog("Error trying to set invocation " +
+                                           `count: ${err}`);
+      });
+
+      // Perform upgrades if required
       App.myDB.getItem(App.KEY_LAST_VERSION_RUN).then( (lastVersionRun) => {
          if (lastVersionRun === null) {
             // This corresponds to user having run versions prior to 0.7.0,
