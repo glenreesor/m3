@@ -27,18 +27,38 @@ import {State} from "./State";
  * @constructor
  */
 export function ExportDialog() {
+   let blobContent;
+   let blobUrl;
    let domParser;
+   let filename;
    let html;
    let htmlAsDoc;
    let mapAsXml;
+   let dateNow;
 
    //--------------------------------------------------------------------------
-   // Create the div that contains the exported map
+   // Create the div that contains the exported map.
+   // Having a blob link is nice to just click and download all in one step.
+   // Also need the raw XML to copy/paste, since iOS Safari doesn't support
+   // the <a> download attribute
    //--------------------------------------------------------------------------
    mapAsXml = m3App.getController().getMapModel().getAsXml();
 
+   blobContent = new Blob(mapAsXml, {type: "text/xml"});
+   blobUrl = URL.createObjectURL(blobContent);
+   dateNow = new Date(Date.now());
+
+   filename = 'm3 - ' +
+              dateNow.getFullYear() + '-' +
+              (dateNow.getMonth() + 1) + '-' + // OMG getMonth() is zero-based
+              dateNow.getDate() + '::' +
+              dateNow.getHours() + ':' +
+              dateNow.getMinutes() + ':' +
+              dateNow.getSeconds();
+
    html = `<div id='${ExportDialog.DIALOG_ID}' class='popup' style='height:` +
              `${Sizer.popupHeight}px'>` +
+             "<p>Copy text below, or scroll to bottom for download link.</p>" +
              `<textarea id='${ExportDialog.TEXT_AREA_ID}' rows=20 cols=30>`;
 
    mapAsXml.forEach(function (xmlLine) {
@@ -48,7 +68,9 @@ export function ExportDialog() {
    });
 
    html += "   </textarea><br><br>" +
-           `<button id='${ExportDialog.OK_ID}'>Ok</button>` +
+           `<p>Download: <a href='${blobUrl}' download='${filename}'>` +
+           `${filename}</a><br>` +
+           `<button id='${ExportDialog.OK_ID}'>Close</button>` +
            "</div>";
 
    //--------------------------------------------------------------------------
