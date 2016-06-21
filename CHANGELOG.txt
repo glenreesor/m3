@@ -1,0 +1,104 @@
+Change Log
+
+2016-04-30 - Version 0.9.0
+   New Features
+      - Preserve unknown tags and attributes when importing from other
+        programs
+
+   Bug Fixes
+      - None
+
+
+2016-01-06 - Version 0.8.0
+   New Features
+      - Process the color for graphical links between nodes
+      - Support multiple graphical links originating from the same
+        node
+
+   Bug Fixes
+      - Fix cloud size for root node
+      - Don't show folding icon for the root node (because it can't
+        be folded)
+      - Fix saving a map that has bold or italic nodes (previous
+        version made all nodes with basic formatting bold and italic)
+
+
+2015-12-15 - Version 0.7.2
+   Bug Fixes
+      - Fix exported maps so they can be read by Freeplane
+
+
+2015-12-14 - Version 0.7.1
+   Bug Fixes
+      - Fix Add to Home Screen for Chrome
+
+
+2015-12-13 - Version 0.7
+   New Features
+      - Offline mode (no internet connection required)
+      - Loading/Saving multiple files
+      - When editing a node, it becomes the active node
+      - Prompt user when navigating away from page
+      - Exporting a map is in a popup rather than a new tab
+
+   Bug Fixes
+      - None!
+
+
+2015-11-20 - Version 0.6
+   New Features
+      - Reading and displaying HTML nodes (but not editing yet)
+      - Enter key now saves text when editing a node
+      - Add About dialog (version, credits, license)
+
+   Bug Fixes
+      - Removed full screen mode from Safari (for some reason
+        it can't read mindmaps with HTML nodes)
+
+
+2015-10-31 - Version 0.5
+   New Features
+      - Pretty icons instead of ugly buttons
+      - Full screen mode (Safari and Chrome)
+
+   Bug Fixes
+      - Deleting the last child of a node now removes
+        the parent's "folding" icon
+
+
+2015-10-24 - Version 0.4
+   New Features
+      - Non-grey cloud colors
+      - Graphical links between nodes
+      - Basic text formatting: Bold, Italic, Bigger, Smaller
+
+   Bug Fixes
+      - Fix error when trying to load a non-existent saved map
+      - Fix saving of clouds
+
+
+2015-10-11 - Version 0.3
+   New Features
+      - Basic load and save functionality
+         - Only one map can be saved
+         - Don't try to load before you've saved a map
+
+   Bug Fixes
+      - Replace special XML characters (& < > ' ") with XML
+        entities
+
+
+2015-08-28 - Version 0.2
+   New Features
+      - Formatting (only if specified in an existing .mm file--no UI yet)
+         - Text color
+         - Node background color
+
+   Bug Fixes
+      - Fix folded nodes not folded on load
+      - Fix export--POSITION attribute was not determined properly
+      - Fix positioning of clouds left of root node
+
+
+2015-08-22 - Version 0.1
+   - Initial version
