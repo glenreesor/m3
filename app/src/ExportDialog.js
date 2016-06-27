@@ -68,7 +68,8 @@ export function ExportDialog() {
    });
 
    html += "   </textarea><br><br>" +
-           `<p>Download: <a href='${blobUrl}' download='${filename}'>` +
+           `<p>Download: <a href='${blobUrl}' download='${filename}' ` +
+           `target='blank'>` +
            `${filename}</a><br>` +
            `<button id='${ExportDialog.OK_ID}'>Close</button>` +
            "</div>";
@@ -92,7 +93,6 @@ export function ExportDialog() {
    // Finally, make the app-popups div visible and set state
    //--------------------------------------------------------------------------
    document.getElementById("app-popups").removeAttribute("hidden");
-   document.getElementById(ExportDialog.TEXT_AREA_ID).select();
    m3App.getGlobalState().setState(State.STATE_EXPORT_POPUP);
 } // ExportDialog()
 
