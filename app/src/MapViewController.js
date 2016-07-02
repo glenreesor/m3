@@ -22,6 +22,15 @@ import {EditNodeDialog} from "./EditNodeDialog";
 import {m3App} from "./main";
 import {State} from "./State";
 
+const STATE_IDLE                  = "Idle";
+const STATE_MOUSE_DOWN_ON_MAP     = "Mouse Down On Map";
+const STATE_MOUSE_DRAGGING        = "Mouse Dragging";
+const STATE_NODE_SELECTED         = "Node Selected";
+const STATE_ONE_TOUCH_DRAGGING    = "One Touch Dragging";
+const STATE_ONE_TOUCH_ON_MAP      = "One Touch On Map";
+const MOUSE_EVENT                 = "Mouse Event";
+const TOUCH_EVENT                 = "Touch Event";
+
 /**
  * This object handles all events related to the current map that do not
  * interact with the Map Model (e.g. scrolling, examining current state to
@@ -34,7 +43,7 @@ export function MapViewController(controller) {
    this._controller = controller;
 
    this._state = {
-      state: MapViewController._STATE_IDLE,
+      state: STATE_IDLE,
       selectedNodeView: null,
       scroll: {
          currentTranslationX: 0,
@@ -99,15 +108,6 @@ export function MapViewController(controller) {
 
 } // MapViewController()
 
-MapViewController._STATE_IDLE                  = "Idle";
-MapViewController._STATE_MOUSE_DOWN_ON_MAP     = "Mouse Down On Map";
-MapViewController._STATE_MOUSE_DRAGGING        = "Mouse Dragging";
-MapViewController._STATE_NODE_SELECTED         = "Node Selected";
-MapViewController._STATE_ONE_TOUCH_DRAGGING    = "One Touch Dragging";
-MapViewController._STATE_ONE_TOUCH_ON_MAP      = "One Touch On Map";
-MapViewController._MOUSE_EVENT                 = "Mouse Event";
-MapViewController._TOUCH_EVENT                 = "Touch Event";
-
 /**
  * Add a child to the currently selected node
  *
@@ -118,7 +118,7 @@ MapViewController.prototype.addChildClicked = function addChildClicked() {
    let parentModel;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
-       this._state.state === MapViewController._STATE_NODE_SELECTED) {
+       this._state.state === STATE_NODE_SELECTED) {
 
          this._controller.addChild(this._state.selectedNodeView.getModel());
    }
@@ -135,7 +135,7 @@ MapViewController.prototype.addSiblingClicked = function addSiblingClicked() {
    let selectedModel;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
-       this._state.state === MapViewController._STATE_NODE_SELECTED) {
+       this._state.state === STATE_NODE_SELECTED) {
 
          selectedModel = this._state.selectedNodeView.getModel();
          parentModel = selectedModel.getParent();
@@ -154,7 +154,7 @@ MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
    let parentModel;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
-       this._state.state === MapViewController._STATE_NODE_SELECTED) {
+       this._state.state === STATE_NODE_SELECTED) {
 
          selectedModel = this._state.selectedNodeView.getModel();
          parentModel = selectedModel.getParent();
@@ -162,7 +162,7 @@ MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
          if (parentModel !== null) {
             this._controller.deleteNode(selectedModel);
             // Update state
-            this._state.state = MapViewController._STATE_IDLE;
+            this._state.state = STATE_IDLE;
          }
    }
 }; // deleteNode()
@@ -177,7 +177,7 @@ MapViewController.prototype.editNodeClicked = function editNodeClicked() {
    let selectedModel;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
-       this._state.state === MapViewController._STATE_NODE_SELECTED) {
+       this._state.state === STATE_NODE_SELECTED) {
 
          editNodeDialog = new EditNodeDialog(this._controller,
             this._state.selectedNodeView.getModel());
@@ -230,11 +230,11 @@ MapViewController.prototype.nodeClicked =
       // If the selected node was clicked, then deselect it
       // Otherwise make the clicked node setSelected
 
-      if (this._state.state === MapViewController._STATE_NODE_SELECTED &&
+      if (this._state.state === STATE_NODE_SELECTED &&
          this._state.selectedNodeView === clickedNodeView) {
             this._state.selectedNodeView.setSelected(false);
             this._state.selectedNodeView = null;
-            this._state.state = MapViewController._STATE_IDLE;
+            this._state.state = STATE_IDLE;
          } else {
             this.setSelectedNodeView(clickedNodeView);
       }
@@ -263,14 +263,14 @@ MapViewController.prototype.setSelectedNodeView =
    function setSelectedNodeView(nodeView) {
 
    // If another node is currently selected, deselect first
-   if (this._state.state === MapViewController._STATE_NODE_SELECTED &&
+   if (this._state.state === STATE_NODE_SELECTED &&
       nodeView !== this._state.selectedNodeView) {
          this._state.selectedNodeView.setSelected(false);
    }
 
    nodeView.setSelected(true);
    this._state.selectedNodeView = nodeView;
-   this._state.state = MapViewController._STATE_NODE_SELECTED;
+   this._state.state = STATE_NODE_SELECTED;
 }; // setSelectedNodeView()
 
 /**
@@ -282,7 +282,7 @@ MapViewController.prototype.toggleCloudClicked = function toggleCloudClicked() {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
 
-      case MapViewController._STATE_NODE_SELECTED:
+      case STATE_NODE_SELECTED:
          this._controller.toggleCloud(this._state.selectedNodeView.getModel());
 
          break;
@@ -358,7 +358,7 @@ MapViewController.prototype._interactionMove = function _interactionMove(
    //-------------------------------------------------------------------------
    // Calculate and record position information
    //-------------------------------------------------------------------------
-   if (interactionType === MapViewController._MOUSE_EVENT) {
+   if (interactionType === MOUSE_EVENT) {
       newScreenX = e.screenX;
       newScreenY = e.screenY;
    } else {
@@ -432,7 +432,7 @@ MapViewController.prototype._interactionStart = function _interactionStart(
    interactionType,
    e
 ) {
-   if (interactionType === MapViewController._MOUSE_EVENT) {
+   if (interactionType === MOUSE_EVENT) {
       this._state.scroll.lastScreenX = e.screenX;
       this._state.scroll.lastScreenY = e.screenY;
    } else {
@@ -526,9 +526,9 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
 MapViewController.prototype._mouseDown = function _mouseDown(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case MapViewController._STATE_IDLE:     // Same as for STATE_NODE_SELECTED
-      case MapViewController._STATE_NODE_SELECTED:
-         this._interactionStart(MapViewController._MOUSE_EVENT, e);
+      case STATE_IDLE:     // Same as for STATE_NODE_SELECTED
+      case STATE_NODE_SELECTED:
+         this._interactionStart(MOUSE_EVENT, e);
          this._state.state = MapViewController._STATE_MOUSE_DOWN_ON_MAP;
 
          break;
@@ -549,7 +549,7 @@ MapViewController.prototype._mouseMove = function _mouseMove(e) {
       switch (this._state.state) {
       case MapViewController._STATE_MOUSE_DOWN_ON_MAP:
       case MapViewController._STATE_MOUSE_DRAGGING:
-         this._interactionMove(MapViewController._MOUSE_EVENT, e);
+         this._interactionMove(MOUSE_EVENT, e);
          this._state.state = MapViewController._STATE_MOUSE_DRAGGING;
 
          break;
@@ -574,9 +574,9 @@ MapViewController.prototype._mouseUp = function _mouseUp(e) {
          this._interactionStop();
          // Update state
          if (this._state.selectedNodeView === null) {
-            this._state.state = MapViewController._STATE_IDLE;
+            this._state.state = STATE_IDLE;
          } else {
-            this._state.state = MapViewController._STATE_NODE_SELECTED;
+            this._state.state = STATE_NODE_SELECTED;
          }
 
          break;
@@ -595,10 +595,10 @@ MapViewController.prototype._mouseUp = function _mouseUp(e) {
 MapViewController.prototype._touchMove = function _touchMove(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case MapViewController._STATE_ONE_TOUCH_ON_MAP:
-      case MapViewController._STATE_ONE_TOUCH_DRAGGING:
-         this._interactionMove(MapViewController._TOUCH_EVENT, e);
-         this._state.state = MapViewController._STATE_ONE_TOUCH_DRAGGING;
+      case STATE_ONE_TOUCH_ON_MAP:
+      case STATE_ONE_TOUCH_DRAGGING:
+         this._interactionMove(TOUCH_EVENT, e);
+         this._state.state = STATE_ONE_TOUCH_DRAGGING;
 
          break;
 
@@ -620,14 +620,14 @@ MapViewController.prototype._touchEnd = function _touchEnd(e) {
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case MapViewController._STATE_ONE_TOUCH_DRAGGING:
-      case MapViewController._STATE_ONE_TOUCH_ON_MAP:
+      case STATE_ONE_TOUCH_DRAGGING:
+      case STATE_ONE_TOUCH_ON_MAP:
 
          // Update state
          if (this._state.selectedNodeView === null) {
-            this._state.state = MapViewController._STATE_IDLE;
+            this._state.state = STATE_IDLE;
          } else {
-            this._state.state = MapViewController._STATE_NODE_SELECTED;
+            this._state.state = STATE_NODE_SELECTED;
          }
          this._interactionStop();
          break;
@@ -647,10 +647,10 @@ MapViewController.prototype._touchStart = function _touchStart(e) {
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case MapViewController._STATE_IDLE:
-      case MapViewController._STATE_NODE_SELECTED:
-         this._interactionStart(MapViewController._TOUCH_EVENT, e);
-         this._state.state = MapViewController._STATE_ONE_TOUCH_ON_MAP;
+      case STATE_IDLE:
+      case STATE_NODE_SELECTED:
+         this._interactionStart(TOUCH_EVENT, e);
+         this._state.state = STATE_ONE_TOUCH_ON_MAP;
 
          break;
 
