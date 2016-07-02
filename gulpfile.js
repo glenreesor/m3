@@ -73,6 +73,13 @@ gulp.task('fast', function() {
    result = gulp.src('app/manifest.webmanifest')
       .pipe(gulp.dest(debugDir))
       .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // php
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/*.php')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
 });
 
 //-----------------------------------------------------------------------------

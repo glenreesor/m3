@@ -228,23 +228,67 @@ App.prototype._upgradeFrom0_0_0_To_0_7_0 =
       }
       return App.myDB.setItem(App.KEY_MAPLIST, mapList);
 
-   }).then(function createLastVersionRun() {
-      return App.myDB.setItem(App.KEY_LAST_VERSION_RUN, App.MY_VERSION);
-
    }).catch(function catchError(err) {
       let errorDialog = new ErrorDialog(
          `Error upgrading DB from previous version: ${err}`);
    });
-};
+}; // _upgradeFrom0_0_0_To_0_7_0()
+
+/**
+ * Ping our server with statistical info. This is intended to be run
+ * only when m3 is upgraded to a new version.
+ *
+ * @param {string} oldVersion - The previous version the user had run, possibly
+ *                              null
+ * @param {integer} invocationCount - Number of times m3 has been run
+ *
+ * @return {void}
+ */
+App.prototype._sendStatsToServer = function _sendStatsToServer(
+   oldVersion,
+   invocationCount
+) {
+   let httpRequest;
+   let statUrl;
+
+   if (oldVersion === null) {
+      oldVersion = '0';
+   }
+
+   httpRequest = new XMLHttpRequest();
+
+   if (httpRequest) {
+      // URL may or may not have index.html at the end
+      statUrl = window.location.href.replace(/index\.html/, '');
+
+      statUrl += `statLogger.php?oldVersion=${oldVersion}` +
+                  `&currentVersion=${this.getVersionAsString()}` +
+                  `&invocationCount=${invocationCount}` +
+                  `&userAgent=${window.navigator.userAgent}`;
+
+      // We're not looking for a response, but create a simple function
+      // for debugging purposes.
+      httpRequest.onreadystatechange = function() {
+         let readyState = httpRequest.readyState;
+      };
+      httpRequest.open('POST', statUrl);
+      httpRequest.send();
+   }
+}; // _sendStatsToServer()
 
 /**
  * Do startup activities:
+ *    - Update invocation count
  *    - Check last version with current version and update storage as required
- *    - Also increment a count of number of times app has been run
+ *    - Ping our server with some simple stats if the version was upgraded
  *
  * @return {void}
  */
 App.prototype._startup = function _startup() {
+   let currentOperation;     // For promise error msg (if required)
+   let oldVersion;
+   let newCount;             // Number of times m3 has been run
+
    // localforage.supports(STORAGEMETHOD) sometimes reports true
    // even though the method isn't actually available, thus use brute
    // force tests to test for available storage types
@@ -260,36 +304,45 @@ App.prototype._startup = function _startup() {
       dbConfig = {name: App.DB_NAME, driver: driverName};
       App.myDB = localforage.createInstance(dbConfig);
 
+      //----------------------------------------------------------------------
       // Update invocation count
-      App.myDB.getItem(App.KEY_INVOCATION_COUNT).then( (count) => {
-         if (count === null) {
-            count = 0;
+      // If user is on a new version:
+      //    - Upgrade if required
+      //    - Send stats to server
+      //----------------------------------------------------------------------
+      currentOperation = "updating invocation count";
+      App.myDB.getItem(App.KEY_INVOCATION_COUNT).then( (oldCount) => {
+         if (oldCount === null) {
+            oldCount = 0;
          }
 
-         count += 1;
-         return App.myDB.setItem(App.KEY_INVOCATION_COUNT, count);
-      }).catch(function (err) {
-         // Error trying to set invocation count
-         let errorDialog = new ErrorDialog("Error trying to set invocation " +
-                                           `count: ${err}`);
-      });
+         newCount = oldCount + 1;
+         return App.myDB.setItem(App.KEY_INVOCATION_COUNT, newCount);
 
-      // Perform upgrades if required
-      App.myDB.getItem(App.KEY_LAST_VERSION_RUN).then( (lastVersionRun) => {
-         if (lastVersionRun === null) {
-            // This corresponds to user having run versions prior to 0.7.0,
-            // or a first run
-            this._upgradeFrom0_0_0_To_0_7_0();
-         } else {
-            // This corresponds to user having previously run version 0.7.0 or
-            // greater
+      }).then( () => {
+      currentOperation = "retrieving last version run";
+         App.myDB.getItem(App.KEY_LAST_VERSION_RUN).then( (lastVersionRun) => {
+            oldVersion = lastVersionRun;
+            if (lastVersionRun === null) {
+               // This corresponds to user having run versions prior to 0.7.0,
+               // or a first run
+               this._upgradeFrom0_0_0_To_0_7_0();
+            }
+            currentOperation = "setting last version run";
             return App.myDB.setItem(App.KEY_LAST_VERSION_RUN,
                                     this.getVersionAsString());
-         }
-      }).catch(function(err) {
-         // Error trying to get lastVersionRun
-         let errorDialog = new ErrorDialog("Error trying to save last run " +
-                                           `version: ${err}`);
+         }).then( () => {
+            if (oldVersion !== this.getVersionAsString()) {
+               if (oldVersion !== null) {
+                  alert("Congratulations! Your m3 has been updated to " +
+                        `version ${this.getVersionAsString()}.`);
+               }
+               this._sendStatsToServer(oldVersion, newCount);
+            }
+         });
+      }).catch(function (err) {
+         // Error trying to set invocation count
+         let errorDialog = new ErrorDialog(`Error ${currentOperation}: ${err}`);
       });
    });
 }; // _startup()
