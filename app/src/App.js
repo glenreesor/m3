@@ -55,8 +55,8 @@ App.KEY_INVOCATION_COUNT = "invocationCount";
 App.myDB = null;                          // This will be populated by _start()
 App.MY_NAME = "m3 - Mobile Mind Mapper";
 App.MY_VERSION = {major: 0,
-                  minor: 9,
-                  patch: 999};
+                  minor: 10,
+                  patch: 0};
 
 /**
  * Return the controller object

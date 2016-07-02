@@ -1,5 +1,17 @@
 Change Log
 
+2016-07-02 - Version 0.10.0
+   New Features
+      - Implement support for iOS Firefox and Chrome (although neither
+        browser currently supports long term storage of maps)
+      - Add download link for exporting maps (doesn't work on iOS)
+      - Add inertia scroll
+      - Keep some basic stats so I can tell how many people and which platforms
+        are actually using m3.
+
+   Bug Fixes
+      - Reset map position when loading a new map
+
 2016-04-30 - Version 0.9.0
    New Features
       - Preserve unknown tags and attributes when importing from other
