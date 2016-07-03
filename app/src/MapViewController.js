@@ -281,14 +281,15 @@ MapViewController.prototype.setSelectedNodeView =
 MapViewController.prototype.toggleCloudClicked = function toggleCloudClicked() {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
+         case STATE_NODE_SELECTED:
+            this._controller.toggleCloud(
+               this._state.selectedNodeView.getModel()
+            );
 
-      case STATE_NODE_SELECTED:
-         this._controller.toggleCloud(this._state.selectedNodeView.getModel());
+            break;
 
-         break;
-
-      default:
-         // Nothing
+         default:
+            // Nothing
       } // switch
    }
 }; // toggleCloudClicked()
@@ -526,15 +527,15 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
 MapViewController.prototype._mouseDown = function _mouseDown(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case STATE_IDLE:     // Same as for STATE_NODE_SELECTED
-      case STATE_NODE_SELECTED:
-         this._interactionStart(MOUSE_EVENT, e);
-         this._state.state = STATE_MOUSE_DOWN_ON_MAP;
+         case STATE_IDLE:     // Same as for STATE_NODE_SELECTED
+         case STATE_NODE_SELECTED:
+            this._interactionStart(MOUSE_EVENT, e);
+            this._state.state = STATE_MOUSE_DOWN_ON_MAP;
 
-         break;
+            break;
 
-      default:
-         // Nothing
+         default:
+            // Nothing
       } // switch
    }
 }; // _mouseDown()
@@ -547,15 +548,15 @@ MapViewController.prototype._mouseDown = function _mouseDown(e) {
 MapViewController.prototype._mouseMove = function _mouseMove(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case STATE_MOUSE_DOWN_ON_MAP:
-      case STATE_MOUSE_DRAGGING:
-         this._interactionMove(MOUSE_EVENT, e);
-         this._state.state = STATE_MOUSE_DRAGGING;
+         case STATE_MOUSE_DOWN_ON_MAP:
+         case STATE_MOUSE_DRAGGING:
+            this._interactionMove(MOUSE_EVENT, e);
+            this._state.state = STATE_MOUSE_DRAGGING;
 
-         break;
+            break;
 
-      default:
-         // Nothing
+         default:
+            // Nothing
       } // switch
    }
 }; // _mouseMove()
@@ -568,21 +569,20 @@ MapViewController.prototype._mouseMove = function _mouseMove(e) {
 MapViewController.prototype._mouseUp = function _mouseUp(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case STATE_MOUSE_DOWN_ON_MAP:
-      case STATE_MOUSE_DRAGGING:
+         case STATE_MOUSE_DOWN_ON_MAP:
+         case STATE_MOUSE_DRAGGING:
+            this._interactionStop();
+            // Update state
+            if (this._state.selectedNodeView === null) {
+               this._state.state = STATE_IDLE;
+            } else {
+               this._state.state = STATE_NODE_SELECTED;
+            }
 
-         this._interactionStop();
-         // Update state
-         if (this._state.selectedNodeView === null) {
-            this._state.state = STATE_IDLE;
-         } else {
-            this._state.state = STATE_NODE_SELECTED;
-         }
+            break;
 
-         break;
-
-      default:
-         // Nothing
+         default:
+            // Nothing
       } // switch
    }
 }; // _mouseUp()
@@ -595,15 +595,15 @@ MapViewController.prototype._mouseUp = function _mouseUp(e) {
 MapViewController.prototype._touchMove = function _touchMove(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case STATE_ONE_TOUCH_ON_MAP:
-      case STATE_ONE_TOUCH_DRAGGING:
-         this._interactionMove(TOUCH_EVENT, e);
-         this._state.state = STATE_ONE_TOUCH_DRAGGING;
+         case STATE_ONE_TOUCH_ON_MAP:
+         case STATE_ONE_TOUCH_DRAGGING:
+            this._interactionMove(TOUCH_EVENT, e);
+            this._state.state = STATE_ONE_TOUCH_DRAGGING;
 
-         break;
+            break;
 
-      default:
-         // Nothing
+         default:
+            // Nothing
       } // switch
    }
 
@@ -620,19 +620,18 @@ MapViewController.prototype._touchEnd = function _touchEnd(e) {
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case STATE_ONE_TOUCH_DRAGGING:
-      case STATE_ONE_TOUCH_ON_MAP:
+         case STATE_ONE_TOUCH_DRAGGING:
+         case STATE_ONE_TOUCH_ON_MAP:
+            // Update state
+            if (this._state.selectedNodeView === null) {
+               this._state.state = STATE_IDLE;
+            } else {
+               this._state.state = STATE_NODE_SELECTED;
+            }
+            this._interactionStop();
+            break;
 
-         // Update state
-         if (this._state.selectedNodeView === null) {
-            this._state.state = STATE_IDLE;
-         } else {
-            this._state.state = STATE_NODE_SELECTED;
-         }
-         this._interactionStop();
-         break;
-
-      default:
+         default:
             // Nothing
       } // switch
    }
@@ -647,15 +646,15 @@ MapViewController.prototype._touchStart = function _touchStart(e) {
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case STATE_IDLE:
-      case STATE_NODE_SELECTED:
-         this._interactionStart(TOUCH_EVENT, e);
-         this._state.state = STATE_ONE_TOUCH_ON_MAP;
+         case STATE_IDLE:
+         case STATE_NODE_SELECTED:
+            this._interactionStart(TOUCH_EVENT, e);
+            this._state.state = STATE_ONE_TOUCH_ON_MAP;
 
-         break;
+            break;
 
-      default:
-         // Nothing
+         default:
+            // Nothing
       } // switch
    }
 }; // _touchStart()
