@@ -529,7 +529,7 @@ MapViewController.prototype._mouseDown = function _mouseDown(e) {
       case STATE_IDLE:     // Same as for STATE_NODE_SELECTED
       case STATE_NODE_SELECTED:
          this._interactionStart(MOUSE_EVENT, e);
-         this._state.state = MapViewController._STATE_MOUSE_DOWN_ON_MAP;
+         this._state.state = STATE_MOUSE_DOWN_ON_MAP;
 
          break;
 
@@ -547,10 +547,10 @@ MapViewController.prototype._mouseDown = function _mouseDown(e) {
 MapViewController.prototype._mouseMove = function _mouseMove(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case MapViewController._STATE_MOUSE_DOWN_ON_MAP:
-      case MapViewController._STATE_MOUSE_DRAGGING:
+      case STATE_MOUSE_DOWN_ON_MAP:
+      case STATE_MOUSE_DRAGGING:
          this._interactionMove(MOUSE_EVENT, e);
-         this._state.state = MapViewController._STATE_MOUSE_DRAGGING;
+         this._state.state = STATE_MOUSE_DRAGGING;
 
          break;
 
@@ -568,8 +568,8 @@ MapViewController.prototype._mouseMove = function _mouseMove(e) {
 MapViewController.prototype._mouseUp = function _mouseUp(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
-      case MapViewController._STATE_MOUSE_DOWN_ON_MAP:
-      case MapViewController._STATE_MOUSE_DRAGGING:
+      case STATE_MOUSE_DOWN_ON_MAP:
+      case STATE_MOUSE_DRAGGING:
 
          this._interactionStop();
          // Update state
