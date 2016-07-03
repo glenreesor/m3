@@ -1,6 +1,6 @@
 <?php
 
-$statsFile = __DIR__ . "/stats/stats.out";
+$statsFile = __DIR__ . "/stats/stats.txt";
 
 $oldVersion = 'na';
 $currentVersion = 'na';
