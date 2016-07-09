@@ -338,14 +338,14 @@ MapViewController.prototype._inertiaScroll = function _inertiaScroll() {
 /**
  * Handle a movement action when the mouse button is down or finger is moving
  *
- * @param {string} interactionType - mouse or touch
- * @param {Event}  e               - the event that triggered this movement
+ * @param {number} screenX - X-coordinate of mouse click / touch
+ * @param {number} screenY - Y-coordinate of mouse click / touch
  *
  * @return {void}
  */
 MapViewController.prototype._interactionMove = function _interactionMove(
-   interactionType,
-   e
+   screenX,
+   screenY
 ) {
    let deltaT;
    let deltaX;
@@ -359,13 +359,8 @@ MapViewController.prototype._interactionMove = function _interactionMove(
    //-------------------------------------------------------------------------
    // Calculate and record position information
    //-------------------------------------------------------------------------
-   if (interactionType === MOUSE_EVENT) {
-      newScreenX = e.screenX;
-      newScreenY = e.screenY;
-   } else {
-      newScreenX = e.changedTouches[0].screenX;
-      newScreenY = e.changedTouches[0].screenY;
-   }
+   newScreenX = screenX;
+   newScreenY = screenY;
 
    deltaX = newScreenX - this._state.scroll.lastScreenX;
    deltaY = newScreenY - this._state.scroll.lastScreenY;
@@ -424,22 +419,17 @@ MapViewController.prototype._interactionMove = function _interactionMove(
 /**
  * Handle the start of a mouse or touch interaction
  *
- * @param {string} interactionType - mouse or touch
- * @param {Event}  e               - the event that triggered this movement
+ * @param {number} screenX - X-coordinate of mouse click / touch
+ * @param {number} screenY - Y-coordinate of mouse click / touch
  *
  * @return {void}
  */
 MapViewController.prototype._interactionStart = function _interactionStart(
-   interactionType,
-   e
+   screenX,
+   screenY
 ) {
-   if (interactionType === MOUSE_EVENT) {
-      this._state.scroll.lastScreenX = e.screenX;
-      this._state.scroll.lastScreenY = e.screenY;
-   } else {
-      this._state.scroll.lastScreenX = e.changedTouches[0].screenX;
-      this._state.scroll.lastScreenY = e.changedTouches[0].screenY;
-   }
+   this._state.scroll.lastScreenX = screenX;
+   this._state.scroll.lastScreenY = screenY;
    this._state.scroll.previousTime = Date.now();
    this._state.scroll.velocityX = 0;
    this._state.scroll.velocityY = 0;
@@ -529,7 +519,7 @@ MapViewController.prototype._mouseDown = function _mouseDown(e) {
       switch (this._state.state) {
          case STATE_IDLE:     // Same as for STATE_NODE_SELECTED
          case STATE_NODE_SELECTED:
-            this._interactionStart(MOUSE_EVENT, e);
+            this._interactionStart(e.screenX, e.screenY);
             this._state.state = STATE_MOUSE_DOWN_ON_MAP;
 
             break;
@@ -550,7 +540,7 @@ MapViewController.prototype._mouseMove = function _mouseMove(e) {
       switch (this._state.state) {
          case STATE_MOUSE_DOWN_ON_MAP:
          case STATE_MOUSE_DRAGGING:
-            this._interactionMove(MOUSE_EVENT, e);
+            this._interactionMove(e.screenX, e.screenY);
             this._state.state = STATE_MOUSE_DRAGGING;
 
             break;
@@ -597,7 +587,10 @@ MapViewController.prototype._touchMove = function _touchMove(e) {
       switch (this._state.state) {
          case STATE_ONE_TOUCH_ON_MAP:
          case STATE_ONE_TOUCH_DRAGGING:
-            this._interactionMove(TOUCH_EVENT, e);
+            this._interactionMove(
+               e.changedTouches[0].screenX,
+               e.changedTouches[0].screenY
+            );
             this._state.state = STATE_ONE_TOUCH_DRAGGING;
 
             break;
@@ -648,7 +641,10 @@ MapViewController.prototype._touchStart = function _touchStart(e) {
       switch (this._state.state) {
          case STATE_IDLE:
          case STATE_NODE_SELECTED:
-            this._interactionStart(TOUCH_EVENT, e);
+            this._interactionStart(
+               e.changedTouches[0].screenX,
+               e.changedTouches[0].screenY
+            );
             this._state.state = STATE_ONE_TOUCH_ON_MAP;
 
             break;
