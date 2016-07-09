@@ -1,0 +1,138 @@
+#!/bin/bash
+
+##----------------------------------------------------------------------------
+## Usage: (From 'out' folder resulting from gulp build)
+##    ../deploy
+##
+## Create a zipfile that can be used for uploading to server, that requires
+## minimal manual intervention
+##
+## Use that zipfile to populate local /var/www/html/m3/[date]/[time]
+##----------------------------------------------------------------------------
+
+##----------------------------------------------------------------------------
+##----------------------------------------------------------------------------
+main() {
+   ##-------------------------------------------------------------------------
+   ## Need to create folder name here so debug and production
+   ## folders don't get created in separate [time] folders
+   ##-------------------------------------------------------------------------
+   dateFolder=`date +%Y-%m-%d`
+   timeFolder=`date +%H:%M:%S`
+   timeStampedFolder="/var/www/html/m3/$dateFolder/$timeFolder"
+
+   ##-------------------------------------------------------------------------
+   ## Make destination folder and set proper permissions
+   ##-------------------------------------------------------------------------
+   mkdir -p $timeStampedFolder
+   find /var/www/html/m3 -type d -exec chmod 0755 {} \;
+
+   ##-------------------------------------------------------------------------
+   ## Do it
+   ##-------------------------------------------------------------------------
+   echo "Deploying to $timeStampedFolder"
+
+   for folder in debug production
+   do
+      resultingFolder="m3-new-$folder"
+      createZipfile $folder $resultingFolder
+      deployLocally "$timeStampedFolder" $resultingFolder.zip
+   done
+} ## main()
+
+##----------------------------------------------------------------------------
+## Create a zipfile for the specified folder. The folder must exist in the
+## current working directory.
+##
+## $1 = source folder
+## $2 = resulting folder    - The toplevel folder in the zipfile
+##
+##----------------------------------------------------------------------------
+function createZipfile() {
+   sourceFolder="$1"
+   resultingFolder="$2"
+
+   if [ ! -d $sourceFolder ]
+   then
+      echo "$sourceFolder does not exist. Exiting"
+      exit
+   fi
+
+   workDir=`mktemp --directory`
+
+   ##--------------------------------------------------------------------------
+   ## When unzipped, the folder should be m3-new-[dev | production]
+   ##--------------------------------------------------------------------------
+   zipRoot="$workDir/$resultingFolder"
+   mkdir -p "$zipRoot"
+
+   cp -r "$sourceFolder/"* "$zipRoot"
+
+   ##--------------------------------------------------------------------------
+   ## Massage the files so they're appropriate for deployment. We need:
+   ##    - a stats folder for the logger to write to
+   ##    - m3.appcache renamed to something else so it can be activated
+   ##      when we're ready (otherwise it's a pain for debugging)
+   ##    - read permissions for all files
+   ##    - read/write permissions for stats/
+   ##--------------------------------------------------------------------------
+   mkdir "$zipRoot/stats"
+   mv "$zipRoot/m3.appcache" "$zipRoot/RENAME-ME-m3.appcache"
+
+   find "$zipRoot" -type d -exec chmod 0755 {} \;
+   find "$zipRoot" -type f -exec chmod 0644 {} \;
+   chmod ugo=rwx "$zipRoot/stats"
+
+   ##--------------------------------------------------------------------------
+   ## Create the zipfile
+   ##--------------------------------------------------------------------------
+   origPwd="`pwd`"
+   cd "$workDir"
+
+   zip --quiet -r "$resultingFolder.zip" "$resultingFolder"
+   cp "$resultingFolder.zip" "$origPwd"
+
+   cd "$origPwd"
+
+   echo "Created $resultingFolder.zip"
+
+   ##--------------------------------------------------------------------------
+   ## Cleanup
+   ##--------------------------------------------------------------------------
+   rm -r $workDir
+} ## createZipFile()
+
+##----------------------------------------------------------------------------
+## Deploy the specified zipfile to the specified folder.
+## It's up to the calling code to ensure destination folder exists and
+## has proper permissions
+##
+## $1 - destination folder
+## $2 - zipfile to deploy
+##----------------------------------------------------------------------------
+function deployLocally() {
+   destFolder="$1"
+   zipFile="$2"
+
+   ##--------------------------------------------------------------------------
+   ## Sanity checks
+   ##--------------------------------------------------------------------------
+   if [ ! -f $zipFile ]
+   then
+      echo "$zipFile does not exist. Exiting"
+      exit
+   fi
+
+   if [ ! -d $destFolder ]
+   then
+      echo "$destFolder does not exist. Exiting"
+      exit
+   fi
+
+   ##--------------------------------------------------------------------------
+   ## Unzip the file.
+   ##--------------------------------------------------------------------------
+   unzip -q -d $destFolder $zipFile
+} ## deployLocally
+
+main
