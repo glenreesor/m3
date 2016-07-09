@@ -35,8 +35,8 @@ main() {
    for folder in debug production
    do
       resultingFolder="m3-new-$folder"
-      createZipfile $folder $resultingFolder
-      deployLocally "$timeStampedFolder" $resultingFolder.zip
+      createZipfile "$folder" "$resultingFolder"
+      deployLocally "$timeStampedFolder" "$resultingFolder.zip"
    done
 } ## main()
 
@@ -61,7 +61,7 @@ function createZipfile() {
    workDir=`mktemp --directory`
 
    ##--------------------------------------------------------------------------
-   ## When unzipped, the folder should be m3-new-[dev | production]
+   ## When unzipped, the folder should be $resultingFolder
    ##--------------------------------------------------------------------------
    zipRoot="$workDir/$resultingFolder"
    mkdir -p "$zipRoot"
