@@ -22,14 +22,15 @@ import {EditNodeDialog} from "./EditNodeDialog";
 import {m3App} from "./main";
 import {State} from "./State";
 
-const STATE_IDLE                  = "Idle";
-const STATE_MOUSE_DOWN_ON_MAP     = "Mouse Down On Map";
-const STATE_MOUSE_DRAGGING        = "Mouse Dragging";
-const STATE_NODE_SELECTED         = "Node Selected";
-const STATE_ONE_TOUCH_DRAGGING    = "One Touch Dragging";
-const STATE_ONE_TOUCH_ON_MAP      = "One Touch On Map";
-const MOUSE_EVENT                 = "Mouse Event";
-const TOUCH_EVENT                 = "Touch Event";
+const STATE_IDLE                 = "Idle";
+const STATE_INERTIA_SCROLL       = "Intertia Scroll";
+const STATE_MOUSE_DOWN_ON_MAP    = "Mouse Down On Map";
+const STATE_MOUSE_DRAGGING       = "Mouse Dragging";
+const STATE_NODE_SELECTED        = "Node Selected";
+const STATE_ONE_TOUCH_DRAGGING   = "One Touch Dragging";
+const STATE_ONE_TOUCH_ON_MAP     = "One Touch On Map";
+const MOUSE_EVENT                = "Mouse Event";
+const TOUCH_EVENT                = "Touch Event";
 
 /**
  * This object handles all events related to the current map that do not
@@ -43,16 +44,22 @@ export function MapViewController(controller) {
    this._controller = controller;
 
    this._state = {
+      oldState: STATE_IDLE,
+      oldSelectedNodeView: null,
       state: STATE_IDLE,
       selectedNodeView: null,
       scroll: {
          currentTranslationX: 0,
          currentTranslationY: 0,
-         lastScreenX: null,
-         lastScreenY: null,
+         lastScreenX: 0,
+         lastScreenY: 0
+      },
+      velocityCalc: {
+         lastScreenX: 0,
+         lastScreenY: 0,
          previousTime: 0,
-         velocityX: 0,
-         velocityY: 0
+         vx: 0,
+         vy: 0
       }
    };
 
@@ -307,10 +314,15 @@ MapViewController.prototype._inertiaScroll = function _inertiaScroll() {
    let oldX;
    let oldY;
 
+   // We may have been pre-empted by user interaction
+   if (this._state.state !== STATE_INERTIA_SCROLL) {
+      return;
+   }
+
    // Update timestamps so we can calculate velocity
    now = Date.now();
-   deltaT = now - this._state.scroll.previousTime;
-   this._state.scroll.previousTime = now;
+   deltaT = now - this._state.velocityCalc.previousTime;
+   this._state.velocityCalc.previousTime = now;
 
    // Update positions
    oldX = this._state.scroll.currentTranslationX;
@@ -332,49 +344,42 @@ MapViewController.prototype._inertiaScroll = function _inertiaScroll() {
       Math.abs(oldY - newY) / deltaT > 0.01
    ) {
       window.requestAnimationFrame(this._inertiaScroll.bind(this));
+   } else {
+      // Inertia is done, so restore to prior state
+      this._restoreState();
    }
 }; // _inertiaScroll();
 
 /**
  * Handle a movement action when the mouse button is down or finger is moving
  *
- * @param {string} interactionType - mouse or touch
- * @param {Event}  e               - the event that triggered this movement
+ * @param {number} screenX - X-coordinate of mouse click / touch
+ * @param {number} screenY - Y-coordinate of mouse click / touch
  *
  * @return {void}
  */
 MapViewController.prototype._interactionMove = function _interactionMove(
-   interactionType,
-   e
+   screenX,
+   screenY
 ) {
    let deltaT;
    let deltaX;
    let deltaY;
    let newVx;
    let newVy;
-   let newScreenX;
-   let newScreenY;
    let now;
 
    //-------------------------------------------------------------------------
    // Calculate and record position information
    //-------------------------------------------------------------------------
-   if (interactionType === MOUSE_EVENT) {
-      newScreenX = e.screenX;
-      newScreenY = e.screenY;
-   } else {
-      newScreenX = e.changedTouches[0].screenX;
-      newScreenY = e.changedTouches[0].screenY;
-   }
-
-   deltaX = newScreenX - this._state.scroll.lastScreenX;
-   deltaY = newScreenY - this._state.scroll.lastScreenY;
+   deltaX = screenX - this._state.scroll.lastScreenX;
+   deltaY = screenY - this._state.scroll.lastScreenY;
 
    this._state.scroll.currentTranslationX += deltaX;
    this._state.scroll.currentTranslationY += deltaY;
 
-   this._state.scroll.lastScreenX = newScreenX;
-   this._state.scroll.lastScreenY = newScreenY;
+   this._state.scroll.lastScreenX = screenX;
+   this._state.scroll.lastScreenY = screenY;
 
    //-------------------------------------------------------------------------
    // Do the move
@@ -385,64 +390,43 @@ MapViewController.prototype._interactionMove = function _interactionMove(
 
    //-------------------------------------------------------------------------
    // Calculate new velocity (pixels / millisecond)
-   // Make sure we don't get NaN or infinity velocities (Mobile Firefox likes
-   // to do that)
+   // Sample every 50ms to smooth out erratic touch readings
    //-------------------------------------------------------------------------
    now = Date.now();
-   deltaT = now - this._state.scroll.previousTime;
-   this._state.scroll.previousTime = now;
+   deltaT = now - this._state.velocityCalc.previousTime;
+   if (deltaT > 50) {
+      this._state.velocityCalc.previousTime = now;
 
-   newVx = deltaT > 0 ? deltaX / deltaT : 0;
-   newVy = deltaT > 0 ? deltaY / deltaT : 0;
+      deltaX = screenX - this._state.velocityCalc.lastScreenX;
+      deltaY = screenY - this._state.velocityCalc.lastScreenY;
 
-   // NaN or Super high velocities correspond to eratic behavior
-   if (!newVx) {
-      newVx = 0;
+      this._state.velocityCalc.lastScreenX = screenX;
+      this._state.velocityCalc.lastScreenY = screenY;
+
+      this._state.velocityCalc.vx = deltaX / deltaT;
+      this._state.velocityCalc.vy = deltaY / deltaT;
    }
-
-   if (!newVy) {
-      newVy = 0;
-   }
-
-   // Super high velocities correspond to eratic behavior
-   if (Math.abs(newVx) > 1) {
-      newVx = Math.sign(newVx);
-   }
-
-   if (Math.abs(newVy) > 1) {
-      newVy = Math.sign(newVy);
-   }
-
-   // Do some averaging between new and old velocity to smooth out eratic
-   // movements
-   this._state.scroll.velocityX = 0.8 * newVx +
-                                  0.2 * this._state.scroll.velocityX;
-   this._state.scroll.velocityY = 0.8 * newVy +
-                                  0.2 * this._state.scroll.velocityY;
 }; // _interactionMove()
 
 /**
  * Handle the start of a mouse or touch interaction
  *
- * @param {string} interactionType - mouse or touch
- * @param {Event}  e               - the event that triggered this movement
+ * @param {number} screenX - X-coordinate of mouse click / touch
+ * @param {number} screenY - Y-coordinate of mouse click / touch
  *
  * @return {void}
  */
 MapViewController.prototype._interactionStart = function _interactionStart(
-   interactionType,
-   e
+   screenX,
+   screenY
 ) {
-   if (interactionType === MOUSE_EVENT) {
-      this._state.scroll.lastScreenX = e.screenX;
-      this._state.scroll.lastScreenY = e.screenY;
-   } else {
-      this._state.scroll.lastScreenX = e.changedTouches[0].screenX;
-      this._state.scroll.lastScreenY = e.changedTouches[0].screenY;
-   }
-   this._state.scroll.previousTime = Date.now();
-   this._state.scroll.velocityX = 0;
-   this._state.scroll.velocityY = 0;
+   this._state.scroll.lastScreenX = screenX;
+   this._state.scroll.lastScreenY = screenY;
+   this._state.velocityCalc.lastScreenX = screenX;
+   this._state.velocityCalc.lastScreenY = screenY;
+   this._state.velocityCalc.previousTime = Date.now();
+   this._state.velocityCalc.vx = 0;
+   this._state.velocityCalc.vy = 0;
 }; // _interactionStart()
 
 /**
@@ -454,6 +438,16 @@ MapViewController.prototype._interactionStart = function _interactionStart(
  * @return {void}
  */
 MapViewController.prototype._interactionStop = function _interactionStop() {
+   //-------------------------------------------------------------------------
+   // If both velocities are zero, there's no inertia scrolling to be done
+   //-------------------------------------------------------------------------
+   if (
+      this._state.velocityCalc.vx === 0 &&
+      this._state.velocityCalc.vy === 0
+   ) {
+      return;
+   }
+
    //-------------------------------------------------------------------------
    // Algorithm inspired by
    // http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
@@ -476,11 +470,11 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
    const INITIAL_POSITION_X = this._state.scroll.currentTranslationX;
    const INITIAL_POSITION_Y = this._state.scroll.currentTranslationY;
    const INITIAL_T = Date.now();
-   const INITIAL_VX = this._state.scroll.velocityX;
-   const INITIAL_VY = this._state.scroll.velocityY;
+   const INITIAL_VX = this._state.velocityCalc.vx;
+   const INITIAL_VY = this._state.velocityCalc.vy;
 
    /**
-    * Calculation the next X position, using our inertial algorithm
+    * Function to calculate the next X position, using our inertial algorithm
     * @return {integer} The new X position
     */
    this._state.scroll.getInertiaScrollX = function getInertiaScrollX() {
@@ -495,7 +489,7 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
    };
 
    /**
-    * Calculation the next Y position, using our inertial algorithm
+    * Function to calculate the next Y position, using our inertial algorithm
     * @return {integer} The new Y position
     */
    this._state.scroll.getInertiaScrollY = function getInertiaScrollY() {
@@ -511,12 +505,9 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
 
    // We've setup the algorithm for inertial scroll, now request that it
    // be called
-   if (
-      this._state.scroll.velocityX !== 0 &&
-      this._state.scroll.velocityY !== 0
-   ) {
-      window.requestAnimationFrame(this._inertiaScroll.bind(this));
-   }
+   this._saveState();
+   this._state.state = STATE_INERTIA_SCROLL;
+   window.requestAnimationFrame(this._inertiaScroll.bind(this));
 }; // _interactionStop()
 
 /**
@@ -527,11 +518,17 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
 MapViewController.prototype._mouseDown = function _mouseDown(e) {
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
+         case STATE_INERTIA_SCROLL:
+            // Changing state signals to the inertia scroller to stop
+            this._state.state = STATE_MOUSE_DOWN_ON_MAP;
+            this._interactionStart(e.screenX, e.screenY);
+            break;
+
          case STATE_IDLE:     // Same as for STATE_NODE_SELECTED
          case STATE_NODE_SELECTED:
-            this._interactionStart(MOUSE_EVENT, e);
+            this._saveState();
             this._state.state = STATE_MOUSE_DOWN_ON_MAP;
-
+            this._interactionStart(e.screenX, e.screenY);
             break;
 
          default:
@@ -550,9 +547,8 @@ MapViewController.prototype._mouseMove = function _mouseMove(e) {
       switch (this._state.state) {
          case STATE_MOUSE_DOWN_ON_MAP:
          case STATE_MOUSE_DRAGGING:
-            this._interactionMove(MOUSE_EVENT, e);
             this._state.state = STATE_MOUSE_DRAGGING;
-
+            this._interactionMove(e.screenX, e.screenY);
             break;
 
          default:
@@ -571,14 +567,8 @@ MapViewController.prototype._mouseUp = function _mouseUp(e) {
       switch (this._state.state) {
          case STATE_MOUSE_DOWN_ON_MAP:
          case STATE_MOUSE_DRAGGING:
+            this._restoreState();
             this._interactionStop();
-            // Update state
-            if (this._state.selectedNodeView === null) {
-               this._state.state = STATE_IDLE;
-            } else {
-               this._state.state = STATE_NODE_SELECTED;
-            }
-
             break;
 
          default:
@@ -586,6 +576,24 @@ MapViewController.prototype._mouseUp = function _mouseUp(e) {
       } // switch
    }
 }; // _mouseUp()
+
+/**
+ * Restore the state that was previously saved
+ * @return {void}
+ */
+MapViewController.prototype._restoreState = function _restoreState() {
+   this._state.state = this._state.oldState;
+   this._state.selectedNodeView = this._state.oldSelectedNodeView;
+};
+
+/**
+ * Save the state so it can be restored (like after a scroll)
+ * @return {void}
+ */
+MapViewController.prototype._saveState = function _saveState() {
+   this._state.oldState = this._state.state;
+   this._state.oldSelectedNodeView = this._state.selectedNodeView;
+}; // _saveState()
 
 /**
  * Act on a touch device being moved
@@ -597,7 +605,10 @@ MapViewController.prototype._touchMove = function _touchMove(e) {
       switch (this._state.state) {
          case STATE_ONE_TOUCH_ON_MAP:
          case STATE_ONE_TOUCH_DRAGGING:
-            this._interactionMove(TOUCH_EVENT, e);
+            this._interactionMove(
+               e.changedTouches[0].screenX,
+               e.changedTouches[0].screenY
+            );
             this._state.state = STATE_ONE_TOUCH_DRAGGING;
 
             break;
@@ -622,12 +633,7 @@ MapViewController.prototype._touchEnd = function _touchEnd(e) {
       switch (this._state.state) {
          case STATE_ONE_TOUCH_DRAGGING:
          case STATE_ONE_TOUCH_ON_MAP:
-            // Update state
-            if (this._state.selectedNodeView === null) {
-               this._state.state = STATE_IDLE;
-            } else {
-               this._state.state = STATE_NODE_SELECTED;
-            }
+            this._restoreState();
             this._interactionStop();
             break;
 
@@ -646,11 +652,23 @@ MapViewController.prototype._touchStart = function _touchStart(e) {
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE) {
       switch (this._state.state) {
+         case STATE_INERTIA_SCROLL:
+            // Changing state signals to the inertia scroller to stop
+            this._state.state = STATE_ONE_TOUCH_ON_MAP;
+            this._interactionStart(
+               e.changedTouches[0].screenX,
+               e.changedTouches[0].screenY
+            );
+            break;
+
          case STATE_IDLE:
          case STATE_NODE_SELECTED:
-            this._interactionStart(TOUCH_EVENT, e);
+            this._saveState();
             this._state.state = STATE_ONE_TOUCH_ON_MAP;
-
+            this._interactionStart(
+               e.changedTouches[0].screenX,
+               e.changedTouches[0].screenY
+            );
             break;
 
          default:
