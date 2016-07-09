@@ -29,26 +29,22 @@ import {State} from "./State";
 export function ExportDialog() {
    let blobContent;
    let blobUrl;
+   let dateNow;
    let domParser;
    let filename;
    let html;
    let htmlAsDoc;
    let mapAsXml;
-   let dateNow;
+   let mapModel;
+
+   mapModel = m3App.getController().getMapModel();
 
    //--------------------------------------------------------------------------
-   // Create the div that contains the exported map.
-   // Having a blob link is nice to just click and download all in one step.
-   // Also need the raw XML to copy/paste, since iOS Safari doesn't support
-   // the <a> download attribute
+   // We're going to have a download link, so create the filename
    //--------------------------------------------------------------------------
-   mapAsXml = m3App.getController().getMapModel().getAsXml();
-
-   blobContent = new Blob(mapAsXml, {type: "text/xml"});
-   blobUrl = URL.createObjectURL(blobContent);
    dateNow = new Date(Date.now());
-
    filename = 'm3-' +
+              mapModel.getMapName() + '-' +
               dateNow.getFullYear() + '-' +
               this._padNumber(dateNow.getMonth() + 1) + '-' + // Zero-based OMG
               this._padNumber(dateNow.getDate()) + '::' +
@@ -56,6 +52,20 @@ export function ExportDialog() {
               this._padNumber(dateNow.getMinutes()) + ':' +
               this._padNumber(dateNow.getSeconds());
 
+   //--------------------------------------------------------------------------
+   // Map will be downloadable as a blob
+   //--------------------------------------------------------------------------
+   mapAsXml = mapModel.getAsXml();
+
+   blobContent = new Blob(mapAsXml, {type: "text/xml"});
+   blobUrl = URL.createObjectURL(blobContent);
+
+   //--------------------------------------------------------------------------
+   // Create the div that contains the exported map.
+   // Having a blob link is nice to just click and download all in one step.
+   // Also need the raw XML to copy/paste, since iOS Safari doesn't support
+   // the <a> download attribute
+   //--------------------------------------------------------------------------
    html = `<div id='${ExportDialog.DIALOG_ID}' class='popup' style='height:` +
              `${Sizer.popupHeight}px'>` +
              "<p>Copy text below, or scroll to bottom for download link.</p>" +
