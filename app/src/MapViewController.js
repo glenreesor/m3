@@ -51,11 +51,15 @@ export function MapViewController(controller) {
       scroll: {
          currentTranslationX: 0,
          currentTranslationY: 0,
-         lastScreenX: null,
-         lastScreenY: null,
+         lastScreenX: 0,
+         lastScreenY: 0
+      },
+      velocityCalc: {
+         lastScreenX: 0,
+         lastScreenY: 0,
          previousTime: 0,
-         velocityX: 0,
-         velocityY: 0
+         vx: 0,
+         vy: 0
       }
    };
 
@@ -317,8 +321,8 @@ MapViewController.prototype._inertiaScroll = function _inertiaScroll() {
 
    // Update timestamps so we can calculate velocity
    now = Date.now();
-   deltaT = now - this._state.scroll.previousTime;
-   this._state.scroll.previousTime = now;
+   deltaT = now - this._state.velocityCalc.previousTime;
+   this._state.velocityCalc.previousTime = now;
 
    // Update positions
    oldX = this._state.scroll.currentTranslationX;
@@ -363,24 +367,19 @@ MapViewController.prototype._interactionMove = function _interactionMove(
    let deltaY;
    let newVx;
    let newVy;
-   let newScreenX;
-   let newScreenY;
    let now;
 
    //-------------------------------------------------------------------------
    // Calculate and record position information
    //-------------------------------------------------------------------------
-   newScreenX = screenX;
-   newScreenY = screenY;
-
-   deltaX = newScreenX - this._state.scroll.lastScreenX;
-   deltaY = newScreenY - this._state.scroll.lastScreenY;
+   deltaX = screenX - this._state.scroll.lastScreenX;
+   deltaY = screenY - this._state.scroll.lastScreenY;
 
    this._state.scroll.currentTranslationX += deltaX;
    this._state.scroll.currentTranslationY += deltaY;
 
-   this._state.scroll.lastScreenX = newScreenX;
-   this._state.scroll.lastScreenY = newScreenY;
+   this._state.scroll.lastScreenX = screenX;
+   this._state.scroll.lastScreenY = screenY;
 
    //-------------------------------------------------------------------------
    // Do the move
@@ -391,40 +390,22 @@ MapViewController.prototype._interactionMove = function _interactionMove(
 
    //-------------------------------------------------------------------------
    // Calculate new velocity (pixels / millisecond)
-   // Make sure we don't get NaN or infinity velocities (Mobile Firefox likes
-   // to do that)
+   // Sample every 50ms to smooth out erratic touch readings
    //-------------------------------------------------------------------------
    now = Date.now();
-   deltaT = now - this._state.scroll.previousTime;
-   this._state.scroll.previousTime = now;
+   deltaT = now - this._state.velocityCalc.previousTime;
+   if (deltaT > 50) {
+      this._state.velocityCalc.previousTime = now;
 
-   newVx = deltaT > 0 ? deltaX / deltaT : 0;
-   newVy = deltaT > 0 ? deltaY / deltaT : 0;
+      deltaX = screenX - this._state.velocityCalc.lastScreenX;
+      deltaY = screenY - this._state.velocityCalc.lastScreenY;
 
-   // NaN or Super high velocities correspond to eratic behavior
-   if (!newVx) {
-      newVx = 0;
+      this._state.velocityCalc.lastScreenX = screenX;
+      this._state.velocityCalc.lastScreenY = screenY;
+
+      this._state.velocityCalc.vx = deltaX / deltaT;
+      this._state.velocityCalc.vy = deltaY / deltaT;
    }
-
-   if (!newVy) {
-      newVy = 0;
-   }
-
-   // Super high velocities correspond to eratic behavior
-   if (Math.abs(newVx) > 1) {
-      newVx = Math.sign(newVx);
-   }
-
-   if (Math.abs(newVy) > 1) {
-      newVy = Math.sign(newVy);
-   }
-
-   // Do some averaging between new and old velocity to smooth out eratic
-   // movements
-   this._state.scroll.velocityX = 0.8 * newVx +
-                                  0.2 * this._state.scroll.velocityX;
-   this._state.scroll.velocityY = 0.8 * newVy +
-                                  0.2 * this._state.scroll.velocityY;
 }; // _interactionMove()
 
 /**
@@ -441,9 +422,11 @@ MapViewController.prototype._interactionStart = function _interactionStart(
 ) {
    this._state.scroll.lastScreenX = screenX;
    this._state.scroll.lastScreenY = screenY;
-   this._state.scroll.previousTime = Date.now();
-   this._state.scroll.velocityX = 0;
-   this._state.scroll.velocityY = 0;
+   this._state.velocityCalc.lastScreenX = screenX;
+   this._state.velocityCalc.lastScreenY = screenY;
+   this._state.velocityCalc.previousTime = Date.now();
+   this._state.velocityCalc.vx = 0;
+   this._state.velocityCalc.vy = 0;
 }; // _interactionStart()
 
 /**
@@ -459,8 +442,8 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
    // If both velocities are zero, there's no inertia scrolling to be done
    //-------------------------------------------------------------------------
    if (
-      this._state.scroll.velocityX === 0 &&
-      this._state.scroll.velocityY === 0
+      this._state.velocityCalc.vx === 0 &&
+      this._state.velocityCalc.vy === 0
    ) {
       return;
    }
@@ -487,8 +470,8 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
    const INITIAL_POSITION_X = this._state.scroll.currentTranslationX;
    const INITIAL_POSITION_Y = this._state.scroll.currentTranslationY;
    const INITIAL_T = Date.now();
-   const INITIAL_VX = this._state.scroll.velocityX;
-   const INITIAL_VY = this._state.scroll.velocityY;
+   const INITIAL_VX = this._state.velocityCalc.vx;
+   const INITIAL_VY = this._state.velocityCalc.vy;
 
    /**
     * Function to calculate the next X position, using our inertial algorithm
