@@ -109,7 +109,7 @@ EditNodeDialog.prototype.close = function close() {
    // can use addchild or addSibling to create anything without having
    // to select a different node first.
    this._controller.getMapViewController().setSelectedNodeView(
-      this._controller.getNodeView(this._nodeToEdit));
+      this._nodeToEdit.getView());
 }; // close()
 
 /**

@@ -23,6 +23,7 @@ import {Diagnostics} from "./Diagnostics";
 import {Font} from "./Font";
 import {LinkTarget} from "./LinkTarget";
 import {createXml, loadXml} from "./xmlHelpers";
+import {NodeView} from "./NodeView";
 import {RichContent} from "./RichContent";
 import {m3App} from "./main";
 
@@ -55,6 +56,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
                           parsedXml) {
    this._controller = controller;
    this._myMapModel = myMapModel;
+   this._myView = null;
 
    // Set defaults (that may get overridden if loading from XML)
    this._parent = parent;
@@ -418,6 +420,19 @@ NodeModel.prototype.getText = function getText() {
 NodeModel.prototype.getTextColor = function getTextColor() {
    return this._textColor;
 }; // getTextColor()
+
+/**
+ * Get this NodeModel's view, creating it on the fly if
+ * required.
+ *
+ * @return {NodeView} - this NodeModel's NodeView
+ */
+NodeModel.prototype.getView = function getView() {
+   if (this._myView === null) {
+      this._myView = new NodeView(this._controller, this);
+   }
+   return this._myView;
+}; // getView()
 
 /**
  * Return whether this node has a cloud or not
