@@ -102,7 +102,7 @@ NodeView.prototype.calcDimensions = function calcDimensions() {
        !this._myNodeModel.isFolded()) {
 
       this._myNodeModel.getChildren().forEach( (child) => {
-         this._controller.getNodeView(child).calcDimensions();
+         child.getView().calcDimensions();
       });
    }
 
@@ -332,7 +332,7 @@ NodeView.prototype.drawAt =
          if (this._myNodeModel.isFolded()) {
             // I'm folded, so hide my children
             this._myNodeModel.getChildren().forEach( (child) => {
-               this._controller.getNodeView(child).setVisible(false);
+               child.getView().setVisible(false);
             });
          } else {
             this._drawChildren(this._mySide);
@@ -383,7 +383,7 @@ NodeView.prototype._drawChildren = function _drawChildren(side) {
    //---------------------------------------------------------------------------
    this._myNodeModel.getChildren().forEach( (child) => {
       if (child.getSide() === side) {
-         childView = this._controller.getNodeView(child);
+         childView = child.getView();
 
          // Position child properly
          if (side === NodeModel.POSITION_LEFT) {
@@ -416,6 +416,15 @@ NodeView.prototype.drawGraphicalLinks = function drawGraphicalLinks() {
       graphicalLink.draw();
    });
 }; // drawGraphicalLinks()
+
+/**
+ * Get the width of this NodeView's bubble.
+ *
+ * @return {number} - the width of this node's bubble
+ */
+NodeView.prototype.getBubbleWidth = function getBubbleWidth() {
+   return this._myBubble.getWidth();
+}; //getBubbleWidth()
 
 /**
  * Get the coordinates where a graphical link (either endpoint or beginning)
@@ -463,15 +472,21 @@ NodeView.prototype.getMaxChildTotalWidth =
       this._myNodeModel.getChildren().forEach( (child) => {
          if (child.getSide() === side) {
             returnValue = Math.max(returnValue,
-                                   this._controller.getNodeView(child)
-                                      .getTotalWidth()
-                                  );
+                                   child.getView().getTotalWidth());
          }
       });
    }
 
    return returnValue;
 }; // getMaxChildTotalWidth()
+
+/**
+ * Get the NodeModel associated with this view
+ * @return {NodeModel} - This view's NodeModel
+ */
+NodeView.prototype.getModel = function getModel() {
+   return this._myNodeModel;
+}; // getModel()
 
 /**
  * Get the total height of all my children. This includes clouds and separation
@@ -491,7 +506,7 @@ NodeView.prototype.getTotalChildrenHeight =
    if (this._myNodeModel.isFolded() !== true) {
       this._myNodeModel.getChildren().forEach( (child) => {
          if (child.getSide() === side) {
-            totalHeight += this._controller.getNodeView(child).getTotalHeight();
+            totalHeight += child.getView().getTotalHeight();
             numChildrenOnSide += 1;
          }
       });
@@ -501,14 +516,6 @@ NodeView.prototype.getTotalChildrenHeight =
 
    return totalHeight;
 }; // getTotalChildrenHeight()
-
-/**
- * Get the NodeModel associated with this view
- * @return {NodeModel} - This view's NodeModel
- */
-NodeView.prototype.getModel = function getModel() {
-   return this._myNodeModel;
-}; // getModel()
 
 /**
  * Get the total height of this NodeView. This includes all components
@@ -529,16 +536,6 @@ NodeView.prototype.getTotalHeight = function getTotalHeight() {
 NodeView.prototype.getTotalWidth = function getTotalWidth() {
    return this._myTotalWidth;
 }; //getTotalWidth()
-
-/**
- * Get the width of this NodeView's bubble.
- *
- * @return {number} - the width of this node's bubble
- */
-NodeView.prototype.getBubbleWidth = function getBubbleWidth() {
-   return this._myBubble.getWidth();
-}; //getBubbleWidth()
-
 /**
  * Return whether this NodeView is visible or not
  * @return {boolean} - Whether this NodeView is visible (true) or not (false)
@@ -603,7 +600,7 @@ NodeView.prototype.setVisible = function setVisible(visible) {
    // Make all of my children visible/hidden
    //--------------------------------------------------------------------------
    this._myNodeModel.getChildren().forEach( (child) => {
-      this._controller.getNodeView(child).setVisible(visible);
+      child.getView().setVisible(visible);
    });
 }; // setVisible()
 

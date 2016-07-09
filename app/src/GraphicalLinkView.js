@@ -59,7 +59,6 @@ GraphicalLinkView.prototype.deleteSvg = function deleteSvg() {
  * @return {void}
  */
 GraphicalLinkView.prototype.draw = function draw() {
-   let controller = m3App.getController();
    let destCoords;
    let destNodeView;
    let destMultiplier;
@@ -84,17 +83,17 @@ GraphicalLinkView.prototype.draw = function draw() {
    while (srcNodeView.isVisible() !== true) {
       oneEndHidden = true;
       parentModel = srcNodeView.getModel().getParent();
-      srcNodeView = controller.getNodeView(parentModel);
+      srcNodeView = parentModel.getView();
    }
 
    //--------------------------------------------------------------------------
    // Dest Node: Make sure link ends at a visible node
    //--------------------------------------------------------------------------
-   destNodeView = controller.getNodeView(this._arrowLink.getDestinationNode());
+   destNodeView = this._arrowLink.getDestinationNode().getView();
    while (destNodeView.isVisible() !== true) {
       oneEndHidden = true;
       parentModel = destNodeView.getModel().getParent();
-      destNodeView = controller.getNodeView(parentModel);
+      destNodeView = parentModel.getView();
    }
 
    //--------------------------------------------------------------------------

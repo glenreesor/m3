@@ -30,16 +30,14 @@ import {NodeView} from "./NodeView";
  * @constructor
  */
 export function Controller() {
-   this._nodeViews = new Map();
-
    this._appButtons = new AppButtons(this);
    this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map",
                                  null);
    this._mapViewController = new MapViewController(this);
 
-   this.createNodeView(this._mapModel.getRoot());
+   this._rootNodeView = this._mapModel.getRoot().getView();
    this.redrawMain();
-} // controller()
+} // Controller()
 
 /**
  * Add a child to the specified node
@@ -61,8 +59,7 @@ Controller.prototype.addChild = function addChild(parent) {
    //--------------------------------------------------------------------------
 
    // It might not have had a folding icon before
-   this.getNodeView(parent).update();
-   this.createNodeView(child);
+   parent.getView().update();
    this.redrawMain();
 
 
@@ -89,7 +86,6 @@ Controller.prototype.addChildAfter = function addChildAfter(parent,
    //    - Add the child with default text
    //--------------------------------------------------------------------------
    child = parent.addChildAfter(relativeChild, "New Node");
-   this.createNodeView(child);
    this.redrawMain();
 
    // Allow user to edit the default text. EditNodeDialog handles telling
@@ -114,27 +110,12 @@ Controller.prototype.changeNodeText = function changeNodeText(node, text) {
    //--------------------------------------------------------------------------
    // Update the view
    //--------------------------------------------------------------------------
-   this.getNodeView(node).update();
+   node.getView().update();
    this.redrawMain();
 }; // changeNodeText()
 
 /**
- * Create a nodeView for the specified NodeModel
- *
- * @param {NodeModel} nodeModel - the NodeModel that needs a view created
- * @return {NodeView} - the new NodeView
- */
-Controller.prototype.createNodeView = function createNodeView(nodeModel) {
-   let newNodeView;
-
-   newNodeView = new NodeView(this, nodeModel);
-   this._nodeViews.set(nodeModel.getId(), newNodeView);
-
-   return newNodeView;
-}; // createNodeView()
-
-/**
- * Delete the specified node from the specified parent
+ * Delete the specified node from its parent
  *
  * @param {NodeModel} node - the node to be deleted
  * @return {void}
@@ -148,13 +129,12 @@ Controller.prototype.deleteNode = function deleteNode(node) {
    parent.deleteChild(node);
 
    //--------------------------------------------------------------------------
-   // Update the views
+   // Update the view
    //--------------------------------------------------------------------------
-   this.getNodeView(parent).update();
    this._deleteView(node);
+   parent.getView().update();
    this.redrawMain();
 }; // deleteNode()
-
 /**
  * Delete the specified view (and all child views)
  *
@@ -167,12 +147,10 @@ Controller.prototype._deleteView = function _deleteView(node) {
       this._deleteView(child);
    });
 
-   // Delete the specified node
-
    // Deletes all svg elements and listeners
-   this.getNodeView(node).deleteMyself();
-   this._nodeViews.delete(node.getId());
+   node.getView().deleteMyself();
 }; // _deleteView()
+
 
 /**
  * Return the current mapModel.
@@ -195,24 +173,6 @@ Controller.prototype.getMapViewController = function getMapViewController() {
 }; // getMapViewController()
 
 /**
- * Get the view for the specified model. If it doesn't exist, create it
- *
- * @param {NodeModel} nodeModel - The NodeModel whose corresponding NodeView is
- *                                to be returned
- * @return {NodeView} - The newly created NodeView
- */
-Controller.prototype.getNodeView = function getNodeView(nodeModel) {
-   let nodeView;
-
-   nodeView = this._nodeViews.get(nodeModel.getId());
-   if (nodeView === undefined) {
-      nodeView = this.createNodeView(nodeModel);
-   }
-
-   return nodeView;
-}; // getNodeView()
-
-/**
  * Abandon current map (model and views) and create a new one
  *
  * @param {String} type - One of MapModel.TYPE_{EMPTY, XML}
@@ -222,9 +182,9 @@ Controller.prototype.getNodeView = function getNodeView(nodeModel) {
  * @return {void}
  */
 Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
-   this._deleteView(this._mapModel.getRoot());   // Recursively delete all nodes
+   this._deleteView(this._mapModel.getRoot());  // Recursively delete all nodes
    this._mapModel = new MapModel(this, type, dbKey, mapName, xml);
-   this.createNodeView(this._mapModel.getRoot());
+   this._rootNodeView = this._mapModel.getRoot().getView();
    this._mapViewController.reset();
    this.redrawMain();
 }; // newMap()
@@ -270,7 +230,7 @@ Controller.prototype.toggleCloud = function toggleCloud(node) {
    //--------------------------------------------------------------------------
    // Update the view
    //--------------------------------------------------------------------------
-   this.getNodeView(node).update();
+   node.getView().update();
    this.redrawMain();
 }; // toggleCloud()
 
@@ -289,7 +249,7 @@ Controller.prototype.toggleFoldedStatus = function toggleFoldedStatus(node) {
    //--------------------------------------------------------------------------
    // Update the view
    //--------------------------------------------------------------------------
-   this.getNodeView(node).update();
+   node.getView().update();
    this.redrawMain();
 }; // toggleFoldedStatus()
 
@@ -304,7 +264,7 @@ Controller.prototype.redrawGraphicalLinks =
    function redrawGraphicalLinks(nodeModel) {
 
    // Draw the graphical links for the specified node
-   this.getNodeView(nodeModel).drawGraphicalLinks();
+   nodeModel.getView().drawGraphicalLinks();
 
    // Draw the graphical links for all children of this node
    nodeModel.getChildren().forEach( (child) => {
@@ -318,7 +278,7 @@ Controller.prototype.redrawGraphicalLinks =
  * @return {void}
  */
 Controller.prototype.redrawMain = function redrawMain() {
-   this.getNodeView(this._mapModel.getRoot()).calcDimensions();
-   this.getNodeView(this._mapModel.getRoot()).drawAt(100, 200, null, null);
+   this._rootNodeView.calcDimensions();
+   this._rootNodeView.drawAt(100, 200, null, null);
    this.redrawGraphicalLinks(this._mapModel.getRoot());
 }; // redraw()
