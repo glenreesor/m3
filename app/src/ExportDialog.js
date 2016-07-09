@@ -29,12 +29,36 @@ import {State} from "./State";
 export function ExportDialog() {
    let blobContent;
    let blobUrl;
+   let dateNow;
    let domParser;
    let filename;
    let html;
    let htmlAsDoc;
    let mapAsXml;
-   let dateNow;
+   let mapModel;
+
+   mapModel = m3App.getController().getMapModel();
+
+   //--------------------------------------------------------------------------
+   // We're going to have a download link, so create the filename
+   //--------------------------------------------------------------------------
+   dateNow = new Date(Date.now());
+   filename = 'm3-' +
+              mapModel.getMapName() + '-' +
+              dateNow.getFullYear() + '-' +
+              this._padNumber(dateNow.getMonth() + 1) + '-' + // Zero-based OMG
+              this._padNumber(dateNow.getDate()) + '::' +
+              this._padNumber(dateNow.getHours()) + ':' +
+              this._padNumber(dateNow.getMinutes()) + ':' +
+              this._padNumber(dateNow.getSeconds());
+
+   //--------------------------------------------------------------------------
+   // Map will be downloadable as a blob
+   //--------------------------------------------------------------------------
+   mapAsXml = mapModel.getAsXml();
+
+   blobContent = new Blob(mapAsXml, {type: "text/xml"});
+   blobUrl = URL.createObjectURL(blobContent);
 
    //--------------------------------------------------------------------------
    // Create the div that contains the exported map.
@@ -42,20 +66,6 @@ export function ExportDialog() {
    // Also need the raw XML to copy/paste, since iOS Safari doesn't support
    // the <a> download attribute
    //--------------------------------------------------------------------------
-   mapAsXml = m3App.getController().getMapModel().getAsXml();
-
-   blobContent = new Blob(mapAsXml, {type: "text/xml"});
-   blobUrl = URL.createObjectURL(blobContent);
-   dateNow = new Date(Date.now());
-
-   filename = 'm3 - ' +
-              dateNow.getFullYear() + '-' +
-              (dateNow.getMonth() + 1) + '-' + // OMG getMonth() is zero-based
-              dateNow.getDate() + '::' +
-              dateNow.getHours() + ':' +
-              dateNow.getMinutes() + ':' +
-              dateNow.getSeconds();
-
    html = `<div id='${ExportDialog.DIALOG_ID}' class='popup' style='height:` +
              `${Sizer.popupHeight}px'>` +
              "<p>Copy text below, or scroll to bottom for download link.</p>" +
@@ -117,3 +127,22 @@ ExportDialog.prototype.close = function close() {
 
    m3App.getGlobalState().setState(State.STATE_IDLE);
 }; // close()
+
+/**
+ * Ensure the specified number is two digits by padding with a leading 0
+ * if required.
+ *
+ * @param {number} number - The number to pad
+ *
+ * @return {string} - The 0-padded number
+ */
+ExportDialog.prototype._padNumber = function _padNumber(number) {
+   let padding;
+
+   padding = "";
+   if (number < 10) {
+      padding = "0";
+   }
+
+   return padding + number;
+};
