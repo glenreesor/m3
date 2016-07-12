@@ -157,15 +157,8 @@ RichTextView.prototype.update = function update() {
       appHtmlSizing.style.width = width + "px";
    }
 
-   // If we hit 0, there was never any wrap, so we've got something like a
-   // single word. Pick an arbitrary width that's not too big and not too small,
-   // but just right.
-   if (width === 0) {
-      width = 150;
-   } else {
-      // Back to the last width before the content wrapped
-      width += 10;
-   }
+   // Back to the last width before the content wrapped
+   width += 10;
 
    appHtmlSizing.style.width = width + "px";
 
