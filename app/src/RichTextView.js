@@ -19,6 +19,8 @@
 
 import {m3App} from "./main";
 
+const MAX_WIDTH = 400;
+
 /**
  * A RichTextView creates and maintains the SVG elements to show HTML text
  * associated with a node text
@@ -122,12 +124,17 @@ RichTextView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 RichTextView.prototype.update = function update() {
+   let appHtmlSizing;
    let domParser;
+   let height;
    let richTextAsDoc;
    let richTextRootNode;
+   let width;
 
    //-----------------------------------------------------------------------
-   // First figure out dimensions by adding temporily to app-html-sizing div
+   // Determine the smallest width required for this richtext by starting at
+   // MAX_WIDTH pixels and decreasing until it forces a wrap (which we detect
+   // by a change in height).
    //
    // Note: The size of this html is affected by m3.css. In particular,
    //       if margin-top for <body> is non-zero, we don't get the correct
@@ -138,10 +145,28 @@ RichTextView.prototype.update = function update() {
                                              "text/html");
    richTextRootNode = document.importNode(richTextAsDoc.documentElement, true);
 
-   document.getElementById("app-html-sizing").appendChild(richTextRootNode);
+   appHtmlSizing = document.getElementById("app-html-sizing");
+   appHtmlSizing.appendChild(richTextRootNode);
+
+   width = MAX_WIDTH;
+   appHtmlSizing.style.width = width + "px";
+   height = richTextRootNode.clientHeight;
+
+   while (width > 0 && richTextRootNode.clientHeight === height) {
+      width -= 10;
+      appHtmlSizing.style.width = width + "px";
+   }
+
+   // Back to the last width before the content wrapped
+   width += 10;
+
+   appHtmlSizing.style.width = width + "px";
+
    this._width = richTextRootNode.clientWidth;
    this._height = richTextRootNode.clientHeight;
 
+   // SVG must be explicitly sized because it doesn't take the dimensions
+   // of containing object
    this._svgText.setAttribute("width", this._width + "px");
    this._svgText.setAttribute("height", this._height + "px");
 

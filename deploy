@@ -23,9 +23,13 @@ main() {
 
    ##-------------------------------------------------------------------------
    ## Make destination folder and set proper permissions
+   ## Don't be tempted to just `find`, because it'll set permissions on
+   ## previously created folders, which may be inappropriate
    ##-------------------------------------------------------------------------
    mkdir -p $timeStampedFolder
-   find /var/www/html/m3 -type d -exec chmod 0755 {} \;
+   chmod 0755 /var/www/html/m3
+   chmod 0755 "/var/www/html/m3/$dateFolder"
+   chmod 0755 "/var/www/html/m3/$dateFolder/$timeFolder"
 
    ##-------------------------------------------------------------------------
    ## Do it
