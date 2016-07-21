@@ -38,8 +38,8 @@ export function RichTextView(nodeView, nodeModel) {
    //---------------------------------------------------------------------------
    // One-time creation of required html/svg elements
    //---------------------------------------------------------------------------
-   this._svgText = document.createElementNS(SVGNS, "foreignObject");
-   document.getElementById("svgTextLayer").appendChild(this._svgText);
+   this._container = document.createElementNS(SVGNS, "foreignObject");
+   document.getElementById("svgTextLayer").appendChild(this._container);
 
    //---------------------------------------------------------------------------
    // .bind() effectively produces a new function *each* time, thus can't use
@@ -47,7 +47,7 @@ export function RichTextView(nodeView, nodeModel) {
    // So keep it here for future reference when removing the listener
    //---------------------------------------------------------------------------
    this._boundClickListener = this._clickListener.bind(this);
-   this._svgText.addEventListener("click", this._boundClickListener);
+   this._container.addEventListener("click", this._boundClickListener);
 
    //---------------------------------------------------------------------------
    // Now update with information from corresponding nodeModel
@@ -72,8 +72,8 @@ RichTextView.prototype._clickListener = function _clickListener() {
  * @return {void}
  */
 RichTextView.prototype.deleteSvg = function deleteSvg() {
-   this._svgText.removeEventListener("click", this._boundClickListener);
-   document.getElementById("svgTextLayer").removeChild(this._svgText);
+   this._container.removeEventListener("click", this._boundClickListener);
+   document.getElementById("svgTextLayer").removeChild(this._container);
 }; // deleteSvg()
 
 /**
@@ -102,8 +102,8 @@ RichTextView.prototype.setPosition = function setPosition(x, y) {
    //-------------------------------------------------------------------------
    // Note: Coords of html text correspond to TOP left corner
    //-------------------------------------------------------------------------
-   this._svgText.setAttribute("x", x);
-   this._svgText.setAttribute("y", y - this._height/2);
+   this._container.setAttribute("x", x);
+   this._container.setAttribute("y", y - this._height/2);
 }; // setPosition()
 
 /**
@@ -113,9 +113,9 @@ RichTextView.prototype.setPosition = function setPosition(x, y) {
  */
 RichTextView.prototype.setVisible = function setVisible(visible) {
    if (visible) {
-      this._svgText.setAttribute("visibility", "visible");
+      this._container.setAttribute("visibility", "visible");
    } else {
-      this._svgText.setAttribute("visibility", "hidden");
+      this._container.setAttribute("visibility", "hidden");
    }
 }; // setVisible()
 
@@ -124,62 +124,66 @@ RichTextView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 RichTextView.prototype.update = function update() {
-   let appHtmlSizing;
    let domParser;
    let height;
    let richTextAsDoc;
    let richTextRootNode;
-   let width;
+   let testWidth;
+   let width1;
+   let width2;
 
    //-----------------------------------------------------------------------
-   // Determine the smallest width required for this richtext by starting at
-   // MAX_WIDTH pixels and decreasing until it forces a wrap (which we detect
-   // by a change in height).
-   //
-   // Note: The size of this html is affected by m3.css. In particular,
-   //       if margin-top for <body> is non-zero, we don't get the correct
-   //       height, because clientHeight doesn't include margins.
+   // Delete any existing child nodes (i.e. html text before this update
+   // happened).
+   //-----------------------------------------------------------------------
+   while (this._container.childNodes.length > 0) {
+      this._container.removeChild(this._container.childNodes[0]);
+   }
+
+   //-----------------------------------------------------------------------
+   // Add our rich text to the <foreignObject> container
    //-----------------------------------------------------------------------
    domParser = new DOMParser();
    richTextAsDoc = domParser.parseFromString(this._myNodeModel.getRichText(),
                                              "text/html");
    richTextRootNode = document.importNode(richTextAsDoc.documentElement, true);
+   this._container.appendChild(richTextRootNode);
 
-   appHtmlSizing = document.getElementById("app-html-sizing");
-   appHtmlSizing.appendChild(richTextRootNode);
+   // <foreignObject> dimensions default to 0x0.
+   // Give a super high height so the html is not restricted while we're
+   // determining optimal width below
+   this._container.setAttribute('height', 10000);
 
-   width = MAX_WIDTH;
-   appHtmlSizing.style.width = width + "px";
+   //-----------------------------------------------------------------------
+   // Determine the smallest width required for this richtext by starting at
+   // MAX_WIDTH pixels and doing a binary search to find the point where
+   // height changes, with a tolerance of 10 pixels.
+   //
+   // Note: The size of this html is affected by m3.css. In particular,
+   //       if margin-top for <body> is non-zero, we don't get the correct
+   //       height, because clientHeight doesn't include margins.
+   //-----------------------------------------------------------------------
+   width1 = 10;
+   width2 = MAX_WIDTH;
+   this._container.setAttribute('width', width2);
    height = richTextRootNode.clientHeight;
 
-   while (width > 0 && richTextRootNode.clientHeight === height) {
-      width -= 10;
-      appHtmlSizing.style.width = width + "px";
+   while (width2 - width1 > 10) {
+      testWidth = Math.floor((width2 - width1)/2) + width1;
+      this._container.setAttribute('width', testWidth);
+
+      if (richTextRootNode.clientHeight === height) {
+         // Height still hasn't changed, so narrow down in the lower half
+         width2 = testWidth;
+      } else {
+         // Height changed, so narrow down in the upper half
+         width1 = testWidth;
+      }
    }
 
-   // Back to the last width before the content wrapped
-   width += 10;
+   this._container.setAttribute('width', width2);
+   this._container.setAttribute('height', richTextRootNode.clientHeight);
 
-   appHtmlSizing.style.width = width + "px";
-
-   this._width = richTextRootNode.clientWidth;
+   this._width = width2;
    this._height = richTextRootNode.clientHeight;
-
-   // SVG must be explicitly sized because it doesn't take the dimensions
-   // of containing object
-   this._svgText.setAttribute("width", this._width + "px");
-   this._svgText.setAttribute("height", this._height + "px");
-
-   //-----------------------------------------------------------------------
-   // Delete any existing child nodes (i.e. html text before this update
-   // happened).
-   //
-   // Note: Adding the rich text node to this._myText unlinks it from
-   //       app-html-sizing
-   //-----------------------------------------------------------------------
-   while (this._svgText.childNodes.length >0) {
-      this._svgText.removeChild(this._svgText.childNodes[0]);
-   }
-
-   this._svgText.appendChild(richTextRootNode);
 }; // update()
