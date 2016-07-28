@@ -33,6 +33,7 @@ export function EditNodeDialog(controller, nodeToEdit) {
    this._controller = controller;
    this._nodeToEdit = nodeToEdit;
 
+   let allText;
    let domParser;
    let html;
    let htmlAsDoc;
@@ -76,8 +77,15 @@ export function EditNodeDialog(controller, nodeToEdit) {
    //--------------------------------------------------------------------------
    // Populate the input field, give it focus, and select all the text
    //--------------------------------------------------------------------------
+   allText = '';
+   this._nodeToEdit.getText().forEach( function(line, index) {
+      if (index !== 0) {
+         allText += '\n';
+      }
+      allText += line;
+   });
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).value =
-      this._nodeToEdit.getText();
+      allText;
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).select();
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).focus();
 } // EditNodeDialog()
@@ -132,6 +140,6 @@ EditNodeDialog.prototype.keyPress = function keyPress(e) {
  */
 EditNodeDialog.prototype.save = function save() {
    this._controller.changeNodeText(this._nodeToEdit,
-      document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID).value);
+      [document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID).value]);
    this.close();
 }; // save()

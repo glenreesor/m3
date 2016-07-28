@@ -44,13 +44,14 @@ const EXPECTED_EMBEDDED_TAGS = ["arrowlink", "cloud", "font", "linktarget",
  *
  * @constructor
  * @param {Controller} controller - The controller for this app
- * @param {MapModel} myMapModel - The MapModel this NodeModel is in
- * @param {string} newType - What type of new node is this?
- *                           (See NodeModel.TYPE*)
- * @param {NodeModel} parent - The parent of this new NodeModel
- * @param {string} text - The text for this node (if type NEW)
- * @param {Element} parsedXml - The parsed xml used to create this node
-                                (if type XML)
+ * @param {MapModel} myMapModel   - The MapModel this NodeModel is in
+ * @param {string} newType        - What type of new node is this?
+ *                                  (See NodeModel.TYPE*)
+ * @param {NodeModel} parent      - The parent of this new NodeModel
+ * @param {string[]} text         - The text for this node (if type NEW)
+ *                                  each element corresponds to one line of text
+ * @param {Element} parsedXml     - The parsed xml used to create this node
+                                    (if type XML)
  */
 export function NodeModel(controller, myMapModel, newType, parent, text,
                           parsedXml) {
@@ -183,6 +184,7 @@ NodeModel.prototype.getAsXml = function getAsXml() {
    let i;
    let attributes;
    let embeddedTags;
+   let allLines;
    let xml = [];
    let tempText;           // Used for removing special XML characters
 
@@ -196,14 +198,25 @@ NodeModel.prototype.getAsXml = function getAsXml() {
    attributes.set("MODIFIED", this._modified);
 
    if (this._text !== null) {
-      // Remove the following from text: & < > " '
-      // Assume the user isn't using XML entities in their text :-)
-      tempText = this._text.replace(new RegExp("&", "g"), "&amp;");
-      tempText = tempText.replace(new RegExp("<", "g"), "&lt;");
-      tempText = tempText.replace(new RegExp(">", "g"), "&gt;");
-      tempText = tempText.replace(new RegExp('"', "g"), "&quot;");
-      tempText = tempText.replace(new RegExp("'", "g"), "&apos;");
-      attributes.set("TEXT", tempText);
+      allLines = '';
+
+      // Loop through each line of text, adding an escape newline character
+      // where required.
+      this._text.forEach( function(line, index) {
+         // Remove the following from text: & < > " '
+         tempText = line.replace(new RegExp("&", "g"), "&amp;");
+         tempText = tempText.replace(new RegExp("<", "g"), "&lt;");
+         tempText = tempText.replace(new RegExp(">", "g"), "&gt;");
+         tempText = tempText.replace(new RegExp('"', "g"), "&quot;");
+         tempText = tempText.replace(new RegExp("'", "g"), "&apos;");
+
+         if (index !== 0) {
+            allLines += '&#xa;' + tempText;
+         } else {
+            allLines = tempText;
+         }
+      });
+      attributes.set("TEXT", allLines);
    }
 
    // Only save the position for children of the root
@@ -406,7 +419,8 @@ NodeModel.prototype.getSide = function getSide() {
 /**
  * Return the text for this node
  *
- * @return {String} - the text for this node
+ * @return {String[]} - the text for this node. Each element in the array
+ *                      corresponds to one line of text.
  */
 NodeModel.prototype.getText = function getText() {
    return this._text;
@@ -501,7 +515,8 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    this._id = loadedAttributes.get("ID");
    this._modified = loadedAttributes.get("MODIFIED");
    this._position = loadedAttributes.get("POSITION");
-   this._text = loadedAttributes.get("TEXT");
+
+   this._text = loadedAttributes.get("TEXT").split('\n');
 
    this._unexpectedAttributes = unexpectedAttributes;
 

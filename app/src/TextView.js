@@ -19,6 +19,9 @@
 
 import {m3App} from "./main";
 
+const MAX_WIDTH = 400;
+const SVGNS = "http://www.w3.org/2000/svg";
+
 /**
  * A TextView creates and maintains the SVG elements to show unformatted text
  * associated with a node text
@@ -28,18 +31,16 @@ import {m3App} from "./main";
  * @param {NodeModel} nodeModel - the NodeModel corresponding to this bubble
  */
 export function TextView(nodeView, nodeModel) {
-   const SVGNS = "http://www.w3.org/2000/svg";
-
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
+   this._characterHeight = 0;
+   this._x = 0;    // Need to retain this for the width optimizer
 
    //---------------------------------------------------------------------------
    // One-time creation of required html/svg elements
    //---------------------------------------------------------------------------
    this._svgText = document.createElementNS(SVGNS, "text");
 
-   // Will be replaced by update()
-   this._svgText.appendChild(document.createTextNode(""));
    document.getElementById("svgTextLayer").appendChild(this._svgText);
 
    //---------------------------------------------------------------------------
@@ -100,11 +101,28 @@ TextView.prototype.getWidth = function getWidth() {
  * @return {void}
  */
 TextView.prototype.setPosition = function setPosition(x, y) {
+   let i;
+   let newY;
+   let tspans;
+
    //-------------------------------------------------------------------------
-   // Note: Coords of svg text correspond to bottom left corner
+   // Note: Coords of svg text correspond to bottom left corner of the first
+   //       <tspan>, thus need to shift up to center properly.
    //-------------------------------------------------------------------------
-   this._svgText.setAttribute("x", x);
-   this._svgText.setAttribute("y", y + this.getHeight()/2);
+   tspans = this._svgText.getElementsByTagNameNS(SVGNS, 'tspan');
+   newY = y + this.getHeight()/2 - (tspans.length-1) * this._characterHeight;
+
+   for (i = 0; i < tspans.length; i++) {
+      tspans[i].setAttribute('x', x);
+      tspans[i].setAttribute('y', newY + this._characterHeight * i);
+   }
+
+   // When determining length of line that will fit within max width,
+   // the tspans need to be positioned at the same x coordinate as the
+   // enclosing <text> tag, to ensure width calculation is correct. So keep
+   // a copy of it.
+   this._x = x;
+
 }; // setPosition()
 
 /**
@@ -125,8 +143,13 @@ TextView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 TextView.prototype.update = function update() {
-   this._svgText.childNodes[0].data = this._myNodeModel.getText();
+   let i;
+   let tspans;
 
+   //--------------------------------------------------------------------------
+   // Set font attributes first so the width of the tspans will be correct for
+   // the algorithm that splits lines.
+   //--------------------------------------------------------------------------
    if (this._myNodeModel.getFont() === null) {
       this._svgText.setAttribute("font-size", "12");
       this._svgText.setAttribute("font-family", "verdana");
@@ -142,5 +165,190 @@ TextView.prototype.update = function update() {
       this._svgText.setAttribute("font-size",
                                  this._myNodeModel.getFont().getSize());
    }
+
    this._svgText.setAttribute("fill", this._myNodeModel.getTextColor());
+
+   //--------------------------------------------------------------------------
+   // Delete any existing tspans because modified text means the text in
+   // the tspans and the number of tspans is likely to change.
+   // Also, we'll be creating a tspan for determining character height,
+   // and it must be the only tspan (so the height is correct).
+   //--------------------------------------------------------------------------
+   while (this._svgText.childNodes.length > 0) {
+      this._svgText.removeChild(this._svgText.childNodes[0]);
+   }
+
+   this._characterHeight = this._getCharacterHeight();
+
+   //--------------------------------------------------------------------------
+   // Add the tspan(s) for each line of text
+   //--------------------------------------------------------------------------
+   this._myNodeModel.getText().forEach( (line) => {
+      this._addTspans(line);
+   });
+
+   //--------------------------------------------------------------------------
+   // Now that the node has been updated, it will need to be repositioned.
+   // But repositioning depends on height, so space out the tspans properly
+   // so the height calculation will return a correct value.
+   //
+   // Since all we need is a correct height calculation, only relative
+   // vertical positioning is important.
+   //--------------------------------------------------------------------------
+   tspans = this._svgText.getElementsByTagNameNS(SVGNS, 'tspan');
+   for (i = 0; i < tspans.length; i++) {
+      tspans[i].setAttribute('y', this._characterHeight * i);
+   }
+
 }; // update()
+
+/**
+ * Add one or more tspans to our <text> tag for the specified line of text.
+ * More than one tspan will be created if the line is longer than our max width.
+ *
+ * Use a binary search to find breakpoint for long lines.
+ *
+ * @param {string} text - The line of text
+ *
+ * @return {void}
+ */
+TextView.prototype._addTspans = function _addTspans(text) {
+   let lowLength;
+   let highLength;
+   let newTspan;
+   let testLength;
+   let width;
+
+   //-------------------------------------------------------------------------
+   // Remove trailing whitespace because FireFox will exclude it for width
+   // calculation if it's the last tspan (which it would be at this point), but
+   // then *include* the space when another tspan is added after. This messes up
+   // the algorithm below.
+   //-------------------------------------------------------------------------
+   text = text.replace(/\s*$/, '');
+
+   newTspan = document.createElementNS(SVGNS, 'tspan');
+   newTspan.appendChild(document.createTextNode(text));
+
+   //-------------------------------------------------------------------------
+   // Tspans must all have same x-coordinate as the enclosing <text> tag
+   // so the width calculations below will be correct.
+   //-------------------------------------------------------------------------
+   newTspan.setAttribute('x', this._x);
+   this._svgText.appendChild(newTspan);
+
+   width = this._svgText.getBBox().width;
+   if (width <= MAX_WIDTH) {
+      return;
+   }
+
+   //-------------------------------------------------------------------------
+   // Perform a binary search to find the longest length that will result
+   // in the rendered text being <= MAX_WIDTH. After the magic length is found,
+   // ensure we're not breaking a word.
+   //
+   // Notes on this fiddly algorithm:
+   //    - Remember arrays are zero-based, but lowLength, testLength, and
+   //      are lengths
+   //    - The loop terminates when lowLength + 1 = highLength
+   //    - highLength is always too long, and you'd *think* that lowLength
+   //      would always be too short. However, in the vast majority of cases,
+   //      MAX_WIDTH will be in the middle of a letter, thus lowLength can end
+   //      up being one character too long:
+   //          - Depending on how the algorithm approaches the optimal number
+   //            of characters, there's a chance that, due to above, lowIndex
+   //            will actually be the *next* character, thus too long
+   //          - Example:
+   //             abcdefghijkl
+   //               |   |    |
+   //              low  test high
+   //
+   //          - If 'h' straddles the max width, then test is shorter than
+   //            MAX_WIDTH, so algorithm will set low at 'h'
+   //             abcdefghijkl
+   //                    |   |
+   //                   low  high
+   //
+   //          - But now low is too long, and will never go shorter because the
+   //            algorithm always finds the midpoint between low and high
+   //
+   //    - The result of all this is that after the loop terminates, we have to
+   //      check to see if we have to subtract one from low
+   //-------------------------------------------------------------------------
+   lowLength = 1;
+   highLength = text.length - 1; // Not text.length because we already know it's
+                                 // too long
+
+   testLength = Math.floor((highLength - lowLength)/2) + lowLength;
+
+   // Don't need to trim spaces because after the loop terminates, we ensure
+   // word isn't split, and then set text again, at which point we'll trim.
+   newTspan.childNodes[0].textContent = text.substr(0, testLength);
+   width = this._svgText.getBBox().width;
+
+   while (highLength - lowLength > 1) {
+      if (width === MAX_WIDTH) {
+         lowLength = testLength;
+         highLength = testLength + 1;
+
+      } else if (width < MAX_WIDTH) {
+         // Too short, so search in the upper half
+         lowLength = testLength + 1;
+
+      } else {
+         // Too long, so search in the lower half
+         highLength = testLength - 1;
+      }
+
+      testLength = Math.floor((highLength - lowLength)/2) + lowLength;
+
+      // As above, don't need to trim
+      newTspan.childNodes[0].textContent = text.substr(0, testLength);
+      width = this._svgText.getBBox().width;
+   }
+
+   // We've found the maximum length to fit in MAX_WIDTH, but as per above,
+   // we might actually be one character too long.
+   if (width > MAX_WIDTH && lowLength >1) {
+      lowLength--;
+   }
+
+   // Ensure we're not breaking a word, but check first to see if we got lucky.
+   // If the character after our max length is a space, then we ended up at the
+   // end of a word and there's no adjusting to be done.
+   if (text[lowLength] !== ' ') {
+      while (text[lowLength -1 ] !== ' ' && lowLength > 1) {
+         lowLength--;
+      }
+   }
+
+   // Trim the right side of whitespace because of Firefox issue re: width
+   // calculations.
+   newTspan.childNodes[0].textContent =
+      text.substr(0, lowLength).replace(/\s*$/, '');
+
+   // We've found the longest length possible, so add tspan(s) for the remaining
+   // text. If our unadjusted length was the end of a word, then the next
+   // character will be a space (which we don't want to start the next line, so
+   // trim).
+   this._addTspans(text.substr(lowLength).trim());
+}; // _addTspans()
+
+/**
+ * Get the height of the current font using a big character.
+ *
+ * @return {number} The maximum height of text for the current font.
+ */
+TextView.prototype._getCharacterHeight = function _getCharacterHeight() {
+   let height;
+   let tempTspan;
+
+   tempTspan = document.createElementNS(SVGNS, "tspan");
+   tempTspan.appendChild(document.createTextNode('X'));
+   this._svgText.appendChild(tempTspan);
+
+   height = this._svgText.getBBox().height;
+   this._svgText.removeChild(tempTspan);
+
+   return height;
+}; // _getCharacterHeight
