@@ -83,7 +83,8 @@ TextView.prototype.deleteSvg = function deleteSvg() {
  * @return {number} - Total height of this Text
  */
 TextView.prototype.getHeight = function getHeight() {
-   return this._svgText.getBBox().height;
+   return this._svgText.getElementsByTagNameNS(SVGNS, 'tspan')
+      .length*this._characterHeight;
 }; // getHeight()
 
 /**
@@ -143,9 +144,6 @@ TextView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 TextView.prototype.update = function update() {
-   let i;
-   let tspans;
-
    //--------------------------------------------------------------------------
    // Set font attributes first so the width of the tspans will be correct for
    // the algorithm that splits lines.
@@ -186,20 +184,6 @@ TextView.prototype.update = function update() {
    this._myNodeModel.getText().forEach( (line) => {
       this._addTspans(line);
    });
-
-   //--------------------------------------------------------------------------
-   // Now that the node has been updated, it will need to be repositioned.
-   // But repositioning depends on height, so space out the tspans properly
-   // so the height calculation will return a correct value.
-   //
-   // Since all we need is a correct height calculation, only relative
-   // vertical positioning is important.
-   //--------------------------------------------------------------------------
-   tspans = this._svgText.getElementsByTagNameNS(SVGNS, 'tspan');
-   for (i = 0; i < tspans.length; i++) {
-      tspans[i].setAttribute('y', this._characterHeight * i);
-   }
-
 }; // update()
 
 /**
