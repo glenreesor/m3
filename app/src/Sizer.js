@@ -65,7 +65,7 @@ Sizer._SVG_BORDER_WIDTH = 1;
  * The method to be called whenever the app is resized.
  * @return {void}
  */
-Sizer.setSize = function () {
+Sizer.setSize = function() {
    let svgElement;
    let svgHeight;
    let svgWidth;
@@ -102,6 +102,8 @@ Sizer.setSize = function () {
 
    svgElement.setAttribute("height", svgHeight + "px");
    svgElement.setAttribute("width", svgWidth + "px");
+
+   Sizer.svgWidth = svgWidth;
 
    //--------------------------------------------------------------------------
    // Set the position of the popups

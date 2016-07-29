@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {m3App} from "./main";
+import {Sizer} from "./Sizer";
 
 const MAX_WIDTH = 400;
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -197,6 +198,10 @@ TextView.prototype.update = function update() {
  * @return {void}
  */
 TextView.prototype._addTspans = function _addTspans(text) {
+   // Pick a maximum width that will be suitable for the current
+   // screen.
+   const ADJUSTED_MAX_WIDTH = Math.min(MAX_WIDTH, 0.8 * Sizer.svgWidth);
+
    let lowLength;
    let highLength;
    let newTspan;
@@ -222,14 +227,14 @@ TextView.prototype._addTspans = function _addTspans(text) {
    this._svgText.appendChild(newTspan);
 
    width = this._svgText.getBBox().width;
-   if (width <= MAX_WIDTH) {
+   if (width <= ADJUSTED_MAX_WIDTH) {
       return;
    }
 
    //-------------------------------------------------------------------------
    // Perform a binary search to find the longest length that will result
-   // in the rendered text being <= MAX_WIDTH. After the magic length is found,
-   // ensure we're not breaking a word.
+   // in the rendered text being <= ADJUSTED_MAX_WIDTH. After the magic length
+   // is found,  ensure we're not breaking a word.
    //
    // Notes on this fiddly algorithm:
    //    - Remember arrays are zero-based, but lowLength, testLength, and
@@ -237,8 +242,8 @@ TextView.prototype._addTspans = function _addTspans(text) {
    //    - The loop terminates when lowLength + 1 = highLength
    //    - highLength is always too long, and you'd *think* that lowLength
    //      would always be too short. However, in the vast majority of cases,
-   //      MAX_WIDTH will be in the middle of a letter, thus lowLength can end
-   //      up being one character too long:
+   //      ADJUSTED_MAX_WIDTH will be in the middle of a letter, thus lowLength
+   //      can end up being one character too long:
    //          - Depending on how the algorithm approaches the optimal number
    //            of characters, there's a chance that, due to above, lowIndex
    //            will actually be the *next* character, thus too long
@@ -248,7 +253,7 @@ TextView.prototype._addTspans = function _addTspans(text) {
    //              low  test high
    //
    //          - If 'h' straddles the max width, then test is shorter than
-   //            MAX_WIDTH, so algorithm will set low at 'h'
+   //            ADJUSTED_MAX_WIDTH, so algorithm will set low at 'h'
    //             abcdefghijkl
    //                    |   |
    //                   low  high
@@ -271,11 +276,11 @@ TextView.prototype._addTspans = function _addTspans(text) {
    width = this._svgText.getBBox().width;
 
    while (highLength - lowLength > 1) {
-      if (width === MAX_WIDTH) {
+      if (width === ADJUSTED_MAX_WIDTH) {
          lowLength = testLength;
          highLength = testLength + 1;
 
-      } else if (width < MAX_WIDTH) {
+      } else if (width < ADJUSTED_MAX_WIDTH) {
          // Too short, so search in the upper half
          lowLength = testLength + 1;
 
@@ -291,9 +296,9 @@ TextView.prototype._addTspans = function _addTspans(text) {
       width = this._svgText.getBBox().width;
    }
 
-   // We've found the maximum length to fit in MAX_WIDTH, but as per above,
-   // we might actually be one character too long.
-   if (width > MAX_WIDTH && lowLength >1) {
+   // We've found the maximum length to fit in ADJUSTED_MAX_WIDTH, but as per
+   // above, we might actually be one character too long.
+   if (width > ADJUSTED_MAX_WIDTH && lowLength >1) {
       lowLength--;
    }
 
