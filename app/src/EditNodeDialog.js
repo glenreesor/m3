@@ -34,10 +34,16 @@ export function EditNodeDialog(controller, nodeToEdit) {
    this._nodeToEdit = nodeToEdit;
 
    let allText;
+   let columns;
    let domParser;
    let html;
    let htmlAsDoc;
    let numRows;
+
+   //--------------------------------------------------------------------------
+   // Try to pick a reasonable width for the textarea
+   //--------------------------------------------------------------------------
+   columns = Math.min(80, 0.8*(Sizer.svgWidth / Sizer.characterWidth));
 
    //--------------------------------------------------------------------------
    // Tags to be added
@@ -50,7 +56,7 @@ export function EditNodeDialog(controller, nodeToEdit) {
    html = `<div id='${EditNodeDialog.DIALOG_ID}' class='popup' ` +
              `style='height: ${Sizer.popupHeight}px'> <p> Edit Node </p>` +
              `<textarea id='${EditNodeDialog.TEXT_ENTRY_FIELD_ID}' ` +
-             `rows='${numRows}' cols='40'>`;
+             `rows='${numRows}' cols='${columns}'>`;
 
              nodeToEdit.getText().forEach( function(line, index) {
                 if (index !== 0) {

@@ -71,6 +71,7 @@ Sizer.setSize = function() {
    let svgWidth;
    let appPopups;
    let appTopHeight;
+   let tempText;
    let totalAppHeight;
    let totalAppWidth;
 
@@ -111,4 +112,14 @@ Sizer.setSize = function() {
    appPopups = document.getElementById("app-popups");
    appPopups.setAttribute("style", "width: " + (svgWidth*3/4) + "px;" +
                           "margin-left: " + (svgWidth*1/4/2) + "px;");
+
+   //--------------------------------------------------------------------------
+   // Determine approximately how many characters can fit across the
+   // current screen--useful for other code.
+   //--------------------------------------------------------------------------
+   tempText = document.createElement('span');
+   tempText.appendChild(document.createTextNode('X'));
+   document.getElementById('app-html-sizing').appendChild(tempText);
+   Sizer.characterWidth = tempText.scrollWidth;
+   document.getElementById('app-html-sizing').removeChild(tempText);
 }; // setSize()
