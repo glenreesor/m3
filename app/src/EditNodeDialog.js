@@ -33,17 +33,39 @@ export function EditNodeDialog(controller, nodeToEdit) {
    this._controller = controller;
    this._nodeToEdit = nodeToEdit;
 
+   let allText;
+   let columns;
    let domParser;
    let html;
    let htmlAsDoc;
+   let numRows;
+
+   //--------------------------------------------------------------------------
+   // Try to pick a reasonable width for the textarea
+   //--------------------------------------------------------------------------
+   columns = Math.min(80, 0.8*(Sizer.svgWidth / Sizer.characterWidth));
 
    //--------------------------------------------------------------------------
    // Tags to be added
+   // We start with the textarea having the same number of rows as there are
+   // lines of text in the node, up to a maximum of 5 (remember phones have
+   // small screens).
    //--------------------------------------------------------------------------
+   numRows = Math.min(5, nodeToEdit.getText().length);
+
    html = `<div id='${EditNodeDialog.DIALOG_ID}' class='popup' ` +
              `style='height: ${Sizer.popupHeight}px'> <p> Edit Node </p>` +
-             `<input type='text' id='${EditNodeDialog.TEXT_ENTRY_FIELD_ID}' ` +
-             "size='20'/><br><br>" +
+             `<textarea id='${EditNodeDialog.TEXT_ENTRY_FIELD_ID}' ` +
+             `rows='${numRows}' cols='${columns}'>`;
+
+             nodeToEdit.getText().forEach( function(line, index) {
+                if (index !== 0) {
+                   html += '\n';
+                }
+                html += line;
+             });
+
+             html += "</textarea> <br><br>" +
              `<button id='${EditNodeDialog.SAVE_ID}'>Save</button>` +
              `<button id='${EditNodeDialog.CANCEL_ID}'>Cancel</button>` +
           "</div>";
@@ -64,8 +86,6 @@ export function EditNodeDialog(controller, nodeToEdit) {
       () => this.save());
    document.getElementById(EditNodeDialog.CANCEL_ID).addEventListener("click",
       () => this.close());
-   document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)
-      .addEventListener("keypress", (e) => this.keyPress(e));
 
    //--------------------------------------------------------------------------
    // Make the app-popups div visible and set state
@@ -74,10 +94,8 @@ export function EditNodeDialog(controller, nodeToEdit) {
    m3App.getGlobalState().setState(State.STATE_DIALOG_EDIT_NODE);
 
    //--------------------------------------------------------------------------
-   // Populate the input field, give it focus, and select all the text
+   // Give the input field focus and select all the text
    //--------------------------------------------------------------------------
-   (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).value =
-      this._nodeToEdit.getText();
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).select();
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).focus();
 } // EditNodeDialog()
@@ -113,25 +131,15 @@ EditNodeDialog.prototype.close = function close() {
 }; // close()
 
 /**
- * KeyPress
- * Save and close if return key pressed.
- *
- * @param {Event} e - The event object for this keypress
- * @return {void}
- */
-EditNodeDialog.prototype.keyPress = function keyPress(e) {
-   if (e.keyCode === 13) {
-      this.save();
-   }
-
-}; // keyPress()
-/**
  * Save clicked
  *
  * @return {void}
  */
 EditNodeDialog.prototype.save = function save() {
-   this._controller.changeNodeText(this._nodeToEdit,
-      document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID).value);
+   this._controller.changeNodeText(
+      this._nodeToEdit,
+      document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)
+         .value.split('\n')
+   );
    this.close();
 }; // save()

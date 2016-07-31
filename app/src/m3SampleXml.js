@@ -1,5 +1,5 @@
 "use strict";
-/*eslint max-len: [2, 200]*/
+/*eslint max-len: [2, 800]*/
 
 // Copyright 2015, 2016 Glen Reesor
 //
@@ -20,6 +20,7 @@
 
 export let m3SampleXml = [
 '<map version="1.0.1">',
+'<!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->',
 '<attribute_registry SHOW_ATTRIBUTES="hide"/>',
 '<node CREATED="1462043698948" ID="ID_965050671" MODIFIED="1462043907151" STYLE="bubble" TEXT="m3 - Mobile Mind Mapper">',
 '<node CREATED="1462039594280" ID="ID_1135851275" MODIFIED="1462043731225" POSITION="right" STYLE="bubble" TEXT="Features">',
@@ -67,11 +68,11 @@ export let m3SampleXml = [
 '<node CREATED="1462039897496" ID="ID_705340948" MODIFIED="1462043731227" STYLE="bubble" TEXT="Small">',
 '<font NAME="SansSerif" SIZE="10"/>',
 '</node>',
-'<node CREATED="1462040612489" ID="ID_700562846" MODIFIED="1462043731227" STYLE="bubble" TEXT="Rich Text (html)">',
+'<node CREATED="1462040612489" ID="ID_700562846" MODIFIED="1468754256661" STYLE="bubble" TEXT="Rich Text (html)">',
 '<node CREATED="1462039899280" ID="ID_1985907620" MODIFIED="1462043731227" STYLE="bubble">',
 '<richcontent TYPE="NODE"><html>',
 '  <head>',
-'    ',
+'',
 '  </head>',
 '  <body>',
 '    <p>',
@@ -111,6 +112,36 @@ export let m3SampleXml = [
 '    </table>',
 '  </body>',
 '</html></richcontent>',
+'</node>',
+'<node CREATED="1468754257821" ID="ID_1986636695" MODIFIED="1469533105076">',
+'<richcontent TYPE="NODE"><html>',
+'  <head>',
+'',
+'  </head>',
+'  <body>',
+'    <p>',
+'      A really long node.',
+'    </p>',
+'    <p>',
+'',
+'    </p>',
+'    <p>',
+'      Ninja? You\'re a ninja? Get out of here, you\'re a ninja! Yes, I am a ninja. I read the rules before I broke \'em I broke the chains before they choked me out Now I pay close attention really learn the code I learned to read the map before I hit the road',
+'    </p>',
+'  </body>',
+'</html>',
+'</richcontent>',
+'</node>',
+'</node>',
+'<node CREATED="1468754702243" ID="ID_1570168724" MODIFIED="1468754714646" TEXT="Really long non-rich text nodes">',
+'<node CREATED="1468760777021" ID="ID_308262894" MODIFIED="1468760814561" TEXT="Really Big">',
+'<font NAME="SansSerif" SIZE="20"/>',
+'<node CREATED="1468754724438" ID="ID_375984957" MODIFIED="1469533154104" TEXT="A really long node.&#xa;&#xa;Ninja? You&apos;re a ninja? Get out of here, you&apos;re a ninja! Yes, I am a ninja. I read the rules before I broke &apos;em I broke the chains before they choked me out Now I pay close attention really learn the code I learned to read the map before I hit the road&#xa;&#xa;And a short line after a blank line.&#xa;Here&apos;s another line.">',
+'<font NAME="SansSerif" SIZE="21"/>',
+'</node>',
+'</node>',
+'<node CREATED="1468760841005" ID="ID_835550514" MODIFIED="1468760843115" TEXT="Normal size">',
+'<node CREATED="1468760851979" ID="ID_52708837" MODIFIED="1469533148902" TEXT="Another really long node.&#xa;&#xa;Ninja? You&apos;re a ninja? Get out of here, you&apos;re a ninja! Yes, I am a ninja. I read the rules before I broke &apos;em I broke the chains before they choked me out Now I pay close attention really learn the code I learned to read the map before I hit the road&#xa;&#xa;And a short line after a blank line.&#xa;Here&apos;s another line."/>',
 '</node>',
 '</node>',
 '</node>',
@@ -163,7 +194,7 @@ export let m3SampleXml = [
 '<node CREATED="1462041521755" ID="ID_1835471477" MODIFIED="1462043731230" STYLE="bubble" TEXT="This has a note">',
 '<richcontent TYPE="NOTE"><html>',
 '  <head>',
-'    ',
+'',
 '  </head>',
 '  <body>',
 '    <p>',
@@ -188,5 +219,4 @@ export let m3SampleXml = [
 '</node>',
 '</node>',
 '</node>',
-'</map>'
-];
+'</map>'];

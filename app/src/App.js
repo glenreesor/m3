@@ -147,9 +147,9 @@ App.prototype.getVersionAsString = function getVersionAsString() {
  * @return {void}
  */
 App.prototype.run = function run() {
+   this._sizer = new Sizer();
    this._controller = new Controller();
    this._startup();
-   this._sizer = new Sizer();
 }; // run()
 
 /**

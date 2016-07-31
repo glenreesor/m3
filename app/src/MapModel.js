@@ -55,7 +55,7 @@ export function MapModel(controller, newType, dbKey, mapName, xml) {
    if (newType === MapModel.TYPE_EMPTY) {
       this._dbKey = null;
       this._rootNode = new NodeModel(this._controller, this, NodeModel.TYPE_NEW,
-                                     null, "New Map", null);
+                                     null, ["New Map"], null);
       this.setModifiedStatus(true);
    } else {
       this._dbKey = dbKey;

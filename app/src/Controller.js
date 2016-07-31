@@ -52,7 +52,7 @@ Controller.prototype.addChild = function addChild(parent) {
    // Update the model
    //    - Add the child with default text
    //--------------------------------------------------------------------------
-   child = parent.addChild("New Node");
+   child = parent.addChild(["New Node"]);
 
    //--------------------------------------------------------------------------
    // Update the views
@@ -85,7 +85,7 @@ Controller.prototype.addChildAfter = function addChildAfter(parent,
    // Update the model
    //    - Add the child with default text
    //--------------------------------------------------------------------------
-   child = parent.addChildAfter(relativeChild, "New Node");
+   child = parent.addChildAfter(relativeChild, ["New Node"]);
    this.redrawMain();
 
    // Allow user to edit the default text. EditNodeDialog handles telling

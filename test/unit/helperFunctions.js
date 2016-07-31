@@ -66,7 +66,7 @@ export function createXml (tagName, attributeDefaults, currentAttributes,
  *                                        initial load
  * @param {[]}     embeddedTags         - the expected embedded tags from
  *                                        initial load
- * @param {string} unexpectedTags       - the unexpected tags from initial
+ * @param {string[]} unexpectedTags     - the unexpected tags from initial
  *                                        load
  * @return {void}
  */
@@ -87,10 +87,35 @@ export function validateCreateXmlArgs(
       "all attribute defaults must be passed to helper");
 
    attributeDefaults.forEach(function (value, attributeName) {
-      t.equal(exportSavingObject.attributeDefaults.get(attributeName),
-              attributeDefaults.get(attributeName),
-              `default attribute "${attributeName}" must be passed to ` +
-                 "createXml()");
+
+      // Do a simple comparison if the types are primitives
+      if (typeof(value) !== "object") {
+         t.equal(
+            exportSavingObject.attributeDefaults.get(attributeName),
+            attributeDefaults.get(attributeName),
+            `default attribute "${attributeName}" must be passed to ` +
+               "createXml()"
+         );
+      } else {
+         // So far the only non-primitive attributes we have are arrays,
+         // so we can be lazy and assume this is an array.
+         t.equal(
+            exportSavingObject.attributeDefaults.get(attributeName).length,
+            attributeDefaults.get(attributeName).length,
+            `default attribute "${attributeName}" must be passed to ` +
+               "createXml() and have same length"
+         );
+
+         exportSavingObject.attributeDefaults.get(attributeName)
+            .forEach(function (value, index) {
+               t.equal(
+                  value,
+                  attributeDefaults.get(attributeName)[index],
+                  `default attribute "${attributeName}" must be passed to ` +
+                     "createXml() and have same values in the array"
+               );
+         });
+      }
    });
 
    //-------------------------------------------------------------------------

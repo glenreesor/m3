@@ -65,12 +65,13 @@ Sizer._SVG_BORDER_WIDTH = 1;
  * The method to be called whenever the app is resized.
  * @return {void}
  */
-Sizer.setSize = function () {
+Sizer.setSize = function() {
    let svgElement;
    let svgHeight;
    let svgWidth;
    let appPopups;
    let appTopHeight;
+   let tempText;
    let totalAppHeight;
    let totalAppWidth;
 
@@ -103,10 +104,22 @@ Sizer.setSize = function () {
    svgElement.setAttribute("height", svgHeight + "px");
    svgElement.setAttribute("width", svgWidth + "px");
 
+   Sizer.svgWidth = svgWidth;
+
    //--------------------------------------------------------------------------
    // Set the position of the popups
    //--------------------------------------------------------------------------
    appPopups = document.getElementById("app-popups");
    appPopups.setAttribute("style", "width: " + (svgWidth*3/4) + "px;" +
                           "margin-left: " + (svgWidth*1/4/2) + "px;");
+
+   //--------------------------------------------------------------------------
+   // Determine approximately how many characters can fit across the
+   // current screen--useful for other code.
+   //--------------------------------------------------------------------------
+   tempText = document.createElement('span');
+   tempText.appendChild(document.createTextNode('X'));
+   document.getElementById('app-html-sizing').appendChild(tempText);
+   Sizer.characterWidth = tempText.scrollWidth;
+   document.getElementById('app-html-sizing').removeChild(tempText);
 }; // setSize()
