@@ -36,9 +36,11 @@ export function RichTextView(nodeView, nodeModel) {
    this._myNodeView = nodeView;
 
    //---------------------------------------------------------------------------
-   // One-time creation of required html/svg elements
+   // One-time creation of required svg element
+   // this._container must have specified style so width optimizer will work
    //---------------------------------------------------------------------------
    this._container = document.createElementNS(SVGNS, "foreignObject");
+   this._container.setAttribute('style', 'word-wrap:break-word');
    document.getElementById("svgTextLayer").appendChild(this._container);
 
    //---------------------------------------------------------------------------
