@@ -17,7 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {m3App} from "./main";
+import {m3App} from './main';
+import {Sizer} from './Sizer';
 
 const MAX_WIDTH = 400;
 
@@ -158,15 +159,16 @@ RichTextView.prototype.update = function update() {
 
    //-----------------------------------------------------------------------
    // Determine the smallest width required for this richtext by starting at
-   // MAX_WIDTH pixels and doing a binary search to find the point where
-   // height changes, with a tolerance of 10 pixels.
+   // a width that is appropriate for the current display width and doing a
+   // binary search to find the point where height changes, with a tolerance of
+   // 10 pixels.
    //
    // Note: The size of this html is affected by m3.css. In particular,
    //       if margin-top for <body> is non-zero, we don't get the correct
    //       height, because clientHeight doesn't include margins.
    //-----------------------------------------------------------------------
    width1 = 10;
-   width2 = MAX_WIDTH;
+   width2 = Math.min(MAX_WIDTH, 0.8 * Sizer.svgWidth);
    this._container.setAttribute('width', width2);
    height = richTextRootNode.clientHeight;
 
@@ -183,6 +185,8 @@ RichTextView.prototype.update = function update() {
       }
    }
 
+   // When the loop ends, width1 was always too narrow, and width2 too wide.
+   // Since we're within our tolerance, choose width2
    this._container.setAttribute('width', width2);
    this._container.setAttribute('height', richTextRootNode.clientHeight);
 
