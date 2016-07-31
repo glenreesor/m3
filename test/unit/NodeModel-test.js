@@ -200,7 +200,9 @@ const ATTRIBUTE_DEFAULTS = new Map([["BACKGROUND_COLOR", "#ffffff"],
                                     ["ID", ""],
                                     ["MODIFIED", ""],
                                     ["POSITION", ""],
-                                    ["TEXT", ""]]);
+                                    ["TEXT", ""]
+                                 ]);
+
 const ATTRIBUTES = new Map([["BACKGROUND_COLOR", "#123456"],
                             ["CREATED", "123456"],
                             ["COLOR", "#654321"],
@@ -225,10 +227,11 @@ const UNEXPECTED_TAGS = ["<unexpectedTag/>"];
 // Constructor - Defaults
 //-----------------------------------------------------------------------------
 test('NodeModel - Constructor - Defaults', function (t) {
+   const TEST_TEXT = ['Test Text'];
    let nodeModel;
 
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                             null, "Test Text", null);
+                             null, TEST_TEXT, null);
 
    t.equal(nodeModel.getArrowLinks().length, [].length,
       "Default nodeModel should have no ArrowLinks");
@@ -257,7 +260,7 @@ test('NodeModel - Constructor - Defaults', function (t) {
    t.equal(nodeModel.getSide(), NodeModel.POSITION_NONE,
       "Default root nodeModel should have no position specified");
 
-   t.equal(nodeModel.getText(), "Test Text",
+   t.equal(nodeModel.getText(), TEST_TEXT,
       "text should match input");
 
    t.equal(nodeModel.getTextColor(), "#000000",
@@ -280,6 +283,7 @@ test('NodeModel - Constructor - Defaults', function (t) {
 test('NodeModel - Constructor from XML, getAsXml', function(t) {
    let booleanAsString;
    let docElement;
+   let getTextResult;
    let nodeModel;
    let parser;
    let xml;
@@ -353,7 +357,13 @@ test('NodeModel - Constructor from XML, getAsXml', function(t) {
    t.equal(nodeModel.getSide(), NodeModel.POSITION_NONE,
       "side for a root node is the special POSITION_NONE");
 
-   t.equal(nodeModel.getText(), ATTRIBUTES.get("TEXT"),
+   // Have to do a bit more work here because the XMl is a string,
+   // but the returned value is an array
+   getTextResult = nodeModel.getText();
+   t.equal(getTextResult.length, 1,
+      "text must be an array of one string");
+
+   t.equal(getTextResult[0], ATTRIBUTES.get("TEXT"),
       "text must match value that was loaded");
 
    //--------------------------------------------------------------------------
@@ -408,7 +418,7 @@ test('NodeModel - set/get BackgroundColor()', function (t) {
    let origTimestamp;
 
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                             null, "Test Text", null);
+                             null, ["Test Text"], null);
    setModifiedStatusCount = 0;
    origTimestamp = nodeModel.getModifiedTimestamp();
    nodeModel.setBackgroundColor(newColor);
@@ -426,18 +436,34 @@ test('NodeModel - set/get BackgroundColor()', function (t) {
 });
 
 test('NodeModel - set/get Text()', function (t) {
-   const newText = "NEW Test Text";
+   const SINGLE_LINE = ['NEW Test Text'];
+   const MULTIPLE_LINES = ['Line 1', 'Line 2'];
    let nodeModel;
    let origTimestamp;
 
+   // Single line of text
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                             null, "Test Text", null);
+                             null, ['Test Text'], null);
    setModifiedStatusCount = 0;
    origTimestamp = nodeModel.getModifiedTimestamp();
-   nodeModel.setText(newText);
+   nodeModel.setText(SINGLE_LINE);
 
-   t.equal(nodeModel.getText(), newText,
-      "getText() should reflect the new text");
+   t.equal(nodeModel.getText(), SINGLE_LINE,
+      "getText() should reflect the new text -- single line");
+
+   t.notEqual(nodeModel.getModifiedTimestamp, origTimestamp,
+      "getText() should result in an updated timestamp");
+
+   t.equal(setModifiedStatusCount, 1,
+      "setText() should tell the MapModel a change was made");
+
+   // Multiple lines
+   setModifiedStatusCount = 0;
+   origTimestamp = nodeModel.getModifiedTimestamp();
+   nodeModel.setText(MULTIPLE_LINES);
+
+   t.equal(nodeModel.getText(), MULTIPLE_LINES,
+      "getText() should reflect the new text -- multiple lines");
 
    t.notEqual(nodeModel.getModifiedTimestamp, origTimestamp,
       "getText() should result in an updated timestamp");
@@ -454,7 +480,7 @@ test('NodeModel - set/get TextColor()', function (t) {
    let origTimestamp;
 
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                             null, "Test Text", null);
+                             null, ["Test Text"], null);
    setModifiedStatusCount = 0;
    origTimestamp = nodeModel.getModifiedTimestamp();
    nodeModel.setTextColor(newTextColor);
@@ -485,13 +511,13 @@ test('NodeModel - addChild()', function (t) {
    let parentModel;
 
    parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                               null, "Parent Text", null);
+                               null, ["Parent Text"], null);
 
    setModifiedStatusCount = 0;
    origTimeStamp = parentModel.getModifiedTimestamp();
 
-   childModel1 = parentModel.addChild("Child Text1"); // First child
-   childModel2 = parentModel.addChild("Child Text2"); // Non-first child
+   childModel1 = parentModel.addChild(["Child Text1"]); // First child
+   childModel2 = parentModel.addChild(["Child Text2"]); // Non-first child
 
    t.equal(parentModel.getChildren().length, 2,
       "parent node should now have 2 children");
@@ -523,14 +549,14 @@ test('NodeModel - addChild()', function (t) {
    let parentModel;
 
    parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                               null, "Parent Text", null);
+                               null, ["Parent Text"], null);
 
    setModifiedStatusCount = 0;
 
-   childModel1 = parentModel.addChild("Child Text1");
-   childModel2 = parentModel.addChild("Child Text2");
-   childModel1a = parentModel.addChildAfter(childModel1, "Child Text1a");
-   childModel2a = parentModel.addChildAfter(childModel2, "Child Text2a");
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+   childModel1a = parentModel.addChildAfter(childModel1, ["Child Text1a"]);
+   childModel2a = parentModel.addChildAfter(childModel2, ["Child Text2a"]);
 
    t.equal(parentModel.getChildren().length, 4,
       "the parent node should have 4 children");
@@ -581,7 +607,7 @@ test('NodeModel - connectArrowLinks()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoArrowLinks, "text/xml")
                 .documentElement;
@@ -597,7 +623,7 @@ test('NodeModel - connectArrowLinks()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<arrowlink/>"], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), ["<arrowlink/>"], []);
 
    docElement = domParser.parseFromString(xmlOneArrowLink, "text/xml")
                 .documentElement;
@@ -613,8 +639,12 @@ test('NodeModel - connectArrowLinks()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
-                                  ["<arrowlink/>", "<arrowlink/>"], []);
+   xmlHelpersStub.setupLoadXml(
+      ATTRIBUTES,
+      new Map(),
+      ["<arrowlink/>", "<arrowlink/>"],
+      []
+   );
 
    docElement = domParser.parseFromString(xmlMultipleArrowLinks, "text/xml")
                 .documentElement;
@@ -650,13 +680,13 @@ test('NodeModel - deleteChild()', function(t) {
    let parentModel;
 
    parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                               null, "Parent Text", null);
+                               null, ["Parent Text"], null);
 
-   childModel1 = parentModel.addChild("Child Text1");
-   childModel2 = parentModel.addChild("Child Text2");
-   childModel3 = parentModel.addChild("Child Text3");
-   childModel4 = parentModel.addChild("Child Text4");
-   childModel5 = parentModel.addChild("Child Text5");
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+   childModel3 = parentModel.addChild(["Child Text3"]);
+   childModel4 = parentModel.addChild(["Child Text4"]);
+   childModel5 = parentModel.addChild(["Child Text5"]);
 
    setModifiedStatusCount = 0;
 
@@ -725,7 +755,7 @@ test('NodeModel - getArrowLinks()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoArrowLinks, "text/xml")
                 .documentElement;
@@ -739,7 +769,7 @@ test('NodeModel - getArrowLinks()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<arrowlink/>"], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), ["<arrowlink/>"], []);
 
    docElement = domParser.parseFromString(xmlOneArrowLink, "text/xml")
                 .documentElement;
@@ -753,8 +783,12 @@ test('NodeModel - getArrowLinks()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
-                                  ["<arrowlink/>", "<arrowlink/>"], []);
+   xmlHelpersStub.setupLoadXml(
+      ATTRIBUTES,
+      new Map(),
+      ["<arrowlink/>", "<arrowlink/>"],
+      []
+   );
 
    docElement = domParser.parseFromString(xmlMultipleArrowLinks, "text/xml")
                 .documentElement;
@@ -767,12 +801,6 @@ test('NodeModel - getArrowLinks()', function(t) {
 });
 
 //-----------------------------------------------------------------------------
-// getAsXml - Exported XML same as source XML
-//            This includes attributes and embedded tags that m3 doesn't
-//            understand
-//-----------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------
 // getChildren
 //-----------------------------------------------------------------------------
 test('NodeModel - getChildren()', function(t) {
@@ -782,11 +810,11 @@ test('NodeModel - getChildren()', function(t) {
    let parentModel;
 
    parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                               null, "Parent Text", null);
+                               null, ["Parent Text"], null);
 
-   childModel1 = parentModel.addChild("Child Text1");
-   childModel2 = parentModel.addChild("Child Text2");
-   childModel3 = parentModel.addChild("Child Text3");
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+   childModel3 = parentModel.addChild(["Child Text3"]);
 
    t.equal(parentModel.getChildren().length, 3,
       "after adding 3 children, child array should contain 3 elements");
@@ -828,7 +856,7 @@ test('NodeModel - getCloudModel()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoCloud, "text/xml")
                 .documentElement;
@@ -841,7 +869,7 @@ test('NodeModel - getCloudModel()', function(t) {
    // One Cloud
    //--------------------------------------------------------------------------
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<cloud/>"], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), ["<cloud/>"], []);
 
    docElement = domParser.parseFromString(xmlWithCloud, "text/xml")
                 .documentElement;
@@ -878,7 +906,7 @@ test('NodeModel - getFont()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoFont, "text/xml")
                 .documentElement;
@@ -892,7 +920,7 @@ test('NodeModel - getFont()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<font/>"], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), ["<font/>"], []);
 
    docElement = domParser.parseFromString(xmlWithFont, "text/xml")
                 .documentElement;
@@ -931,7 +959,7 @@ test('NodeModel - getLinkTargets()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoLinkTargets, "text/xml")
                 .documentElement;
@@ -945,7 +973,7 @@ test('NodeModel - getLinkTargets()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<linktarget/>"], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), ["<linktarget/>"], []);
 
    docElement = domParser.parseFromString(xmlOneLinkTarget, "text/xml")
                 .documentElement;
@@ -959,8 +987,12 @@ test('NodeModel - getLinkTargets()', function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
-                                  ["<linktarget/>", "<linktarget/>"], []);
+   xmlHelpersStub.setupLoadXml(
+      ATTRIBUTES,
+      new Map(),
+      ["<linktarget/>", "<linktarget/>"],
+      []
+   );
 
    docElement = domParser.parseFromString(xmlMultipleLinkTargets, "text/xml")
                 .documentElement;
@@ -997,7 +1029,7 @@ test("NodeModel - getNote()", function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoNote, "text/xml")
                 .documentElement;
@@ -1011,8 +1043,12 @@ test("NodeModel - getNote()", function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
-                                  ['<richcontent TYPE="NOTE"/>'], []);
+   xmlHelpersStub.setupLoadXml(
+      ATTRIBUTES,
+      new Map(),
+      ['<richcontent TYPE="NOTE"/>'],
+      []
+   );
 
    docElement = domParser.parseFromString(xmlWithNote, "text/xml")
                 .documentElement;
@@ -1032,9 +1068,9 @@ test("NodeModel - getParent()", function(t) {
    let parentModel;
 
    parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                               null, "Parent Text", null);
+                               null, ["Parent Text"], null);
 
-   childModel = parentModel.addChild("Child Text");
+   childModel = parentModel.addChild(["Child Text"]);
 
    t.equal(parentModel.getParent(), null,
       "getParent() called on root node should be null");
@@ -1070,7 +1106,7 @@ test("NodeModel - getRichText()", function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoRichText, "text/xml")
                 .documentElement;
@@ -1083,7 +1119,7 @@ test("NodeModel - getRichText()", function(t) {
    // With RichText
    //--------------------------------------------------------------------------
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(),
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(),
                                   ['<richcontent TYPE="NODE"/>'], []);
 
    docElement = domParser.parseFromString(xmlWithRichText, "text/xml")
@@ -1114,8 +1150,16 @@ test("NodeModel - getSide()", function(t) {
    xml = '<node POSITION="left"></node>';
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map([["POSITION", "left"]]), new Map(),
-                                  [], []);
+   xmlHelpersStub.setupLoadXml(
+      new Map(
+         [["POSITION", "left"],
+          ["TEXT", ""]
+         ]
+      ),
+      new Map(),
+      [],
+      []
+   );
 
    //--------------------------------------------------------------------------
    // Root node (no side)
@@ -1138,6 +1182,81 @@ test("NodeModel - getSide()", function(t) {
                              rootNodeModel, null, docElement);
    t.equal(nodeModel.getSide(), "left",
       "nodeModel.getSide() should match input xml for children of root");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getAsXml -XML line splitting
+//-----------------------------------------------------------------------------
+test("NodeModel - getText() - XML line splitting", function(t) {
+   const MULTIPLE_LINES_INPUT = 'Line1\nLine2';
+   const MULTIPLE_LINES_OUTPUT = 'Line1&#xa;Line2';
+   let docElement;
+   let expectedAttributes;
+   let nodeModel;
+   let parser;
+   let xml;
+
+   //--------------------------------------------------------------------------
+   // Create a node with multiple lines of text
+   //
+   // First we have to create a copy of ATTRIBUTES (i.e. expected attributes),
+   // so we can then modify TEXT to be what we expect to be sent to createXml
+   //
+   // And things are a bit goofy because, since we've stubbed out the function
+   // that returns parsed XML, and that stub doesn't actually process
+   // '&#xa;' as a newline character, have to pass '\n' when setting up the
+   // stubbed function, but then when looking at the output, look for
+   // '&#xa;'
+   //--------------------------------------------------------------------------
+   expectedAttributes = new Map();
+   ATTRIBUTES.forEach(function (value, attributeName) {
+      if (attributeName !== 'TEXT') {
+         expectedAttributes.set(attributeName, value);
+      } else {
+         expectedAttributes.set(attributeName, MULTIPLE_LINES_INPUT);
+      }
+   });
+
+   xmlHelpersStub.setupLoadXml(
+      expectedAttributes,
+      new Map(),
+      [],
+      []
+   );
+
+   // Since we've told the stub what to return, doesn't matter what xml we
+   // pass it
+   xml = '<node></node>';
+   parser = new DOMParser();
+   docElement = parser.parseFromString(xml, "text/xml").documentElement;
+
+   nodeModel = new NodeModel(
+      controllerStub,
+      mapModelStub,
+      NodeModel.TYPE_XML,
+      null,
+      null,
+      docElement
+   );
+
+   //--------------------------------------------------------------------------
+   // Now getAsXml() and confirm proper values were sent to our createXml stub
+   // But remember to change the TEXT attribute to be what we're actually
+   // expecting, which is slightly different than the input
+   //--------------------------------------------------------------------------
+   expectedAttributes.set('TEXT', MULTIPLE_LINES_OUTPUT);
+   xml = nodeModel.getAsXml();
+
+   validateCreateXmlArgs(t,
+      xmlHelpersStub.createXml,
+      ATTRIBUTE_DEFAULTS,
+      expectedAttributes,
+      new Map(),
+      [],
+      []
+   );
 
    t.end();
 });
@@ -1167,7 +1286,7 @@ test("NodeModel - hasCloud()", function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), [], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
 
    docElement = domParser.parseFromString(xmlNoCloud, "text/xml")
                 .documentElement;
@@ -1181,7 +1300,7 @@ test("NodeModel - hasCloud()", function(t) {
    //--------------------------------------------------------------------------
 
    // Tell the helper stub what to return
-   xmlHelpersStub.setupLoadXml(new Map(), new Map(), ["<cloud/>"], []);
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), ["<cloud/>"], []);
 
    docElement = domParser.parseFromString(xmlWithCloud, "text/xml")
                 .documentElement;
@@ -1202,9 +1321,9 @@ test("NodeModel - isFolded()", function(t) {
    let parentModel;
 
    parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                               null, "Parent Text", null);
+                               null, ["Parent Text"], null);
 
-   childModel = parentModel.addChild("Child Text"); // First child
+   childModel = parentModel.addChild(["Child Text"]); // First child
 
    t.equal(parentModel.isFolded(), false,
       "initial isFolded() status should be false");
@@ -1228,7 +1347,7 @@ test("NodeModel - toggleCloud()", function(t) {
    let nodeModel;
 
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                             null, "Parent Text", null);
+                             null, ["Parent Text"], null);
 
    setModifiedStatusCount = 0;
 
@@ -1263,7 +1382,7 @@ test("NodeModel - toggleFoldedStatus()", function(t) {
    let nodeModel;
 
    nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
-                             null, "Parent Text", null);
+                             null, ["Parent Text"], null);
 
    setModifiedStatusCount = 0;
 

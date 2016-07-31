@@ -34,7 +34,8 @@ const ATTRIBUTE_DEFAULTS = new Map([["BACKGROUND_COLOR", "#ffffff"],
                                     ["ID", ""],
                                     ["MODIFIED", ""],
                                     ["POSITION", ""],
-                                    ["TEXT", ""]]);
+                                    ["TEXT", ""]
+                                 ]);
 const EXPECTED_EMBEDDED_TAGS = ["arrowlink", "cloud", "font", "linktarget",
                                 "node", "richcontent"];
 
