@@ -27,15 +27,17 @@ import {NodeView} from "./NodeView";
 import {RichContent} from "./RichContent";
 import {m3App} from "./main";
 
-const ATTRIBUTE_DEFAULTS = new Map([["BACKGROUND_COLOR", "#ffffff"],
-                                    ["CREATED", ""],
-                                    ["COLOR", "#000000"],
-                                    ["FOLDED", "false"],
-                                    ["ID", ""],
-                                    ["MODIFIED", ""],
-                                    ["POSITION", ""],
-                                    ["TEXT", ""]
+const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', '#ffffff'],
+                                    ['CREATED', ''],
+                                    ['COLOR', '#000000'],
+                                    ['FOLDED', 'false'],
+                                    ['ID', ''],
+                                    ['LINK', ''],
+                                    ['MODIFIED', ''],
+                                    ['POSITION', ''],
+                                    ['TEXT', '']
                                  ]);
+
 const EXPECTED_EMBEDDED_TAGS = ["arrowlink", "cloud", "font", "linktarget",
                                 "node", "richcontent"];
 
@@ -70,6 +72,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._cloudModel = null;
    this._font = null;             // Points to Font object
    this._isFolded = false;
+   this._link = null;
    this._linkTargets = [];
    this._note = null;             // Points to corresponding RichContent object
    this._richText = null;         // Points to corresponding RichContent object
@@ -101,6 +104,26 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
       this._loadFromXml1_0_1(parsedXml);
    }
 } // NodeModel()
+
+/**
+ * Take the specified string and escape all special characters using &
+ * Special chars are: & < > " '
+ *
+ * @param {string} text - Text to be escaped
+ *
+ * @return {string} - The escaped text
+ */
+NodeModel.escapeSpecialChars = function(text) {
+   let escapedText;
+
+   escapedText = text.replace(new RegExp("&", "g"), "&amp;");
+   escapedText = escapedText.replace(new RegExp("<", "g"), "&lt;");
+   escapedText = escapedText.replace(new RegExp(">", "g"), "&gt;");
+   escapedText = escapedText.replace(new RegExp('"', "g"), "&quot;");
+   escapedText = escapedText.replace(new RegExp("'", "g"), "&apos;");
+
+   return escapedText;
+}; // escapeSpecialChars()
 
 NodeModel.POSITION_NONE = "none";
 NodeModel.POSITION_RIGHT = "right";   // XML value. Only for first level nodes
@@ -182,43 +205,37 @@ NodeModel.prototype.getArrowLinks = function getArrowLinks() {
  *
  */
 NodeModel.prototype.getAsXml = function getAsXml() {
-   let i;
+   let allLines;
    let attributes;
    let embeddedTags;
-   let allLines;
-   let xml = [];
+   let i;
+   let escapedText;
    let tempText;           // Used for removing special XML characters
+   let xml = [];
 
    attributes = new Map();
 
    //-------------------------------------------------------------------------
    // Load up attributes
    //-------------------------------------------------------------------------
+   attributes.set("BACKGROUND_COLOR", this._backgroundColor);
+   attributes.set("COLOR", this._textColor);
    attributes.set("CREATED", this._created);
-   attributes.set("ID", this._id);
-   attributes.set("MODIFIED", this._modified);
 
-   if (this._text !== null) {
-      allLines = '';
-
-      // Loop through each line of text, adding an escape newline character
-      // where required.
-      this._text.forEach( function(line, index) {
-         // Remove the following from text: & < > " '
-         tempText = line.replace(new RegExp("&", "g"), "&amp;");
-         tempText = tempText.replace(new RegExp("<", "g"), "&lt;");
-         tempText = tempText.replace(new RegExp(">", "g"), "&gt;");
-         tempText = tempText.replace(new RegExp('"', "g"), "&quot;");
-         tempText = tempText.replace(new RegExp("'", "g"), "&apos;");
-
-         if (index !== 0) {
-            allLines += '&#xa;' + tempText;
-         } else {
-            allLines = tempText;
-         }
-      });
-      attributes.set("TEXT", allLines);
+   if (this._isFolded === true) {
+      attributes.set("FOLDED", "true");
+   } else {
+      attributes.set("FOLDED", "false");
    }
+
+   attributes.set("ID", this._id);
+
+   // Escape special characters in Link
+   if (this._link !== null) {
+      attributes.set('LINK', NodeModel.escapeSpecialChars(this._link));
+   }
+
+   attributes.set("MODIFIED", this._modified);
 
    // Only save the position for children of the root
    if (this._parent !== null && this._parent.getParent() === null) {
@@ -227,15 +244,22 @@ NodeModel.prototype.getAsXml = function getAsXml() {
       attributes.set("POSITION", ATTRIBUTE_DEFAULTS.get("POSITION"));
    }
 
-   attributes.set("BACKGROUND_COLOR", this._backgroundColor);
+   if (this._text !== null) {
+      allLines = '';
 
-   if (this._isFolded === true) {
-      attributes.set("FOLDED", "true");
-   } else {
-      attributes.set("FOLDED", "false");
+      // Loop through each line of text, adding an escaped newline character
+      // where required.
+      this._text.forEach( function(line, index) {
+         escapedText = NodeModel.escapeSpecialChars(line);
+
+         if (index !== 0) {
+            allLines += '&#xa;' + escapedText;
+         } else {
+            allLines = escapedText;
+         }
+      });
+      attributes.set("TEXT", allLines);
    }
-
-   attributes.set("COLOR", this._textColor);
 
    //-------------------------------------------------------------------------
    // Load up embedded tags
@@ -336,6 +360,15 @@ NodeModel.prototype.getFont = function getFont() {
 NodeModel.prototype.getId = function getId() {
    return this._id;
 }; // getId()
+
+/**
+ * Return the link text for this node
+ * @return {string} - This node's link text (null if there isn't any)
+ *
+ */
+NodeModel.prototype.getLink = function getLink() {
+   return this._link;
+}; // getLink()
 
 /**
  * Return the linkTarget objects for this node.
@@ -483,9 +516,9 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    let i;
    let arrowLink;
    let embeddedTag;
-   let newNode;
    let loadedAttributes;
    let loadedTags;
+   let newNode;
    let numEmbeddedTags;
    let richContent;
    let richContentType;
@@ -514,6 +547,13 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    }
 
    this._id = loadedAttributes.get("ID");
+
+   // We only keep a record of the link if it's not blank
+   this._link = loadedAttributes.get('LINK');
+   if (this._link === '') {
+      this._link = null;
+   }
+
    this._modified = loadedAttributes.get("MODIFIED");
    this._position = loadedAttributes.get("POSITION");
 

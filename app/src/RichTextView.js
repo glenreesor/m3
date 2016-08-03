@@ -27,8 +27,8 @@ const MAX_WIDTH = 400;
  * associated with a node text
  *
  * @constructor
- * @param {NodeView} nodeView - the NodeView corresponding to this bubble
- * @param {NodeModel} nodeModel - the NodeModel corresponding to this bubble
+ * @param {NodeView} nodeView - the NodeView corresponding to this RichText
+ * @param {NodeModel} nodeModel - the NodeModel corresponding to this RichText
  */
 export function RichTextView(nodeView, nodeModel) {
    const SVGNS = "http://www.w3.org/2000/svg";
