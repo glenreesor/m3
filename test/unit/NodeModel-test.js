@@ -193,24 +193,26 @@ let NodeModel = proxyquire('../../app/src/NodeModel',
 // Various constants
 //    - POSITION must be none since we're testing a root node
 //-----------------------------------------------------------------------------
-const ATTRIBUTE_DEFAULTS = new Map([["BACKGROUND_COLOR", "#ffffff"],
-                                    ["CREATED", ""],
-                                    ["COLOR", "#000000"],
-                                    ["FOLDED", "false"],
-                                    ["ID", ""],
-                                    ["MODIFIED", ""],
-                                    ["POSITION", ""],
-                                    ["TEXT", ""]
+const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', '#ffffff'],
+                                    ['CREATED', ''],
+                                    ['COLOR', '#000000'],
+                                    ['FOLDED', 'false'],
+                                    ['ID', ''],
+                                    ['LINK', ''],
+                                    ['MODIFIED', ''],
+                                    ['POSITION', ''],
+                                    ['TEXT', '']
                                  ]);
 
-const ATTRIBUTES = new Map([["BACKGROUND_COLOR", "#123456"],
-                            ["CREATED", "123456"],
-                            ["COLOR", "#654321"],
-                            ["FOLDED", "true"],
-                            ["ID", "ID_123456"],
-                            ["MODIFIED", "1234567"],
-                            ["POSITION", ""],
-                            ["TEXT", "test text"]
+const ATTRIBUTES = new Map([['BACKGROUND_COLOR', '#123456'],
+                            ['CREATED', '123456'],
+                            ['COLOR', '#654321'],
+                            ['FOLDED', 'true'],
+                            ['ID', 'ID_123456'],
+                            ['LINK', 'http://glenreesor.ca'],
+                            ['MODIFIED', '1234567'],
+                            ['POSITION', ''],
+                            ['TEXT', 'test text']
                          ]);
 
 // Leaving out <node> as an embedded tag, since requires much more effort
@@ -329,7 +331,7 @@ test('NodeModel - Constructor from XML, getAsXml', function(t) {
    // First test is to make sure when attributes are added to this file,
    // we actually test them
    //--------------------------------------------------------------------------
-   t.equal(ATTRIBUTES.size, 8,
+   t.equal(ATTRIBUTES.size, 9,
       "all attributes listed in this file must be tested");
 
    //--------------------------------------------------------------------------
@@ -350,6 +352,9 @@ test('NodeModel - Constructor from XML, getAsXml', function(t) {
 
    t.equal(nodeModel.getId(), ATTRIBUTES.get("ID"),
       "id must match value that was loaded");
+
+   t.equal(nodeModel.getLink(), ATTRIBUTES.get('LINK'),
+      'link must match value that was loaded');
 
    t.equal(nodeModel.getModifiedTimestamp(), ATTRIBUTES.get("MODIFIED"),
       "modified timestamp must match value that was loaded");

@@ -24,20 +24,26 @@ import {m3App} from "./main";
  * around the node text
  *
  * @constructor
- * @param {NodeView} nodeView - the NodeView corresponding to this bubble
- * @param {NodeModel} nodeModel - the NodeModel corresponding to this bubble
- * @param {TextView} textView - the TextView that this bubble must enclose
+ * @param {NodeView}  nodeView     - the NodeView corresponding to this bubble
+ * @param {NodeModel} nodeModel    - the NodeModel corresponding to this bubble
+ * @param {TextView}  textView     - the TextView that this bubble must enclose
+ * @param {LinkIcon}  linkIconView - the LinkIconView that this bubble must
+ *                                   enclose
  */
-export function BubbleView(nodeView, nodeModel, textView) {
+export function BubbleView(nodeView, nodeModel, textView, linkIconView) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
+   this._myLinkIconView = linkIconView;
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
    this._myTextView = textView;
    this._isSelected = false;
 
+   this._height = 0;
+   this._width = 0;
+
    //---------------------------------------------------------------------------
-   // One-time creation of required html/svg elements
+   // One-time creation of required svg element
    //---------------------------------------------------------------------------
    this._svgBubble = document.createElementNS(SVGNS, "rect");
    document.getElementById("svgBubbleLayer").appendChild(this._svgBubble);
@@ -87,7 +93,7 @@ BubbleView.prototype.deleteSvg = function deleteSvg() {
  * @return {number} - the height of this bubble
  */
 BubbleView.prototype.getHeight = function getHeight() {
-   return this._svgBubble.height.baseVal.value;
+   return this._height;
 }; // getHeight()
 
 /**
@@ -95,7 +101,7 @@ BubbleView.prototype.getHeight = function getHeight() {
  * @return {number} - the width of this bubble
  */
 BubbleView.prototype.getWidth = function getWidth() {
-   return this._svgBubble.width.baseVal.value;
+   return this._width;
 }; // getWidth()
 
 /**
@@ -149,12 +155,44 @@ BubbleView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 BubbleView.prototype.update = function update() {
+   let linkIconHeight;
+   let linkIconWidth;
+
+   linkIconHeight = 0;
+   linkIconWidth = 0;
+
+   if (this._myLinkIconView !== null) {
+      linkIconHeight = this._myLinkIconView.getHeight();
+      linkIconWidth = this._myLinkIconView.getWidth();
+   }
+
    this.setSelected(this._isSelected);
+
+   //--------------------------------------------------------------------------
+   // Determine height of everything that must be enclosed, plus the padding
+   // between contents and the bubble
+   //--------------------------------------------------------------------------
+   this._height = Math.max(linkIconHeight, this._myTextView.getHeight()) +
+                  2*BubbleView.TEXT_BUBBLE_INNER_PADDING;
+
+   //--------------------------------------------------------------------------
+   // Determine width of everything that must be enclosed, plus the padding
+   // between contents and the bubble
+   //
+   // Required widths:
+   // Padding, text, (padding, linkIcon), padding
+   //--------------------------------------------------------------------------
+   this._width = this._myTextView.getWidth() +
+                 2*BubbleView.TEXT_BUBBLE_INNER_PADDING;
+
+   if (linkIconWidth !== 0) {
+      this._width += BubbleView.TEXT_BUBBLE_INNER_PADDING + linkIconWidth;
+   }
+
+   //--------------------------------------------------------------------------
+   // Update SVG objects
+   //--------------------------------------------------------------------------
    this._svgBubble.setAttribute("fill", this._myNodeModel.getBackgroundColor());
-
-   this._svgBubble.setAttribute("width", this._myTextView.getWidth() +
-                                2*BubbleView.TEXT_BUBBLE_INNER_PADDING);
-
-   this._svgBubble.setAttribute("height", this._myTextView.getHeight() +
-                                2*BubbleView.TEXT_BUBBLE_INNER_PADDING);
+   this._svgBubble.setAttribute("height", this._height);
+   this._svgBubble.setAttribute("width", this._width);
 }; // update()

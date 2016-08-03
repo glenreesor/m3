@@ -17,14 +17,15 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {BubbleView} from "./BubbleView";
-import {CloudView} from "./CloudView";
-import {ConnectorView} from "./ConnectorView";
-import {FoldingIconView} from "./FoldingIconView";
-import {GraphicalLinkView} from "./GraphicalLinkView";
-import {NodeModel} from "./NodeModel";
-import {RichTextView} from "./RichTextView";
-import {TextView} from "./TextView";
+import {BubbleView} from './BubbleView';
+import {CloudView} from './CloudView';
+import {ConnectorView} from './ConnectorView';
+import {FoldingIconView} from './FoldingIconView';
+import {GraphicalLinkView} from './GraphicalLinkView';
+import {LinkIconView} from './LinkIconView';
+import {NodeModel} from './NodeModel';
+import {RichTextView} from './RichTextView';
+import {TextView} from './TextView';
 
 /**
  * A NodeView orchestrates the creation of all visual components for a node,
@@ -36,12 +37,14 @@ import {TextView} from "./TextView";
  */
 
 export function NodeView(controller, myModel) {
+   let link;
 
    this._controller = controller;
    this._myNodeModel = myModel;
 
    this._isRoot = (this._myNodeModel.getParent() === null);
    this._isVisible = true;
+   this._myLinkIconView = null;
    this._myConnector = null;
    this._myFoldingIcon = null;
    this._myGraphicalLinks = [];
@@ -61,7 +64,18 @@ export function NodeView(controller, myModel) {
       this._myText = new RichTextView(this, myModel);
    }
 
-   this._myBubble = new BubbleView(this, this._myNodeModel, this._myText);
+   // Only show http links for now
+   link = myModel.getLink();
+   if (link !== null && link[0] !== '#') {
+      this._myLinkIconView = new LinkIconView(this, myModel);
+   }
+
+   this._myBubble = new BubbleView(
+      this,
+      this._myNodeModel,
+      this._myText,
+      this._myLinkIconView
+   );
 
    // Must create cloud here, even though we don't know the size, to ensure
    // proper z-order of clouds (parent clouds must be under child clouds)
@@ -212,6 +226,10 @@ NodeView.prototype.deleteMyself = function deleteMyself() {
    this._myGraphicalLinks.forEach( (link) => {
       link.deleteSvg();
    });
+
+   if (this._myLinkIconView !== null) {
+      this._myLinkIconView.deleteSvg();
+   }
 }; // deleteMyself()
 
 /**
@@ -225,8 +243,12 @@ NodeView.prototype.deleteMyself = function deleteMyself() {
  *                                    to this node-s parent
  * @return {void}
  */
-NodeView.prototype.drawAt =
-   function drawAt(x, y, parentConnectorX, parentConnectorY) {
+NodeView.prototype.drawAt = function drawAt(
+   x,
+   y,
+   parentConnectorX,
+   parentConnectorY
+) {
 
    this._x = x;
    this._y = y;
@@ -253,9 +275,15 @@ NodeView.prototype.drawAt =
    }
 
    //--------------------------------------------------------------------------
-   // Text and bubble
+   // Text, LinkIcon and bubble
    //--------------------------------------------------------------------------
    this._myText.setPosition(x + BubbleView.TEXT_BUBBLE_INNER_PADDING, y);
+   if (this._myLinkIconView !== null) {
+      this._myLinkIconView.setPosition(
+         x + 2*BubbleView.TEXT_BUBBLE_INNER_PADDING + this._myText.getWidth(),
+         y
+      );
+   }
 
    this._myBubble.setPosition(x, y);
 
@@ -586,6 +614,11 @@ NodeView.prototype.setVisible = function setVisible(visible) {
    }
 
    this._myText.setVisible(visible);
+
+   if (this._myLinkIconView !== null) {
+      this._myLinkIconView.setVisible(visible);
+   }
+
    this._myBubble.setVisible(visible);
 
    if (this._myFoldingIcon !== null) {
@@ -616,6 +649,20 @@ NodeView.prototype.update = function update() {
    //--------------------------------------------------------------------------
    this._myText.update();
    this._myBubble.update();
+
+   //--------------------------------------------------------------------------
+   // Link Icon
+   //--------------------------------------------------------------------------
+   // Handle addition of link
+   if (this._myNodeModel.getLink() !== null && this._myLinkIconView === null) {
+      this._myLinkIconView = new LinkIconView(this, this._myNodeModel);
+   }
+
+   // Handle deletion of link
+   if (this._myNodeModel.getLink() === null && this._myLinkIconView !== null) {
+      this._myLinkIconView.deleteSvg();
+      this._myLinkIconView = null;
+   }
 
    //--------------------------------------------------------------------------
    // Cloud
