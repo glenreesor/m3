@@ -73,8 +73,8 @@ export function NodeView(controller, myModel) {
    this._myBubble = new BubbleView(
       this,
       this._myNodeModel,
-      this._myText,
-      this._myLinkIconView
+      this._getBubbleContentsWidth(),
+      this._getBubbleContentsHeight()
    );
 
    // Must create cloud here, even though we don't know the size, to ensure
@@ -277,10 +277,10 @@ NodeView.prototype.drawAt = function drawAt(
    //--------------------------------------------------------------------------
    // Text, LinkIcon and bubble
    //--------------------------------------------------------------------------
-   this._myText.setPosition(x + BubbleView.TEXT_BUBBLE_INNER_PADDING, y);
+   this._myText.setPosition(x + BubbleView.BUBBLE_INNER_PADDING, y);
    if (this._myLinkIconView !== null) {
       this._myLinkIconView.setPosition(
-         x + 2*BubbleView.TEXT_BUBBLE_INNER_PADDING + this._myText.getWidth(),
+         x + 2*BubbleView.BUBBLE_INNER_PADDING + this._myText.getWidth(),
          y
       );
    }
@@ -446,6 +446,43 @@ NodeView.prototype.drawGraphicalLinks = function drawGraphicalLinks() {
 }; // drawGraphicalLinks()
 
 /**
+ * Get the height of the contents of this NodeView's bubble.
+ *
+ * @return {number} - the height of the contents of this node's bubble
+ */
+NodeView.prototype._getBubbleContentsHeight =
+   function _getBubbleContentsHeight() {
+
+   let height;
+   height = this._myText.getHeight();
+
+   if (this._myLinkIconView !== null) {
+      return Math.max(this._myLinkIconView.getHeight(), height);
+   } else  {
+      return height;
+   }
+}; // _getBubbleContentsHeight()
+
+/**
+ * Get the width of the contents of this NodeView's bubble.
+ *
+ * @return {number} - the width of the contents of this node's bubble
+ */
+NodeView.prototype._getBubbleContentsWidth =
+   function _getBubbleContentsWidth() {
+
+   let width;
+   width = this._myText.getWidth();
+
+   if (this._myLinkIconView !== null) {
+      width += BubbleView.BUBBLE_INNER_PADDING +
+               this._myLinkIconView.getWidth();
+   }
+
+   return width;
+}; //_getBubbleContentsWidth()
+
+/**
  * Get the width of this NodeView's bubble.
  *
  * @return {number} - the width of this node's bubble
@@ -491,8 +528,9 @@ NodeView.prototype.getGraphicalLinkCoords = function getGraphicalLinkCoords() {
  * @param {String} - NodeModel.POSITION_LEFT or NodeModel.POSITION_RIGHT
  * @return {number} - Maximum width of all the children on the specified side
  */
-NodeView.prototype.getMaxChildTotalWidth =
-   function getMaxChildTotalWidth(side) {
+NodeView.prototype.getMaxChildTotalWidth = function getMaxChildTotalWidth(
+   side
+) {
 
    let returnValue = 0;
 
@@ -648,7 +686,10 @@ NodeView.prototype.update = function update() {
    // Text and bubble
    //--------------------------------------------------------------------------
    this._myText.update();
-   this._myBubble.update();
+   this._myBubble.update(
+      this._getBubbleContentsWidth(),
+      this._getBubbleContentsHeight()
+   );
 
    //--------------------------------------------------------------------------
    // Link Icon
