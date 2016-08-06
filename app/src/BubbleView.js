@@ -155,6 +155,7 @@ BubbleView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 BubbleView.prototype.update = function update() {
+   let backgroundColor;
    let linkIconHeight;
    let linkIconWidth;
 
@@ -192,7 +193,12 @@ BubbleView.prototype.update = function update() {
    //--------------------------------------------------------------------------
    // Update SVG objects
    //--------------------------------------------------------------------------
-   this._svgBubble.setAttribute("fill", this._myNodeModel.getBackgroundColor());
+   backgroundColor = this._myNodeModel.getBackgroundColor();
+   if (backgroundColor === '') {
+      backgroundColor = 'none';
+   }
+
+   this._svgBubble.setAttribute("fill", backgroundColor);
    this._svgBubble.setAttribute("height", this._height);
    this._svgBubble.setAttribute("width", this._width);
 }; // update()
