@@ -27,7 +27,7 @@ import {NodeView} from "./NodeView";
 import {RichContent} from "./RichContent";
 import {m3App} from "./main";
 
-const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', '#ffffff'],
+const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', ''],
                                     ['CREATED', ''],
                                     ['COLOR', '#000000'],
                                     ['FOLDED', 'false'],
@@ -67,7 +67,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
 
    // Optional Attributes
    this._arrowLinks = [];
-   this._backgroundColor = "#ffffff";
+   this._backgroundColor = '';    // No color means transparent
    this._children = [];
    this._cloudModel = null;
    this._font = null;             // Points to Font object
