@@ -1,0 +1,32 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 42.324 49.031" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs></defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-75.02146,-512.66327)">
+  <g stroke-linejoin="round" transform="translate(-691.04363,638.13424)" stroke-dashoffset="5.60000009" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2" fill="none">
+   <g fill-rule="evenodd">
+    <path d="m767.07-86.671c3.2829,3.0772,6.5657,6.1544,9.8486,9.2316,10.158-2.0365,20.317-4.073,30.475-6.1094-4.2008-2.6251-8.4016-5.2502-12.602-7.8753-9.2404,1.5844-18.481,3.1688-27.721,4.7531z" fill="#afafde"/>
+    <path d="m767.07-112.9v26.228c9.2404-1.5844,18.481-3.1688,27.721-4.7531v-24.345c-9.2404,0.95694-18.481,1.9139-27.721,2.8708z" fill="#353564"/>
+    <path d="m794.79-115.77c4.2008,1.5855,8.4016,3.171,12.602,4.7566v27.464c-4.2008-2.6251-8.4016-5.2502-12.602-7.8753v-24.345z" fill="#e9e9ff"/>
+    <path d="m767.07-112.9c3.2829,1.8586,6.5657,3.7172,9.8486,5.5758,10.158-1.23,20.317-2.46,30.475-3.69-4.2008-1.5855-8.4016-3.171-12.602-4.7566-9.2404,0.95694-18.481,1.9139-27.721,2.8708z" fill="#4d4d9f"/>
+    <path d="m776.91-107.32v29.883c10.158-2.0365,20.317-4.073,30.475-6.1094v-27.464c-10.158,1.23-20.317,2.46-30.475,3.69z" fill="#d7d7ff"/>
+    <path d="m767.07-112.9c3.2829,1.8586,6.5657,3.7172,9.8486,5.5758v29.883c-3.2829-3.0772-6.5657-6.1544-9.8486-9.2316v-26.228z" fill="#8686bf"/>
+   </g>
+   <path d="m792.29-111.26c-0.002-5.0346-1.2174-11.103-4.3268-12.935-2.5415-1.3159-4.8714,2.2942-5.7054,6.0043-0.54069,2.1388-0.79355,4.4634-0.80533,6.7778"/>
+  </g>
+ </g>
+</svg>

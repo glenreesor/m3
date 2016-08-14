@@ -54,11 +54,18 @@ gulp.task('fast', function() {
       .pipe(gulp.dest(productionDir));
 
    //--------------------------------------------------------------------------
-   // Images
+   // Images - Actions
    //--------------------------------------------------------------------------
    result = gulp.src('app/images/*')
       .pipe(gulp.dest(debugDir + '/images'))
       .pipe(gulp.dest(productionDir + '/images'));
+
+   //--------------------------------------------------------------------------
+   // Images - Icons
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/images/icons/*')
+      .pipe(gulp.dest(debugDir + '/images/icons'))
+      .pipe(gulp.dest(productionDir + '/images/icons'));
 
    //--------------------------------------------------------------------------
    // Libs

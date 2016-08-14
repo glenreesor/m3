@@ -1,0 +1,27 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 37.469 49.031" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs></defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-228.85425,-687.75392)">
+  <g stroke-dasharray="none" stroke="#000" stroke-miterlimit="4" transform="translate(-441.33325,690.12892)">
+   <rect ry="0" height="47.03" width="35.479" y="-1.3651" x="671.18" stroke-width="2" fill="#FFF"/>
+   <rect stroke-linejoin="miter" stroke-dashoffset="5.60000009" transform="matrix(0.90630778,0.42261827,-0.42261827,0.90630778,0,0)" height="28.937" width="7.7571" stroke-linecap="round" y="-293.05" x="631.82" stroke-width="2" fill="#ffc200"/>
+   <path stroke-linejoin="miter" d="m289.5,705-4.3301-7.5,8.6603,0z" transform="matrix(0.77590041,0.36180832,-0.71339809,1.5298872,960.4034,-1141.9076)" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="1.66369236" fill="#bab8b8"/>
+   <path stroke-linejoin="miter" d="m289.5,705-4.3301-7.5,8.6603,0z" transform="matrix(0.15934219,0.07430248,-0.11717928,0.25129177,719.84518,-159.85915)" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="9.05839348" fill="#000"/>
+  </g>
+ </g>
+</svg>

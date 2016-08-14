@@ -22,6 +22,7 @@ import {CloudView} from './CloudView';
 import {ConnectorView} from './ConnectorView';
 import {FoldingIconView} from './FoldingIconView';
 import {GraphicalLinkView} from './GraphicalLinkView';
+import {IconView} from './IconView';
 import {LinkIconView} from './LinkIconView';
 import {NodeModel} from './NodeModel';
 import {RichTextView} from './RichTextView';
@@ -44,6 +45,7 @@ export function NodeView(controller, myModel) {
 
    this._isRoot = (this._myNodeModel.getParent() === null);
    this._isVisible = true;
+   this._myIconViews = [];
    this._myLinkIconView = null;
    this._myConnector = null;
    this._myFoldingIcon = null;
@@ -64,6 +66,10 @@ export function NodeView(controller, myModel) {
       this._myText = new RichTextView(this, myModel);
    }
 
+   myModel.getIcons().forEach( (icon) => {
+      this._myIconViews.push(new IconView(this, icon));
+   });
+
    // Only show http links for now
    link = myModel.getLink();
    if (link !== null && link[0] !== '#') {
@@ -73,8 +79,8 @@ export function NodeView(controller, myModel) {
    this._myBubble = new BubbleView(
       this,
       this._myNodeModel,
-      this._myText,
-      this._myLinkIconView
+      this._getBubbleContentsWidth(),
+      this._getBubbleContentsHeight()
    );
 
    // Must create cloud here, even though we don't know the size, to ensure
@@ -227,6 +233,10 @@ NodeView.prototype.deleteMyself = function deleteMyself() {
       link.deleteSvg();
    });
 
+   this._myIconViews.forEach( (icon) => {
+      icon.deleteSvg();
+   });
+
    if (this._myLinkIconView !== null) {
       this._myLinkIconView.deleteSvg();
    }
@@ -255,6 +265,7 @@ NodeView.prototype.drawAt = function drawAt(
 
    let childWidthTmp;
    let cloudX;
+   let startX;
 
    //--------------------------------------------------------------------------
    // Make all of my components visible (note this is recursive on child nodes)
@@ -275,14 +286,20 @@ NodeView.prototype.drawAt = function drawAt(
    }
 
    //--------------------------------------------------------------------------
-   // Text, LinkIcon and bubble
+   // Icon(s), Text, LinkIcon and Bubble
    //--------------------------------------------------------------------------
-   this._myText.setPosition(x + BubbleView.TEXT_BUBBLE_INNER_PADDING, y);
+   startX = x + BubbleView.BUBBLE_INNER_PADDING;
+
+   this._myIconViews.forEach( (iconView) => {
+      iconView.setPosition(startX, y);
+      startX += iconView.getWidth() + BubbleView.BUBBLE_INNER_PADDING;
+   });
+
+   this._myText.setPosition(startX, y);
+   startX += this._myText.getWidth() + BubbleView.BUBBLE_INNER_PADDING;
+
    if (this._myLinkIconView !== null) {
-      this._myLinkIconView.setPosition(
-         x + 2*BubbleView.TEXT_BUBBLE_INNER_PADDING + this._myText.getWidth(),
-         y
-      );
+      this._myLinkIconView.setPosition(startX, y);
    }
 
    this._myBubble.setPosition(x, y);
@@ -446,6 +463,57 @@ NodeView.prototype.drawGraphicalLinks = function drawGraphicalLinks() {
 }; // drawGraphicalLinks()
 
 /**
+ * Get the height of the contents of this NodeView's bubble.
+ *
+ * @return {number} - the height of the contents of this node's bubble
+ */
+NodeView.prototype._getBubbleContentsHeight =
+   function _getBubbleContentsHeight() {
+
+   let height;
+   height = this._myText.getHeight();
+
+   if (this._myIconViews.length !== 0) {
+      // All icons are the same height, so just use the first one
+      height = Math.max(height, this._myIconViews[0].getHeight());
+   }
+
+   if (this._myLinkIconView !== null) {
+      height = Math.max(height, this._myLinkIconView.getHeight());
+   }
+
+   return height;
+}; // _getBubbleContentsHeight()
+
+/**
+ * Get the width of the contents of this NodeView's bubble.
+ *
+ * @return {number} - the width of the contents of this node's bubble
+ */
+NodeView.prototype._getBubbleContentsWidth =
+   function _getBubbleContentsWidth() {
+
+   let width;
+   width = 0;
+
+   // Need space for (icon + padding) + text + (padding + linkicon)
+   if (this._myIconViews.length !== 0) {
+      // All icons are the same width, so just use the first one
+      width += (this._myIconViews[0].getWidth() +
+                BubbleView.BUBBLE_INNER_PADDING) * this._myIconViews.length;
+   }
+
+   width += this._myText.getWidth();
+
+   if (this._myLinkIconView !== null) {
+      width += BubbleView.BUBBLE_INNER_PADDING +
+               this._myLinkIconView.getWidth();
+   }
+
+   return width;
+}; //_getBubbleContentsWidth()
+
+/**
  * Get the width of this NodeView's bubble.
  *
  * @return {number} - the width of this node's bubble
@@ -491,8 +559,9 @@ NodeView.prototype.getGraphicalLinkCoords = function getGraphicalLinkCoords() {
  * @param {String} - NodeModel.POSITION_LEFT or NodeModel.POSITION_RIGHT
  * @return {number} - Maximum width of all the children on the specified side
  */
-NodeView.prototype.getMaxChildTotalWidth =
-   function getMaxChildTotalWidth(side) {
+NodeView.prototype.getMaxChildTotalWidth = function getMaxChildTotalWidth(
+   side
+) {
 
    let returnValue = 0;
 
@@ -613,6 +682,10 @@ NodeView.prototype.setVisible = function setVisible(visible) {
       this._myConnector.setVisible(visible);
    }
 
+   this._myIconViews.forEach( (icon) => {
+      icon.setVisible(visible);
+   });
+
    this._myText.setVisible(visible);
 
    if (this._myLinkIconView !== null) {
@@ -643,12 +716,20 @@ NodeView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 NodeView.prototype.update = function update() {
-
    //--------------------------------------------------------------------------
    // Text and bubble
    //--------------------------------------------------------------------------
    this._myText.update();
-   this._myBubble.update();
+   this._myBubble.update(
+      this._getBubbleContentsWidth(),
+      this._getBubbleContentsHeight()
+   );
+
+   //--------------------------------------------------------------------------
+   // Icon(s)
+   //--------------------------------------------------------------------------
+   // Steps to be done her depend on what the UI implements, which hasn't been
+   // done yet.
 
    //--------------------------------------------------------------------------
    // Link Icon

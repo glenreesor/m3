@@ -1,0 +1,26 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 67.05 51.405">
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-595.04668,-283.80235)">
+  <g transform="translate(-393.01993,-257.05959)">
+   <rect stroke-linejoin="round" stroke-dasharray="none" stroke-dashoffset="5.60000009" ry="9.8403" height="48.405" width="48.405" stroke="#00F" stroke-linecap="round" stroke-miterlimit="4" y="542.36" x="997.41" stroke-width="3" fill="#FFF"/>
+   <text style="writing-mode:lr-tb;letter-spacing:0px;text-anchor:start;word-spacing:0px;text-align:start;" line-height="125%" font-weight="normal" font-size="40.51918411px" font-style="normal" font-stretch="normal" font-variant="normal" y="581.33392" x="1009.1465" font-family="Sans" xml:space="preserve" fill="#0000ff"><tspan y="581.33392" x="1009.1465">R</tspan></text>
+   <path stroke-linejoin="round" d="m1030.4,1218.9-196.74-0.1639,98.511-170.3z" transform="matrix(0.07952946,0,0,0.07952946,923.26525,474.15596)" stroke-dashoffset="5.60000009" stroke="#00F" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="37.72187042" fill="#FFF"/>
+   <path stroke-linejoin="round" d="m1030.4,1218.9-196.74-0.1639,98.511-170.3z" transform="matrix(0.07952946,0,0,-0.07952946,971.66834,654.47491)" stroke-dashoffset="5.60000009" stroke="#00F" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="37.72187042" fill="#FFF"/>
+  </g>
+ </g>
+</svg>

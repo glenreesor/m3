@@ -24,19 +24,19 @@ import {m3App} from "./main";
  * around the node text
  *
  * @constructor
- * @param {NodeView}  nodeView     - the NodeView corresponding to this bubble
- * @param {NodeModel} nodeModel    - the NodeModel corresponding to this bubble
- * @param {TextView}  textView     - the TextView that this bubble must enclose
- * @param {LinkIcon}  linkIconView - the LinkIconView that this bubble must
- *                                   enclose
+ * @param {NodeView}  nodeView       - the NodeView corresponding to this bubble
+ * @param {NodeModel} nodeModel      - the NodeModel corresponding to this
+ *                                     bubble
+ * @param {number}    contentsWidth  - the width of bubble contents, excluding
+ *                                     padding
+ * @param {number}    contentsHeight - the height of bubble contents, excluding
+ *                                     padding
  */
-export function BubbleView(nodeView, nodeModel, textView, linkIconView) {
+export function BubbleView(nodeView, nodeModel, contentsWidth, contentsHeight) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
-   this._myLinkIconView = linkIconView;
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
-   this._myTextView = textView;
    this._isSelected = false;
 
    this._height = 0;
@@ -59,14 +59,14 @@ export function BubbleView(nodeView, nodeModel, textView, linkIconView) {
    this._svgBubble.addEventListener("click", this._boundClickListener);
 
    //---------------------------------------------------------------------------
-   // Now update with information from corresponding nodeModel
+   // Now update the dimensions
    //---------------------------------------------------------------------------
-   this.update();
+   this.update(contentsWidth, contentsHeight);
 
 } // BubbleView()
 
-// Padding between bubble and inner text
-BubbleView.TEXT_BUBBLE_INNER_PADDING = 5;
+// Padding between bubble and contents
+BubbleView.BUBBLE_INNER_PADDING = 5;
 
 /**
  * Listener function for this bubble
@@ -152,43 +152,19 @@ BubbleView.prototype.setVisible = function setVisible(visible) {
 
 /**
  * Update this bubble from the corresponding model(s)
+ * @param {number} contentsWidth  - the width of bubble contents, excluding
+ *                                     padding
+ * @param {number} contentsHeight - the height of bubble contents, excluding
+ *                                     padding
+ *
  * @return {void}
  */
-BubbleView.prototype.update = function update() {
+BubbleView.prototype.update = function update(contentsWidth, contentsHeight) {
    let backgroundColor;
-   let linkIconHeight;
-   let linkIconWidth;
-
-   linkIconHeight = 0;
-   linkIconWidth = 0;
-
-   if (this._myLinkIconView !== null) {
-      linkIconHeight = this._myLinkIconView.getHeight();
-      linkIconWidth = this._myLinkIconView.getWidth();
-   }
 
    this.setSelected(this._isSelected);
-
-   //--------------------------------------------------------------------------
-   // Determine height of everything that must be enclosed, plus the padding
-   // between contents and the bubble
-   //--------------------------------------------------------------------------
-   this._height = Math.max(linkIconHeight, this._myTextView.getHeight()) +
-                  2*BubbleView.TEXT_BUBBLE_INNER_PADDING;
-
-   //--------------------------------------------------------------------------
-   // Determine width of everything that must be enclosed, plus the padding
-   // between contents and the bubble
-   //
-   // Required widths:
-   // Padding, text, (padding, linkIcon), padding
-   //--------------------------------------------------------------------------
-   this._width = this._myTextView.getWidth() +
-                 2*BubbleView.TEXT_BUBBLE_INNER_PADDING;
-
-   if (linkIconWidth !== 0) {
-      this._width += BubbleView.TEXT_BUBBLE_INNER_PADDING + linkIconWidth;
-   }
+   this._width = contentsWidth + 2*BubbleView.BUBBLE_INNER_PADDING;
+   this._height = contentsHeight + 2*BubbleView.BUBBLE_INNER_PADDING;
 
    //--------------------------------------------------------------------------
    // Update SVG objects

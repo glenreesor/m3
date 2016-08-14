@@ -1,0 +1,34 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48.644 48.644" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="linearGradient6944" y2="157.9" gradientUnits="userSpaceOnUse" x2="65.623" y1="157.9" x1="36.822">
+   <stop stop-color="#eaeaea" offset="0"/>
+   <stop stop-color="#c6c6c6" offset="1"/>
+  </linearGradient>
+  <radialGradient id="radialGradient6280" gradientUnits="userSpaceOnUse" cx="682.6" cy="1185.1" r="10.972" gradientTransform="matrix(1,0,0,0.99426214,0,6.799728)">
+   <stop stop-color="#ff2cf1" offset="0"/>
+   <stop stop-color="#ff7ef1" offset="1"/>
+  </radialGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-249.35182,-542.93294)">
+  <g stroke-miterlimit="4" transform="translate(-418.62405,-1.7164678)">
+   <path d="m65.03,157.9c0,7.6258-6.182,13.808-13.808,13.808-7.6258,0-13.808-6.182-13.808-13.808,0-7.6258,6.182-13.808,13.808-13.808,7.6258,0,13.808,6.182,13.808,13.808z" transform="matrix(1.6882994,0,0,1.6882994,605.82535,302.37844)" stroke="#000" stroke-dasharray="none" stroke-width="1.18462396" fill="url(#linearGradient6944)"/>
+   <path d="m671.74,1185.1,0-10.803,0.6685,0c0.84804,0,2.586,0.2483,3.8563,0.5453,7.0522,1.6492,12.961,6.7778,15.632,13.566,0.77496,1.9703,1.2594,4.1484,1.5056,6.7701l0.0678,0.722h-10.865-10.865v-10.803z" stroke-opacity="0" transform="translate(21.133227,-627.50049)" fill="url(#radialGradient6280)"/>
+  </g>
+ </g>
+</svg>

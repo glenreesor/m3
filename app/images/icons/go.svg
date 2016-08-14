@@ -1,0 +1,28 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20.969 50.406" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs></defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-320.92216,-610.58323)">
+  <g stroke-linejoin="round" transform="translate(31.828407,841.39573)" stroke-dashoffset="5.60000009" stroke-linecap="butt" stroke-dasharray="none" stroke-miterlimit="4">
+   <rect height="42.388" width="18.948" stroke="#34716f" y="-229.8" x="290.1" stroke-width="2" fill="#000"/>
+   <rect height="6.0527" width="6.579" stroke="#34716f" y="-187.46" x="296.29" stroke-width="2" fill="#000"/>
+   <path d="m373,338c0,7.1797-5.8203,13-13,13s-13-5.8203-13-13,5.8203-13,13-13,13,5.8203,13,13z" transform="matrix(0.35714668,0,0,0.35714668,171.00512,-342.61879)" stroke="#FFF" stroke-width="5.59993982" fill="none"/>
+   <path d="m373,338c0,7.1797-5.8203,13-13,13s-13-5.8203-13-13,5.8203-13,13-13,13,5.8203,13,13z" transform="matrix(0.35714668,0,0,0.35714668,171.00512,-330.38181)" stroke="#FFF" stroke-width="5.59993982" fill="none"/>
+   <path d="m373,338c0,7.1797-5.8203,13-13,13s-13-5.8203-13-13,5.8203-13,13-13,13,5.8203,13,13z" transform="matrix(0.44643337,0,0,0.44643337,138.86191,-348.32374)" stroke="#0F0" stroke-width="4.47995186" fill="#0F0"/>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,28 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 55.324 53.899">
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-606.86967,-758.31434)">
+  <g transform="translate(-157.52586,117.73633)">
+   <path d="m804.03,1288.5c2.0857-3.0327,6.2813-3.8317,9.3712-1.7846,1.8682,1.2376,2.9836,3.3088,2.9735,5.521" transform="matrix(3.4466516,0,0,3.4466516,-1998.0944,-3786.3713)" stroke="#000081" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2.32109332" fill="none"/>
+   <path stroke-linejoin="miter" d="m815.72,666.79v8.0783" stroke="#000081" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="8" fill="none"/>
+   <path stroke-linejoin="round" d="m811.81,1300.8c-0.49826,1.7782-2.3437,2.8158-4.1219,2.3176-0.79283-0.2222-1.4758-0.729-1.9181-1.4235" transform="matrix(5.310736,0,0,6.1438443,-3495.6525,-7316.4749)" stroke="#000081" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="1.40053034" fill="none"/>
+   <path stroke-linejoin="miter" d="m773.02,653.79c0.0762,33.663,0.0762,33.663,0.0762,33.663" stroke="#000081" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="8" fill="none"/>
+   <path stroke-linejoin="miter" d="m768.43,648.06c7.3114,7.6922,4.749,5.1922,4.749,5.1922" stroke="#000081" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="8" fill="none"/>
+   <path d="m775.41,1313.4c-3.7263-0.9418-6.6729-3.0673-8.7972-6.3458-0.43981-0.6788-1.0066-1.4567-1.2596-1.7286-1.3923-1.4968-4.1313-1.5705-5.6483-0.152-1.2697,1.1872-1.6438,3.3695-0.84578,4.9338l0.38302,0.7508h-1.5946-1.5946v-13.719-13.719l1.2816-1.3225c3.0218-3.1181,6.872-5.1068,11.073-5.7192,2.3039-0.3359,5.925-0.1349,7.8537,0.436,3.7007,1.0954,6.0219,2.4441,8.5247,4.9531,1.906,1.9108,2.7207,3.0275,3.7813,5.1828,1.4108,2.8671,1.7557,4.7274,1.8958,10.224,0.10855,4.2591,0.0973,4.4877-0.28234,5.7376-1.4081,4.6359-4.7812,8.395-8.9176,9.9381-1.2345,0.4605-1.7151,0.5419-3.4662,0.587-1.1181,0.029-2.192,0.012-2.3865-0.037z" fill-rule="nonzero" transform="translate(21.133227,-627.50049)" fill="#ff9981"/>
+  </g>
+ </g>
+</svg>

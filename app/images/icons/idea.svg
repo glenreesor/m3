@@ -1,0 +1,29 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 34.463 49.384" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs></defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-242.59787,-736.01225)">
+  <g transform="translate(-606.349,1088.0715)" stroke="#34716f" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none">
+   <path stroke-linejoin="round" d="m143.62,461.98c-12.555-7.2487-16.857-23.303-9.6082-35.858,7.2487-12.555,23.303-16.857,35.858-9.6082,12.555,7.2487,16.857,23.303,9.6082,35.858-2.3039,3.9905-5.6177,7.3042-9.6082,9.6082" transform="matrix(0.62103682,0,0,0.62103682,768.83103,-607.61167)" stroke-dashoffset="5.60000009" stroke-width="3.00014424" fill="#fdfb00"/>
+   <rect stroke-linejoin="round" stroke-dashoffset="5.60000009" height="13.352" width="16.205" y="-320.64" x="858.15" stroke-width="1.8632" fill="#e6eaea"/>
+   <path stroke-linejoin="round" d="m129.99,503.76c0.25166,3.0347-4.2409,5.6017-10.034,5.7335-5.7935,0.13182-10.694-2.2214-10.946-5.2561-0.008-0.10247-0.0115-0.20504-0.009-0.3076" transform="matrix(0.62103682,0,0,0.62103682,792.06502,-620.02865)" stroke-dashoffset="5.60000009" stroke-width="3.00014424" fill="#e6eaea"/>
+   <path stroke-linejoin="miter" d="m859.83-310.76h13.064" stroke-width="1.86319995" fill="none"/>
+   <path stroke-linejoin="miter" d="m859.83-317.92h13.064" stroke-width="1.86319995" fill="none"/>
+   <path stroke-linejoin="miter" d="m859.83-314.34h13.064" stroke-width="1.86319995" fill="none"/>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,33 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 80.673547 50.345785" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="linearGradient4718" y2="552.16" gradientUnits="userSpaceOnUse" x2="680.32" gradientTransform="matrix(0.95672811,0,0,0.95672048,-94.106101,-506.77552)" y1="552.16" x1="596.36">
+   <stop stop-color="#eaedee" offset="0"/>
+   <stop stop-color="#b1b1b1" offset="1"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g stroke-dasharray="none" stroke-width="3" stroke-miterlimit="4" transform="translate(-476.37498,3.6895349)">
+  <rect stroke-linejoin="round" stroke-dashoffset="5.60000009" height="47.356" width="77.46" stroke="#000" stroke-linecap="round" y="-2.1895" x="477.88" fill="url(#linearGradient4718)"/>
+  <path stroke-linejoin="miter" d="m478.6,4.2729c38.15,18.364,38.15,18.364,38.15,18.364" stroke="#000" stroke-linecap="round" fill="none"/>
+  <path stroke-linejoin="miter" d="m555.47,4.5379c-38.81,18.341-38.81,18.341-38.81,18.341" stroke="#000" stroke-linecap="round" fill="none"/>
+  <path stroke-linejoin="miter" d="m555.51,35.331c-27.03-18.553-27.03-18.553-27.03-18.553" stroke="#000" stroke-linecap="butt" fill="none"/>
+  <path stroke-linejoin="miter" d="m477.39,35.331c27.03-18.553,27.03-18.553,27.03-18.553" stroke="#000" stroke-linecap="butt" fill="none"/>
+  <path d="m536.18,20.485c0,10.31-8.3577,18.668-18.668,18.668s-18.668-8.3576-18.668-18.668,8.3577-18.668,18.668-18.668,18.668,8.3576,18.668,18.668z" fill="#FF0"/>
+  <text font-size="39.01781464px" line-height="125%" font-family="Sans" xml:space="preserve" transform="scale(1.000004,0.99999601)" stroke="#000000" style="letter-spacing:0px;word-spacing:0px;" y="30.834034" x="498.07123" font-weight="normal" font-style="normal" fill="#000000"><tspan stroke-dasharray="none" stroke-miterlimit="4" y="30.834034" x="498.07123" stroke-width="3" fill="#000000">@</tspan></text>
+ </g>
+</svg>

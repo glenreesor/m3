@@ -1,0 +1,46 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50.745 49.884" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="linearGradient11736" y2="536.49" gradientUnits="userSpaceOnUse" x2="545.26" gradientTransform="matrix(0.77332044,0,0,0.77332044,-142.51445,-398.57541)" y1="536.49" x1="501.58">
+   <stop stop-color="#cacac8" offset="0"/>
+   <stop stop-color="#676c67" offset="1"/>
+  </linearGradient>
+  <linearGradient id="linearGradient11744" y2="555.33" gradientUnits="userSpaceOnUse" x2="536.4" gradientTransform="matrix(0.77332044,0,0,0.77332044,-142.51445,-398.57541)" y1="555.33" x1="501.08">
+   <stop stop-color="#766f73" offset="0"/>
+   <stop stop-color="#cacac8" offset="1"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-378.13943,-567.39424)">
+  <g stroke-miterlimit="4" stroke="#000" stroke-dasharray="none" transform="translate(135.40189,571.14864)">
+   <path stroke-linejoin="round" d="m472.35,551.13c0.68609-6.8853,4.7239-11.575,9.0187-10.475,3.3441,0.85644,5.9722,5.0444,6.5265,10.4" transform="matrix(1.2141411,0,0,1.0540868,-300.12602,-553.85208)" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="1.76789808" fill="none"/>
+   <path stroke-linejoin="round" d="m472.35,551.13c0.68609-6.8853,4.7239-11.575,9.0187-10.475,0.52942,0.13559,1.0488,0.3575,1.5501,0.66227" transform="matrix(1.2141411,0,0,1.0540868,-329.50924,-563.08614)" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="1.76789808" fill="none"/>
+   <path stroke-linejoin="miter" d="M285.64,16.434c-30.4-9.5254-30.4-9.5254-30.4-9.5254" stroke-linecap="round" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m292.28,26.944v18.753" stroke-linecap="butt" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m273.34,26.461v18.753" stroke-linecap="butt" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m243.95,17.181v18.753" stroke-linecap="butt" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m273.73,45.046c-29.702-9.5249-29.702-9.5249-29.702-9.5249" stroke-linecap="round" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m273.73,45.117h18.729" stroke-linecap="round" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m273.5,26.293c-29.702-9.5249-29.702-9.5249-29.702-9.5249" stroke-linecap="round" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m274.55,35.616c0-6.8616,0.0357-8.4485,0.21125-9.3985,0.8972-4.8541,3.7286-8.4035,7.1824-9.0039,3.2444-0.56395,6.6208,2.0782,8.1985,6.4156,0.91585,2.5178,0.94908,2.9395,0.94908,12.045v8.1975h-8.2706-8.2707v-8.2556z" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="2" fill="#cacac8"/>
+   <path stroke-linejoin="miter" d="m258.83,20.459c-7.2556-2.3361-13.217-4.2676-13.248-4.2922-0.0996-0.0795,0.43671-1.7268,0.89334-2.7442,0.8681-1.9341,2.0957-3.4718,3.5048-4.3898,1.8622-1.2132,3.5168-1.4226,5.5691-0.70472,0.6391,0.22355,1.3034,0.40727,1.4763,0.40828,0.31133,0.002,21.769,6.6682,21.9,6.804,0.0376,0.0388-0.01,0.0984-0.1049,0.13238-0.41218,0.14707-1.6656,1.0872-2.3956,1.7969-1.4893,1.4478-2.6338,3.3745-3.4464,5.8019-0.34942,1.0437-0.52774,1.3981-0.7115,1.4139-0.13487,0.0116-6.1816-1.8903-13.437-4.2264z" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="2" fill="url(#linearGradient11736)"/>
+   <path stroke-linejoin="miter" d="m258.49,39.022-13.26-4.2714-0.0353-8.1531c-0.0194-4.4842,0.0114-8.1548,0.0684-8.1568s6.1162,1.9204,13.465,4.272l13.361,4.2757,0.002,8.1681c0.002,6.4525-0.0343,8.1648-0.16925,8.1525-0.094-0.009-6.138-1.9378-13.431-4.287h0.00001z" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="2" fill="url(#linearGradient11744)"/>
+   <path stroke-linejoin="round" d="m261.04-2.7562,0,7.3949,7.9265,0,0,23.369,1.9091,0,0-23.369,0-7.3949-9.8357,0z" stroke-dashoffset="5.60000009" stroke-linecap="round" stroke-width="2" fill="#F00"/>
+   <path stroke-linejoin="miter" d="m273.27,25.824h18.729" stroke-linecap="round" stroke-width="2" fill="none"/>
+  </g>
+ </g>
+</svg>

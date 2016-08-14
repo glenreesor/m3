@@ -1,0 +1,30 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50 50" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs></defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-500.62604,-495.58222)">
+  <g transform="translate(71.594792,266.76972)">
+   <rect stroke-dasharray="none" ry="10.636" height="48.004" width="48.004" stroke="#000" stroke-miterlimit="4" y="229.8" x="430.03" stroke-width="2" fill="#b1ffff"/>
+   <path stroke-linejoin="miter" d="m454.38,255.77c15.047-9.0418,15.047-9.0418,15.047-9.0418" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="M453.33,255.71c-16.76-15.74-16.76-15.8-16.76-15.8" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <text style="writing-mode:lr-tb;letter-spacing:0px;text-anchor:start;word-spacing:0px;text-align:start;" line-height="125%" font-weight="normal" font-size="9.98082924px" font-style="normal" font-stretch="normal" font-variant="normal" y="241.46011" x="447.2605" font-family="Sans" xml:space="preserve" fill="#000093"><tspan y="241.46011" x="447.2605">12</tspan></text>
+   <text style="writing-mode:lr-tb;letter-spacing:0px;text-anchor:start;word-spacing:0px;text-align:start;" line-height="125%" font-weight="normal" font-size="9.98082924px" font-style="normal" font-stretch="normal" font-variant="normal" y="257.4342" x="467.90866" font-family="Sans" xml:space="preserve" fill="#000093"><tspan y="257.4342" x="467.90866">3</tspan></text>
+   <text style="writing-mode:lr-tb;letter-spacing:0px;text-anchor:start;word-spacing:0px;text-align:start;" line-height="125%" font-weight="normal" font-size="9.98082924px" font-style="normal" font-stretch="normal" font-variant="normal" y="275.07062" x="450.45261" font-family="Sans" xml:space="preserve" fill="#000093"><tspan y="275.07062" x="450.45261">6</tspan></text>
+   <text style="writing-mode:lr-tb;letter-spacing:0px;text-anchor:start;word-spacing:0px;text-align:start;" line-height="125%" font-weight="normal" font-size="9.98082924px" font-style="normal" font-stretch="normal" font-variant="normal" y="257.4342" x="431.66382" font-family="Sans" xml:space="preserve" fill="#000093"><tspan y="257.4342" x="431.66382">9</tspan></text>
+  </g>
+ </g>
+</svg>

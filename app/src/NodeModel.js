@@ -17,15 +17,16 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {ArrowLink} from "./ArrowLink";
-import {CloudModel} from "./CloudModel";
-import {Diagnostics} from "./Diagnostics";
-import {Font} from "./Font";
-import {LinkTarget} from "./LinkTarget";
-import {createXml, loadXml} from "./xmlHelpers";
-import {NodeView} from "./NodeView";
-import {RichContent} from "./RichContent";
-import {m3App} from "./main";
+import {ArrowLink} from './ArrowLink';
+import {CloudModel} from './CloudModel';
+import {Diagnostics} from './Diagnostics';
+import {Font} from './Font';
+import {IconModel} from './IconModel';
+import {LinkTarget} from './LinkTarget';
+import {createXml, loadXml} from './xmlHelpers';
+import {NodeView} from './NodeView';
+import {RichContent} from './RichContent';
+import {m3App} from './main';
 
 const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', ''],
                                     ['CREATED', ''],
@@ -38,8 +39,8 @@ const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', ''],
                                     ['TEXT', '']
                                  ]);
 
-const EXPECTED_EMBEDDED_TAGS = ["arrowlink", "cloud", "font", "linktarget",
-                                "node", "richcontent"];
+const EXPECTED_EMBEDDED_TAGS = ['arrowlink', 'cloud', 'font', 'icon',
+                                'linktarget', 'node', 'richcontent'];
 
 /**
  * A NodeModel contains everything for a mind map node. The constructor
@@ -71,6 +72,7 @@ export function NodeModel(controller, myMapModel, newType, parent, text,
    this._children = [];
    this._cloudModel = null;
    this._font = null;             // Points to Font object
+   this._icons = [];              // Points to IconModel objects
    this._isFolded = false;
    this._link = null;
    this._linkTargets = [];
@@ -278,6 +280,10 @@ NodeModel.prototype.getAsXml = function getAsXml() {
       embeddedTags.push(this._font);
    }
 
+   this._icons.forEach( (icon) => {
+      embeddedTags.push(icon);
+   });
+
    this._linkTargets.forEach( (linkTarget) => {
       embeddedTags.push(linkTarget);
    });
@@ -351,6 +357,15 @@ NodeModel.prototype.getCreatedTimestamp = function getCreatedTimestamp() {
 NodeModel.prototype.getFont = function getFont() {
    return this._font;
 }; // getFont()
+
+/**
+ *
+ * Return the icons of this node
+ * @return {IconModel[]} - This node's IconModel(s)
+ */
+NodeModel.prototype.getIcons = function getIcons() {
+   return this._icons;
+}; // getIcons()
 
 /**
  *
@@ -516,6 +531,7 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    let i;
    let arrowLink;
    let embeddedTag;
+   let icon;
    let loadedAttributes;
    let loadedTags;
    let newNode;
@@ -593,6 +609,11 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
       } else if (tagName === "font") {
          this._font = new Font();
          this._font.loadFromXml1_0_1(embeddedTag);
+
+      } else if (tagName === 'icon') {
+         icon = new IconModel();
+         icon.loadFromXml1_0_1(embeddedTag);
+         this._icons.push(icon);
 
       } else if (tagName === "linktarget") {
          linkTarget = new LinkTarget();

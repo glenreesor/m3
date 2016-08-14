@@ -1,0 +1,35 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 69.344 51.312">
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-451.68948,-476.64325)">
+  <g stroke-miterlimit="4" stroke-dasharray="none" transform="translate(-195.49802,-168.2005)">
+   <path d="m65.03,157.9c0,7.6258-6.182,13.808-13.808,13.808-7.6258,0-13.808-6.182-13.808-13.808,0-7.6258,6.182-13.808,13.808-13.808,7.6258,0,13.808,6.182,13.808,13.808z" transform="matrix(0.5787566,0,0,0.5787566,652.1798,579.55026)" stroke="#000" stroke-width="5.18352604" fill="#FFF"/>
+   <path stroke-linejoin="miter" d="m687.28,665,2.4163-11.443" stroke="#000" stroke-linecap="butt" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m689.75,670.85,4.1165-0.074" stroke="#000" stroke-linecap="butt" stroke-width="3" fill="none"/>
+   <rect stroke-linejoin="round" fill-rule="nonzero" ry="3.4704" height="8.4021" width="21.188" stroke="#008" stroke-linecap="butt" y="646.49" x="689.02" stroke-width="3" fill="#FFF"/>
+   <rect stroke-linejoin="round" fill-rule="nonzero" ry="3.4704" height="8.4021" width="21.188" stroke="#ff4300" stroke-linecap="butt" y="666.24" x="693.83" stroke-width="3" fill="#FFF"/>
+   <path stroke-linejoin="miter" d="m687.69,676.14,2.4163,11.443" stroke="#000" stroke-linecap="butt" stroke-width="3" fill="none"/>
+   <rect stroke-linejoin="round" ry="3.4704" fill-rule="nonzero" transform="scale(1,-1)" height="8.4021" width="21.188" stroke="#003400" stroke-linecap="butt" y="-694.66" x="689.42" stroke-width="3" fill="#FFF"/>
+   <path stroke-linejoin="miter" d="m676.43,664.85-2.4163-11.443" stroke="#000" stroke-linecap="butt" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m673.96,670.69-4.1165-0.074" stroke="#000" stroke-linecap="butt" stroke-width="3" fill="none"/>
+   <rect stroke-linejoin="round" ry="3.4704" fill-rule="nonzero" transform="scale(-1,1)" height="8.4021" width="21.188" stroke="#d33517" stroke-linecap="butt" y="646.33" x="-674.69" stroke-width="3" fill="#FFF"/>
+   <rect stroke-linejoin="round" ry="3.4704" fill-rule="nonzero" transform="scale(-1,1)" height="8.4021" width="21.188" stroke="#007100" stroke-linecap="butt" y="666.09" x="-669.88" stroke-width="3" fill="#FFF"/>
+   <path stroke-linejoin="miter" d="m676.02,675.99-2.4163,11.443" stroke="#000" stroke-linecap="butt" stroke-width="3" fill="none"/>
+   <rect stroke-linejoin="round" ry="3.4704" fill-rule="nonzero" transform="scale(-1,-1)" height="8.4021" width="21.188" stroke="#F0F" stroke-linecap="butt" y="-694.51" x="-674.29" stroke-width="3" fill="#FFF"/>
+  </g>
+ </g>
+</svg>

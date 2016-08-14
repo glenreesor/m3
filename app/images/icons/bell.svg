@@ -1,0 +1,30 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 27.219 49.304" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs></defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-405.59907,-471.73165)">
+  <g transform="translate(-185.46343,365.91915)">
+   <path d="m595.56,139.58c-0.008-1.5515-0.0507-3.0957-0.0946-3.4316-0.26521-2.026,2.1101-4.1373,5.5531-4.9358,1.7232-0.39964,5.3614-0.44459,6.7977-0.084,2.4543,0.61619,4.4035,1.7611,5.2043,3.0569,0.40329,0.65255,0.46861,1.1572,0.57931,4.4754l0.12476,3.7399h-9.075-9.075l-0.0147-2.8209z" fill="#d4d1d1"/>
+   <rect stroke-linejoin="round" stroke-dasharray="none" stroke-dashoffset="5.60000009" ry="2.507" height="23.677" width="5.0139" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" y="106.82" x="602.29" stroke-width="2" fill="#ff6f00"/>
+   <path stroke-linejoin="round" d="m250.62,854.05c-1.1437-5.62,5.5963-10.727,15.054-11.406,9.458-0.6796,18.052,3.3254,19.196,8.9453,0.14809,0.72766,0.16439,1.4626,0.0486,2.1924" transform="matrix(0.55710301,0,0,0.55710301,455.21954,-338.90323)" stroke-dashoffset="5.60000009" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3.59000039" fill="none"/>
+   <rect stroke-linejoin="round" stroke-dasharray="none" stroke-dashoffset="5.60000009" ry="2.3882" height="4.7764" width="25.212" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" y="143.14" x="592.07" stroke-width="2" fill="#d4d1d1"/>
+   <path stroke-linejoin="miter" d="m594.84,137.18,0.0696,6.8245" stroke="#000" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m613.96,136.49,0.0696,6.8245" stroke="#000" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="round" d="m301.75,866.7c0,3.1066-2.5184,5.625-5.625,5.625s-5.625-2.5184-5.625-5.625,2.5184-5.625,5.625-5.625,5.625,2.5184,5.625,5.625z" transform="matrix(0.55710301,0,0,0.55710301,439.90793,-331.86111)" stroke-dashoffset="5.60000009" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3.59000039" fill="#d4d1d1"/>
+  </g>
+ </g>
+</svg>
