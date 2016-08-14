@@ -34,6 +34,7 @@ let connectToNodeModelCount;
 let controllerStub;
 let diagnosticsStub;
 let fontStub;
+let iconModelStub;
 let linkTargetStub;
 let logCount;           // Number of times diagnosticsStub.log() called
 let mainStub;
@@ -90,6 +91,14 @@ fontStub.Font.prototype.getAsXml = function getAsXml() {
    return ("<font/>");
 };
 fontStub.Font.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1() {};
+
+iconModelStub = {};
+iconModelStub.IconModel = function IconModel() {};
+iconModelStub.IconModel.prototype.getAsXml = function getAsXml() {
+   return ("<icon/>");
+};
+iconModelStub.IconModel.prototype.loadFromXml1_0_1 =
+   function loadFromXml1_0_1() {};
 
 linkTargetStub = {};
 linkTargetStub.LinkTarget = function LinkTarget() {};
@@ -183,6 +192,7 @@ let NodeModel = proxyquire('../../app/src/NodeModel',
                               './CloudModel': cloudModelStub,
                               './Diagnostics': diagnosticsStub,
                               './Font': fontStub,
+                              './IconModel': iconModelStub,
                               './LinkTarget': linkTargetStub,
                               './RichContent': richContentStub,
                               './main': mainStub,
@@ -193,7 +203,7 @@ let NodeModel = proxyquire('../../app/src/NodeModel',
 // Various constants
 //    - POSITION must be none since we're testing a root node
 //-----------------------------------------------------------------------------
-const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', '#ffffff'],
+const ATTRIBUTE_DEFAULTS = new Map([['BACKGROUND_COLOR', ''],
                                     ['CREATED', ''],
                                     ['COLOR', '#000000'],
                                     ['FOLDED', 'false'],
@@ -218,7 +228,7 @@ const ATTRIBUTES = new Map([['BACKGROUND_COLOR', '#123456'],
 // Leaving out <node> as an embedded tag, since requires much more effort
 // for testing.
 const EMBEDDED_TAGS =
-   ['<arrowlink/>', '<cloud/>', '<font/>', '<linktarget/>',
+   ['<arrowlink/>', '<cloud/>', '<font/>', '<icon/>', '<linktarget/>',
     '<richcontent TYPE="NODE"><html>content:node</html></richcontent>',
     '<richcontent TYPE="NOTE"><html>content:note</html></richcontent>'];
 
@@ -238,8 +248,8 @@ test('NodeModel - Constructor - Defaults', function (t) {
    t.equal(nodeModel.getArrowLinks().length, [].length,
       "Default nodeModel should have no ArrowLinks");
 
-   t.equal(nodeModel.getBackgroundColor(), "#ffffff",
-      "Default backgroundColor should be '#ffffff'");
+   t.equal(nodeModel.getBackgroundColor(), "",
+      "Default backgroundColor should be ''");
 
    t.equal(nodeModel.getChildren().length, [].length,
       "Default nodeModel should have no children");
@@ -249,6 +259,9 @@ test('NodeModel - Constructor - Defaults', function (t) {
 
    t.equal(nodeModel.getFont(), null,
       "Default nodeModel should have no Font specified");
+
+   t.equal(nodeModel.getIcons().length, 0,
+      "Default nodeModel should have no icons");
 
    t.equal(nodeModel.getLinkTargets().length, [].length,
       "Default nodeModel should have no LinkTargets");
@@ -382,6 +395,9 @@ test('NodeModel - Constructor from XML, getAsXml', function(t) {
 
    t.notEqual(nodeModel.getFont(), null,
       "there must be a Font present");
+
+   t.equal(nodeModel.getIcons().length, 1,
+      "there must be an Icon present");
 
    t.equal(nodeModel.getLinkTargets().length, 1,
       "there must be one LinkTarget present");
@@ -933,6 +949,57 @@ test('NodeModel - getFont()', function(t) {
                              null, null, docElement);
    t.notEqual(nodeModel.getFont(), null,
       "there should be a Font on the nodeModel");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getIcons
+//-----------------------------------------------------------------------------
+test('NodeModel - getIcons()', function(t) {
+   let docElement;
+   let domParser;
+   let nodeModel;
+   let xmlNoIcons;
+   let xmlWithIcons;
+
+   //--------------------------------------------------------------------------
+   // Setup XML to load the NodeModel
+   //--------------------------------------------------------------------------
+   xmlNoIcons = "<node></node>";
+   xmlWithIcons = "<node><icon/></node>";
+
+   //--------------------------------------------------------------------------
+   //--------------------------------------------------------------------------
+   domParser = new DOMParser();
+
+   //--------------------------------------------------------------------------
+   // No Icons
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), [], []);
+
+   docElement = domParser.parseFromString(xmlNoIcons, "text/xml")
+                .documentElement;
+   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
+                             null, null, docElement);
+   t.equal(nodeModel.getIcons().length, 0,
+      "there should be no Icons on the nodeModel");
+
+   //--------------------------------------------------------------------------
+   // One Icon
+   //--------------------------------------------------------------------------
+
+   // Tell the helper stub what to return
+   xmlHelpersStub.setupLoadXml(ATTRIBUTES, new Map(), ["<icon/>"], []);
+
+   docElement = domParser.parseFromString(xmlWithIcons, "text/xml")
+                .documentElement;
+   nodeModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_XML,
+                             null, null, docElement);
+   t.equal(nodeModel.getIcons().length, 1,
+      "there should be an Icon on the nodeModel");
 
    t.end();
 });

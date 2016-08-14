@@ -21,7 +21,8 @@ import {Diagnostics} from './Diagnostics';
 import {createXml, loadXml} from './xmlHelpers';
 import {m3App} from './main';
 
-const ATTRIBUTE_DEFAULTS = new Map([['BUILTIN', '']]);
+// BUILTIN is required, thus we need a non-null default value
+const ATTRIBUTE_DEFAULTS = new Map([['BUILTIN', 'm3']]);
 const EXPECTED_EMBEDDED_TAGS = [];
 
 /**
@@ -30,7 +31,7 @@ const EXPECTED_EMBEDDED_TAGS = [];
  * @constructor
  */
 export function IconModel() {
-   this._builtin = null;
+   this._builtin = 'm3';   // This will be overwritten when loading from XML
 
    this._unexpectedAttributes = new Map(); // Attributes that m3 doesn't
                                            // understand We save these so they
@@ -114,6 +115,6 @@ IconModel.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
  * @param {String} name - This IconModel's name
  * @return {void}
  */
-IconModel.prototype.setIconName = function setIconName(name) {
+IconModel.prototype.setName = function setName(name) {
    this._builtin = name;
-}; // setIconName()
+}; // setName()
