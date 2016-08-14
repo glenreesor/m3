@@ -1,0 +1,29 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 47.134 76.833" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="linearGradient9331" y2="503.38" gradientUnits="userSpaceOnUse" y1="503.38" gradientTransform="matrix(0,-0.8088977,0.8088977,0,381.23339,-158.84644)" x2="98.594" x1="4.0938">
+   <stop stop-color="#24ffff" offset="0"/>
+   <stop stop-color="#00009b" offset="1"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-431.11701,-610.53594)">
+  <g transform="translate(-333.72674,849.32159)">
+   <path stroke-linejoin="round" d="m765.84-202.2,22.346,39.232,22.801-38.979-13.701-0.0759,0-35.768-19.464,0,0,35.667-11.982-0.0757z" stroke-dashoffset="5.60000009" stroke="#00001f" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2" fill="url(#linearGradient9331)"/>
+  </g>
+ </g>
+</svg>

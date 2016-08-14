@@ -1,0 +1,43 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50.094 50.094" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="linearGradient6796" y2="1316.4" gradientUnits="userSpaceOnUse" x2="50.029" gradientTransform="translate(20.633227,-641.00049)" y1="1316.4" x1="4.029">
+   <stop stop-color="#00e3e3" offset="0"/>
+   <stop stop-color="#008382" offset="1"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-432.86435,-427.19785)">
+  <g transform="translate(410.2706,-223.0834)">
+   <path stroke-linejoin="round" d="m-26.74,1296.4-22.141,12.783,0-25.566z" transform="matrix(0.75849294,0,0,0.75849294,77.84055,-308.89611)" stroke-dashoffset="5.60000009" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2.63680768" fill="#000"/>
+   <rect height="48.095" width="48.095" stroke="#0079a1" stroke-dasharray="none" stroke-miterlimit="4" y="651.28" x="23.586" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="m24.571,659.02h46.125" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m24.571,691.64h46.125" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path d="m24.662,655.44,0-3.0625,23,0,23,0,0,3.0625,0,3.0625-23,0-23,0,0-3.0625z" fill="#FFF"/>
+   <path d="m24.662,675.38,0-15.75,23,0,23,0,0,15.75,0,15.75-23,0-23,0,0-15.75zm16.938,9.3979c2.8263-1.5719,16.436-9.4865,16.656-9.6864,0.18232-0.1654,0.28125-0.3989,0.28125-0.6638,0-0.2507-0.10875-0.526-0.28125-0.712-0.33882-0.3654-16.925-9.9288-17.281-9.9645-0.49078-0.049-0.68126,0.01-0.93263,0.2774-0.25213,0.2706-0.25487,0.382-0.25487,10.376,0,9.9847,0.0029,10.105,0.25278,10.32,0.20987,0.1806,0.56736,0.3405,0.87222,0.3903,0.03438,0.01,0.34375-0.1463,0.6875-0.3374z" fill="url(#linearGradient6796)"/>
+   <path stroke-linejoin="miter" d="m33.333,651.58v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m62.058,651.64v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m52.483,651.77v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m42.908,651.52v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path d="m24.709,695.53,0-3.0625,23,0,23,0,0,3.0625,0,3.0625-23,0-23,0,0-3.0625z" fill="#FFF"/>
+   <path stroke-linejoin="miter" d="m33.38,691.67v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m62.105,691.73v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m52.53,691.85v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="m42.955,691.6v7.5" stroke="#0079a1" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,34 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48.644 48.644" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="linearGradient7184" y2="157.9" gradientUnits="userSpaceOnUse" x2="65.623" y1="157.9" x1="36.822">
+   <stop stop-color="#eaeaea" offset="0"/>
+   <stop stop-color="#c6c6c6" offset="1"/>
+  </linearGradient>
+  <radialGradient id="radialGradient6422" gradientUnits="userSpaceOnUse" cx="810.14" cy="1196.9" r="22.336" gradientTransform="matrix(1,0,0,1.0004325,0,-0.51763077)">
+   <stop stop-color="#ff2cf1" offset="0"/>
+   <stop stop-color="#ff7ef1" offset="1"/>
+  </radialGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-289.26651,-537.30496)">
+  <g stroke-miterlimit="4" transform="translate(-517.70623,-7.8381878)">
+   <path d="m65.03,157.9c0,7.6258-6.182,13.808-13.808,13.808-7.6258,0-13.808-6.182-13.808-13.808,0-7.6258,6.182-13.808,13.808-13.808,7.6258,0,13.808,6.182,13.808,13.808z" transform="matrix(1.6882994,0,0,1.6882994,744.82222,302.87218)" stroke="#000" stroke-dasharray="none" stroke-width="1.18462396" fill="url(#linearGradient7184)"/>
+   <path d="m808.31,1219.2c-9.3459-0.848-17.069-7.2657-19.615-16.299-0.36186-1.2841-0.63668-2.9231-0.76405-4.5568l-0.0486-0.624h11.35,11.35v-11.506-11.506l0.85086,0.053c6.5993,0.41,12.625,3.6527,16.567,8.9157,2.2833,3.0483,3.7003,6.5357,4.2615,10.488,0.16915,1.1912,0.19043,4.1895,0.0381,5.3699-0.52947,4.1031-1.9632,7.674-4.3536,10.844-3.5726,4.7369-8.7339,7.7846-14.679,8.6678-1.209,0.1796-3.7878,0.2593-4.9571,0.1532z" stroke-opacity="0" transform="translate(21.133227,-627.50049)" fill="url(#radialGradient6422)"/>
+  </g>
+ </g>
+</svg>

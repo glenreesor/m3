@@ -1,0 +1,35 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 49.492 49.803" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs>
+  <linearGradient id="linearGradient6997" y2="1305.2" gradientUnits="userSpaceOnUse" x2="130.34" y1="1305.2" x1="110.88">
+   <stop stop-color="#7a7571" offset="0"/>
+   <stop stop-color="#d8d8d6" offset="1"/>
+  </linearGradient>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-327.93931,-575.24156)">
+  <g transform="translate(204.25193,-77.539357)">
+   <path stroke-linejoin="miter" d="m153.02,654.31v46.749" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+   <path stroke-linejoin="miter" d="M153.12,654.07c-22.35,15.95-22.35,15.95-22.35,15.95" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2" fill="none"/>
+   <path stroke-linejoin="miter" d="M153.08,701.33c-22.35-15.95-22.35-15.95-22.35-15.95" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="2" fill="none"/>
+   <rect stroke-linejoin="round" stroke-dasharray="none" stroke-dashoffset="5.60000009" height="15.022" width="6.0352" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" y="669.9" x="124.76" stroke-width="2.1676" fill="#000"/>
+   <path d="m120.56,1319.3-9.6875-6.9162,0-7.1681,0-7.1681,9.6875-6.9065,9.6875-6.9066,0.0652,10.474c0.0359,5.761,0.0359,15.207,0,20.991l-0.0652,10.516-9.6875-6.9163z" transform="translate(21.133227,-627.50049)" fill="url(#linearGradient6997)"/>
+   <path d="m78.385,1357c4.6082,1.4552,7.1642,6.3706,5.7089,10.979-0.80504,2.5492-2.7313,4.5906-5.2296,5.5421" transform="matrix(1,0,0,1.6779093,80.530197,-1613.435)" stroke="#00008b" stroke-dasharray="none" stroke-miterlimit="4" stroke-width="2.31599188" fill="none"/>
+   <path fill="none" transform="matrix(1.500204,0,0,2.6231577,45.27809,-2904.2872)" stroke="#00008b" stroke-dasharray="none" stroke-miterlimit="4" stroke-width="1.51228583" d="m78.385,1357c4.6082,1.4552,7.1642,6.3706,5.7089,10.979-0.80504,2.5492-2.7313,4.5906-5.2296,5.5421"/>
+  </g>
+ </g>
+</svg>

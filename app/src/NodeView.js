@@ -22,6 +22,7 @@ import {CloudView} from './CloudView';
 import {ConnectorView} from './ConnectorView';
 import {FoldingIconView} from './FoldingIconView';
 import {GraphicalLinkView} from './GraphicalLinkView';
+import {IconView} from './IconView';
 import {LinkIconView} from './LinkIconView';
 import {NodeModel} from './NodeModel';
 import {RichTextView} from './RichTextView';
@@ -44,6 +45,7 @@ export function NodeView(controller, myModel) {
 
    this._isRoot = (this._myNodeModel.getParent() === null);
    this._isVisible = true;
+   this._myIconViews = [];
    this._myLinkIconView = null;
    this._myConnector = null;
    this._myFoldingIcon = null;
@@ -63,6 +65,10 @@ export function NodeView(controller, myModel) {
    } else {
       this._myText = new RichTextView(this, myModel);
    }
+
+   myModel.getIcons().forEach( (icon) => {
+      this._myIconViews.push(new IconView(this, icon));
+   });
 
    // Only show http links for now
    link = myModel.getLink();
@@ -227,6 +233,10 @@ NodeView.prototype.deleteMyself = function deleteMyself() {
       link.deleteSvg();
    });
 
+   this._myIconViews.forEach( (icon) => {
+      icon.deleteSvg();
+   });
+
    if (this._myLinkIconView !== null) {
       this._myLinkIconView.deleteSvg();
    }
@@ -255,6 +265,7 @@ NodeView.prototype.drawAt = function drawAt(
 
    let childWidthTmp;
    let cloudX;
+   let startX;
 
    //--------------------------------------------------------------------------
    // Make all of my components visible (note this is recursive on child nodes)
@@ -275,14 +286,20 @@ NodeView.prototype.drawAt = function drawAt(
    }
 
    //--------------------------------------------------------------------------
-   // Text, LinkIcon and bubble
+   // Icon(s), Text, LinkIcon and Bubble
    //--------------------------------------------------------------------------
-   this._myText.setPosition(x + BubbleView.BUBBLE_INNER_PADDING, y);
+   startX = x + BubbleView.BUBBLE_INNER_PADDING;
+
+   this._myIconViews.forEach( (iconView) => {
+      iconView.setPosition(startX, y);
+      startX += iconView.getWidth() + BubbleView.BUBBLE_INNER_PADDING;
+   });
+
+   this._myText.setPosition(startX, y);
+   startX += this._myText.getWidth() + BubbleView.BUBBLE_INNER_PADDING;
+
    if (this._myLinkIconView !== null) {
-      this._myLinkIconView.setPosition(
-         x + 2*BubbleView.BUBBLE_INNER_PADDING + this._myText.getWidth(),
-         y
-      );
+      this._myLinkIconView.setPosition(startX, y);
    }
 
    this._myBubble.setPosition(x, y);
@@ -456,11 +473,16 @@ NodeView.prototype._getBubbleContentsHeight =
    let height;
    height = this._myText.getHeight();
 
-   if (this._myLinkIconView !== null) {
-      return Math.max(this._myLinkIconView.getHeight(), height);
-   } else  {
-      return height;
+   if (this._myIconViews.length !== 0) {
+      // All icons are the same height, so just use the first one
+      height = Math.max(height, this._myIconViews[0].getHeight());
    }
+
+   if (this._myLinkIconView !== null) {
+      height = Math.max(height, this._myLinkIconView.getHeight());
+   }
+
+   return height;
 }; // _getBubbleContentsHeight()
 
 /**
@@ -472,7 +494,16 @@ NodeView.prototype._getBubbleContentsWidth =
    function _getBubbleContentsWidth() {
 
    let width;
-   width = this._myText.getWidth();
+   width = 0;
+
+   // Need space for (icon + padding) + text + (padding + linkicon)
+   if (this._myIconViews.length !== 0) {
+      // All icons are the same width, so just use the first one
+      width += (this._myIconViews[0].getWidth() +
+                BubbleView.BUBBLE_INNER_PADDING) * this._myIconViews.length;
+   }
+
+   width += this._myText.getWidth();
 
    if (this._myLinkIconView !== null) {
       width += BubbleView.BUBBLE_INNER_PADDING +
@@ -651,6 +682,10 @@ NodeView.prototype.setVisible = function setVisible(visible) {
       this._myConnector.setVisible(visible);
    }
 
+   this._myIconViews.forEach( (icon) => {
+      icon.setVisible(visible);
+   });
+
    this._myText.setVisible(visible);
 
    if (this._myLinkIconView !== null) {
@@ -681,7 +716,6 @@ NodeView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 NodeView.prototype.update = function update() {
-
    //--------------------------------------------------------------------------
    // Text and bubble
    //--------------------------------------------------------------------------
@@ -690,6 +724,12 @@ NodeView.prototype.update = function update() {
       this._getBubbleContentsWidth(),
       this._getBubbleContentsHeight()
    );
+
+   //--------------------------------------------------------------------------
+   // Icon(s)
+   //--------------------------------------------------------------------------
+   // Steps to be done her depend on what the UI implements, which hasn't been
+   // done yet.
 
    //--------------------------------------------------------------------------
    // Link Icon

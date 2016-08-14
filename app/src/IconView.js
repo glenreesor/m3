@@ -19,31 +19,26 @@
 
 import {m3App} from './main';
 
-const HEIGHT = 25;
-const WIDTH = 25;
+const HEIGHT = 20;
+const WIDTH = 20;
 
 /**
- * A LinkIconView creates elements to show a link icon associated with a Node.
+ * An IconView creates elements to show an icon inside a Node.
  *
  * @constructor
- * @param {NodeView} nodeView   - the NodeView corresponding to this
- *                                LinkIconView
- * @param {NodeModel} nodeModel - the NodeModel corresponding to this
- *                                LinkIconView
+ * @param {NodeView}  nodeView  - the NodeView corresponding to this IconView
+ * @param {IconModel} iconModel - the NodeModel corresponding to this IconView
  */
-export function LinkIconView(nodeView, nodeModel) {
+export function IconView(nodeView, iconModel) {
    const SVGNS = 'http://www.w3.org/2000/svg';
-   const XLINKNS = 'http://www.w3.org/1999/xlink';
 
-   this._linkLocation = '';
-   this._myNodeModel = nodeModel;
+   this._iconModel = iconModel;
    this._myNodeView = nodeView;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
    //---------------------------------------------------------------------------
    this._svgImage = document.createElementNS(SVGNS, 'image');
-   this._svgImage.setAttributeNS(XLINKNS, 'href', 'images/link.svg');
    this._svgImage.setAttribute('width', WIDTH);
    this._svgImage.setAttribute('height', HEIGHT);
 
@@ -62,62 +57,61 @@ export function LinkIconView(nodeView, nodeModel) {
    //---------------------------------------------------------------------------
    this.update();
 
-} // LinkIconView()
+} // IconView()
 
 /**
- * Listener function for this LinkIconView
- * Note that 'this' must be bound to this LinkIconView oject
+ * Listener function for this IconView
+ * Note that 'this' must be bound to this IconView oject
  *
  * @return {void}
  */
-LinkIconView.prototype._clickListener = function _clickListener() {
-   window.open(this._linkLocation);
+IconView.prototype._clickListener = function _clickListener() {
+   m3App.getController().getMapViewController().nodeClicked(this._myNodeView);
 }; // _clickListener()
 
 /**
- * Delete the svg object(s) corresponding to this LinkIconView
+ * Delete the svg object(s) corresponding to this IconView
  *
  * @return {void}
  */
-LinkIconView.prototype.deleteSvg = function deleteSvg() {
+IconView.prototype.deleteSvg = function deleteSvg() {
    this._svgImage.removeEventListener('click', this._boundClickListener);
    document.getElementById('svgTextLayer').removeChild(this._svgImage);
 }; // deleteSvg()
 
 /**
- * Get the total height of this LinkIconView
- * @return {number} - Total height of this LinkIconView
+ * Get the total height of this IconView
+ * @return {number} - Total height of this RichText
  */
-LinkIconView.prototype.getHeight = function getHeight() {
+IconView.prototype.getHeight = function getHeight() {
    return HEIGHT;
 }; // getHeight()
 
 /**
- * Get the total width of this LinkIconView
- * @return {number} - Total width of this LinkIconView
+ * Get the total width of this IconView
+ * @return {number} - Total width of this IconView
  */
-LinkIconView.prototype.getWidth = function getWidth() {
+IconView.prototype.getWidth = function getWidth() {
    return WIDTH;
 }; // getWidth()
 
 /**
- * Set the position of this LinkIconView
+ * Set the position of this IconView
  * @param {number} x - x-coordinate of left edge of icon
  * @param {number} y - y-coordinate of vertical middle of icon
  * @return {void}
  */
-LinkIconView.prototype.setPosition = function setPosition(x, y) {
+IconView.prototype.setPosition = function setPosition(x, y) {
    this._svgImage.setAttribute('x', x);
    this._svgImage.setAttribute('y', y - 0.5 * HEIGHT);
 }; // setPosition()
 
 /**
- * Make this LinkIconView visible or invisible
- * @param {boolean} visible - Make the LinkIconView visible (true) or not
- *                            (false)
+ * Make this IconView visible or invisible
+ * @param {boolean} visible - Make the IconView visible (true) or not (false)
  * @return {void}
  */
-LinkIconView.prototype.setVisible = function setVisible(visible) {
+IconView.prototype.setVisible = function setVisible(visible) {
    if (visible) {
       this._svgImage.setAttribute("visibility", "visible");
    } else {
@@ -126,10 +120,20 @@ LinkIconView.prototype.setVisible = function setVisible(visible) {
 }; // setVisible()
 
 /**
- * Update this LinkIconView from the corresponding model
+ * Update this IconView from the corresponding model
  * @return {void}
  */
-LinkIconView.prototype.update = function update() {
-   this._linkLocation = this._myNodeModel.getLink();
+IconView.prototype.update = function update() {
+   const XLINKNS = 'http://www.w3.org/1999/xlink';
+   let iconName;
+
    this.setVisible(true);
+
+   iconName = this._iconModel.getName().replace('%', 'percent');
+
+   this._svgImage.setAttributeNS(
+      XLINKNS,
+      'href',
+      `images/icons/${iconName}.svg`
+   );
 }; // update()

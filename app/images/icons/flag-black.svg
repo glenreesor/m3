@@ -1,0 +1,27 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="100%" width="100%" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 42.248702 48.660998">
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-199.68789,-331.08449)">
+  <path stroke-linejoin="miter" d="m223.82,332.58c16.619,45.661,16.619,45.661,16.619,45.661" stroke="#000" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="3" fill="none"/>
+  <path d="m201.01,351.38c-1.2609-2.617,1.3321-6.2046,5.7916-8.013,0.17119-0.0697,0.34404-0.13586,0.51828-0.19821m18.637-6.7842-18.678,6.7981" stroke="#000" stroke-dasharray="none" stroke-miterlimit="4" stroke-width="2" fill="none"/>
+  <path d="m204.54,361.09c-1.2609-2.617,1.3321-6.2046,5.7916-8.013,0.17119-0.0698,0.34404-0.13586,0.51828-0.19822m18.637-6.7842-18.678,6.7981" stroke="#000" stroke-dasharray="none" stroke-miterlimit="4" stroke-width="2" fill="none"/>
+  <path d="m206.77,367.21c-0.84325-1.4695,2.1087-4.0708,6.5934-5.8102,0.17222-0.0669,0.34541-0.1321,0.51965-0.19446m18.637-6.7838-18.678,6.7981" stroke="#000" stroke-dasharray="none" stroke-miterlimit="4" stroke-width="2" fill="none"/>
+  <path stroke-linejoin="miter" d="m200.88,351.05c5.8643,16.112,5.8643,16.112,5.8643,16.112" stroke="#000" stroke-linecap="butt" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="1.98305082" fill="none"/>
+  <path fill="#000" d="m205.97,361.67c-0.584-2.0552-0.57233-2.5992,0.0788-3.6644,1.3484-2.2062,2.9042-3.0164,12.5-6.5091l9.1452-3.3286,1.0398,2.8568,1.0398,2.8568-10.093,3.8744c-7.8953,3.0308-10.412,4.1415-11.559,5.1011l-1.4662,1.2264-0.68578-2.4134z"/>
+  <path fill="#FFF" d="m202.82,352.53c-0.89612-2.698-0.89922-3.0462-0.0387-4.3596,0.51438-0.78503,1.5874-1.8546,2.3845-2.3769,2.2212-1.4554,18.508-7.285,18.959-6.7861,0.51746,0.57273,2.469,6.584,2.2015,6.7814-0.11271,0.0832-3.7427,1.416-8.0667,2.9618-8.766,3.1339-11.655,4.4444-12.776,5.7954-1.1965,1.4417-1.6209,1.1204-2.6627-2.0161z"/>
+ </g>
+</svg>

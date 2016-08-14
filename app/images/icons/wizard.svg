@@ -1,0 +1,25 @@
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 41.203 49.623" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs></defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+    <cc:license rdf:resource="https://www.gnu.org/licenses/gpl.html"/> 
+    <dc:creator> 
+     <cc:Agent> 
+      <dc:title>Glen Reesor &lt;glen@glenreesor.ca&gt;</dc:title> 
+     </cc:Agent> 
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g transform="translate(-265.49575,-534.32135)">
+  <g stroke-linejoin="round" transform="translate(-106.39294,430.22736)" stroke-dashoffset="5.60000009" stroke="#000" stroke-linecap="round" stroke-miterlimit="4" stroke-dasharray="none">
+   <rect transform="matrix(0.81915205,0.57357643,-0.57357643,0.81915205,0,0)" height="27.941" width="8.3227" y="-120.63" x="390.3" stroke-width="2" fill="#bfc2bf"/>
+   <path d="m166,873-4.3577,26.979,24.401,12.306l-25.54,9.71,1.54,27.28-21.18-17.26-22.86,14.98,4.36-26.98-24.403-12.3,25.543-9.72-1.5429-27.285,21.185,17.263z" transform="matrix(0.13611873,0.23576455,-0.23576455,0.13611873,595.32396,-41.558359)" stroke-width="7.34652758" fill="#ffe200"/>
+  </g>
+ </g>
+</svg>
