@@ -164,8 +164,10 @@ MapViewController.prototype.addSiblingClicked = function addSiblingClicked() {
  * @return {void}
  */
 MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
+   let nodeToSelect;
    let selectedModel;
    let parentModel;
+   let testNode;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
        this._state.state === STATE_NODE_SELECTED) {
@@ -174,9 +176,26 @@ MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
          parentModel = selectedModel.getParent();
 
          if (parentModel !== null) {
+            // Select an appropriate node, with this precedence:
+            //    - Next sibling if exists
+            //    - Previous sibling if exists
+            //    - Parent
+            testNode = parentModel.getChildAfter(selectedModel);
+            if (testNode !== null) {
+               nodeToSelect = testNode;
+            } else {
+               testNode = parentModel.getChildBefore(selectedModel);
+               if (testNode !== null){
+                  nodeToSelect = testNode;
+               } else {
+                  nodeToSelect = parentModel;
+               }
+            }
+            this.nodeClicked(nodeToSelect.getView());
+            this._ensureSelectedNodeVisible();
+
+            // Now delete it
             this._controller.deleteNode(selectedModel);
-            // Update state
-            this._state.state = STATE_IDLE;
          }
    }
 }; // deleteNode()
