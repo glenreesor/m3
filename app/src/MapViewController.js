@@ -601,6 +601,7 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
 MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
    let nextModel;
    let selectedNodeModel;
+   let selectedNodeParent;
    let selectedNodeView;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
@@ -608,6 +609,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
     ) {
       selectedNodeView = this._state.selectedNodeView;
       selectedNodeModel = selectedNodeView.getModel();
+      selectedNodeParent = selectedNodeModel.getParent();
 
       switch (e.key) {
 
@@ -615,7 +617,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          // Space: Fold / unfold
          //-------------------------------------------------------------------
          case ' ':
-            if (selectedNodeModel.getParent() !== null &&
+            if (selectedNodeParent !== null &&
                 selectedNodeModel.getChildren().length !== 0
              ) {
                this._controller.toggleFoldedStatus(selectedNodeModel);
@@ -637,22 +639,24 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          // CTRL Arrow Down: Move node down in child list
          //-------------------------------------------------------------------
          case 'ArrowDown':
-            if (selectedNodeModel.getParent() !== null) {
+            if (selectedNodeParent !== null) {
                if (e.ctrlKey) {
                   this._controller.moveNodeDown(selectedNodeModel);
 
                } else {
-                  let children = selectedNodeModel.getParent().getChildren();
+                  nextModel = selectedNodeParent.getChildAfter(
+                     selectedNodeModel
+                  );
 
-                  if (children.length > 1) {
-                     nextModel = selectedNodeModel.getParent().getChildAfter(
-                        selectedNodeModel
+                  if (nextModel === null) {
+                     nextModel = selectedNodeParent.getFirstChild(
+                        selectedNodeModel.getSide()
                      );
+                  }
 
-                     if (nextModel === null) {
-                        nextModel = children[0];
-                     }
-
+                  // Don't want to click the current node because that
+                  // will deselect it
+                  if (nextModel !== selectedNodeModel) {
                      this.nodeClicked(nextModel.getView());
                      this._ensureSelectedNodeVisible();
                   }
@@ -703,7 +707,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
             } else {
                // Selected node is right of root
 
-               nextModel = selectedNodeModel.getParent();
+               nextModel = selectedNodeParent;
             }
 
             if (nextModel !== null) {
@@ -746,7 +750,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
             ) {
                // Selected node is left of root
 
-               nextModel = selectedNodeModel.getParent();
+               nextModel = selectedNodeParent;
 
             } else {
                // Selected node is right of root
@@ -773,21 +777,23 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
                   this._controller.moveNodeUp(selectedNodeModel);
 
                } else {
-                  let children = selectedNodeModel.getParent().getChildren();
+                  nextModel = selectedNodeParent.getChildBefore(
+                     selectedNodeModel
+                  );
 
-                  if (children.length > 1) {
-                     nextModel = selectedNodeModel.getParent().getChildBefore(
-                        selectedNodeModel
+                  if (nextModel === null) {
+                     nextModel = selectedNodeParent.getLastChild(
+                        selectedNodeModel.getSide()
                      );
+                  }
 
-                     if (nextModel === null) {
-                        nextModel = children[children.length-1];
-                     }
+                  // Don't want to click the current node because that will
+                  // deselect it
+                  if (nextModel !== selectedNodeModel) {
                      this.nodeClicked(nextModel.getView());
                      this._ensureSelectedNodeVisible();
                   }
                }
-
             }
             e.preventDefault();
             break;
