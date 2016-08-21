@@ -322,6 +322,48 @@ NodeModel.prototype.getBackgroundColor = function getBackgroundColor() {
 }; // getBackgroundColor()
 
 /**
+ * Return the child after the specified node. Null if there isn't one.
+ *
+ * @param {NodeModel} referenceChild - The reference child
+ * @return {NodeModel} The child after the specified one
+ */
+
+NodeModel.prototype.getChildAfter = function getChildAfter(referenceChild) {
+   let childAfter;
+   let indexAfter;
+
+   indexAfter = this._children.indexOf(referenceChild) + 1;
+
+   childAfter = null;
+   if (indexAfter < this._children.length) {
+      childAfter = this._children[indexAfter];
+   }
+
+   return childAfter;
+}; // getChildAfter()
+
+/**
+ * Return the child before the specified node. Null if there isn't one.
+ *
+ * @param {NodeModel} referenceChild - The reference child
+ * @return {NodeModel} The child before the specified one
+ */
+
+NodeModel.prototype.getChildBefore = function getChildBefore(referenceChild) {
+   let childBefore;
+   let indexBefore;
+
+   indexBefore = this._children.indexOf(referenceChild) - 1;
+
+   childBefore = null;
+   if (indexBefore >= 0) {
+      childBefore = this._children[indexBefore];
+   }
+
+   return childBefore;
+}; // getChildBefore()
+
+/**
  * Return the array of children of this node
  *
  * @return {NodeModel[]} an array of children of this node
@@ -638,6 +680,58 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    }
    this._unexpectedTags = unexpectedTags;
 }; // _loadFromXml1_0_1()
+
+/**
+ * Move the specified child down in the child order
+ *
+ * @param {NodeModel} child - the child to be moved
+ * @return {void}
+ */
+NodeModel.prototype.moveChildDown = function moveChildDown(child) {
+   let indexOfChild;
+   let nextChild;
+
+   if (this._children.length === 1) {
+      return;
+   }
+
+   indexOfChild = this._children.indexOf(child);
+
+   if (indexOfChild === this._children.length - 1) {
+      this._children.pop();
+      this._children.splice(0, 0, child);
+   } else {
+      nextChild = this._children[indexOfChild + 1];
+      this._children[indexOfChild + 1] = child;
+      this._children[indexOfChild] = nextChild;
+   }
+}; // moveChildDown()
+
+/**
+ * Move the specified child up in the child order
+ *
+ * @param {NodeModel} child - the child to be moved
+ * @return {void}
+ */
+NodeModel.prototype.moveChildUp = function moveChildUp(child) {
+   let indexOfChild;
+   let previousChild;
+
+   if (this._children.length === 1) {
+      return;
+   }
+
+   indexOfChild = this._children.indexOf(child);
+
+   if (indexOfChild === 0) {
+      this._children.shift();
+      this._children.push(child);
+   } else {
+      previousChild = this._children[indexOfChild - 1];
+      this._children[indexOfChild - 1] = child;
+      this._children[indexOfChild] = previousChild;
+   }
+}; // moveChildUp()
 
 /**
  * Set the background color to something new.

@@ -22,6 +22,7 @@ import {EditNodeDialog} from "./EditNodeDialog";
 import {MapModel} from "./MapModel";
 import {MapViewController} from "./MapViewController";
 import {NodeView} from "./NodeView";
+
 /**
  * This is the controller that handles actions/events that interact with the
  * model. Events that do not interact with the model (e.g. scrolling) are
@@ -34,8 +35,8 @@ export function Controller() {
    this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map",
                                  null);
    this._mapViewController = new MapViewController(this);
-
    this._rootNodeView = this._mapModel.getRoot().getView();
+   this.selectRootNode();
    this.redrawMain();
 } // Controller()
 
@@ -173,6 +174,41 @@ Controller.prototype.getMapViewController = function getMapViewController() {
 }; // getMapViewController()
 
 /**
+ * Move the specified node down in the child list
+ *
+ * @param {NodeModel} child The node to move down
+ *
+ * @return {void}
+ */
+Controller.prototype.moveNodeDown = function moveNodeDown(child) {
+   let parent;
+
+   parent = child.getParent();
+
+   if (parent !== null) {
+      parent.moveChildDown(child);
+      this.redrawMain();
+   }
+}; // moveNodeUp()
+/**
+ * Move the specified node up in the child list
+ *
+ * @param {NodeModel} child The node to move up
+ *
+ * @return {void}
+ */
+Controller.prototype.moveNodeUp = function moveNodeUp(child) {
+   let parent;
+
+   parent = child.getParent();
+
+   if (parent !== null) {
+      parent.moveChildUp(child);
+      this.redrawMain();
+   }
+}; // moveNodeUp()
+
+/**
  * Abandon current map (model and views) and create a new one
  *
  * @param {String} type - One of MapModel.TYPE_{EMPTY, XML}
@@ -188,6 +224,14 @@ Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
    this._mapViewController.reset();
    this.redrawMain();
 }; // newMap()
+
+/**
+  * Select the root node of the current map
+  * @return {void}
+  */
+Controller.prototype.selectRootNode = function selectRootNode() {
+   this._mapViewController.nodeClicked(this._rootNodeView);
+}; // selectRootNode()
 
 /**
   * Set the name of this map in UI

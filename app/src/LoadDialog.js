@@ -143,16 +143,19 @@ LoadDialog.prototype.loadMap = function loadMap(mapKey, mapName) {
    if (mapKey === LoadDialog.NEW_MAP_ID) {
       this._controller.newMap(MapModel.TYPE_EMPTY,  null, "New Map", null);
       this.close();
+      this._controller.selectRootNode();
 
    } else if (mapKey === LoadDialog.SAMPLE_ID) {
       this._controller.newMap(MapModel.TYPE_XML,  null, "m3 Sample",
                               m3SampleXml);
       this.close();
+      this._controller.selectRootNode();
 
    } else {
       App.myDB.getItem(mapKey).then( (mapAsXml) => {
          this._controller.newMap(MapModel.TYPE_XML, mapKey, mapName, mapAsXml);
          this.close();
+         this._controller.selectRootNode();
       }).catch( (err) => {
          this.close();
          let error = new ErrorDialog(`Error loading map '${mapName}'` +

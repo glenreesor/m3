@@ -17,9 +17,9 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {m3App} from "./main";
-import {Sizer} from "./Sizer";
-import {State} from "./State";
+import {m3App} from './main';
+import {Sizer} from './Sizer';
+import {State} from './State';
 
 /**
  * A EditNodeDialog object will handle displaying a dialog to edit node text
@@ -68,29 +68,45 @@ export function EditNodeDialog(controller, nodeToEdit) {
              html += "</textarea> <br><br>" +
              `<button id='${EditNodeDialog.SAVE_ID}'>Save</button>` +
              `<button id='${EditNodeDialog.CANCEL_ID}'>Cancel</button>` +
-          "</div>";
+          '</div>';
 
    //--------------------------------------------------------------------------
    // Create the dialog
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
-   htmlAsDoc = domParser.parseFromString(html, "text/html");
+   htmlAsDoc = domParser.parseFromString(html, 'text/html');
    this._editNodeDialog = document.importNode(
-      htmlAsDoc.getElementById(EditNodeDialog.DIALOG_ID), true);
-   document.getElementById("app-popups").appendChild(this._editNodeDialog);
+      htmlAsDoc.getElementById(EditNodeDialog.DIALOG_ID),
+      true
+   );
+   document.getElementById('app-popups').appendChild(this._editNodeDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
    //--------------------------------------------------------------------------
-   document.getElementById(EditNodeDialog.SAVE_ID).addEventListener("click",
-      () => this.save());
-   document.getElementById(EditNodeDialog.CANCEL_ID).addEventListener("click",
-      () => this.close());
+   document.getElementById(EditNodeDialog.SAVE_ID).addEventListener(
+      'click',
+      () => this.save()
+   );
+
+   document.getElementById(EditNodeDialog.CANCEL_ID).addEventListener(
+      'click',
+      () => this.close()
+   );
+
+   document.getElementById(EditNodeDialog.DIALOG_ID).addEventListener(
+      'keypress',
+      (e) => {
+         if (e.keyCode === 27) {
+            this.close();
+         }
+      }
+   );
 
    //--------------------------------------------------------------------------
    // Make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById("app-popups").removeAttribute("hidden");
+   document.getElementById('app-popups').removeAttribute('hidden');
    m3App.getGlobalState().setState(State.STATE_DIALOG_EDIT_NODE);
 
    //--------------------------------------------------------------------------
@@ -100,11 +116,11 @@ export function EditNodeDialog(controller, nodeToEdit) {
    (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).focus();
 } // EditNodeDialog()
 
-EditNodeDialog.DIALOG_ID = "m3-editNodeDialog";
+EditNodeDialog.DIALOG_ID = 'm3-editNodeDialog';
 
-EditNodeDialog.CANCEL_ID = EditNodeDialog.DIALOG_ID + "Cancel";
-EditNodeDialog.TEXT_ENTRY_FIELD_ID = EditNodeDialog.DIALOG_ID + "TextEntry";
-EditNodeDialog.SAVE_ID = EditNodeDialog.DIALOG_ID + "Save";
+EditNodeDialog.CANCEL_ID = EditNodeDialog.DIALOG_ID + 'Cancel';
+EditNodeDialog.TEXT_ENTRY_FIELD_ID = EditNodeDialog.DIALOG_ID + 'TextEntry';
+EditNodeDialog.SAVE_ID = EditNodeDialog.DIALOG_ID + 'Save';
 
 /**
  * Close this EditNode Dialog:
@@ -117,8 +133,8 @@ EditNodeDialog.SAVE_ID = EditNodeDialog.DIALOG_ID + "Save";
 EditNodeDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
-   appPopups.setAttribute("hidden", "true");
+   appPopups = document.getElementById('app-popups');
+   appPopups.setAttribute('hidden', 'true');
    appPopups.removeChild(this._editNodeDialog);
 
    m3App.getGlobalState().setState(State.STATE_IDLE);

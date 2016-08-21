@@ -104,6 +104,7 @@ Sizer.setSize = function() {
    svgElement.setAttribute("height", svgHeight + "px");
    svgElement.setAttribute("width", svgWidth + "px");
 
+   Sizer.svgHeight = svgHeight;
    Sizer.svgWidth = svgWidth;
 
    //--------------------------------------------------------------------------
