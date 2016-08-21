@@ -191,10 +191,13 @@ MapViewController.prototype.editNodeClicked = function editNodeClicked() {
    let selectedModel;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
-       this._state.state === STATE_NODE_SELECTED) {
-
-         editNodeDialog = new EditNodeDialog(this._controller,
-            this._state.selectedNodeView.getModel());
+       this._state.state === STATE_NODE_SELECTED
+    ) {
+      editNodeDialog = new EditNodeDialog(
+         this._controller,
+         this._state.selectedNodeView.getModel(),
+         null
+      );
    }
 }; // editNodeClicked()
 
@@ -599,6 +602,7 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
  * @return {void}
  */
 MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
+   let editNodeDialog;
    let nextModel;
    let selectedNodeModel;
    let selectedNodeParent;
@@ -610,6 +614,19 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
       selectedNodeView = this._state.selectedNodeView;
       selectedNodeModel = selectedNodeView.getModel();
       selectedNodeParent = selectedNodeModel.getParent();
+
+      //-------------------------------------------------------------------
+      // Non-ctrl displayable character starts editing the node
+      // Not space, since it does folding / unfolding
+      //-------------------------------------------------------------------
+      if (!e.ctrlKey && e.charCode >= 33 && e.charCode <= 126) {
+         editNodeDialog = new EditNodeDialog(
+            this._controller,
+            this._state.selectedNodeView.getModel(),
+            String.fromCharCode(e.charCode)
+         );
+         return;
+      }
 
       switch (e.key) {
 

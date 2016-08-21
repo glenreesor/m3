@@ -65,7 +65,7 @@ Controller.prototype.addChild = function addChild(parent) {
 
 
    // Allow user to edit the default text
-   editNodeDialog = new EditNodeDialog(this, child);
+   editNodeDialog = new EditNodeDialog(this, child, null);
 
 }; // addChild()
 
@@ -91,7 +91,7 @@ Controller.prototype.addChildAfter = function addChildAfter(parent,
 
    // Allow user to edit the default text. EditNodeDialog handles telling
    // the view to redraw itself
-   editNodeDialog = new EditNodeDialog(this, child);
+   editNodeDialog = new EditNodeDialog(this, child, null);
 
 }; // addChildAfter()
 

@@ -26,10 +26,12 @@ import {State} from './State';
  * (just node text--not rich text)
  *
  * @constructor
- * @param {Controller} controller - The controller for the app
- * @param {NodeModel} nodeToEdit - The node that is being edited.
+ * @param {Controller} controller    - The controller for the app
+ * @param {NodeModel} nodeToEdit     - The node that is being edited.
+ * @param {string}    firstCharacter - If not null, this is a character that
+ *                                     should overwrite the contents of the node
  */
-export function EditNodeDialog(controller, nodeToEdit) {
+export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
    this._controller = controller;
    this._nodeToEdit = nodeToEdit;
 
@@ -39,6 +41,7 @@ export function EditNodeDialog(controller, nodeToEdit) {
    let html;
    let htmlAsDoc;
    let numRows;
+   let textArea;
 
    //--------------------------------------------------------------------------
    // Try to pick a reasonable width for the textarea
@@ -110,10 +113,17 @@ export function EditNodeDialog(controller, nodeToEdit) {
    m3App.getGlobalState().setState(State.STATE_DIALOG_EDIT_NODE);
 
    //--------------------------------------------------------------------------
-   // Give the input field focus and select all the text
+   // Give the input field focus and either:
+   //    - select all the text
+   //    - or overwrite with the specified character
    //--------------------------------------------------------------------------
-   (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).select();
-   (document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)).focus();
+   textArea = document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID);
+   textArea.focus();
+   if (firstCharacter === null) {
+      textArea.select();
+   } else {
+      textArea.value = firstCharacter;
+   }
 } // EditNodeDialog()
 
 EditNodeDialog.DIALOG_ID = 'm3-editNodeDialog';
