@@ -205,6 +205,7 @@ TextView.prototype._addTspans = function _addTspans(text) {
    let lowLength;
    let highLength;
    let newTspan;
+   let originalBreakLength;
    let testLength;
    let width;
 
@@ -302,6 +303,9 @@ TextView.prototype._addTspans = function _addTspans(text) {
       lowLength--;
    }
 
+   // Save this breakpoint for case below where we don't find a clean word break
+   originalBreakLength = lowLength;
+
    // Ensure we're not breaking a word, but check first to see if we got lucky.
    // If the character after our max length is a space, then we ended up at the
    // end of a word and there's no adjusting to be done.
@@ -309,6 +313,11 @@ TextView.prototype._addTspans = function _addTspans(text) {
       while (text[lowLength -1 ] !== ' ' && lowLength > 1) {
          lowLength--;
       }
+   }
+
+   // If we didn't find a word break, use the originally calculated length
+   if (lowLength === 1) {
+      lowLength = originalBreakLength;
    }
 
    // Trim the right side of whitespace because of Firefox issue re: width
