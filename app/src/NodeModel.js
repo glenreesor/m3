@@ -791,7 +791,7 @@ NodeModel.prototype.moveChildDown = function moveChildDown(childToMove) {
          // Last child is special--it needs to wrap around.
          // Delete it and insert as first
          this._children.pop();
-         this._children.splice(0, 0, childToMove);
+         this._children.unshift(childToMove);
 
       }
    } else {
@@ -817,9 +817,11 @@ NodeModel.prototype.moveChildDown = function moveChildDown(childToMove) {
          // side
          nextChild = this.getFirstChild(childToMove.getSide());
          if (nextChild !== childToMove) {
-            indexOfNextChild = this._children.indexOf(nextChild);
-            this._children[indexOfChildToMove] = nextChild;
-            this._children[indexOfNextChild] = childToMove;
+
+            // Last child on a side is special--it needs to wrap around.
+            // Delete it and insert as first
+            this._children.splice(indexOfChildToMove, 1);
+            this._children.unshift(childToMove);
          }
       }
    }
@@ -883,9 +885,11 @@ NodeModel.prototype.moveChildUp = function moveChildUp(childToMove) {
          // side
          previousChild = this.getLastChild(childToMove.getSide());
          if (previousChild !== childToMove) {
-            indexOfPreviousChild = this._children.indexOf(previousChild);
-            this._children[indexOfChildToMove] = previousChild;
-            this._children[indexOfPreviousChild] = childToMove;
+
+            // First child on a side is special--it needs to wrap around.
+            // Delete it and add as last.
+            this._children.splice(indexOfChildToMove, 1);
+            this._children.push(childToMove);
          }
       }
    }

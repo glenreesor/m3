@@ -822,6 +822,118 @@ test('NodeModel - getArrowLinks()', function(t) {
 });
 
 //-----------------------------------------------------------------------------
+// getChildAfter - root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if reference child is last child
+//-----------------------------------------------------------------------------
+test('NodeModel - getChildAfter() - root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+
+   parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                               null, ["Parent Text"], null);
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getChildAfter(childModel1), childModel2,
+      "child after the first one should be the second one");
+
+   t.equal(parentModel.getChildAfter(childModel2), null,
+      "child after the last one should be null");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getChildAfter - non-root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if reference child is last child
+//-----------------------------------------------------------------------------
+test('NodeModel - getChildAfter() - non-root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+   let rootModel;
+
+   rootModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                             null, ["Root Text"], null);
+
+   parentModel = rootModel.addChild(["Parent Text"]);
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getChildAfter(childModel1), childModel2,
+      "child after the first one should be the second one");
+
+   t.equal(parentModel.getChildAfter(childModel2), null,
+      "child after the last one should be null");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getChildBefore - root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if reference child is first child
+//-----------------------------------------------------------------------------
+test('NodeModel - getChildBefore() - root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+
+   parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                               null, ["Parent Text"], null);
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getChildBefore(childModel2), childModel1,
+      "child before the last one should be the first one");
+
+   t.equal(parentModel.getChildBefore(childModel1), null,
+      "child before the first one should be null");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getChildBefore - non-root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if reference child is first child
+//-----------------------------------------------------------------------------
+test('NodeModel - getChildBefore() - non-root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+   let rootModel;
+
+   rootModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                             null, ["Root Text"], null);
+
+   parentModel = rootModel.addChild(["Parent Text"]);
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getChildBefore(childModel2), childModel1,
+      "child before the last one should be the first one");
+
+   t.equal(parentModel.getChildBefore(childModel1), null,
+      "child before the first one should be null");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
 // getChildren
 //-----------------------------------------------------------------------------
 test('NodeModel - getChildren()', function(t) {
@@ -898,6 +1010,70 @@ test('NodeModel - getCloudModel()', function(t) {
                              null, null, docElement);
    t.notEqual(nodeModel.getCloudModel(), null,
       "there should be a Cloud on the nodeModel");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getFirstChild - root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if no children
+//    - Null if no child on specified side
+//-----------------------------------------------------------------------------
+test('NodeModel - getFirstChild() - root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+
+   parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                               null, ["Parent Text"], null);
+
+   t.equal(parentModel.getFirstChild(NodeModel.POSITION_RIGHT), null,
+      "if no children, should return null");
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getFirstChild(NodeModel.POSITION_RIGHT), childModel1,
+      "should return first child");
+
+   t.equal(parentModel.getFirstChild(NodeModel.POSITION_LEFT), null,
+      "should return null because no children on left side");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getFirstChild - non-root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if no children
+//    - Null if no child on specified side
+//-----------------------------------------------------------------------------
+test('NodeModel - getFirstChild() - non-root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+   let rootModel;
+
+   rootModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                             null, ["Root Text"], null);
+
+   parentModel = rootModel.addChild(["Parent Text"]);
+   t.equal(parentModel.getFirstChild(NodeModel.POSITION_RIGHT), null,
+      "if no children, should return null");
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getFirstChild(NodeModel.POSITION_RIGHT), childModel1,
+      "should return first child");
+
+   t.equal(parentModel.getFirstChild(NodeModel.POSITION_LEFT), null,
+      "should return null because no children on left side");
 
    t.end();
 });
@@ -1000,6 +1176,70 @@ test('NodeModel - getIcons()', function(t) {
                              null, null, docElement);
    t.equal(nodeModel.getIcons().length, 1,
       "there should be an Icon on the nodeModel");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getLastChild - root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if no children
+//    - Null if no child on specified side
+//-----------------------------------------------------------------------------
+test('NodeModel - getLastChild() - root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+
+   parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                               null, ["Parent Text"], null);
+
+   t.equal(parentModel.getLastChild(NodeModel.POSITION_RIGHT), null,
+      "if no children, should return null");
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getLastChild(NodeModel.POSITION_RIGHT), childModel2,
+      "should return last child");
+
+   t.equal(parentModel.getLastChild(NodeModel.POSITION_LEFT), null,
+      "should return null because no children on left side");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// getLastChild - non-root node
+//
+// Confirm that:
+//    - Correct child is returned
+//    - Null returned if no children
+//    - Null if no child on specified side
+//-----------------------------------------------------------------------------
+test('NodeModel - getLastChild() - non-root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let parentModel;
+   let rootModel;
+
+   rootModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                             null, ["Root Text"], null);
+
+   parentModel = rootModel.addChild(["Parent Text"]);
+   t.equal(parentModel.getLastChild(NodeModel.POSITION_RIGHT), null,
+      "if no children, should return null");
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+
+   t.equal(parentModel.getLastChild(NodeModel.POSITION_RIGHT), childModel2,
+      "should return last child");
+
+   t.equal(parentModel.getLastChild(NodeModel.POSITION_LEFT), null,
+      "should return null because no children on left side");
 
    t.end();
 });
@@ -1404,6 +1644,264 @@ test("NodeModel - isFolded()", function(t) {
 
    t.equal(parentModel.isFolded(), true,
       "NodeModel should now be folded.");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// moveChildDown - root node
+//
+// Confirm that:
+//    - Order is correct
+//    - Edge cases are correct (first and last)
+//-----------------------------------------------------------------------------
+test('NodeModel - moveChildDown() - root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let childModel3;
+   let children;
+   let parentModel;
+
+   parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                               null, ["Parent Text"], null);
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+   childModel3 = parentModel.addChild(["Child Text3"]);
+
+   // Edge case -- First child
+   parentModel.moveChildDown(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel2,
+      "1a - expected order - 2, 1, 3");
+
+   t.equal(children[1], childModel1,
+      "1b - expected order - 2, 1, 3");
+
+   t.equal(children[2], childModel3,
+      "1c - expected order - 2, 1, 3");
+
+   // Non-edge case (order is now 2, 1, 3)
+   parentModel.moveChildDown(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel2,
+      "2a - expected order - 2, 3, 1");
+
+   t.equal(children[1], childModel3,
+      "2b - expected order - 2, 3, 1");
+
+   t.equal(children[2], childModel1,
+      "2c - expected order - 2, 3, 1");
+
+   // Edge case (order is now 2, 3, 1)
+   parentModel.moveChildDown(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel1,
+      "3a - expected order - 1, 2, 3");
+
+   t.equal(children[1], childModel2,
+      "3b - expected order - 1, 2, 3");
+
+   t.equal(children[2], childModel3,
+      "3c - expected order - 1, 2, 3");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// moveChildDown - non-root node
+//
+// Confirm that:
+//    - Order is correct
+//    - Edge cases are correct (first and last)
+//-----------------------------------------------------------------------------
+test('NodeModel - moveChildDown() - non-root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let childModel3;
+   let children;
+   let parentModel;
+   let rootModel;
+
+   rootModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                             null, ["Root Text"], null);
+
+   parentModel = rootModel.addChild(["Parent Text"]);
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+   childModel3 = parentModel.addChild(["Child Text3"]);
+
+   // Edge case -- First child
+   parentModel.moveChildDown(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel2,
+      "1a - expected order - 2, 1, 3");
+
+   t.equal(children[1], childModel1,
+      "1b - expected order - 2, 1, 3");
+
+   t.equal(children[2], childModel3,
+      "1c - expected order - 2, 1, 3");
+
+   // Non-edge case (order is now 2, 1, 3)
+   parentModel.moveChildDown(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel2,
+      "2a - expected order - 2, 3, 1");
+
+   t.equal(children[1], childModel3,
+      "2b - expected order - 2, 3, 1");
+
+   t.equal(children[2], childModel1,
+      "2c - expected order - 2, 3, 1");
+
+   // Edge case (order is now 2, 3, 1)
+   parentModel.moveChildDown(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel1,
+      "3a - expected order - 1, 2, 3");
+
+   t.equal(children[1], childModel2,
+      "3b - expected order - 1, 2, 3");
+
+   t.equal(children[2], childModel3,
+      "3c - expected order - 1, 2, 3");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// moveChildUp - root node
+//
+// Confirm that:
+//    - Order is correct
+//    - Edge cases are correct (first and last)
+//-----------------------------------------------------------------------------
+test('NodeModel - moveChildUp() - root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let childModel3;
+   let children;
+   let parentModel;
+
+   parentModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                               null, ["Parent Text"], null);
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+   childModel3 = parentModel.addChild(["Child Text3"]);
+
+   // Edge case -- First child
+   parentModel.moveChildUp(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel2,
+      "1a - expected order - 2, 3, 1");
+
+   t.equal(children[1], childModel3,
+      "1b - expected order - 2, 3, 1");
+
+   t.equal(children[2], childModel1,
+      "1c - expected order - 2, 3, 1");
+
+   // Non-Edge case (order is now 2, 3, 1)
+   parentModel.moveChildUp(childModel3);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel3,
+      "2a - expected order - 3, 2, 1");
+
+   t.equal(children[1], childModel2,
+      "2b - expected order - 3, 2, 1");
+
+   t.equal(children[2], childModel1,
+      "2c - expected order - 3, 2, 1");
+
+   // Edge case -- Last child (order is now 3, 2, 1)
+   parentModel.moveChildUp(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel3,
+      "2a - expected order - 3, 1, 2");
+
+   t.equal(children[1], childModel1,
+      "2b - expected order - 3, 1, 2");
+
+   t.equal(children[2], childModel2,
+      "2c - expected order - 3, 1, 2");
+
+   t.end();
+});
+
+//-----------------------------------------------------------------------------
+// moveChildUp - non-root node
+//
+// Confirm that:
+//    - Order is correct
+//    - Edge cases are correct (first and last)
+//-----------------------------------------------------------------------------
+test('NodeModel - moveChildUp() - non-root node', function (t) {
+   let childModel1;
+   let childModel2;
+   let childModel3;
+   let children;
+   let parentModel;
+   let rootModel;
+
+   rootModel = new NodeModel(controllerStub, mapModelStub, NodeModel.TYPE_NEW,
+                             null, ["Root Text"], null);
+
+   parentModel = rootModel.addChild(["Parent Text"]);
+
+   childModel1 = parentModel.addChild(["Child Text1"]);
+   childModel2 = parentModel.addChild(["Child Text2"]);
+   childModel3 = parentModel.addChild(["Child Text3"]);
+
+   // Edge case -- First child
+   parentModel.moveChildUp(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel2,
+      "1a - expected order - 2, 3, 1");
+
+   t.equal(children[1], childModel3,
+      "1b - expected order - 2, 3, 1");
+
+   t.equal(children[2], childModel1,
+      "1c - expected order - 2, 3, 1");
+
+   // Non-Edge case (order is now 2, 3, 1)
+   parentModel.moveChildUp(childModel3);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel3,
+      "2a - expected order - 3, 2, 1");
+
+   t.equal(children[1], childModel2,
+      "2b - expected order - 3, 2, 1");
+
+   t.equal(children[2], childModel1,
+      "2c - expected order - 3, 2, 1");
+
+   // Edge case -- Last child (order is now 3, 2, 1)
+   parentModel.moveChildUp(childModel1);
+   children = parentModel.getChildren();
+
+   t.equal(children[0], childModel3,
+      "2a - expected order - 3, 1, 2");
+
+   t.equal(children[1], childModel1,
+      "2b - expected order - 3, 1, 2");
+
+   t.equal(children[2], childModel2,
+      "2c - expected order - 3, 1, 2");
 
    t.end();
 });
