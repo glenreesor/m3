@@ -514,6 +514,15 @@ NodeView.prototype._getBubbleContentsWidth =
 }; //_getBubbleContentsWidth()
 
 /**
+ * Get the height of this NodeView's bubble.
+ *
+ * @return {number} - the height of this node's bubble
+ */
+NodeView.prototype.getBubbleHeight = function getBubbleHeight() {
+   return this._myBubble.getHeight();
+}; //getBubbleHeight()
+
+/**
  * Get the width of this NodeView's bubble.
  *
  * @return {number} - the width of this node's bubble
@@ -521,6 +530,15 @@ NodeView.prototype._getBubbleContentsWidth =
 NodeView.prototype.getBubbleWidth = function getBubbleWidth() {
    return this._myBubble.getWidth();
 }; //getBubbleWidth()
+
+/**
+ * Get my coordinates
+ *
+ * @return {{x, y}} - my coordinates
+ */
+NodeView.prototype.getCoordinates = function getCoordinates() {
+   return {x: this._x, y: this._y};
+}; //getCoordinates()
 
 /**
  * Get the coordinates where a graphical link (either endpoint or beginning)

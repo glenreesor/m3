@@ -322,6 +322,83 @@ NodeModel.prototype.getBackgroundColor = function getBackgroundColor() {
 }; // getBackgroundColor()
 
 /**
+ * Return the child after the specified node. Null if there isn't one.
+ * If this node is root, the returned node will be on the same side as the
+ * specified child.
+ *
+ * @param {NodeModel} referenceChild - The reference child
+ * @return {NodeModel} The child after the specified one
+ */
+
+NodeModel.prototype.getChildAfter = function getChildAfter(referenceChild) {
+   let childAfter;
+   let indexAfter;
+   let requiredSide;
+
+   indexAfter = this._children.indexOf(referenceChild) + 1;
+   childAfter = null;
+
+   if (this._parent !== null) {
+      // We're not the root, so no special logic
+      if (indexAfter < this._children.length) {
+         childAfter = this._children[indexAfter];
+      }
+   } else {
+      // We're the root note, so make sure the returned node is
+      // on the same side as the reference node
+      requiredSide = referenceChild.getSide();
+
+      while (childAfter === null && indexAfter < this._children.length) {
+         if (this._children[indexAfter].getSide() === requiredSide) {
+            childAfter = this._children[indexAfter];
+         }
+         indexAfter++;
+      }
+   }
+
+   return childAfter;
+}; // getChildAfter()
+
+/**
+ * Return the child before the specified node. Null if there isn't one.
+ * If this node is root, the returned node will be on the same side as the
+ * specified child.
+ *
+ * @param {NodeModel} referenceChild - The reference child
+ * @return {NodeModel} The child before the specified one
+ */
+
+NodeModel.prototype.getChildBefore = function getChildBefore(referenceChild) {
+   let childBefore;
+   let indexBefore;
+   let requiredSide;
+
+   indexBefore = this._children.indexOf(referenceChild) - 1;
+   childBefore = null;
+
+   if (this._parent !== null) {
+      // We're not the root, so no special logic
+      if (indexBefore >= 0) {
+         childBefore = this._children[indexBefore];
+      }
+   } else {
+      // We're the root note, so make sure the returned node is
+      // on the same side as the reference node
+
+      requiredSide = referenceChild.getSide();
+
+      while (childBefore === null && indexBefore >= 0) {
+         if (this._children[indexBefore].getSide() === requiredSide) {
+            childBefore = this._children[indexBefore];
+         }
+         indexBefore--;
+      }
+   }
+
+   return childBefore;
+}; // getChildBefore()
+
+/**
  * Return the array of children of this node
  *
  * @return {NodeModel[]} an array of children of this node
@@ -350,6 +427,28 @@ NodeModel.prototype.getCreatedTimestamp = function getCreatedTimestamp() {
 }; // getCreatedTimestamp()
 
 /**
+ * Return the first child on the specified side. Null if there isn't one.
+ * @param  {string} side - The required side
+ * @return {NodeModel}   - The first child node on the specified side
+ */
+NodeModel.prototype.getFirstChild = function getFirstChild(side) {
+   let i;
+   let returnValue;
+
+   returnValue = null;
+
+   i = 0;
+   while (returnValue === null && i < this._children.length) {
+      if (this._children[i].getSide() === side) {
+         returnValue = this._children[i];
+      }
+      i++;
+   }
+
+   return returnValue;
+}; // getFirstChild()
+
+/**
  * Return this node's font object
  *
  * @return {Font} This node's font object (null if no non-default values)
@@ -375,6 +474,28 @@ NodeModel.prototype.getIcons = function getIcons() {
 NodeModel.prototype.getId = function getId() {
    return this._id;
 }; // getId()
+
+/**
+ * Return the last child on the specified side. Null if there isn't one.
+ * @param  {string} side - The required side
+ * @return {NodeModel}   - The last child node on the specified side
+ */
+NodeModel.prototype.getLastChild = function getLastChild(side) {
+   let i;
+   let returnValue;
+
+   returnValue = null;
+
+   i = this._children.length - 1;
+   while (returnValue === null && i >= 0) {
+      if (this._children[i].getSide() === side) {
+         returnValue = this._children[i];
+      }
+      i--;
+   }
+
+   return returnValue;
+}; // getLastChild()
 
 /**
  * Return the link text for this node
@@ -638,6 +759,141 @@ NodeModel.prototype._loadFromXml1_0_1 = function _loadFromXml1_0_1(element) {
    }
    this._unexpectedTags = unexpectedTags;
 }; // _loadFromXml1_0_1()
+
+/**
+ * Move the specified child down in the child order. If it's the last node,
+ * it will wrap around to the first node.
+ *
+ * @param {NodeModel} childToMove - the child to be moved
+ * @return {void}
+ */
+NodeModel.prototype.moveChildDown = function moveChildDown(childToMove) {
+   let indexOfChildToMove;
+   let indexOfNextChild;
+   let nextChild;
+
+   if (this._children.length === 1) {
+      return;
+   }
+
+   indexOfChildToMove = this._children.indexOf(childToMove);
+
+   if (this._parent !== null) {
+      // We're not the root note, so no special logic about sides is required
+
+      if (indexOfChildToMove !== (this._children.length - 1)) {
+         // We're not the last child, so just switch with the next one
+         nextChild = this._children[indexOfChildToMove + 1];
+         this._children[indexOfChildToMove] = nextChild;
+         this._children[indexOfChildToMove + 1] = childToMove;
+
+      } else {
+         // Last child is special--it needs to wrap around.
+         // Delete it and insert as first
+         this._children.pop();
+         this._children.unshift(childToMove);
+
+      }
+   } else {
+      // We're the root node, so must move down relative to other nodes
+      // on the same side.
+
+      // Find next child on the same side
+      nextChild = this.getChildAfter(childToMove);
+
+      if (nextChild !== null) {
+         // We found the next child on same side, so switch with childToMove
+
+         // Next child on same side may not be immediately after childtoMove,
+         // thus can't just use indexOfChildToMove + 1
+         indexOfNextChild = this._children.indexOf(nextChild);
+
+         this._children[indexOfChildToMove] = nextChild;
+         this._children[indexOfNextChild] = childToMove;
+
+      } else {
+         // We didn't find a next child on the same side.
+         // We only have to do something if we're not the only child on this
+         // side
+         nextChild = this.getFirstChild(childToMove.getSide());
+         if (nextChild !== childToMove) {
+
+            // Last child on a side is special--it needs to wrap around.
+            // Delete it and insert as first
+            this._children.splice(indexOfChildToMove, 1);
+            this._children.unshift(childToMove);
+         }
+      }
+   }
+}; // moveChildDown()
+
+/**
+ * Move the specified child up in the child order. If it's the first node,
+ * it will wrap around to the last node.
+ *
+ * @param {NodeModel} childToMove - the child to be moved
+ * @return {void}
+ */
+NodeModel.prototype.moveChildUp = function moveChildUp(childToMove) {
+   let indexOfChildToMove;
+   let indexOfPreviousChild;
+   let previousChild;
+
+   if (this._children.length === 1) {
+      return;
+   }
+
+   indexOfChildToMove = this._children.indexOf(childToMove);
+
+   if (this._parent !== null) {
+      // We're not the root note, so no special logic about sides is required
+
+      if (indexOfChildToMove !== 0) {
+         // We're not the first child, so just switch with the previous one
+         previousChild = this._children[indexOfChildToMove - 1];
+         this._children[indexOfChildToMove - 1] = childToMove;
+         this._children[indexOfChildToMove] = previousChild;
+
+      } else {
+         // First child is special--it needs to wrap around.
+         // Delete it and add as last
+         this._children.shift();
+         this._children.push(childToMove);
+
+      }
+   } else {
+      // We're the root node, so must move up relative to other nodes on the
+      // same side
+
+      // Find previous child on the same side
+      previousChild = this.getChildBefore(childToMove);
+
+      if (previousChild !== null) {
+         // We found the previous child on the same side, so switch with
+         // childtoMove
+
+         // Previous child on same side may not be immediately before
+         // childToMove, thus can't just use indexOfChildToMove - 1
+         indexOfPreviousChild = this._children.indexOf(previousChild);
+
+         this._children[indexOfChildToMove] = previousChild;
+         this._children[indexOfPreviousChild] = childToMove;
+
+      } else {
+         // We didn't find a previous child on the same side.
+         // We only have to do something if we're not the only child on this
+         // side
+         previousChild = this.getLastChild(childToMove.getSide());
+         if (previousChild !== childToMove) {
+
+            // First child on a side is special--it needs to wrap around.
+            // Delete it and add as last.
+            this._children.splice(indexOfChildToMove, 1);
+            this._children.push(childToMove);
+         }
+      }
+   }
+}; // moveChildUp()
 
 /**
  * Set the background color to something new.

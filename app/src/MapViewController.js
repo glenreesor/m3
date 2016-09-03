@@ -17,10 +17,12 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {Diagnostics} from "./Diagnostics";
-import {EditNodeDialog} from "./EditNodeDialog";
-import {m3App} from "./main";
-import {State} from "./State";
+import {Diagnostics} from './Diagnostics';
+import {EditNodeDialog} from './EditNodeDialog';
+import {m3App} from './main';
+import {NodeModel} from './NodeModel';
+import {Sizer} from './Sizer';
+import {State} from './State';
 
 const STATE_IDLE                 = "Idle";
 const STATE_INERTIA_SCROLL       = "Intertia Scroll";
@@ -90,6 +92,11 @@ export function MapViewController(controller) {
       () => this.editNodeClicked());
 
    //--------------------------------------------------------------------------
+   // Keyboard Events
+   //--------------------------------------------------------------------------
+   document.addEventListener("keypress", (e) => this._keyboardHandler(e));
+
+   //--------------------------------------------------------------------------
    // Mouse Events
    //--------------------------------------------------------------------------
    document.getElementById("app-drawing-area").addEventListener("mousedown",
@@ -157,8 +164,10 @@ MapViewController.prototype.addSiblingClicked = function addSiblingClicked() {
  * @return {void}
  */
 MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
+   let nodeToSelect;
    let selectedModel;
    let parentModel;
+   let testNode;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
        this._state.state === STATE_NODE_SELECTED) {
@@ -167,9 +176,26 @@ MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
          parentModel = selectedModel.getParent();
 
          if (parentModel !== null) {
+            // Select an appropriate node, with this precedence:
+            //    - Next sibling if exists
+            //    - Previous sibling if exists
+            //    - Parent
+            testNode = parentModel.getChildAfter(selectedModel);
+            if (testNode !== null) {
+               nodeToSelect = testNode;
+            } else {
+               testNode = parentModel.getChildBefore(selectedModel);
+               if (testNode !== null){
+                  nodeToSelect = testNode;
+               } else {
+                  nodeToSelect = parentModel;
+               }
+            }
+            this.nodeClicked(nodeToSelect.getView());
+            this._ensureSelectedNodeVisible();
+
+            // Now delete it
             this._controller.deleteNode(selectedModel);
-            // Update state
-            this._state.state = STATE_IDLE;
          }
    }
 }; // deleteNode()
@@ -184,10 +210,13 @@ MapViewController.prototype.editNodeClicked = function editNodeClicked() {
    let selectedModel;
 
    if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
-       this._state.state === STATE_NODE_SELECTED) {
-
-         editNodeDialog = new EditNodeDialog(this._controller,
-            this._state.selectedNodeView.getModel());
+       this._state.state === STATE_NODE_SELECTED
+    ) {
+      editNodeDialog = new EditNodeDialog(
+         this._controller,
+         this._state.selectedNodeView.getModel(),
+         null
+      );
    }
 }; // editNodeClicked()
 
@@ -301,6 +330,84 @@ MapViewController.prototype.toggleCloudClicked = function toggleCloudClicked() {
    }
 }; // toggleCloudClicked()
 
+/**
+ * Center the currently selected node
+ *
+ * @return {void}
+ */
+MapViewController.prototype._centerSelectedNode =
+   function _centerSelectedNode(
+) {
+   let x;
+   let y;
+
+   if (this._state.selectedNodeView !== null) {
+      ({x, y} = this._state.selectedNodeView.getCoordinates());
+
+      this._state.scroll.currentTranslationX = Sizer.svgWidth/2 - x;
+      this._state.scroll.currentTranslationY = Sizer.svgHeight/2 - y;
+
+      this._svgGElement.setAttribute(
+         "transform",
+         `translate(${this._state.scroll.currentTranslationX}` +
+                   `,${this._state.scroll.currentTranslationY})`
+      );
+   }
+}; // _centerSelectedNode()
+
+/**
+ * Make sure the currently selected node is visible
+ *
+ * @return {void}
+ */
+MapViewController.prototype._ensureSelectedNodeVisible =
+   function _ensureSelectedNodeVisible(
+) {
+   const PADDING = 10;     // So node isn't right at edge of screen
+
+   let absolutePosition;
+   let deltaX = 0;
+   let deltaY = 0;
+   let height;
+   let width;
+   let x;
+   let y;
+
+   if (this._state.selectedNodeView !== null) {
+      ({x, y} = this._state.selectedNodeView.getCoordinates());
+      height = this._state.selectedNodeView.getBubbleHeight();
+      width = this._state.selectedNodeView.getBubbleWidth();
+
+      //----------------------------------------------------------------------
+      // Horizontal
+      //----------------------------------------------------------------------
+      absolutePosition = x + this._state.scroll.currentTranslationX;
+      if (absolutePosition < PADDING) {
+         deltaX = 100 - absolutePosition;
+      } else if (absolutePosition + width > Sizer.svgWidth - PADDING) {
+         deltaX = Sizer.svgWidth - (absolutePosition + width + PADDING);
+      }
+
+      //----------------------------------------------------------------------
+      // Vertical
+      //----------------------------------------------------------------------
+      absolutePosition = y + this._state.scroll.currentTranslationY;
+      if (absolutePosition < 10) {
+         deltaY = 100 - absolutePosition;
+      } else if (absolutePosition + height > Sizer.svgHeight - PADDING) {
+         deltaY = Sizer.svgHeight - (absolutePosition + height + PADDING);
+      }
+
+      this._state.scroll.currentTranslationX += deltaX;
+      this._state.scroll.currentTranslationY += deltaY;
+
+      this._svgGElement.setAttribute(
+         "transform",
+         `translate(${this._state.scroll.currentTranslationX}` +
+                   `,${this._state.scroll.currentTranslationY})`
+      );
+   }
+}; // _centerSelectedNode()
 /**
  * Perform an automatic scroll to simulate inertia.
  *
@@ -432,9 +539,6 @@ MapViewController.prototype._interactionStart = function _interactionStart(
 /**
  * Handle the end of a mouse or touch interaction
  *
- * @param {string} interactionType - mouse or touch
- * @param {Event}  e               - the event that triggered this movement
- *
  * @return {void}
  */
 MapViewController.prototype._interactionStop = function _interactionStop() {
@@ -509,6 +613,270 @@ MapViewController.prototype._interactionStop = function _interactionStop() {
    this._state.state = STATE_INERTIA_SCROLL;
    window.requestAnimationFrame(this._inertiaScroll.bind(this));
 }; // _interactionStop()
+
+/**
+ * Handle keyboard events
+ *
+ * @param {Event} e - The keyboard event object
+ * @return {void}
+ */
+MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
+   let editNodeDialog;
+   let nextModel;
+   let selectedNodeModel;
+   let selectedNodeParent;
+   let selectedNodeView;
+
+   if (m3App.getGlobalState().getState() === State.STATE_IDLE &&
+       this._state.state === STATE_NODE_SELECTED
+    ) {
+      selectedNodeView = this._state.selectedNodeView;
+      selectedNodeModel = selectedNodeView.getModel();
+      selectedNodeParent = selectedNodeModel.getParent();
+
+      //-------------------------------------------------------------------
+      // Non-ctrl displayable character starts editing the node
+      // Not space, since it does folding / unfolding
+      //-------------------------------------------------------------------
+      if (!e.ctrlKey && e.charCode >= 33 && e.charCode <= 126) {
+         editNodeDialog = new EditNodeDialog(
+            this._controller,
+            this._state.selectedNodeView.getModel(),
+            String.fromCharCode(e.charCode)
+         );
+         return;
+      }
+
+      switch (e.key) {
+
+         //-------------------------------------------------------------------
+         // Space: Fold / unfold
+         //-------------------------------------------------------------------
+         case ' ':
+            if (selectedNodeParent !== null &&
+                selectedNodeModel.getChildren().length !== 0
+             ) {
+               this._controller.toggleFoldedStatus(selectedNodeModel);
+            }
+            break;
+
+         //-------------------------------------------------------------------
+         // CTRL S: Save map
+         //-------------------------------------------------------------------
+         case 's':
+            if (e.ctrlKey) {
+               this._controller.getMapModel().save();
+               e.preventDefault();
+            }
+            break;
+
+         //-------------------------------------------------------------------
+         //      Arrow Down: Move to next sibling
+         // CTRL Arrow Down: Move node down in child list
+         //-------------------------------------------------------------------
+         case 'ArrowDown':
+            if (selectedNodeParent !== null) {
+               if (e.ctrlKey) {
+                  this._controller.moveNodeDown(selectedNodeModel);
+
+               } else {
+                  nextModel = selectedNodeParent.getChildAfter(
+                     selectedNodeModel
+                  );
+
+                  if (nextModel === null) {
+                     nextModel = selectedNodeParent.getFirstChild(
+                        selectedNodeModel.getSide()
+                     );
+                  }
+
+                  // Don't want to click the current node because that
+                  // will deselect it
+                  if (nextModel !== selectedNodeModel) {
+                     this.nodeClicked(nextModel.getView());
+                     this._ensureSelectedNodeVisible();
+                  }
+               }
+            }
+            e.preventDefault();
+            break;
+
+         //-------------------------------------------------------------------
+         // Arrow Left:
+         //    When selected node is:
+         //       - Move to first left side child
+         //
+         //    When selected node is left side of root:
+         //       - Move to first child of current node
+         //
+         //    When selected node is right side of root:
+         //       - Move to parent of current node
+         //-------------------------------------------------------------------
+         case 'ArrowLeft':
+            nextModel = null;
+
+            if (selectedNodeModel.getSide() === NodeModel.POSITION_NONE) {
+               // Selected node is root
+
+               if (!selectedNodeModel.isFolded()) {
+                  // Find the first child node on the left side
+
+                  selectedNodeModel.getChildren().forEach(function (child) {
+                     if (nextModel === null) {
+                        if (child.getSide() === NodeModel.POSITION_LEFT) {
+                           nextModel = child;
+                        }
+                     }
+                  });
+               }
+
+            } else if (selectedNodeModel.getSide() ===
+               NodeModel.POSITION_LEFT
+            ) {
+               // Selected node is left of root
+
+               if (selectedNodeModel.getChildren().length > 0 &&
+                   !selectedNodeModel.isFolded()) {
+                  nextModel = selectedNodeModel.getChildren()[0];
+               }
+
+            } else {
+               // Selected node is right of root
+
+               nextModel = selectedNodeParent;
+            }
+
+            if (nextModel !== null) {
+               this.nodeClicked(nextModel.getView());
+               this._ensureSelectedNodeVisible();
+            }
+            break;
+
+         //-------------------------------------------------------------------
+         // Arrow Right:
+         //    When selected node is root:
+         //       - Move to first right side child
+         //
+         //    When selected node is left side of root:
+         //       - Move to parent of current node
+         //
+         //    When selected node is right side of root:
+         //       - Move to first child of current node
+         //-------------------------------------------------------------------
+         case 'ArrowRight':
+            nextModel = null;
+
+            if (selectedNodeModel.getSide() === NodeModel.POSITION_NONE) {
+               // Selected node is root
+
+               if (!selectedNodeModel.isFolded()) {
+                  // Find the first child node on the right side
+
+                  selectedNodeModel.getChildren().forEach(function (child) {
+                     if (nextModel === null) {
+                        if (child.getSide() === NodeModel.POSITION_RIGHT) {
+                           nextModel = child;
+                        }
+                     }
+                  });
+               }
+
+            } else if (selectedNodeModel.getSide() ===
+               NodeModel.POSITION_LEFT
+            ) {
+               // Selected node is left of root
+
+               nextModel = selectedNodeParent;
+
+            } else {
+               // Selected node is right of root
+
+               if (selectedNodeModel.getChildren().length > 0 &&
+                   !selectedNodeModel.isFolded()) {
+                  nextModel = selectedNodeModel.getChildren()[0];
+               }
+            }
+
+            if (nextModel !== null) {
+               this.nodeClicked(nextModel.getView());
+               this._ensureSelectedNodeVisible();
+            }
+            break;
+
+         //-------------------------------------------------------------------
+         //      Arrow Up: Move to previous sibling
+         // CTRL Arrow Up: Move node up in child list
+         //-------------------------------------------------------------------
+         case 'ArrowUp':
+            if (selectedNodeModel.getParent() !== null) {
+               if (e.ctrlKey) {
+                  this._controller.moveNodeUp(selectedNodeModel);
+
+               } else {
+                  nextModel = selectedNodeParent.getChildBefore(
+                     selectedNodeModel
+                  );
+
+                  if (nextModel === null) {
+                     nextModel = selectedNodeParent.getLastChild(
+                        selectedNodeModel.getSide()
+                     );
+                  }
+
+                  // Don't want to click the current node because that will
+                  // deselect it
+                  if (nextModel !== selectedNodeModel) {
+                     this.nodeClicked(nextModel.getView());
+                     this._ensureSelectedNodeVisible();
+                  }
+               }
+            }
+            e.preventDefault();
+            break;
+
+         //-------------------------------------------------------------------
+         // Delete: Delete selected node
+         //-------------------------------------------------------------------
+         case 'Delete':
+            this.deleteNodeClicked();
+            break;
+
+         //-------------------------------------------------------------------
+         // End: Edit selected node and put cursor at end of text
+         //-------------------------------------------------------------------
+         case 'End':
+            this.editNodeClicked();
+            break;
+
+         //-------------------------------------------------------------------
+         // Enter: Add sibling
+         //-------------------------------------------------------------------
+         case 'Enter':
+            this.addSiblingClicked();
+            break;
+
+         //-------------------------------------------------------------------
+         //      Home: Edit selected node and put cursor at beginning of text
+         // CTRL Home: Center the selected node
+         //-------------------------------------------------------------------
+         case 'Home':
+            if (e.ctrlKey) {
+               this._centerSelectedNode();
+            } else {
+               this.editNodeClicked();
+            }
+            break;
+
+         //-------------------------------------------------------------------
+         // Insert: Add child node
+         //-------------------------------------------------------------------
+         case 'Insert':
+            this.addChildClicked();
+            break;
+
+      } // switch
+   } // If appropriate state
+}; // _keyboardHandler()
 
 /**
  * Act on the mouse being pressed
