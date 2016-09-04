@@ -43,6 +43,12 @@ export function AboutDialog() {
               `${m3App.getVersionAsString()}</p>` +
             "<p style='text-align: center;'>Copyright 2015, 2016 - " +
               "Glen Reesor</p>" +
+            "<p style='font-weight: bold;'>Source Code</p>" +
+            "<ul>" +
+               "<li><a href='http://github.com/glenreesor/m3' " +
+                  "target='_blank'>" +
+                  "github.com/glenreesor/m3</a>" +
+               "</li></ul>" +
             "<p style='font-weight: bold;'>Libraries</p>" +
             "<ul><li>localForage (Mozilla)</li></ul>" +
             "<p style='font-weight: bold;'>Icons</p>" +
