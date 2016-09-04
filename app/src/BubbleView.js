@@ -35,6 +35,7 @@ import {m3App} from "./main";
 export function BubbleView(nodeView, nodeModel, contentsWidth, contentsHeight) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
+   this._mostRecentCloudColor = null;
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
    this._isSelected = false;
@@ -105,6 +106,30 @@ BubbleView.prototype.getWidth = function getWidth() {
 }; // getWidth()
 
 /**
+ * Set this bubble's most recent cloud color. This color will be used if this
+ * bubble doesn't have a background specified.
+ *
+ * @param {string} color - The rgb string for the color
+ * @return {void}
+ */
+BubbleView.prototype.setMostRecentCloudColor = function setMostRecentCloudColor(
+   color
+) {
+   let backgroundColor;
+
+   backgroundColor = this._myNodeModel.getBackgroundColor();
+   if (backgroundColor === '') {
+      if (this._mostRecentCloudColor === null) {
+         backgroundColor = '#ffffff';
+      } else {
+         backgroundColor = color;
+      }
+   }
+
+   this._svgBubble.setAttribute("fill", backgroundColor);
+};
+
+/**
  * Set the position of this bubble.
  * svg rectangles are positioned relative to their top left corner
  * (x, y) are the coordinates of the middle left edge of the bubble.
@@ -168,13 +193,8 @@ BubbleView.prototype.update = function update(contentsWidth, contentsHeight) {
 
    //--------------------------------------------------------------------------
    // Update SVG objects
+   //    - Note: Background color gets set by setMostRecentCloudColor()
    //--------------------------------------------------------------------------
-   backgroundColor = this._myNodeModel.getBackgroundColor();
-   if (backgroundColor === '') {
-      backgroundColor = 'none';
-   }
-
-   this._svgBubble.setAttribute("fill", backgroundColor);
    this._svgBubble.setAttribute("height", this._height);
    this._svgBubble.setAttribute("width", this._width);
 }; // update()
