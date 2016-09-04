@@ -45,6 +45,7 @@ export function NodeView(controller, myModel) {
 
    this._isRoot = (this._myNodeModel.getParent() === null);
    this._isVisible = true;
+   this._mostRecentCloudColor = null;
    this._myIconViews = [];
    this._myLinkIconView = null;
    this._myConnector = null;
@@ -265,12 +266,19 @@ NodeView.prototype.drawAt = function drawAt(
 
    let childWidthTmp;
    let cloudX;
+   let myCloudModel;
    let startX;
 
    //--------------------------------------------------------------------------
-   // Make all of my components visible (note this is recursive on child nodes)
+   // Actions required at root level only since they're recursive
+   //    - Make all of my components visible
+   //    - Set mostRecentCloudColor (used for node backgrounds when no
+   //      background color is specified)
    //--------------------------------------------------------------------------
-   this.setVisible(true);
+   if (this._isRoot) {
+      this.setVisible(true);
+      this.setMostRecentCloudColor(null);
+   }
 
    //--------------------------------------------------------------------------
    // Connector to parent
@@ -286,7 +294,7 @@ NodeView.prototype.drawAt = function drawAt(
    }
 
    //--------------------------------------------------------------------------
-   // Icon(s), Text, LinkIcon and Bubble
+   // Icon(s), Text, LinkIcon
    //--------------------------------------------------------------------------
    startX = x + BubbleView.BUBBLE_INNER_PADDING;
 
@@ -302,7 +310,11 @@ NodeView.prototype.drawAt = function drawAt(
       this._myLinkIconView.setPosition(startX, y);
    }
 
+   //--------------------------------------------------------------------------
+   // Bubble -- Need to set position and mostRecentCloudColor
+   //--------------------------------------------------------------------------
    this._myBubble.setPosition(x, y);
+   this._myBubble.setMostRecentCloudColor(this._mostRecentCloudColor);
 
    //--------------------------------------------------------------------------
    // Cloud
@@ -658,6 +670,39 @@ NodeView.prototype.getTotalWidth = function getTotalWidth() {
 NodeView.prototype.isVisible = function isVisible() {
    return this._isVisible;
 }; // isVisible()
+
+/**
+ * Set this node's most recent cloud color. This color will be used for node
+ * backgrounds that don't have their own color specified.
+ *
+ * Also sets it for all children.
+ *
+ * @param {string} color - The rgb string for the parent's most recent cloud
+ *                         color
+ * @return {void}
+ */
+NodeView.prototype.setMostRecentCloudColor = function setMostRecentCloudColor(
+   color
+) {
+   let myCloudModel;
+   let mostRecentCloudColor;
+
+   mostRecentCloudColor = color;
+
+   myCloudModel = this._myNodeModel.getCloudModel();
+   if (myCloudModel !== null) {
+      mostRecentCloudColor = myCloudModel.getColor();
+   }
+
+   this._mostRecentCloudColor = mostRecentCloudColor;
+
+   //-------------------------------------------------------------------------
+   // Now set it for all my children
+   //-------------------------------------------------------------------------
+   this._myNodeModel.getChildren().forEach((child) => {
+      child.getView().setMostRecentCloudColor(this._mostRecentCloudColor);
+   });
+};
 
 /**
  * Signify that this nodeView has been selected.
