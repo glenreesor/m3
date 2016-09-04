@@ -71,6 +71,7 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
              html += "</textarea> <br><br>" +
              `<button id='${EditNodeDialog.SAVE_ID}'>Save</button>` +
              `<button id='${EditNodeDialog.CANCEL_ID}'>Cancel</button>` +
+             `<button id='${EditNodeDialog.LINE_BREAK}'>Line Break</button>` +
           '</div>';
 
    //--------------------------------------------------------------------------
@@ -97,11 +98,38 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
       () => this.close()
    );
 
-   document.getElementById(EditNodeDialog.DIALOG_ID).addEventListener(
+   document.getElementById(EditNodeDialog.LINE_BREAK).addEventListener(
+      'click',
+      () => this.lineBreakClicked()
+   );
+
+   document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID).addEventListener(
       'keypress',
       (e) => {
-         if (e.keyCode === 27) {
-            this.close();
+
+         switch(e.keyCode) {
+
+            //-----------------------------------------------------------------
+            // Escape - Same as cancel
+            //-----------------------------------------------------------------
+            case 27:
+               this.close();
+               e.stopPropagation();
+               break;
+
+            //-----------------------------------------------------------------
+            // Enter:
+            //    - With CTRL key   : Insert a line break
+            //    - Without CTRL key: Save
+            //-----------------------------------------------------------------
+            case 13:
+               if (e.ctrlKey) {
+                  this.lineBreakClicked();
+               } else {
+                  this.save();
+               }
+               e.stopPropagation();
+               break;
          }
       }
    );
@@ -129,8 +157,9 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
 EditNodeDialog.DIALOG_ID = 'm3-editNodeDialog';
 
 EditNodeDialog.CANCEL_ID = EditNodeDialog.DIALOG_ID + 'Cancel';
-EditNodeDialog.TEXT_ENTRY_FIELD_ID = EditNodeDialog.DIALOG_ID + 'TextEntry';
+EditNodeDialog.LINE_BREAK = EditNodeDialog.DIALOG_ID + 'LineBreak';
 EditNodeDialog.SAVE_ID = EditNodeDialog.DIALOG_ID + 'Save';
+EditNodeDialog.TEXT_ENTRY_FIELD_ID = EditNodeDialog.DIALOG_ID + 'TextEntry';
 
 /**
  * Close this EditNode Dialog:
@@ -155,6 +184,26 @@ EditNodeDialog.prototype.close = function close() {
    this._controller.getMapViewController().setSelectedNodeView(
       this._nodeToEdit.getView());
 }; // close()
+
+/**
+ *
+ * Line break clicked
+ *
+ * @return {void}
+ */
+EditNodeDialog.prototype.lineBreakClicked = function lineBreakClicked() {
+   let currentText;
+   let textEntryField;
+
+   textEntryField = document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID);
+   currentText = textEntryField.value;
+
+   // Insert new line character immediately after the cursor position
+   textEntryField.value =
+      currentText.substring(0, textEntryField.selectionEnd) +
+      '\n' +
+      currentText.substring(textEntryField.selectionEnd);
+}; // lineBreakClicked()
 
 /**
  * Save clicked
