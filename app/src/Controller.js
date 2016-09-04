@@ -38,6 +38,7 @@ export function Controller() {
    this._rootNodeView = this._mapModel.getRoot().getView();
    this.selectRootNode();
    this.redrawMain();
+   this._mapViewController.centerSelectedNode();
 } // Controller()
 
 /**
@@ -223,6 +224,7 @@ Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
    this._rootNodeView = this._mapModel.getRoot().getView();
    this._mapViewController.reset();
    this.redrawMain();
+   this._mapViewController.centerSelectedNode();
 }; // newMap()
 
 /**
@@ -323,6 +325,6 @@ Controller.prototype.redrawGraphicalLinks =
  */
 Controller.prototype.redrawMain = function redrawMain() {
    this._rootNodeView.calcDimensions();
-   this._rootNodeView.drawAt(100, 200, null, null);
+   this._rootNodeView.drawAt(0, 0, null, null);
    this.redrawGraphicalLinks(this._mapModel.getRoot());
 }; // redraw()

@@ -335,8 +335,8 @@ MapViewController.prototype.toggleCloudClicked = function toggleCloudClicked() {
  *
  * @return {void}
  */
-MapViewController.prototype._centerSelectedNode =
-   function _centerSelectedNode(
+MapViewController.prototype.centerSelectedNode =
+   function centerSelectedNode(
 ) {
    let x;
    let y;
@@ -353,7 +353,7 @@ MapViewController.prototype._centerSelectedNode =
                    `,${this._state.scroll.currentTranslationY})`
       );
    }
-}; // _centerSelectedNode()
+}; // centerSelectedNode()
 
 /**
  * Make sure the currently selected node is visible
@@ -407,7 +407,7 @@ MapViewController.prototype._ensureSelectedNodeVisible =
                    `,${this._state.scroll.currentTranslationY})`
       );
    }
-}; // _centerSelectedNode()
+}; // _ensureSelectedNodeVisible()
 /**
  * Perform an automatic scroll to simulate inertia.
  *
@@ -861,7 +861,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          //-------------------------------------------------------------------
          case 'Home':
             if (e.ctrlKey) {
-               this._centerSelectedNode();
+               this.centerSelectedNode();
             } else {
                this.editNodeClicked();
             }
