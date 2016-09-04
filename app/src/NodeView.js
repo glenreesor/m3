@@ -684,16 +684,13 @@ NodeView.prototype.setMostRecentCloudColor = function setMostRecentCloudColor(
    color
 ) {
    let myCloudModel;
-   let mostRecentCloudColor;
 
-   mostRecentCloudColor = color;
+   this._mostRecentCloudColor = color;
 
    myCloudModel = this._myNodeModel.getCloudModel();
    if (myCloudModel !== null) {
-      mostRecentCloudColor = myCloudModel.getColor();
+      this._mostRecentCloudColor = myCloudModel.getColor();
    }
-
-   this._mostRecentCloudColor = mostRecentCloudColor;
 
    //-------------------------------------------------------------------------
    // Now set it for all my children

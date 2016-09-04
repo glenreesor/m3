@@ -119,7 +119,7 @@ BubbleView.prototype.setMostRecentCloudColor = function setMostRecentCloudColor(
 
    backgroundColor = this._myNodeModel.getBackgroundColor();
    if (backgroundColor === '') {
-      if (this._mostRecentCloudColor === null) {
+      if (color === null) {
          backgroundColor = '#ffffff';
       } else {
          backgroundColor = color;
