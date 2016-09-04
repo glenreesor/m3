@@ -21,6 +21,8 @@ import {m3App} from './main';
 import {Sizer} from './Sizer';
 import {State} from './State';
 
+const MAX_HEIGHT = 80;     // Max height (pixels) of text entry field
+
 /**
  * A EditNodeDialog object will handle displaying a dialog to edit node text
  * (just node text--not rich text)
@@ -71,6 +73,7 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
              html += "</textarea> <br><br>" +
              `<button id='${EditNodeDialog.SAVE_ID}'>Save</button>` +
              `<button id='${EditNodeDialog.CANCEL_ID}'>Cancel</button>` +
+             `<button id='${EditNodeDialog.LINE_BREAK}'>Line Break</button>` +
           '</div>';
 
    //--------------------------------------------------------------------------
@@ -83,6 +86,9 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
       true
    );
    document.getElementById('app-popups').appendChild(this._editNodeDialog);
+
+   this._textEntryField =
+      document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID);
 
    //--------------------------------------------------------------------------
    // Add our listeners
@@ -97,12 +103,43 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
       () => this.close()
    );
 
-   document.getElementById(EditNodeDialog.DIALOG_ID).addEventListener(
+   document.getElementById(EditNodeDialog.LINE_BREAK).addEventListener(
+      'click',
+      () => this.lineBreakClicked()
+   );
+
+   this._textEntryField.addEventListener(
       'keypress',
       (e) => {
-         if (e.keyCode === 27) {
-            this.close();
+
+         switch(e.key) {
+
+            //-----------------------------------------------------------------
+            // Escape - Same as cancel
+            //-----------------------------------------------------------------
+            case 'Escape':
+               this.close();
+               e.stopPropagation();
+               break;
+
+            //-----------------------------------------------------------------
+            // Enter:
+            //    - With CTRL key   : Insert a line break
+            //    - Without CTRL key: Save
+            //-----------------------------------------------------------------
+            case 'Enter':
+               if (e.ctrlKey) {
+                  this.lineBreakClicked();
+               } else {
+                  this.save();
+               }
+               e.stopPropagation();
+               break;
+
+            default:
+               break;
          }
+         this.adjustHeight();
       }
    );
 
@@ -117,20 +154,36 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
    //    - select all the text
    //    - or overwrite with the specified character
    //--------------------------------------------------------------------------
-   textArea = document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID);
-   textArea.focus();
+   this._textEntryField.focus();
    if (firstCharacter === null) {
-      textArea.select();
+      this._textEntryField.select();
    } else {
-      textArea.value = firstCharacter;
+      this._textEntryField.value = firstCharacter;
    }
 } // EditNodeDialog()
 
 EditNodeDialog.DIALOG_ID = 'm3-editNodeDialog';
 
 EditNodeDialog.CANCEL_ID = EditNodeDialog.DIALOG_ID + 'Cancel';
-EditNodeDialog.TEXT_ENTRY_FIELD_ID = EditNodeDialog.DIALOG_ID + 'TextEntry';
+EditNodeDialog.LINE_BREAK = EditNodeDialog.DIALOG_ID + 'LineBreak';
 EditNodeDialog.SAVE_ID = EditNodeDialog.DIALOG_ID + 'Save';
+EditNodeDialog.TEXT_ENTRY_FIELD_ID = EditNodeDialog.DIALOG_ID + 'TextEntry';
+
+/**
+ * Adjust the height of the input field so MAX_HEIGHT worth of pixels are
+ * visible (only if current content not all visible)
+ *
+ * @return {void}
+ */
+EditNodeDialog.prototype.adjustHeight = function adjustHeight() {
+   let field = this._textEntryField;
+
+   if (field.scrollHeight > field.clientHeight &&
+       field.clientHeight <= MAX_HEIGHT
+   ) {
+      field.rows++;
+   }
+}; // adjustHeight()
 
 /**
  * Close this EditNode Dialog:
@@ -157,6 +210,34 @@ EditNodeDialog.prototype.close = function close() {
 }; // close()
 
 /**
+ *
+ * Line break clicked
+ *
+ * @return {void}
+ */
+EditNodeDialog.prototype.lineBreakClicked = function lineBreakClicked() {
+   let currentText;
+   let cursorPosition;
+
+   currentText = this._textEntryField.value;
+   cursorPosition = this._textEntryField.selectionEnd;
+
+   // Insert new line character immediately after the cursor position
+   this._textEntryField.value =
+      currentText.substring(0, cursorPosition) +
+      '\n' +
+      currentText.substring(cursorPosition);
+
+   // Deal with case where user clicked button rather than doing CTRL-enter
+   //    - Reset focus on this field
+   //    - Reset the cursor position
+   //    - Adjust height
+   this._textEntryField.focus();
+   this._textEntryField.selectionEnd = cursorPosition + 1;
+   this.adjustHeight();
+}; // lineBreakClicked()
+
+/**
  * Save clicked
  *
  * @return {void}
@@ -164,8 +245,7 @@ EditNodeDialog.prototype.close = function close() {
 EditNodeDialog.prototype.save = function save() {
    this._controller.changeNodeText(
       this._nodeToEdit,
-      document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID)
-         .value.split('\n')
+      this._textEntryField.value.split('\n')
    );
    this.close();
 }; // save()
