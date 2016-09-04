@@ -198,7 +198,7 @@ MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
             this._controller.deleteNode(selectedModel);
          }
    }
-}; // deleteNode()
+}; // deleteNodeClicked()
 
 /**
  * Edit the currently selected node
@@ -903,6 +903,7 @@ MapViewController.prototype._mouseDown = function _mouseDown(e) {
             // Nothing
       } // switch
    }
+   e.preventDefault();
 }; // _mouseDown()
 
 /**
@@ -923,6 +924,7 @@ MapViewController.prototype._mouseMove = function _mouseMove(e) {
             // Nothing
       } // switch
    }
+   e.preventDefault();
 }; // _mouseMove()
 
 /**
@@ -943,6 +945,7 @@ MapViewController.prototype._mouseUp = function _mouseUp(e) {
             // Nothing
       } // switch
    }
+   e.preventDefault();
 }; // _mouseUp()
 
 /**
