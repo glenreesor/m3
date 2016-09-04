@@ -266,11 +266,10 @@ NodeView.prototype.drawAt = function drawAt(
 
    let childWidthTmp;
    let cloudX;
-   let myCloudModel;
    let startX;
 
    //--------------------------------------------------------------------------
-   // Actions required at root level only since they're recursive
+   // Actions required only at root level since they're recursive
    //    - Make all of my components visible
    //    - Set mostRecentCloudColor (used for node backgrounds when no
    //      background color is specified)

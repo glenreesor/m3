@@ -198,7 +198,7 @@ MapViewController.prototype.deleteNodeClicked = function deleteNodeClicked() {
             this._controller.deleteNode(selectedModel);
          }
    }
-}; // deleteNode()
+}; // deleteNodeClicked()
 
 /**
  * Edit the currently selected node
@@ -335,8 +335,8 @@ MapViewController.prototype.toggleCloudClicked = function toggleCloudClicked() {
  *
  * @return {void}
  */
-MapViewController.prototype._centerSelectedNode =
-   function _centerSelectedNode(
+MapViewController.prototype.centerSelectedNode =
+   function centerSelectedNode(
 ) {
    let x;
    let y;
@@ -353,7 +353,7 @@ MapViewController.prototype._centerSelectedNode =
                    `,${this._state.scroll.currentTranslationY})`
       );
    }
-}; // _centerSelectedNode()
+}; // centerSelectedNode()
 
 /**
  * Make sure the currently selected node is visible
@@ -407,7 +407,7 @@ MapViewController.prototype._ensureSelectedNodeVisible =
                    `,${this._state.scroll.currentTranslationY})`
       );
    }
-}; // _centerSelectedNode()
+}; // _ensureSelectedNodeVisible()
 /**
  * Perform an automatic scroll to simulate inertia.
  *
@@ -861,7 +861,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          //-------------------------------------------------------------------
          case 'Home':
             if (e.ctrlKey) {
-               this._centerSelectedNode();
+               this.centerSelectedNode();
             } else {
                this.editNodeClicked();
             }
@@ -903,6 +903,7 @@ MapViewController.prototype._mouseDown = function _mouseDown(e) {
             // Nothing
       } // switch
    }
+   e.preventDefault();
 }; // _mouseDown()
 
 /**
@@ -923,6 +924,7 @@ MapViewController.prototype._mouseMove = function _mouseMove(e) {
             // Nothing
       } // switch
    }
+   e.preventDefault();
 }; // _mouseMove()
 
 /**
@@ -943,6 +945,7 @@ MapViewController.prototype._mouseUp = function _mouseUp(e) {
             // Nothing
       } // switch
    }
+   e.preventDefault();
 }; // _mouseUp()
 
 /**
