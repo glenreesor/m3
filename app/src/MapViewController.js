@@ -154,7 +154,9 @@ MapViewController.prototype.addSiblingClicked = function addSiblingClicked() {
          selectedModel = this._state.selectedNodeView.getModel();
          parentModel = selectedModel.getParent();
 
-         this._controller.addChildAfter(parentModel, selectedModel);
+         if (parentModel !== null) {
+            this._controller.addChildAfter(parentModel, selectedModel);
+         }
    }
 }; // addSiblingClicked()
 
