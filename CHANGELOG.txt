@@ -1,5 +1,35 @@
 Change Log
 
+2016-09-xx - Version 0.11.0
+   New Features
+      - Wrap non-rich nodes to a maximum width
+      - Support editing multi-line non-rich nodes
+      - Make rich nodes only as wide as content requires
+      - Support for links to websites
+      - Support for icons
+      - Basic keyboard navigation support (currently very inconsistent among
+        different platforms. Works best on desktop Firefox)
+            - Space     : fold/unfold
+            - Ctrl S    : Save map
+            - Arrow keys: Navigate around map
+            - Ctrl Up   : Move node up in child list
+            - Ctrl Down : Move node down in child list
+            - Delete    : Delete node
+            - End       : Edit node, put cursor at end of text
+            - Enter     : Add sibling
+            - Home      : Edit node, put cursor at beginning of text
+            - Ctrl Home : Center selected node
+            - Insert    : Add child node
+      - Exported map names now have zero-padded month and day numbers
+
+   Bug Fixes
+      - Make node background color the same as cloud if no background color
+        specified
+      - Better inertia scroll -- you can interrupt inertia scrolling and drag
+        in a different direction
+      - Fix dragging map with a mouse, when cloud present
+
+
 2016-07-02 - Version 0.10.0
    New Features
       - Implement support for iOS Firefox and Chrome (although neither

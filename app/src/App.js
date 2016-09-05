@@ -55,8 +55,10 @@ App.KEY_INVOCATION_COUNT = "invocationCount";
 App.myDB = null;                          // This will be populated by _start()
 App.MY_NAME = "m3 - Mobile Mind Mapper";
 App.MY_VERSION = {major: 0,
-                  minor: 10,
-                  patch: 0};
+                  minor: 11,
+                  patch: 0,
+                  isReleaseCandidate: true,
+                  releaseCandidateNum: 1};
 
 /**
  * Return the controller object
@@ -137,9 +139,16 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
  * @return {string} - the version of this app formatted as a string.
  */
 App.prototype.getVersionAsString = function getVersionAsString() {
-   return `${App.MY_VERSION.major}.` +
-          `${App.MY_VERSION.minor}.` +
-          `${App.MY_VERSION.patch}`;
+   let version;
+   version = `${App.MY_VERSION.major}.` +
+             `${App.MY_VERSION.minor}.` +
+             `${App.MY_VERSION.patch}`;
+
+   if (App.MY_VERSION.isReleaseCandidate) {
+      version += ` - Release Candidate ${App.MY_VERSION.releaseCandidateNum}`;
+   }
+
+   return version;
 }; // getAppVersionAsString()
 
 /**
