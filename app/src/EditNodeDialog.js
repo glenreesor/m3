@@ -22,6 +22,7 @@ import {Sizer} from './Sizer';
 import {State} from './State';
 
 const MAX_HEIGHT = 80;     // Max height (pixels) of text entry field
+const MAX_ROWS = 5;
 
 /**
  * A EditNodeDialog object will handle displaying a dialog to edit node text
@@ -42,6 +43,7 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
    let domParser;
    let html;
    let htmlAsDoc;
+   let i;
    let numRows;
    let textArea;
 
@@ -56,7 +58,7 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
    // lines of text in the node, up to a maximum of 5 (remember phones have
    // small screens).
    //--------------------------------------------------------------------------
-   numRows = Math.min(5, nodeToEdit.getText().length);
+   numRows = Math.min(MAX_ROWS, nodeToEdit.getText().length);
 
    html = `<div id='${EditNodeDialog.DIALOG_ID}' class='popup' ` +
              `style='height: ${Sizer.popupHeight}px'> <p> Edit Node </p>` +
@@ -160,6 +162,14 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
    } else {
       this._textEntryField.value = firstCharacter;
    }
+
+   //--------------------------------------------------------------------------
+   // Hack to get enough rows visible when first show dialog
+   //--------------------------------------------------------------------------
+   for (i = 0; i < MAX_ROWS; i++) {
+      this.adjustHeight();
+   }
+
 } // EditNodeDialog()
 
 EditNodeDialog.DIALOG_ID = 'm3-editNodeDialog';
