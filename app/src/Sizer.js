@@ -121,6 +121,6 @@ Sizer.setSize = function() {
    tempText = document.createElement('span');
    tempText.appendChild(document.createTextNode('X'));
    document.getElementById('app-html-sizing').appendChild(tempText);
-   Sizer.characterWidth = tempText.scrollWidth;
+   Sizer.characterWidth = tempText.offsetWidth;
    document.getElementById('app-html-sizing').removeChild(tempText);
 }; // setSize()
