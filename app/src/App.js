@@ -57,7 +57,7 @@ App.MY_NAME = "m3 - Mobile Mind Mapper";
 App.MY_VERSION = {major: 0,
                   minor: 11,
                   patch: 0,
-                  isReleaseCandidate: true,
+                  isReleaseCandidate: false,
                   releaseCandidateNum: 1};
 
 /**
@@ -287,6 +287,8 @@ App.prototype._sendStatsToServer = function _sendStatsToServer(
 
 /**
  * Do startup activities:
+ *    - Notify user if they're running from m3-rc but it's not a release
+ *      candidate
  *    - Update invocation count
  *    - Check last version with current version and update storage as required
  *    - Ping our server with some simple stats if the version was upgraded
@@ -297,6 +299,16 @@ App.prototype._startup = function _startup() {
    let currentOperation;     // For promise error msg (if required)
    let oldVersion;
    let newCount;             // Number of times m3 has been run
+
+   // Tell user if they're running from /m3-rc but this isn't a release
+   // candidate
+   if (!App.MY_VERSION.isReleaseCandidate &&
+       window.location.href.match(/\/m3-rc\/$/)
+    ) {
+      alert(`m3 version ${this.getVersionAsString()} has been released.` +
+            ' Please switch to the regular non-release candidate location:' +
+            ' http://glenreesor.ca/m3');
+   }
 
    // localforage.supports(STORAGEMETHOD) sometimes reports true
    // even though the method isn't actually available, thus use brute
