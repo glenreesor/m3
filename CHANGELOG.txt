@@ -1,6 +1,6 @@
 Change Log
 
-2016-09-xx - Version 0.11.0
+2016-09-11 - Version 0.11.0
    New Features
       - Wrap non-rich nodes to a maximum width
       - Support editing multi-line non-rich nodes
