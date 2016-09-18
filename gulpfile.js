@@ -33,7 +33,7 @@ gulp.task('fast', function() {
    //--------------------------------------------------------------------------
    // Deprecated appcache
    //--------------------------------------------------------------------------
-   result = gulp.src('app/m3.appcache*')
+   result = gulp.src('app/m3.appcache.template')
       .pipe(footer('#Timestamp to force browser reload: ${timestamp}\n',
                    {timestamp: Date.now()}))
       .pipe(gulp.dest(debugDir))
