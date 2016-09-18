@@ -13,6 +13,7 @@
 import datetime
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -75,6 +76,20 @@ def main():
         ).chmod(0o777)
 
 ##----------------------------------------------------------------------------
+## createAppCache()
+##      Take the specified template file, replace all instances of 'PATH'
+##      with the specified string, and create the specified output file
+##----------------------------------------------------------------------------
+def createAppCache(templateFile, outputFile, newPath):
+    inputFile = open(templateFile)
+    outputFile = open(outputFile, mode='w')
+
+    for line in inputFile:
+        outputFile.write(re.sub('PATH', newPath, line))
+
+    outputFile.close()
+
+##----------------------------------------------------------------------------
 ## createZipfile()
 ##      Create a zipfile for the specified folder. The folder must exist in the
 ##      current working directory.
@@ -92,13 +107,18 @@ def createZipfile(sourceFolder, resultingFolderName, resultingZipName):
     ##--------------------------------------------------------------------------
     ## Massage the files so they're appropriate for public deployment. We need:
     ##    - a stats folder for the logger to write to
-    ##    - m3.appcache renamed to something else so it can be activated
-    ##      when we're ready (otherwise it's a pain for debugging)
+    ##    - m3.appcache files for glenreesor.ca/{m3, m3-rc, m3-preview}
     ##    - file permissions: u=rw, g=r, o=r
     ##    - folder permissions: u=rwx, g=rx, o=rx
     ##--------------------------------------------------------------------------
     pathlib.Path(m3Temp + '/stats').mkdir()
-    pathlib.Path(m3Temp + '/m3.appcache').rename(m3Temp + '/RENAME-ME-m3.appcache')
+    for target in ['m3', 'm3-rc', 'm3-preview']:
+        createAppCache(
+            m3Temp + '/m3.appcache.template',
+            m3Temp + '/RENAME-ME---' + target + '---m3.appcache',
+            'http://glenreesor.ca/' + target
+        )
+
     chmodFolder(m3Temp, 0o755, 0o644)
 
     ##--------------------------------------------------------------------------
