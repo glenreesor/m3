@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {m3App} from './main';
+import {App} from './App';
 import {Sizer} from './Sizer';
 import {State} from './State';
 
@@ -87,7 +88,8 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
       htmlAsDoc.getElementById(EditNodeDialog.DIALOG_ID),
       true
    );
-   document.getElementById('app-popups').appendChild(this._editNodeDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._editNodeDialog);
 
    this._textEntryField =
       document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID);
@@ -148,7 +150,8 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
    //--------------------------------------------------------------------------
    // Make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById('app-popups').removeAttribute('hidden');
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute('hidden');
    m3App.getGlobalState().setState(State.STATE_DIALOG_EDIT_NODE);
 
    //--------------------------------------------------------------------------
@@ -206,7 +209,7 @@ EditNodeDialog.prototype.adjustHeight = function adjustHeight() {
 EditNodeDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById('app-popups');
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute('hidden', 'true');
    appPopups.removeChild(this._editNodeDialog);
 

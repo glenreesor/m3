@@ -48,6 +48,7 @@ export function App() {
 } // App()
 
 App.DB_NAME = "m3 - Mobile Mind Mapper";
+App.HTML_ID_PREFIX = 'm3-mobile-mind-mapper';
 App.KEY_LAST_VERSION_RUN = "lastVersionRun";
 App.KEY_MAPLIST = "mapList";
 App.KEY_INVOCATION_COUNT = "invocationCount";

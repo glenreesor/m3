@@ -86,7 +86,8 @@ export function AboutDialog() {
    htmlAsDoc = domParser.parseFromString(html, "text/html");
    this._aboutDialog = document.importNode(
       htmlAsDoc.getElementById(AboutDialog.DIALOG_ID), true);
-   document.getElementById("app-popups").appendChild(this._aboutDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._aboutDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
@@ -97,7 +98,8 @@ export function AboutDialog() {
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById("app-popups").removeAttribute("hidden");
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute("hidden");
    m3App.getGlobalState().setState(State.STATE_DIALOG_ABOUT);
 } // AboutDialog()
 
@@ -115,7 +117,7 @@ AboutDialog.OK_ID = AboutDialog.DIALOG_ID + "Ok";
 AboutDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._aboutDialog);
 

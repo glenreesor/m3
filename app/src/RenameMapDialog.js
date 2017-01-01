@@ -78,7 +78,8 @@ export function RenameMapDialog(mapList, indexToRename) {
    htmlAsDoc = domParser.parseFromString(html, "text/html");
    this._renameMapDialog = document.importNode(htmlAsDoc
       .getElementById(RenameMapDialog.DIALOG_ID), true);
-   document.getElementById("app-popups").appendChild(this._renameMapDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._renameMapDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
@@ -96,7 +97,8 @@ export function RenameMapDialog(mapList, indexToRename) {
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById("app-popups").removeAttribute("hidden");
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute("hidden");
    m3App.getGlobalState().setState(State.STATE_DIALOG_RENAME_MAP);
 
    //--------------------------------------------------------------------------
@@ -123,7 +125,7 @@ RenameMapDialog.MAP_LIST_PREFIX = RenameMapDialog.DIALOG_ID;
 RenameMapDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._renameMapDialog);
 

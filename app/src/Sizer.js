@@ -17,6 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
+
 /**
  * Sizer is an object to handle initializing the size of the app, and setting
  * up event handlers to deal with resize events. Only expect one of these
@@ -29,8 +31,10 @@ export function Sizer() {
    let appDrawingArea;
    let svgElement;
 
-   app = document.getElementById("app");
-   appDrawingArea = document.getElementById("app-drawing-area");
+   app = document.getElementById(`${App.HTML_ID_PREFIX}-app`);
+   appDrawingArea = document.getElementById(
+      `${App.HTML_ID_PREFIX}-drawing-area`
+   );
    svgElement = document.getElementById("svg-element");
 
    //-------------------------------------------------------------------------
@@ -55,9 +59,9 @@ export function Sizer() {
    Sizer.setSize();
 } // Sizer()
 
+Sizer._BOTTOM_ICONS_HEIGHT = 44; // Includes blank space and active border width
 Sizer._MARGINS = {appMarginTop: 1,          appMarginBottom: 1,
                   appMarginLeft: 1,         appMarginRight: 1};
-Sizer._BOTTOM_ICONS_HEIGHT = 44; // Includes blank space and active border width
 Sizer._SIDE_ICONS_WIDTH = 38; // Includes blank space and active border width
 Sizer._SVG_BORDER_WIDTH = 1;
 
@@ -81,7 +85,8 @@ Sizer.setSize = function() {
    totalAppHeight = window.innerHeight -
                     Sizer._MARGINS.appMarginTop -
                     Sizer._MARGINS.appMarginBottom;
-   totalAppWidth = document.getElementById("app").clientWidth;
+   totalAppWidth = document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+                           .clientWidth;
 
    //--------------------------------------------------------------------------
    // Store dimensions for other parts of app to reference
@@ -92,7 +97,9 @@ Sizer.setSize = function() {
    // Set the root svg size, because it doesn't expand to fill its parent
    // element
    //--------------------------------------------------------------------------
-   appTopHeight = document.getElementById("app-top").clientHeight;
+   appTopHeight = document.getElementById(
+      `${App.HTML_ID_PREFIX}-top`
+   ).clientHeight;
 
    svgElement = document.getElementById("svg-element");
    svgHeight = totalAppHeight - appTopHeight - 2*Sizer._SVG_BORDER_WIDTH -
@@ -110,7 +117,7 @@ Sizer.setSize = function() {
    //--------------------------------------------------------------------------
    // Set the position of the popups
    //--------------------------------------------------------------------------
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("style", "width: " + (svgWidth*3/4) + "px;" +
                           "margin-left: " + (svgWidth*1/4/2) + "px;");
 
@@ -120,7 +127,9 @@ Sizer.setSize = function() {
    //--------------------------------------------------------------------------
    tempText = document.createElement('span');
    tempText.appendChild(document.createTextNode('X'));
-   document.getElementById('app-html-sizing').appendChild(tempText);
+   document.getElementById(`${App.HTML_ID_PREFIX}-html-sizing`)
+           .appendChild(tempText);
    Sizer.characterWidth = tempText.offsetWidth;
-   document.getElementById('app-html-sizing').removeChild(tempText);
+   document.getElementById(`${App.HTML_ID_PREFIX}-html-sizing`)
+           .removeChild(tempText);
 }; // setSize()

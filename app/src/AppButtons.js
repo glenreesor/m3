@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {AboutDialog} from "./AboutDialog";
+import {App} from "./App";
 import {ImportExportDialog} from "./ImportExportDialog";
 import {LoadDialog} from "./LoadDialog";
 import {m3App} from "./main";
@@ -101,7 +102,8 @@ export function AppButtons(controller) {
    this._buttonsDivBottom = document.importNode(
       htmlAsDoc.getElementById("buttonsHtmlBottom"), true);
 
-   document.getElementById("app").appendChild(this._buttonsDivBottom);
+   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+           .appendChild(this._buttonsDivBottom);
 
    //--------------------------------------------------------------------------
    // Add the right buttons
@@ -110,7 +112,8 @@ export function AppButtons(controller) {
    this._buttonsDivRight = document.importNode(
       htmlAsDoc.getElementById("buttonsHtmlRight"), true);
 
-   document.getElementById("app").appendChild(this._buttonsDivRight);
+   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+           .appendChild(this._buttonsDivRight);
 
    //--------------------------------------------------------------------------
    // Safari doesn't show the active pseudo class unless the corresponding
@@ -211,6 +214,8 @@ AppButtons.prototype.load = function load() {
  * @return {void}
  */
 AppButtons.prototype.remove = function remove() {
-   document.getElementById("app").removeChild(this._buttonsDivBottom);
-   document.getElementById("app").removeChild(this._buttonsDivRight);
+   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+           .removeChild(this._buttonsDivBottom);
+   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+           .removeChild(this._buttonsDivRight);
 }; // remove()

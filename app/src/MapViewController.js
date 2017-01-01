@@ -17,6 +17,7 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
 import {Diagnostics} from './Diagnostics';
 import {EditNodeDialog} from './EditNodeDialog';
 import {m3App} from './main';
@@ -99,26 +100,26 @@ export function MapViewController(controller) {
    //--------------------------------------------------------------------------
    // Mouse Events
    //--------------------------------------------------------------------------
-   document.getElementById("app-drawing-area").addEventListener("mousedown",
-      (e) => this._mouseDown(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("mousedown", (e) => this._mouseDown(e));
 
-   document.getElementById("app-drawing-area").addEventListener("mouseup",
-      (e) => this._mouseUp(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("mouseup", (e) => this._mouseUp(e));
 
-   document.getElementById("app-drawing-area").addEventListener("mousemove",
-      (e) => this._mouseMove(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("mousemove", (e) => this._mouseMove(e));
 
    //--------------------------------------------------------------------------
    // Touch Events
    //--------------------------------------------------------------------------
-   document.getElementById("app-drawing-area").addEventListener("touchstart",
-      (e) => this._touchStart(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("touchstart", (e) => this._touchStart(e));
 
-   document.getElementById("app-drawing-area").addEventListener("touchend",
-      (e) => this._touchEnd(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("touchend", (e) => this._touchEnd(e));
 
-   document.getElementById("app-drawing-area").addEventListener("touchmove",
-      (e) => this._touchMove(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("touchmove", (e) => this._touchMove(e));
 
 } // MapViewController()
 

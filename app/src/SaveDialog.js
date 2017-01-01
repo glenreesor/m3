@@ -63,7 +63,8 @@ export function SaveDialog() {
       htmlAsDoc = domParser.parseFromString(html, "text/html");
       this._saveDialog = document.importNode(htmlAsDoc
          .getElementById(SaveDialog.DIALOG_ID), true);
-      document.getElementById("app-popups").appendChild(this._saveDialog);
+      document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+              .appendChild(this._saveDialog);
 
       //-----------------------------------------------------------------------
       // Add our listeners
@@ -80,7 +81,8 @@ export function SaveDialog() {
       //-----------------------------------------------------------------------
       // Finally, make the app-popups div visible and set state
       //-----------------------------------------------------------------------
-      document.getElementById("app-popups").removeAttribute("hidden");
+      document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+              .removeAttribute("hidden");
       m3App.getGlobalState().setState(State.STATE_DIALOG_SAVE);
 
       //-----------------------------------------------------------------------
@@ -107,7 +109,7 @@ SaveDialog.INPUT_FIELD_ID = SaveDialog.DIALOG_ID + "InputField";
 SaveDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._saveDialog);
 
