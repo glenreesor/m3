@@ -1,13 +1,16 @@
 {
-   "extends": "eslint:recommended",
+   "parserOptions": {
+      "ecmaVersion": 6,
+      "extends": "eslint:recommended",
+      "sourceType": "module",
+      "ecmaFeatures": {
+         "impliedStrict": true
+      }
+   },
 
    "env": {
       "browser": true,
       "es6": true
-   },
-
-   "ecmaFeatures": {
-      "modules": true
    },
 
    "rules": {

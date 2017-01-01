@@ -1,0 +1,89 @@
+#!/usr/bin/python3
+
+##----------------------------------------------------------------------------
+## Usage: (From same folder as this script)
+##    ./validateAppCache
+##
+## Confirms that app/m3.appcache.template lists all files in out/production:
+##      *.css
+##      *.html
+##      *.js
+##      *.png
+##      *.svg
+##----------------------------------------------------------------------------
+
+import datetime
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+APP_CACHE_TEMPLATE = 'm3.appcache.template'
+REQUIRED_EXTENSIONS = '.css', '.html', '.js', '.png', '.svg'
+
+##----------------------------------------------------------------------------
+## main()
+##----------------------------------------------------------------------------
+def main():
+    ## Everything is relative to out/production
+    os.chdir('out/production')
+
+    ##------------------------------------------------------------------------
+    ## Get list of required files
+    ## Exclude statstest.html because it's a dev tool, not a user file
+    ##------------------------------------------------------------------------
+    requiredFiles = []
+    for filename in getFilesInFolder('.'):
+        if filename.endswith(REQUIRED_EXTENSIONS) and filename != 'statstest.html':
+            requiredFiles.append(filename)
+
+    ##------------------------------------------------------------------------
+    ## Get file list from APP_CACHE_TEMPLATE
+    ##------------------------------------------------------------------------
+    appCacheLines = []
+    appCache = open(APP_CACHE_TEMPLATE)
+    for line in appCache:
+        appCacheLines.append(line.replace('\n', ''))
+
+    ##------------------------------------------------------------------------
+    ## Check that all required files are present
+    ##------------------------------------------------------------------------
+    missingFiles  = []
+    for requiredFile in requiredFiles:
+        filename = 'PATH/' + requiredFile
+        if (appCacheLines.count(filename) != 1):
+            missingFiles.append(filename)
+
+    ##------------------------------------------------------------------------
+    ## Report to user
+    ##------------------------------------------------------------------------
+    if len(missingFiles) == 0:
+        print('All good. Yay!')
+    else:
+        print('Files missing from ' + APP_CACHE_TEMPLATE + ':')
+        for filename in missingFiles:
+            print('   ' + filename)
+
+##----------------------------------------------------------------------------
+##----------------------------------------------------------------------------
+def getFilesInFolder(folderName):
+    files = []
+
+    for child in pathlib.Path(folderName).iterdir():
+        if pathlib.Path(child).is_file():
+            files.append(str(child))
+
+        elif pathlib.Path(child).is_dir():
+            files += getFilesInFolder(str(child))
+
+        else:
+            errorMsg = 'Weird. ' + str(child)
+            errorMsg += ' is neither file nor directory'
+            print(errorMsg)
+
+    return files
+##----------------------------------------------------------------------------
+main()
