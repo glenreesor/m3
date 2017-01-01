@@ -15,47 +15,6 @@
       <script type="text/javascript" src="m3.js"></script>
    </head>
    <body>
-      <div id="m3-mobile-mind-mapper-app">
-
-         <!-- ==================================================== -->
-         <!-- App Popups                                           -->
-         <!-- Popups will be added to this div                     -->
-         <!-- ==================================================== -->
-         <div id='m3-mobile-mind-mapper-top'> 
-            <span id="m3-mobile-mind-mapper-mapName"></span>
-            <img id='m3-mobile-mind-mapper-modified' style='margin-bottom: 3px;' height='5px' src="images/modified.svg"/>
-         </div> <!-- For the map name -->
-
-         <div id="m3-mobile-mind-mapper-popups" hidden>
-         </div> <!-- id="m3-mobile-mind-mapper-popups" -->
-
-         <div id="m3-mobile-mind-mapper-html-sizing" style="word-wrap:break-word;"> <!-- For getting correct size of html nodes -->
-         </div>
-
-         <!-- ==================================================== -->
-         <!-- App Drawing Area                                     -->
-         <!-- ==================================================== -->
-         <div id="m3-mobile-mind-mapper-drawing-area">
-            <svg xmlns="http://www.w3.org/2000/svg" id="m3-mobile-mind-mapper-svg-element">
-               <defs>
-                  <marker id="m3-mobile-mind-mapper-triangle"
-                          viewBox="0 0 10 10"
-                          refX="1" refY="5"
-                          markerWidth="12"
-                          markerHeight="12"
-                          orient="auto">
-                      <path d="M 0 0 L 10 5 L 0 10 z" />
-                 </marker>
-               </defs>
-
-               <g id="m3-mobile-mind-mapper-svg-g-element">
-                  <g id="m3-mobile-mind-mapper-svgCloudLayer"> </g>
-                  <g id="m3-mobile-mind-mapper-svgLinksLayer"> </g>
-                  <g id="m3-mobile-mind-mapper-svgBubbleLayer"> </g>
-                  <g id="m3-mobile-mind-mapper-svgTextLayer"> </g>
-               </g>
-            </svg>
-         </div>   <!-- m3-mobile-mind-mapper-drawing-area -->
-      </div>   <!-- id="m3-mobile-mind-mapper" -->
+      <div id="m3-mobile-mind-mapper-container"/>
    </body>
 </html>
