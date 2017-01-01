@@ -35,7 +35,7 @@ export function Sizer() {
    appDrawingArea = document.getElementById(
       `${App.HTML_ID_PREFIX}-drawing-area`
    );
-   svgElement = document.getElementById("svg-element");
+   svgElement = document.getElementById(`${App.HTML_ID_PREFIX}-svg-element`);
 
    //-------------------------------------------------------------------------
    // Set styles that only have to be set once
@@ -101,7 +101,7 @@ Sizer.setSize = function() {
       `${App.HTML_ID_PREFIX}-top`
    ).clientHeight;
 
-   svgElement = document.getElementById("svg-element");
+   svgElement = document.getElementById(`${App.HTML_ID_PREFIX}-svg-element`);
    svgHeight = totalAppHeight - appTopHeight - 2*Sizer._SVG_BORDER_WIDTH -
                Sizer._BOTTOM_ICONS_HEIGHT;
 

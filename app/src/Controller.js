@@ -17,11 +17,12 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {AppButtons} from "./AppButtons";
-import {EditNodeDialog} from "./EditNodeDialog";
-import {MapModel} from "./MapModel";
-import {MapViewController} from "./MapViewController";
-import {NodeView} from "./NodeView";
+import {App} from './App';
+import {AppButtons} from './AppButtons';
+import {EditNodeDialog} from './EditNodeDialog';
+import {MapModel} from './MapModel';
+import {MapViewController} from './MapViewController';
+import {NodeView} from './NodeView';
 
 /**
  * This is the controller that handles actions/events that interact with the
@@ -241,7 +242,7 @@ Controller.prototype.selectRootNode = function selectRootNode() {
   * @return {void}
   */
 Controller.prototype.setMapName = function setMapName(name) {
-   document.getElementById("mapName").innerHTML = name;
+   document.getElementById(`${App.HTML_ID_PREFIX}-mapName`).innerHTML = name;
 }; // setMapName()
 
 /**
@@ -255,9 +256,11 @@ Controller.prototype.setModifiedIndicator =
    function setModifiedIndicator(status) {
 
    if (status) {
-      document.getElementById("modified").removeAttribute("hidden");
+      document.getElementById(`${App.HTML_ID_PREFIX}-modified`)
+              .removeAttribute("hidden");
    } else {
-      document.getElementById("modified").setAttribute("hidden", "true");
+      document.getElementById(`${App.HTML_ID_PREFIX}-modified`)
+              .setAttribute("hidden", "true");
    }
 }; // setModifiedStatus()
 

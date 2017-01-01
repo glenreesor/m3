@@ -66,7 +66,9 @@ export function MapViewController(controller) {
       }
    };
 
-   this._svgGElement = document.getElementById("svg-g-element");
+   this._svgGElement = document.getElementById(
+      `${App.HTML_ID_PREFIX}-svg-g-element`
+   );
    m3App.getDiagnostics().log(Diagnostics.TASK_VIEWS, "Creating MapView.");
 
    //--------------------------------------------------------------------------

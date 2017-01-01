@@ -17,8 +17,9 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {m3App} from "./main";
-import {Sizer} from "./Sizer";
+import {App} from './App';
+import {m3App} from './main';
+import {Sizer} from './Sizer';
 
 const MAX_WIDTH = 400;
 const SVGNS = "http://www.w3.org/2000/svg";
@@ -42,7 +43,8 @@ export function TextView(nodeView, nodeModel) {
    //---------------------------------------------------------------------------
    this._svgText = document.createElementNS(SVGNS, "text");
 
-   document.getElementById("svgTextLayer").appendChild(this._svgText);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .appendChild(this._svgText);
 
    //---------------------------------------------------------------------------
    // .bind() effectively produces a new function *each* time, thus can't use
@@ -76,7 +78,8 @@ TextView.prototype._clickListener = function _clickListener() {
  */
 TextView.prototype.deleteSvg = function deleteSvg() {
    this._svgText.removeEventListener("click", this._boundClickListener);
-   document.getElementById("svgTextLayer").removeChild(this._svgText);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .removeChild(this._svgText);
 }; // deleteSvg()
 
 /**

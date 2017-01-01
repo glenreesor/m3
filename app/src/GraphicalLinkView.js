@@ -17,8 +17,9 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {m3App} from "./main";
-import {NodeModel} from "./NodeModel";
+import {App} from './App';
+import {m3App} from './main';
+import {NodeModel} from './NodeModel';
 
 /**
  * A GraphicalLinkView creates and maintains the SVG elements to show a link
@@ -35,10 +36,14 @@ export function GraphicalLinkView(myNodeView, arrowLink) {
    this._myNodeView = myNodeView;
 
    this._svgGraphicalLink = document.createElementNS(SVGNS, "path");
-   document.getElementById("svgLinksLayer").appendChild(this._svgGraphicalLink);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgLinksLayer`)
+           .appendChild(this._svgGraphicalLink);
 
    this._svgGraphicalLink.setAttribute("stroke", this._arrowLink.getColor());
-   this._svgGraphicalLink.setAttribute("marker-end", "url(#triangle)");
+   this._svgGraphicalLink.setAttribute(
+      "marker-end",
+      `url(#${App.HTML_ID_PREFIX}-triangle)`
+   );
    this._svgGraphicalLink.setAttribute("fill-opacity", "0");
 } // GraphicalLinkView()
 
@@ -50,7 +55,8 @@ GraphicalLinkView.ARROW_WIDTH = 12;
  * @return {void}
  */
 GraphicalLinkView.prototype.deleteSvg = function deleteSvg() {
-   document.getElementById("svgLinksLayer").removeChild(this._svgGraphicalLink);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgLinksLayer`)
+           .removeChild(this._svgGraphicalLink);
 }; // deleteSvg()
 
 /**

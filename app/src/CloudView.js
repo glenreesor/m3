@@ -17,6 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
+
 /**
  * A CloudView creates and maintains the SVG elements to show a cloud
  * around a node and its children
@@ -33,7 +35,8 @@ export function CloudView(cloudModel) {
    this._svgCloud.setAttribute("fill", cloudModel.getColor());
    this._svgCloud.setAttribute("fill-opacity", "1");
 
-   document.getElementById("svgCloudLayer").appendChild(this._svgCloud);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgCloudLayer`)
+           .appendChild(this._svgCloud);
 } // CloudView()
 
 CloudView.PADDING_HORIZONTAL = 5;   // Space between enclosed region and cloud
@@ -44,7 +47,8 @@ CloudView.PADDING_VERTICAL = 5;
  * @return {void}
  */
 CloudView.prototype.deleteSvg = function deleteSvg() {
-   document.getElementById("svgCloudLayer").removeChild(this._svgCloud);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgCloudLayer`)
+           .removeChild(this._svgCloud);
 }; // deleteSvg()
 
 /**
