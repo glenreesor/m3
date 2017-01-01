@@ -85,7 +85,7 @@ export function ImportExportDialog() {
    m3App.getGlobalState().setState(State.STATE_DIALOG_IMPORT_EXPORT);
 } // ImportExportDialog()
 
-ImportExportDialog.DIALOG_ID = "m3-importExportDialog";
+ImportExportDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-importExportDialog`;
 ImportExportDialog.CANCEL_ID = ImportExportDialog.DIALOG_ID + "Cancel";
 ImportExportDialog.EXPORT_ID = ImportExportDialog.DIALOG_ID + "Export";
 ImportExportDialog.FILE_INPUT_ID = ImportExportDialog.DIALOG_ID + "FileInput";

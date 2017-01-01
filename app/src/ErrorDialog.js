@@ -67,7 +67,7 @@ export function ErrorDialog(errorMsg) {
    m3App.getGlobalState().setState(State.STATE_DIALOG_ERROR);
 } // ErrorDialog()
 
-ErrorDialog.DIALOG_ID = "m3-errorDialog";
+ErrorDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-errorDialog`;
 ErrorDialog.OK_ID = ErrorDialog.DIALOG_ID + "Ok";
 
 /**

@@ -108,7 +108,7 @@ export function RenameMapDialog(mapList, indexToRename) {
    (document.getElementById(RenameMapDialog.INPUT_FIELD_ID)).focus();
 } // RenameMapDialog()
 
-RenameMapDialog.DIALOG_ID = "m3-renameMapDialog";
+RenameMapDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-renameMapDialog`;
 RenameMapDialog.CANCEL_ID = RenameMapDialog.DIALOG_ID + "Cancel";
 RenameMapDialog.OK_ID = RenameMapDialog.DIALOG_ID + "Ok";
 RenameMapDialog.INPUT_FIELD_ID = RenameMapDialog.DIALOG_ID + "InputField";

@@ -103,7 +103,7 @@ export function AboutDialog() {
    m3App.getGlobalState().setState(State.STATE_DIALOG_ABOUT);
 } // AboutDialog()
 
-AboutDialog.DIALOG_ID = "m3-aboutDialog";
+AboutDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-aboutDialog`;
 AboutDialog.OK_ID = AboutDialog.DIALOG_ID + "Ok";
 
 /**

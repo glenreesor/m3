@@ -175,7 +175,7 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
 
 } // EditNodeDialog()
 
-EditNodeDialog.DIALOG_ID = 'm3-editNodeDialog';
+EditNodeDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-editNodeDialog`;
 
 EditNodeDialog.CANCEL_ID = EditNodeDialog.DIALOG_ID + 'Cancel';
 EditNodeDialog.LINE_BREAK = EditNodeDialog.DIALOG_ID + 'LineBreak';

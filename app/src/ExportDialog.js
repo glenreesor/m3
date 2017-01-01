@@ -109,7 +109,7 @@ export function ExportDialog() {
    m3App.getGlobalState().setState(State.STATE_EXPORT_POPUP);
 } // ExportDialog()
 
-ExportDialog.DIALOG_ID = "m3-importExportDialog";
+ExportDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-importExportDialog`;
 ExportDialog.OK_ID = ExportDialog.DIALOG_ID + "Ok";
 ExportDialog.TEXT_AREA_ID = ExportDialog.DIALOG_ID + "TextArea";
 

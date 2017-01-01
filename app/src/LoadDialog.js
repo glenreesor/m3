@@ -109,7 +109,7 @@ export function LoadDialog(controller) {
    });
 } // LoadDialog()
 
-LoadDialog.DIALOG_ID = "m3-loadDialog";
+LoadDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-loadDialog`;
 LoadDialog.CANCEL_ID = LoadDialog.DIALOG_ID + "Cancel";
 LoadDialog.NEW_MAP_ID = LoadDialog.DIALOG_ID + "NewMap";
 LoadDialog.SAMPLE_ID = LoadDialog.DIALOG_ID + "Sample";

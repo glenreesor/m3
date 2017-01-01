@@ -98,7 +98,7 @@ export function ManageSavedMapsDialog() {
    });
 } // ManageSavedMapsDialog()
 
-ManageSavedMapsDialog.DIALOG_ID = "m3-manageSavedMapsDialog";
+ManageSavedMapsDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-manageSavedMapsDialog`;
 ManageSavedMapsDialog.CANCEL_ID = ManageSavedMapsDialog.DIALOG_ID + "Cancel";
 ManageSavedMapsDialog.DELETE_ID_PREFIX = ManageSavedMapsDialog.DIALOG_ID + "D";
 ManageSavedMapsDialog.RENAME_ID_PREFIX = ManageSavedMapsDialog.DIALOG_ID + "R";
