@@ -44,9 +44,7 @@ export function AppButtons(controller) {
    this._controller = controller;
 
    buttonsHtmlBottom =
-      "<div id='buttonsHtmlBottom' style='position: fixed;" +
-         `bottom: ${Sizer._MARGINS.appMarginBottom}px; right: ` +
-         `${Sizer._MARGINS.appMarginRight + Sizer._SIDE_ICONS_WIDTH}px;'>` +
+      "<div id='buttonsHtmlBottom' style='text-align:right;'>" +
 
          "<img id='about'          style='margin-right: 10px' " +
             "class='clickableIcon' src='images/info.svg' " +
@@ -64,16 +62,14 @@ export function AppButtons(controller) {
             "class='clickableIcon' src='images/save.svg' " +
             "height='32px'></img>" +
 
-         "<img id='load' " +
-            "class='clickableIcon' src='images/load.svg' "+
+         "<img id='load'           style='margin-right: 10px' " +
+            "class='clickableIcon' src='images/load.svg' " +
             "height='32px'></img>" +
+
       "</div>";
 
    buttonsHtmlRight =
-      "<div id='buttonsHtmlRight' style='position: fixed; right: " +
-         `${Sizer._MARGINS.appMarginRight}px; bottom: ` +
-         `${Sizer._MARGINS.appMarginBottom}px;'>` +
-
+      "<div id='buttonsHtmlRight'>" +
          "<img id='delete-node'    style='margin-bottom: 10px' " +
             "class='clickableIcon' src='images/delete.svg' " +
             "width='32px'><br>" +
@@ -94,10 +90,12 @@ export function AppButtons(controller) {
             "class='clickableIcon' src='images/edit.svg' " +
             "width='32px'>" +
       "</div>";
+
    //--------------------------------------------------------------------------
-   // Add the left buttons
+   // Add the bottom buttons
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
+
    htmlAsDoc = domParser.parseFromString(buttonsHtmlBottom, "text/html");
    this._buttonsDivBottom = document.importNode(
       htmlAsDoc.getElementById("buttonsHtmlBottom"), true);
@@ -112,7 +110,7 @@ export function AppButtons(controller) {
    this._buttonsDivRight = document.importNode(
       htmlAsDoc.getElementById("buttonsHtmlRight"), true);
 
-   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+   document.getElementById(`${App.HTML_ID_PREFIX}-right`)
            .appendChild(this._buttonsDivRight);
 
    //--------------------------------------------------------------------------

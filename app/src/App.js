@@ -31,20 +31,6 @@ import {State} from "./State";
 export function App() {
    this._diagnostics = new Diagnostics();
    this._globalState = new State();
-
-   //--------------------------------------------------------------------------
-   // Set window title
-   //--------------------------------------------------------------------------
-   document.title = App.MY_NAME + " " + this.getVersionAsString();
-
-   //--------------------------------------------------------------------------
-   // Prompt user if they navigate away from this page or close the tab/window.
-   //--------------------------------------------------------------------------
-   window.addEventListener("beforeunload", function(event) {
-      event.returnValue = "Are you sure you want to exit?";
-      return event;
-   });
-
 } // App()
 
 App.DB_NAME = "m3 - Mobile Mind Mapper";
@@ -87,6 +73,16 @@ App.prototype.getDiagnostics = function getDiagnostics() {
 App.prototype.getGlobalState = function getGlobalState() {
    return this._globalState;
 }; // getGlobalState()
+
+/**
+ * Get the full height of the app
+ *
+ * @return {string} - A CSS-compatible string that specifies the required
+ *                    height of the app
+ */
+App.prototype.getHeight = function getHeight() {
+   return this._embeddingOptions.height;
+}; // getHeight()
 
 /**
  * Return the current MapModel
@@ -153,14 +149,118 @@ App.prototype.getVersionAsString = function getVersionAsString() {
 }; // getAppVersionAsString()
 
 /**
+ * Get the full width of the app
+ *
+ * @return {string} - A CSS-compatible string that specifies the required
+ *                    width of the app
+ */
+App.prototype.getWidth = function getWidth() {
+   return this._embeddingOptions.width;
+}; // getWidth()
+
+/**
+ * Return whether embedding options say to be full page or not
+ * @return {boolean} - Whether app should be full page or not
+ */
+App.prototype.isFullPage = function isFullPage() {
+   return this._embeddingOptions.fullPage;
+}; // isfullPage()
+
+/**
  * Run the app
  * @return {void}
  */
 App.prototype.run = function run() {
+   this._setEmbeddingOptions();
    this._sizer = new Sizer();
+
+   if (this.isFullPage()) {
+      //-----------------------------------------------------------------------
+      // Set window title
+      //-----------------------------------------------------------------------
+      document.title = App.MY_NAME + " " + this.getVersionAsString();
+
+      //-----------------------------------------------------------------------
+      // Prompt user if they navigate away from this page or close the
+      // tab/window
+      //-----------------------------------------------------------------------
+      window.addEventListener("beforeunload", function(event) {
+         event.returnValue = "Are you sure you want to exit?";
+         return event;
+      });
+   }
+
    this._controller = new Controller();
    this._startup();
 }; // run()
+
+/**
+ * Set embedding options, overriding from js embedded in html as required
+ *
+ * @return {void}
+ */
+App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
+   const FULL_PAGE_DEFAULT = true;
+   const HEIGHT_DEFAULT = '100%';
+   const WIDTH_DEFAULT = '100%';
+
+   let options;
+
+   if (window.m3MobileMindMapper) {
+      options = window.m3MobileMindMapper;
+
+      //----------------------------------------------------------------------
+      // Sanity checks since created by third-party
+      //----------------------------------------------------------------------
+      console.log('Validating window.m3MobileMindMapper...');
+
+      if (
+         options.fullPage !== undefined &&
+         typeof options.fullPage !== 'boolean'
+      ) {
+         throw('fullPage must be boolean');
+      }
+
+      if (
+         options.height !== undefined &&
+         typeof options.height !== 'string' ||
+         !options.height.match(/[0-9]+(%|px)/)
+      ) {
+         throw('height must be a valid CSS length string');
+      }
+
+      if (
+         options.width !== undefined &&
+         typeof options.width !== 'string' ||
+         !options.width.match(/[0-9]+(%|px)/)
+      ) {
+         throw('width must be a valid CSS length string');
+      }
+
+      console.log('window.m3MobileMindMapper is valid.');
+
+      //----------------------------------------------------------------------
+      // Override as required
+      //----------------------------------------------------------------------
+      this._embeddingOptions = {};
+
+      this._embeddingOptions.fullPage =
+         options.fullPage !== undefined ? options.fullPage : FULL_PAGE_DEFAULT;
+
+      this._embeddingOptions.height =
+         options.height !== undefined ? options.height : HEIGHT_DEFAULT;
+
+      this._embeddingOptions.width =
+         options.width !== undefined ? options.width : WIDTH_DEFAULT;
+
+   } else {
+      this._embeddingOptions = {};
+
+      this._embeddingOptions.fullPage = FULL_PAGE_DEFAULT;
+      this._embeddingOptions.height = HEIGHT_DEFAULT;
+      this._embeddingOptions.width = WIDTH_DEFAULT;
+   }
+}; // _setEmbeddingOptions()
 
 /**
  * Set the current MapModel
