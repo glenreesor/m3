@@ -214,6 +214,10 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       //----------------------------------------------------------------------
       console.log('Validating window.m3MobileMindMapper...');
 
+      if (options.apiVersion !== '0.12') {
+         throw('apiVersion must be 0.12');
+      }
+
       if (
          options.fullPage !== undefined &&
          typeof options.fullPage !== 'boolean'
