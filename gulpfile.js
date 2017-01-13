@@ -87,6 +87,13 @@ gulp.task('fast', function() {
    result = gulp.src('app/*.php')
       .pipe(gulp.dest(debugDir))
       .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // Sample map
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/*.mm')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
 });
 
 //-----------------------------------------------------------------------------

@@ -85,13 +85,23 @@ App.prototype.getHeight = function getHeight() {
 }; // getHeight()
 
 /**
- * Return the current MapModel
+ * Get the name to be displayed for the initial map to load (null if none)
  *
- * @return {MapModel} - the current MapModel
+ * @return {string} - The name of the map to load on startup
  */
-App.prototype.getMapModel = function getMapModel() {
-   return this._myMapModel;
-}; // getMapModel()
+App.prototype.getInitialMapName = function getInitialMapName() {
+   return this._embeddingOptions.initialMapName;
+}; // getInitialMapName()
+
+/**
+ * Get the URL of the initial map to load (null if none)
+ *
+ * @return {string} - A URL, either absolute or relative to index.html, whose
+ *                    contents are a mind map to load on startup
+ */
+App.prototype.getInitialMapUrl = function getInitialMapUrl() {
+   return this._embeddingOptions.initialMapUrl;
+}; // getInitialMapUrl()
 
 /**
  * Return the best type of localforage that is actually supported.
@@ -131,6 +141,15 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
 }; // _getLocalForageDriver()
 
 /**
+ * Return the current MapModel
+ *
+ * @return {MapModel} - the current MapModel
+ */
+App.prototype.getMapModel = function getMapModel() {
+   return this._myMapModel;
+}; // getMapModel()
+
+/**
  * Return the app version as a string
  *
  * @return {string} - the version of this app formatted as a string.
@@ -146,7 +165,7 @@ App.prototype.getVersionAsString = function getVersionAsString() {
    }
 
    return version;
-}; // getAppVersionAsString()
+}; // getVersionAsString()
 
 /**
  * Get the full width of the app
@@ -201,6 +220,8 @@ App.prototype.run = function run() {
  */
 App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
    const FULL_PAGE_DEFAULT = true;
+   const INITIAL_MAP_NAME_DEFAULT = null;
+   const INITIAL_MAP_URL_DEFAULT = null;
    const HEIGHT_DEFAULT = '100%';
    const WIDTH_DEFAULT = '100%';
 
@@ -241,6 +262,20 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
          throw('width must be a valid CSS length string');
       }
 
+      if (
+         options.initialMapUrl !== undefined &&
+         typeof options.initialMapUrl !== 'string'
+      ) {
+         throw('initialMapUrl must be a string');
+      }
+
+      if (
+         options.initialMapName !== undefined &&
+         typeof options.initialMapName !== 'string'
+      ) {
+         throw('initialMapName must be a string');
+      }
+
       console.log('window.m3MobileMindMapper is valid.');
 
       //----------------------------------------------------------------------
@@ -249,19 +284,32 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       this._embeddingOptions = {};
 
       this._embeddingOptions.fullPage =
-         options.fullPage !== undefined ? options.fullPage : FULL_PAGE_DEFAULT;
+         options.fullPage !== undefined ? options.fullPage :
+                                          FULL_PAGE_DEFAULT;
 
       this._embeddingOptions.height =
-         options.height !== undefined ? options.height : HEIGHT_DEFAULT;
+         options.height !== undefined ? options.height :
+                                        HEIGHT_DEFAULT;
 
       this._embeddingOptions.width =
-         options.width !== undefined ? options.width : WIDTH_DEFAULT;
+         options.width !== undefined ? options.width :
+                                       WIDTH_DEFAULT;
+
+      this._embeddingOptions.initialMapName =
+         options.initialMapName !== undefined ? options.initialMapName :
+                                                INITIAL_MAP_NAME_DEFAULT;
+
+      this._embeddingOptions.initialMapUrl =
+         options.initialMapUrl !== undefined ? options.initialMapUrl :
+                                               INITIAL_MAP_URL_DEFAULT;
 
    } else {
       this._embeddingOptions = {};
 
       this._embeddingOptions.fullPage = FULL_PAGE_DEFAULT;
       this._embeddingOptions.height = HEIGHT_DEFAULT;
+      this._embeddingOptions.initialMapName = INITIAL_MAP_NAME_DEFAULT;
+      this._embeddingOptions.initialMapUrl = INITIAL_MAP_URL_DEFAULT;
       this._embeddingOptions.width = WIDTH_DEFAULT;
    }
 }; // _setEmbeddingOptions()
