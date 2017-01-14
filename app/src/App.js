@@ -186,6 +186,15 @@ App.prototype.isFullPage = function isFullPage() {
 }; // isfullPage()
 
 /**
+ * Get whether buttons should be shown
+ *
+ * @return {boolean} - Whether the buttons should be shown
+ */
+App.prototype.showButtons = function showButtons() {
+   return this._embeddingOptions.showButtons;
+}; // getWidth()
+
+/**
  * Run the app
  * @return {void}
  */
@@ -220,9 +229,10 @@ App.prototype.run = function run() {
  */
 App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
    const FULL_PAGE_DEFAULT = true;
+   const HEIGHT_DEFAULT = '100%';
    const INITIAL_MAP_NAME_DEFAULT = null;
    const INITIAL_MAP_URL_DEFAULT = null;
-   const HEIGHT_DEFAULT = '100%';
+   const SHOW_BUTTONS_DEFAULT = true;
    const WIDTH_DEFAULT = '100%';
 
    let options;
@@ -276,6 +286,13 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
          throw('initialMapName must be a string');
       }
 
+      if (
+         options.showButtons !== undefined &&
+         typeof options.showButtons !== 'boolean'
+      ) {
+         throw('showButtons must be a boolean');
+      }
+
       console.log('window.m3MobileMindMapper is valid.');
 
       //----------------------------------------------------------------------
@@ -295,13 +312,17 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
          options.width !== undefined ? options.width :
                                        WIDTH_DEFAULT;
 
+      this._embeddingOptions.initialMapUrl =
+         options.initialMapUrl !== undefined ? options.initialMapUrl :
+                                               INITIAL_MAP_URL_DEFAULT;
+
       this._embeddingOptions.initialMapName =
          options.initialMapName !== undefined ? options.initialMapName :
                                                 INITIAL_MAP_NAME_DEFAULT;
 
-      this._embeddingOptions.initialMapUrl =
-         options.initialMapUrl !== undefined ? options.initialMapUrl :
-                                               INITIAL_MAP_URL_DEFAULT;
+      this._embeddingOptions.showButtons =
+         options.showButtons !== undefined ? options.showButtons :
+                                             SHOW_BUTTONS_DEFAULT;
 
    } else {
       this._embeddingOptions = {};
@@ -310,6 +331,7 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       this._embeddingOptions.height = HEIGHT_DEFAULT;
       this._embeddingOptions.initialMapName = INITIAL_MAP_NAME_DEFAULT;
       this._embeddingOptions.initialMapUrl = INITIAL_MAP_URL_DEFAULT;
+      this._embeddingOptions.showButtons = SHOW_BUTTONS_DEFAULT;
       this._embeddingOptions.width = WIDTH_DEFAULT;
    }
 }; // _setEmbeddingOptions()

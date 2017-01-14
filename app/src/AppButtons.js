@@ -37,14 +37,17 @@ export function AppButtons(controller) {
    let buttonsDivBottom;
    let buttonsDivRight;
    let domParser;
+   let hideCss;
    let htmlAsDoc;
    let buttonsHtmlBottom;
    let buttonsHtmlRight;
 
+   hideCss = m3App.showButtons() ? '' : 'display: none;';
+
    this._controller = controller;
 
    buttonsHtmlBottom =
-      "<div id='buttonsHtmlBottom' style='text-align:right;'>" +
+      `<div id='buttonsHtmlBottom' style='text-align: right;${hideCss}'>` +
 
          "<img id='about'          style='margin-right: 10px' " +
             "class='clickableIcon' src='images/info.svg' " +
@@ -69,7 +72,7 @@ export function AppButtons(controller) {
       "</div>";
 
    buttonsHtmlRight =
-      "<div id='buttonsHtmlRight'>" +
+      `<div id='buttonsHtmlRight' style='text-align: right;${hideCss}'>` +
          "<img id='delete-node'    style='margin-bottom: 10px' " +
             "class='clickableIcon' src='images/delete.svg' " +
             "width='32px'><br>" +
