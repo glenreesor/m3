@@ -194,6 +194,35 @@ App.prototype.isReadOnly = function isReadOnly() {
 }; // isReadOnly()
 
 /**
+ * Return whether the webpage origin matches this script's origin
+ *
+ * @return {boolean} Whether webpage origin matches script's origin
+ */
+App.prototype._isValidOrigin = function isValidOrigin() {
+
+   // Use a goofy string so it's easy to replace in the minified source
+   // Remember the js map is created before deployment script modifies this
+   const REQUIRED_ORIGIN = 'JS_ORIGIN_REPLACEMENT_STRING';
+
+   let realOrigin;
+   let returnVal;
+   let url;
+
+   returnVal = true;
+   url = window.location.href;
+
+   // Only enforce origin if the REQUIRED_ORIGIN has been replaced
+   if (
+      REQUIRED_ORIGIN.substr(0, 3) !== 'JS_' &&
+      url.substr(0, REQUIRED_ORIGIN.length) !== REQUIRED_ORIGIN
+   ) {
+      returnVal = false;
+   }
+
+   return returnVal;
+}; // _isValidOrigin()
+
+/**
  * Get whether buttons should be shown
  *
  * @return {boolean} - Whether the buttons should be shown
@@ -216,6 +245,12 @@ App.prototype.showMapName = function showMapName() {
  * @return {void}
  */
 App.prototype.run = function run() {
+   if (!this._isValidOrigin()) {
+      alert('Please host m3 files on your own server. Full information can ' +
+            'be found at http://glenreesor.ca/mobile-mind-mapper');
+      return;
+   }
+
    this._setEmbeddingOptions();
    this._sizer = new Sizer();
 
