@@ -39,6 +39,12 @@ export function Controller() {
    this._loadInitialMap();
 
    this._mapViewController = new MapViewController(this);
+
+   if (!m3App.showMapName()) {
+      document.getElementById(`${App.HTML_ID_PREFIX}-top`).
+         style.display = 'none';
+   }
+
    this._rootNodeView = this._mapModel.getRoot().getView();
    this.selectRootNode();
    this.redrawMain();

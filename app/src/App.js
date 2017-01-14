@@ -192,7 +192,16 @@ App.prototype.isFullPage = function isFullPage() {
  */
 App.prototype.showButtons = function showButtons() {
    return this._embeddingOptions.showButtons;
-}; // getWidth()
+}; // showButtons()
+
+/**
+ * Get whether map name should be shown
+ *
+ * @return {boolean} - Whether the map name should be shown
+ */
+App.prototype.showMapName = function showMapName() {
+   return this._embeddingOptions.showMapName;
+}; // showMapName()
 
 /**
  * Run the app
@@ -255,6 +264,11 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       },
 
       showButtons: {
+         type: 'boolean',
+         default: true
+      },
+
+      showMapName: {
          type: 'boolean',
          default: true
       },
