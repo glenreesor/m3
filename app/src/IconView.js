@@ -17,6 +17,7 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
 import {m3App} from './main';
 
 const HEIGHT = 20;
@@ -42,7 +43,8 @@ export function IconView(nodeView, iconModel) {
    this._svgImage.setAttribute('width', WIDTH);
    this._svgImage.setAttribute('height', HEIGHT);
 
-   document.getElementById('svgTextLayer').appendChild(this._svgImage);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .appendChild(this._svgImage);
 
    //---------------------------------------------------------------------------
    // .bind() effectively produces a new function *each* time, thus can't use
@@ -76,7 +78,8 @@ IconView.prototype._clickListener = function _clickListener() {
  */
 IconView.prototype.deleteSvg = function deleteSvg() {
    this._svgImage.removeEventListener('click', this._boundClickListener);
-   document.getElementById('svgTextLayer').removeChild(this._svgImage);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .removeChild(this._svgImage);
 }; // deleteSvg()
 
 /**

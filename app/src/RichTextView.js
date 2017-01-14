@@ -17,6 +17,7 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
 import {m3App} from './main';
 import {Sizer} from './Sizer';
 
@@ -42,7 +43,8 @@ export function RichTextView(nodeView, nodeModel) {
    //---------------------------------------------------------------------------
    this._container = document.createElementNS(SVGNS, "foreignObject");
    this._container.setAttribute('style', 'word-wrap:break-word');
-   document.getElementById("svgTextLayer").appendChild(this._container);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .appendChild(this._container);
 
    //---------------------------------------------------------------------------
    // .bind() effectively produces a new function *each* time, thus can't use
@@ -76,7 +78,8 @@ RichTextView.prototype._clickListener = function _clickListener() {
  */
 RichTextView.prototype.deleteSvg = function deleteSvg() {
    this._container.removeEventListener("click", this._boundClickListener);
-   document.getElementById("svgTextLayer").removeChild(this._container);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .removeChild(this._container);
 }; // deleteSvg()
 
 /**

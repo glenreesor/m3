@@ -19,6 +19,7 @@
 
 import {ExportDialog} from "./ExportDialog";
 import {m3App} from "./main";
+import {App} from './App';
 import {MapModel} from "./MapModel";
 import {Sizer} from "./Sizer";
 import {State} from "./State";
@@ -61,7 +62,8 @@ export function ImportExportDialog() {
    this._importExportDialog = document.importNode(
       htmlAsDoc.getElementById(ImportExportDialog.DIALOG_ID), true);
 
-   document.getElementById("app-popups").appendChild(this._importExportDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._importExportDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
@@ -78,11 +80,12 @@ export function ImportExportDialog() {
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById("app-popups").removeAttribute("hidden");
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute("hidden");
    m3App.getGlobalState().setState(State.STATE_DIALOG_IMPORT_EXPORT);
 } // ImportExportDialog()
 
-ImportExportDialog.DIALOG_ID = "m3-importExportDialog";
+ImportExportDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-importExportDialog`;
 ImportExportDialog.CANCEL_ID = ImportExportDialog.DIALOG_ID + "Cancel";
 ImportExportDialog.EXPORT_ID = ImportExportDialog.DIALOG_ID + "Export";
 ImportExportDialog.FILE_INPUT_ID = ImportExportDialog.DIALOG_ID + "FileInput";
@@ -98,7 +101,7 @@ ImportExportDialog.FILE_INPUT_ID = ImportExportDialog.DIALOG_ID + "FileInput";
 ImportExportDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._importExportDialog);
 

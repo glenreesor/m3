@@ -17,6 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
+
 /**
  * A ConnectorView creates and maintains the SVG elements to show a connector
  * from the specified node to its parent
@@ -32,7 +34,8 @@ export function ConnectorView(nodeView) {
    this._svgConnector.setAttribute("stroke", "#000000");
    this._svgConnector.setAttribute("fill-opacity", "0");
 
-   document.getElementById("svgBubbleLayer").appendChild(this._svgConnector);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .appendChild(this._svgConnector);
 } // ConnectorView()
 
 ConnectorView.WIDTH = 30;     // The width of all connectors
@@ -42,7 +45,8 @@ ConnectorView.WIDTH = 30;     // The width of all connectors
  * @return {void}
  */
 ConnectorView.prototype.deleteSvg = function deleteSvg() {
-   document.getElementById("svgBubbleLayer").removeChild(this._svgConnector);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .removeChild(this._svgConnector);
 }; // deleteSvg()
 
 /**

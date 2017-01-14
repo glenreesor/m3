@@ -17,11 +17,14 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {AppButtons} from "./AppButtons";
-import {EditNodeDialog} from "./EditNodeDialog";
-import {MapModel} from "./MapModel";
-import {MapViewController} from "./MapViewController";
-import {NodeView} from "./NodeView";
+import {App} from './App';
+import {AppButtons} from './AppButtons';
+import {EditNodeDialog} from './EditNodeDialog';
+import {ErrorDialog} from './ErrorDialog';
+import {m3App} from './main';
+import {MapModel} from './MapModel';
+import {MapViewController} from './MapViewController';
+import {NodeView} from './NodeView';
 
 /**
  * This is the controller that handles actions/events that interact with the
@@ -32,9 +35,16 @@ import {NodeView} from "./NodeView";
  */
 export function Controller() {
    this._appButtons = new AppButtons(this);
-   this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map",
-                                 null);
+
+   this._loadInitialMap();
+
    this._mapViewController = new MapViewController(this);
+
+   if (!m3App.showMapName()) {
+      document.getElementById(`${App.HTML_ID_PREFIX}-top`).
+         style.display = 'none';
+   }
+
    this._rootNodeView = this._mapModel.getRoot().getView();
    this.selectRootNode();
    this.redrawMain();
@@ -175,6 +185,51 @@ Controller.prototype.getMapViewController = function getMapViewController() {
 }; // getMapViewController()
 
 /**
+ * Load the initial map on app startup
+ *
+ * @return {void}
+ */
+Controller.prototype._loadInitialMap = function _loadInitialMap() {
+   let loadingError;
+   let httpRequest;
+   let initialMapUrl;
+
+   // Start with an empty map because a map specified to load on startup
+   // doesn't get loaded until after the app is fully initialized
+   this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map",
+                                 null);
+
+   initialMapUrl = m3App.getInitialMapUrl();
+
+   if (initialMapUrl !== null) {
+      httpRequest = new XMLHttpRequest();
+
+      if (httpRequest) {
+         httpRequest.onreadystatechange = function() {
+            if (httpRequest.readyState === 4) {
+               if (httpRequest.status !== 200) {
+                  loadingError = new ErrorDialog(
+                     `Error Loading map ${initialMapUrl}: ` +
+                     `${httpRequest.status} ${httpRequest.statusText}`
+                  );
+               } else {
+                  this.newMap(
+                     MapModel.TYPE_XML,
+                     null,
+                     m3App.getInitialMapName(),
+                     [httpRequest.response]
+                  );
+               }
+            }
+         }.bind(this);
+
+         httpRequest.open('get', initialMapUrl);
+         httpRequest.send();
+      }
+   }
+}; // _loadInitialMap()
+
+/**
  * Move the specified node down in the child list
  *
  * @param {NodeModel} child The node to move down
@@ -241,7 +296,7 @@ Controller.prototype.selectRootNode = function selectRootNode() {
   * @return {void}
   */
 Controller.prototype.setMapName = function setMapName(name) {
-   document.getElementById("mapName").innerHTML = name;
+   document.getElementById(`${App.HTML_ID_PREFIX}-mapName`).innerHTML = name;
 }; // setMapName()
 
 /**
@@ -255,9 +310,11 @@ Controller.prototype.setModifiedIndicator =
    function setModifiedIndicator(status) {
 
    if (status) {
-      document.getElementById("modified").removeAttribute("hidden");
+      document.getElementById(`${App.HTML_ID_PREFIX}-modified`)
+              .removeAttribute("hidden");
    } else {
-      document.getElementById("modified").setAttribute("hidden", "true");
+      document.getElementById(`${App.HTML_ID_PREFIX}-modified`)
+              .setAttribute("hidden", "true");
    }
 }; // setModifiedStatus()
 

@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {AboutDialog} from "./AboutDialog";
+import {App} from "./App";
 import {ImportExportDialog} from "./ImportExportDialog";
 import {LoadDialog} from "./LoadDialog";
 import {m3App} from "./main";
@@ -35,17 +36,22 @@ import {State} from "./State";
 export function AppButtons(controller) {
    let buttonsDivBottom;
    let buttonsDivRight;
-   let domParser;
-   let htmlAsDoc;
    let buttonsHtmlBottom;
    let buttonsHtmlRight;
+   let domParser;
+   let htmlAsDoc;
+   let showHideBottom;
+   let showHideRight;
+
+   showHideBottom = m3App.showButtons() ? '' : 'display: none;';
+   showHideRight = (m3App.showButtons && !m3App.isReadOnly()) ? '' :
+                                                                'display: none';
 
    this._controller = controller;
 
    buttonsHtmlBottom =
-      "<div id='buttonsHtmlBottom' style='position: fixed;" +
-         `bottom: ${Sizer._MARGINS.appMarginBottom}px; right: ` +
-         `${Sizer._MARGINS.appMarginRight + Sizer._SIDE_ICONS_WIDTH}px;'>` +
+      `<div id='buttonsHtmlBottom' style='text-align: right; ` +
+                                         `${showHideBottom}'>` +
 
          "<img id='about'          style='margin-right: 10px' " +
             "class='clickableIcon' src='images/info.svg' " +
@@ -63,16 +69,14 @@ export function AppButtons(controller) {
             "class='clickableIcon' src='images/save.svg' " +
             "height='32px'></img>" +
 
-         "<img id='load' " +
-            "class='clickableIcon' src='images/load.svg' "+
+         "<img id='load'           style='margin-right: 10px' " +
+            "class='clickableIcon' src='images/load.svg' " +
             "height='32px'></img>" +
+
       "</div>";
 
    buttonsHtmlRight =
-      "<div id='buttonsHtmlRight' style='position: fixed; right: " +
-         `${Sizer._MARGINS.appMarginRight}px; bottom: ` +
-         `${Sizer._MARGINS.appMarginBottom}px;'>` +
-
+      `<div id='buttonsHtmlRight' style='text-align: right;${showHideRight}'>` +
          "<img id='delete-node'    style='margin-bottom: 10px' " +
             "class='clickableIcon' src='images/delete.svg' " +
             "width='32px'><br>" +
@@ -93,15 +97,18 @@ export function AppButtons(controller) {
             "class='clickableIcon' src='images/edit.svg' " +
             "width='32px'>" +
       "</div>";
+
    //--------------------------------------------------------------------------
-   // Add the left buttons
+   // Add the bottom buttons
    //--------------------------------------------------------------------------
    domParser = new DOMParser();
+
    htmlAsDoc = domParser.parseFromString(buttonsHtmlBottom, "text/html");
    this._buttonsDivBottom = document.importNode(
       htmlAsDoc.getElementById("buttonsHtmlBottom"), true);
 
-   document.getElementById("app").appendChild(this._buttonsDivBottom);
+   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+           .appendChild(this._buttonsDivBottom);
 
    //--------------------------------------------------------------------------
    // Add the right buttons
@@ -110,7 +117,8 @@ export function AppButtons(controller) {
    this._buttonsDivRight = document.importNode(
       htmlAsDoc.getElementById("buttonsHtmlRight"), true);
 
-   document.getElementById("app").appendChild(this._buttonsDivRight);
+   document.getElementById(`${App.HTML_ID_PREFIX}-right`)
+           .appendChild(this._buttonsDivRight);
 
    //--------------------------------------------------------------------------
    // Safari doesn't show the active pseudo class unless the corresponding
@@ -211,6 +219,8 @@ AppButtons.prototype.load = function load() {
  * @return {void}
  */
 AppButtons.prototype.remove = function remove() {
-   document.getElementById("app").removeChild(this._buttonsDivBottom);
-   document.getElementById("app").removeChild(this._buttonsDivRight);
+   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+           .removeChild(this._buttonsDivBottom);
+   document.getElementById(`${App.HTML_ID_PREFIX}-app`)
+           .removeChild(this._buttonsDivRight);
 }; // remove()

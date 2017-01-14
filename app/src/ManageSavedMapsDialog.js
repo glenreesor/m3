@@ -65,7 +65,7 @@ export function ManageSavedMapsDialog() {
       this._manageSavedMapsDialog = document.importNode(htmlAsDoc
          .getElementById(ManageSavedMapsDialog.DIALOG_ID), true);
 
-      document.getElementById("app-popups").appendChild(
+      document.getElementById(`${App.HTML_ID_PREFIX}-popups`).appendChild(
          this._manageSavedMapsDialog);
 
       //-----------------------------------------------------------------------
@@ -89,7 +89,8 @@ export function ManageSavedMapsDialog() {
       //-----------------------------------------------------------------------
       // Finally, make the app-popups div visible and set state
       //-----------------------------------------------------------------------
-      document.getElementById("app-popups").removeAttribute("hidden");
+      document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+              .removeAttribute("hidden");
       m3App.getGlobalState().setState(State.STATE_DIALOG_MANAGE_SAVED_MAPS);
    }).catch(function (err) {
       let errorDialog = new ErrorDialog("Unable to load list of saved maps: " +
@@ -97,7 +98,7 @@ export function ManageSavedMapsDialog() {
    });
 } // ManageSavedMapsDialog()
 
-ManageSavedMapsDialog.DIALOG_ID = "m3-manageSavedMapsDialog";
+ManageSavedMapsDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-manageSavedMapsDialog`;
 ManageSavedMapsDialog.CANCEL_ID = ManageSavedMapsDialog.DIALOG_ID + "Cancel";
 ManageSavedMapsDialog.DELETE_ID_PREFIX = ManageSavedMapsDialog.DIALOG_ID + "D";
 ManageSavedMapsDialog.RENAME_ID_PREFIX = ManageSavedMapsDialog.DIALOG_ID + "R";
@@ -113,7 +114,7 @@ ManageSavedMapsDialog.RENAME_ID_PREFIX = ManageSavedMapsDialog.DIALOG_ID + "R";
 ManageSavedMapsDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._manageSavedMapsDialog);
 

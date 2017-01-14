@@ -15,45 +15,7 @@
       <script type="text/javascript" src="m3.js"></script>
    </head>
    <body>
-      <div id="app">
-
-         <!-- ==================================================== -->
-         <!-- App Popups                                           -->
-         <!-- Popups will be added to this div                     -->
-         <!-- ==================================================== -->
-         <div id='app-top'> <span id="mapName"></span> <img id='modified' style='margin-bottom: 3px;' height='5px' src="images/modified.svg"/>
-         </div> <!-- For the map name -->
-
-         <div id="app-popups" hidden>
-         </div> <!-- id="app-popups" -->
-
-         <div id="app-html-sizing" style="word-wrap:break-word;"> <!-- For getting correct size of html nodes -->
-         </div>
-
-         <!-- ==================================================== -->
-         <!-- App Drawing Area                                     -->
-         <!-- ==================================================== -->
-         <div id="app-drawing-area">
-            <svg xmlns="http://www.w3.org/2000/svg" id="svg-element">
-               <defs>
-                  <marker id="triangle"
-                          viewBox="0 0 10 10"
-                          refX="1" refY="5"
-                          markerWidth="12"
-                          markerHeight="12"
-                          orient="auto">
-                      <path d="M 0 0 L 10 5 L 0 10 z" />
-                 </marker>
-               </defs>
-
-               <g id="svg-g-element">
-                  <g id="svgCloudLayer"> </g>
-                  <g id="svgLinksLayer"> </g>
-                  <g id="svgBubbleLayer"> </g>
-                  <g id="svgTextLayer"> </g>
-               </g>
-            </svg>
-         </div>   <!-- app-drawing-area -->
-      </div>   <!-- id="app" -->
+      <div id="m3-mobile-mind-mapper-container">
+      </div>
    </body>
 </html>

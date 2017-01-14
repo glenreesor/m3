@@ -31,23 +31,10 @@ import {State} from "./State";
 export function App() {
    this._diagnostics = new Diagnostics();
    this._globalState = new State();
-
-   //--------------------------------------------------------------------------
-   // Set window title
-   //--------------------------------------------------------------------------
-   document.title = App.MY_NAME + " " + this.getVersionAsString();
-
-   //--------------------------------------------------------------------------
-   // Prompt user if they navigate away from this page or close the tab/window.
-   //--------------------------------------------------------------------------
-   window.addEventListener("beforeunload", function(event) {
-      event.returnValue = "Are you sure you want to exit?";
-      return event;
-   });
-
 } // App()
 
 App.DB_NAME = "m3 - Mobile Mind Mapper";
+App.HTML_ID_PREFIX = 'm3-mobile-mind-mapper';
 App.KEY_LAST_VERSION_RUN = "lastVersionRun";
 App.KEY_MAPLIST = "mapList";
 App.KEY_INVOCATION_COUNT = "invocationCount";
@@ -88,13 +75,33 @@ App.prototype.getGlobalState = function getGlobalState() {
 }; // getGlobalState()
 
 /**
- * Return the current MapModel
+ * Get the full height of the app
  *
- * @return {MapModel} - the current MapModel
+ * @return {string} - A CSS-compatible string that specifies the required
+ *                    height of the app
  */
-App.prototype.getMapModel = function getMapModel() {
-   return this._myMapModel;
-}; // getMapModel()
+App.prototype.getHeight = function getHeight() {
+   return this._embeddingOptions.height;
+}; // getHeight()
+
+/**
+ * Get the name to be displayed for the initial map to load (null if none)
+ *
+ * @return {string} - The name of the map to load on startup
+ */
+App.prototype.getInitialMapName = function getInitialMapName() {
+   return this._embeddingOptions.initialMapName;
+}; // getInitialMapName()
+
+/**
+ * Get the URL of the initial map to load (null if none)
+ *
+ * @return {string} - A URL, either absolute or relative to index.html, whose
+ *                    contents are a mind map to load on startup
+ */
+App.prototype.getInitialMapUrl = function getInitialMapUrl() {
+   return this._embeddingOptions.initialMapUrl;
+}; // getInitialMapUrl()
 
 /**
  * Return the best type of localforage that is actually supported.
@@ -134,6 +141,15 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
 }; // _getLocalForageDriver()
 
 /**
+ * Return the current MapModel
+ *
+ * @return {MapModel} - the current MapModel
+ */
+App.prototype.getMapModel = function getMapModel() {
+   return this._myMapModel;
+}; // getMapModel()
+
+/**
  * Return the app version as a string
  *
  * @return {string} - the version of this app formatted as a string.
@@ -149,17 +165,192 @@ App.prototype.getVersionAsString = function getVersionAsString() {
    }
 
    return version;
-}; // getAppVersionAsString()
+}; // getVersionAsString()
+
+/**
+ * Get the full width of the app
+ *
+ * @return {string} - A CSS-compatible string that specifies the required
+ *                    width of the app
+ */
+App.prototype.getWidth = function getWidth() {
+   return this._embeddingOptions.width;
+}; // getWidth()
+
+/**
+ * Return whether embedding options say to be full page or not
+ * @return {boolean} - Whether app should be full page or not
+ */
+App.prototype.isFullPage = function isFullPage() {
+   return this._embeddingOptions.fullPage;
+}; // isFullPage()
+
+/**
+ * Return whether embedding options say to be read only or not
+ * @return {boolean} - Whether app should be read only
+ */
+App.prototype.isReadOnly = function isReadOnly() {
+   return this._embeddingOptions.readOnly;
+}; // isReadOnly()
+
+/**
+ * Get whether buttons should be shown
+ *
+ * @return {boolean} - Whether the buttons should be shown
+ */
+App.prototype.showButtons = function showButtons() {
+   return this._embeddingOptions.showButtons;
+}; // showButtons()
+
+/**
+ * Get whether map name should be shown
+ *
+ * @return {boolean} - Whether the map name should be shown
+ */
+App.prototype.showMapName = function showMapName() {
+   return this._embeddingOptions.showMapName;
+}; // showMapName()
 
 /**
  * Run the app
  * @return {void}
  */
 App.prototype.run = function run() {
+   this._setEmbeddingOptions();
    this._sizer = new Sizer();
+
+   if (this.isFullPage()) {
+      //-----------------------------------------------------------------------
+      // Set window title
+      //-----------------------------------------------------------------------
+      document.title = App.MY_NAME + " " + this.getVersionAsString();
+
+      //-----------------------------------------------------------------------
+      // Prompt user if they navigate away from this page or close the
+      // tab/window
+      //-----------------------------------------------------------------------
+      window.addEventListener("beforeunload", function(event) {
+         event.returnValue = "Are you sure you want to exit?";
+         return event;
+      });
+   }
+
    this._controller = new Controller();
    this._startup();
 }; // run()
+
+/**
+ * Set embedding options, overriding from js embedded in html as required
+ *
+ * @return {void}
+ */
+App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
+   const OPTION_INFO = {
+      apiVersion: {
+         type: 'string',
+         default: '0.12'
+      },
+
+      fullPage: {
+         type: 'boolean',
+         default: true
+      },
+
+      height: {
+         type: 'string',
+         default: '100%'
+      },
+
+      initialMapName: {
+         type: 'string',
+         default: null
+      },
+
+      initialMapUrl: {
+         type: 'string',
+         default: null
+      },
+
+      readOnly: {
+         type: 'boolean',
+         default: false
+      },
+
+      showButtons: {
+         type: 'boolean',
+         default: true
+      },
+
+      showMapName: {
+         type: 'boolean',
+         default: true
+      },
+
+      width: {
+         type: 'string',
+         default: '100%'
+      }
+   };
+
+   let option;
+   let options;
+
+   if (window.m3MobileMindMapper) {
+      options = window.m3MobileMindMapper;
+
+      //----------------------------------------------------------------------
+      // Sanity checks since created by third-party
+      //----------------------------------------------------------------------
+      console.log('Validating window.m3MobileMindMapper...');
+
+      for (option in OPTION_INFO) {
+         if (
+            options[option] !== undefined &&
+            typeof(options[option]) !== OPTION_INFO[option].type
+         ) {
+            throw(`${option} must be of type ${OPTION_INFO[option].type}`);
+         }
+      }
+
+      if (options.apiVersion !== '0.12') {
+         throw('apiVersion must be 0.12');
+      }
+
+      if (
+         options.height !== undefined &&
+         !options.height.match(/[0-9]+(%|px)/)
+      ) {
+         throw('height must be a valid CSS length string');
+      }
+
+      if (
+         options.width !== undefined &&
+         !options.width.match(/[0-9]+(%|px)/)
+      ) {
+         throw('width must be a valid CSS length string');
+      }
+
+      console.log('window.m3MobileMindMapper is valid.');
+
+      //----------------------------------------------------------------------
+      // Override as required
+      //----------------------------------------------------------------------
+      this._embeddingOptions = {};
+
+      for (option in OPTION_INFO) {
+         this._embeddingOptions[option] =
+            options[option] !== undefined ? options[option] :
+                                            OPTION_INFO[option].default;
+      }
+
+   } else {
+      this._embeddingOptions = {};
+
+      for (option in OPTION_INFO) {
+         this._embeddingOptions[option] = OPTION_INFO[option].default;
+      }
+   }
+}; // _setEmbeddingOptions()
 
 /**
  * Set the current MapModel
@@ -354,11 +545,19 @@ App.prototype._startup = function _startup() {
                                     this.getVersionAsString());
          }).then( () => {
             if (oldVersion !== this.getVersionAsString()) {
-               if (oldVersion !== null) {
-                  alert("Congratulations! Your m3 has been updated to " +
-                        `version ${this.getVersionAsString()}.`);
+
+               // This should only be done for me or when debugging
+               let url = window.location.href;
+               if (
+                  url.substr(0, 21) === 'http://glenreesor.ca/' ||
+                  url.substr(0, 17) === 'http://127.0.0.1/'
+               ) {
+                  if (oldVersion !== null) {
+                     alert("Congratulations! Your m3 has been updated to " +
+                           `version ${this.getVersionAsString()}.`);
+                  }
+                  this._sendStatsToServer(oldVersion, newCount);
                }
-               this._sendStatsToServer(oldVersion, newCount);
             }
          });
       }).catch(function (err) {

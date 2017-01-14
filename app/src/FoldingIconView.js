@@ -17,7 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {m3App} from "./main";
+import {App} from './App';
+import {m3App} from './main';
 
 /**
  * A FoldingIconView creates and maintains the SVG elements to show a folding
@@ -34,7 +35,8 @@ export function FoldingIconView(nodeView, nodeModel) {
    this._myNodeView = nodeView;
 
    this._svgFoldingIcon = document.createElementNS(SVGNS, "circle");
-   document.getElementById("svgBubbleLayer").appendChild(this._svgFoldingIcon);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .appendChild(this._svgFoldingIcon);
 
    this._svgFoldingIcon.setAttribute("r", FoldingIconView.FOLDING_ICON_RADIUS);
    this._svgFoldingIcon.setAttribute("stroke", "#000000");
@@ -72,7 +74,8 @@ FoldingIconView.prototype._clickListener = function _clickListener() {
  */
 FoldingIconView.prototype.deleteSvg = function deleteSvg() {
    this._svgFoldingIcon.removeEventListener("click", this._boundClickListener);
-   document.getElementById("svgBubbleLayer").removeChild(this._svgFoldingIcon);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .removeChild(this._svgFoldingIcon);
 }; // deleteSvg()
 
 /**

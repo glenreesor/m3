@@ -78,7 +78,8 @@ export function LoadDialog(controller) {
       this._loadDialog = document.importNode(htmlAsDoc
          .getElementById(LoadDialog.DIALOG_ID), true);
 
-      document.getElementById("app-popups").appendChild(this._loadDialog);
+      document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+              .appendChild(this._loadDialog);
 
       //-----------------------------------------------------------------------
       // Add the event listeners
@@ -99,7 +100,8 @@ export function LoadDialog(controller) {
       //-----------------------------------------------------------------------
       // Finally, make the app-popups div visible and set state
       //-----------------------------------------------------------------------
-      document.getElementById("app-popups").removeAttribute("hidden");
+      document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+              .removeAttribute("hidden");
       m3App.getGlobalState().setState(State.STATE_DIALOG_LOAD);
    }).catch(function (err) {
       let errorDialog = new ErrorDialog("Unable to load list of saved maps: " +
@@ -107,7 +109,7 @@ export function LoadDialog(controller) {
    });
 } // LoadDialog()
 
-LoadDialog.DIALOG_ID = "m3-loadDialog";
+LoadDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-loadDialog`;
 LoadDialog.CANCEL_ID = LoadDialog.DIALOG_ID + "Cancel";
 LoadDialog.NEW_MAP_ID = LoadDialog.DIALOG_ID + "NewMap";
 LoadDialog.SAMPLE_ID = LoadDialog.DIALOG_ID + "Sample";
@@ -123,7 +125,7 @@ LoadDialog.SAMPLE_ID = LoadDialog.DIALOG_ID + "Sample";
 LoadDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._loadDialog);
 

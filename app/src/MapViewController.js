@@ -17,6 +17,7 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
 import {Diagnostics} from './Diagnostics';
 import {EditNodeDialog} from './EditNodeDialog';
 import {m3App} from './main';
@@ -65,7 +66,9 @@ export function MapViewController(controller) {
       }
    };
 
-   this._svgGElement = document.getElementById("svg-g-element");
+   this._svgGElement = document.getElementById(
+      `${App.HTML_ID_PREFIX}-svg-g-element`
+   );
    m3App.getDiagnostics().log(Diagnostics.TASK_VIEWS, "Creating MapView.");
 
    //--------------------------------------------------------------------------
@@ -99,26 +102,26 @@ export function MapViewController(controller) {
    //--------------------------------------------------------------------------
    // Mouse Events
    //--------------------------------------------------------------------------
-   document.getElementById("app-drawing-area").addEventListener("mousedown",
-      (e) => this._mouseDown(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("mousedown", (e) => this._mouseDown(e));
 
-   document.getElementById("app-drawing-area").addEventListener("mouseup",
-      (e) => this._mouseUp(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("mouseup", (e) => this._mouseUp(e));
 
-   document.getElementById("app-drawing-area").addEventListener("mousemove",
-      (e) => this._mouseMove(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("mousemove", (e) => this._mouseMove(e));
 
    //--------------------------------------------------------------------------
    // Touch Events
    //--------------------------------------------------------------------------
-   document.getElementById("app-drawing-area").addEventListener("touchstart",
-      (e) => this._touchStart(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("touchstart", (e) => this._touchStart(e));
 
-   document.getElementById("app-drawing-area").addEventListener("touchend",
-      (e) => this._touchEnd(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("touchend", (e) => this._touchEnd(e));
 
-   document.getElementById("app-drawing-area").addEventListener("touchmove",
-      (e) => this._touchMove(e));
+   document.getElementById(`${App.HTML_ID_PREFIX}-drawing-area`)
+           .addEventListener("touchmove", (e) => this._touchMove(e));
 
 } // MapViewController()
 
@@ -640,7 +643,11 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
       // Non-ctrl displayable character starts editing the node
       // Not space, since it does folding / unfolding
       //-------------------------------------------------------------------
-      if (!e.ctrlKey && e.charCode >= 33 && e.charCode <= 126) {
+      if (!e.ctrlKey &&
+         e.charCode >= 33 &&
+         e.charCode <= 126 &&
+         !m3App.isReadonly()
+      ) {
          editNodeDialog = new EditNodeDialog(
             this._controller,
             this._state.selectedNodeView.getModel(),
@@ -811,7 +818,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          //-------------------------------------------------------------------
          case 'ArrowUp':
             if (selectedNodeModel.getParent() !== null) {
-               if (e.ctrlKey) {
+               if (e.ctrlKey && !m3App.isReadonly()) {
                   this._controller.moveNodeUp(selectedNodeModel);
 
                } else {
@@ -840,21 +847,30 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          // Delete: Delete selected node
          //-------------------------------------------------------------------
          case 'Delete':
-            this.deleteNodeClicked();
+            if (!m3App.isReadOnly()) {
+               this.deleteNodeClicked();
+            }
+
             break;
 
          //-------------------------------------------------------------------
          // End: Edit selected node and put cursor at end of text
          //-------------------------------------------------------------------
          case 'End':
-            this.editNodeClicked();
+            if (!m3App.isReadOnly()) {
+               this.editNodeClicked();
+            }
+
             break;
 
          //-------------------------------------------------------------------
          // Enter: Add sibling
          //-------------------------------------------------------------------
          case 'Enter':
-            this.addSiblingClicked();
+            if (!m3App.isReadOnly()) {
+               this.addSiblingClicked();
+            }
+
             break;
 
          //-------------------------------------------------------------------
@@ -864,7 +880,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          case 'Home':
             if (e.ctrlKey) {
                this.centerSelectedNode();
-            } else {
+            } else if (!m3App.isReadOnly()){
                this.editNodeClicked();
             }
             break;
@@ -873,7 +889,10 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          // Insert: Add child node
          //-------------------------------------------------------------------
          case 'Insert':
-            this.addChildClicked();
+            if (!m3App.isReadOnly()) {
+               this.addChildClicked();
+            }
+
             break;
 
       } // switch
