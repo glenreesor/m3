@@ -545,11 +545,19 @@ App.prototype._startup = function _startup() {
                                     this.getVersionAsString());
          }).then( () => {
             if (oldVersion !== this.getVersionAsString()) {
-               if (oldVersion !== null) {
-                  alert("Congratulations! Your m3 has been updated to " +
-                        `version ${this.getVersionAsString()}.`);
+
+               // This should only be done for me or when debugging
+               let url = window.location.href;
+               if (
+                  url.substr(0, 21) === 'http://glenreesor.ca/' ||
+                  url.substr(0, 17) === 'http://127.0.0.1/'
+               ) {
+                  if (oldVersion !== null) {
+                     alert("Congratulations! Your m3 has been updated to " +
+                           `version ${this.getVersionAsString()}.`);
+                  }
+                  this._sendStatsToServer(oldVersion, newCount);
                }
-               this._sendStatsToServer(oldVersion, newCount);
             }
          });
       }).catch(function (err) {
