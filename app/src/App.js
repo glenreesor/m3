@@ -183,7 +183,15 @@ App.prototype.getWidth = function getWidth() {
  */
 App.prototype.isFullPage = function isFullPage() {
    return this._embeddingOptions.fullPage;
-}; // isfullPage()
+}; // isFullPage()
+
+/**
+ * Return whether embedding options say to be read only or not
+ * @return {boolean} - Whether app should be read only
+ */
+App.prototype.isReadOnly = function isReadOnly() {
+   return this._embeddingOptions.readOnly;
+}; // isReadOnly()
 
 /**
  * Get whether buttons should be shown
@@ -261,6 +269,11 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       initialMapUrl: {
          type: 'string',
          default: null
+      },
+
+      readOnly: {
+         type: 'boolean',
+         default: false
       },
 
       showButtons: {

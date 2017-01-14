@@ -643,7 +643,11 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
       // Non-ctrl displayable character starts editing the node
       // Not space, since it does folding / unfolding
       //-------------------------------------------------------------------
-      if (!e.ctrlKey && e.charCode >= 33 && e.charCode <= 126) {
+      if (!e.ctrlKey &&
+         e.charCode >= 33 &&
+         e.charCode <= 126 &&
+         !m3App.isReadonly()
+      ) {
          editNodeDialog = new EditNodeDialog(
             this._controller,
             this._state.selectedNodeView.getModel(),
@@ -814,7 +818,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          //-------------------------------------------------------------------
          case 'ArrowUp':
             if (selectedNodeModel.getParent() !== null) {
-               if (e.ctrlKey) {
+               if (e.ctrlKey && !m3App.isReadonly()) {
                   this._controller.moveNodeUp(selectedNodeModel);
 
                } else {
@@ -843,21 +847,30 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          // Delete: Delete selected node
          //-------------------------------------------------------------------
          case 'Delete':
-            this.deleteNodeClicked();
+            if (!m3App.isReadOnly()) {
+               this.deleteNodeClicked();
+            }
+
             break;
 
          //-------------------------------------------------------------------
          // End: Edit selected node and put cursor at end of text
          //-------------------------------------------------------------------
          case 'End':
-            this.editNodeClicked();
+            if (!m3App.isReadOnly()) {
+               this.editNodeClicked();
+            }
+
             break;
 
          //-------------------------------------------------------------------
          // Enter: Add sibling
          //-------------------------------------------------------------------
          case 'Enter':
-            this.addSiblingClicked();
+            if (!m3App.isReadOnly()) {
+               this.addSiblingClicked();
+            }
+
             break;
 
          //-------------------------------------------------------------------
@@ -867,7 +880,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          case 'Home':
             if (e.ctrlKey) {
                this.centerSelectedNode();
-            } else {
+            } else if (!m3App.isReadOnly()){
                this.editNodeClicked();
             }
             break;
@@ -876,7 +889,10 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          // Insert: Add child node
          //-------------------------------------------------------------------
          case 'Insert':
-            this.addChildClicked();
+            if (!m3App.isReadOnly()) {
+               this.addChildClicked();
+            }
+
             break;
 
       } // switch

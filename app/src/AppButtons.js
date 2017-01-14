@@ -36,18 +36,22 @@ import {State} from "./State";
 export function AppButtons(controller) {
    let buttonsDivBottom;
    let buttonsDivRight;
-   let domParser;
-   let hideCss;
-   let htmlAsDoc;
    let buttonsHtmlBottom;
    let buttonsHtmlRight;
+   let domParser;
+   let htmlAsDoc;
+   let showHideBottom;
+   let showHideRight;
 
-   hideCss = m3App.showButtons() ? '' : 'display: none;';
+   showHideBottom = m3App.showButtons() ? '' : 'display: none;';
+   showHideRight = (m3App.showButtons && !m3App.isReadOnly()) ? '' :
+                                                                'display: none';
 
    this._controller = controller;
 
    buttonsHtmlBottom =
-      `<div id='buttonsHtmlBottom' style='text-align: right;${hideCss}'>` +
+      `<div id='buttonsHtmlBottom' style='text-align: right; ` +
+                                         `${showHideBottom}'>` +
 
          "<img id='about'          style='margin-right: 10px' " +
             "class='clickableIcon' src='images/info.svg' " +
@@ -72,7 +76,7 @@ export function AppButtons(controller) {
       "</div>";
 
    buttonsHtmlRight =
-      `<div id='buttonsHtmlRight' style='text-align: right;${hideCss}'>` +
+      `<div id='buttonsHtmlRight' style='text-align: right;${showHideRight}'>` +
          "<img id='delete-node'    style='margin-bottom: 10px' " +
             "class='clickableIcon' src='images/delete.svg' " +
             "width='32px'><br>" +
