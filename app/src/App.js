@@ -228,13 +228,44 @@ App.prototype.run = function run() {
  * @return {void}
  */
 App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
-   const FULL_PAGE_DEFAULT = true;
-   const HEIGHT_DEFAULT = '100%';
-   const INITIAL_MAP_NAME_DEFAULT = null;
-   const INITIAL_MAP_URL_DEFAULT = null;
-   const SHOW_BUTTONS_DEFAULT = true;
-   const WIDTH_DEFAULT = '100%';
+   const OPTION_INFO = {
+      apiVersion: {
+         type: 'string',
+         default: '0.12'
+      },
 
+      fullPage: {
+         type: 'boolean',
+         default: true
+      },
+
+      height: {
+         type: 'string',
+         default: '100%'
+      },
+
+      initialMapName: {
+         type: 'string',
+         default: null
+      },
+
+      initialMapUrl: {
+         type: 'string',
+         default: null
+      },
+
+      showButtons: {
+         type: 'boolean',
+         default: true
+      },
+
+      width: {
+         type: 'string',
+         default: '100%'
+      }
+   };
+
+   let option;
    let options;
 
    if (window.m3MobileMindMapper) {
@@ -245,20 +276,21 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       //----------------------------------------------------------------------
       console.log('Validating window.m3MobileMindMapper...');
 
+      for (option in OPTION_INFO) {
+         if (
+            options[option] !== undefined &&
+            typeof(options[option]) !== OPTION_INFO[option].type
+         ) {
+            throw(`${option} must be of type ${OPTION_INFO[option].type}`);
+         }
+      }
+
       if (options.apiVersion !== '0.12') {
          throw('apiVersion must be 0.12');
       }
 
       if (
-         options.fullPage !== undefined &&
-         typeof options.fullPage !== 'boolean'
-      ) {
-         throw('fullPage must be boolean');
-      }
-
-      if (
          options.height !== undefined &&
-         typeof options.height !== 'string' ||
          !options.height.match(/[0-9]+(%|px)/)
       ) {
          throw('height must be a valid CSS length string');
@@ -266,31 +298,9 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
 
       if (
          options.width !== undefined &&
-         typeof options.width !== 'string' ||
          !options.width.match(/[0-9]+(%|px)/)
       ) {
          throw('width must be a valid CSS length string');
-      }
-
-      if (
-         options.initialMapUrl !== undefined &&
-         typeof options.initialMapUrl !== 'string'
-      ) {
-         throw('initialMapUrl must be a string');
-      }
-
-      if (
-         options.initialMapName !== undefined &&
-         typeof options.initialMapName !== 'string'
-      ) {
-         throw('initialMapName must be a string');
-      }
-
-      if (
-         options.showButtons !== undefined &&
-         typeof options.showButtons !== 'boolean'
-      ) {
-         throw('showButtons must be a boolean');
       }
 
       console.log('window.m3MobileMindMapper is valid.');
@@ -300,39 +310,18 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       //----------------------------------------------------------------------
       this._embeddingOptions = {};
 
-      this._embeddingOptions.fullPage =
-         options.fullPage !== undefined ? options.fullPage :
-                                          FULL_PAGE_DEFAULT;
-
-      this._embeddingOptions.height =
-         options.height !== undefined ? options.height :
-                                        HEIGHT_DEFAULT;
-
-      this._embeddingOptions.width =
-         options.width !== undefined ? options.width :
-                                       WIDTH_DEFAULT;
-
-      this._embeddingOptions.initialMapUrl =
-         options.initialMapUrl !== undefined ? options.initialMapUrl :
-                                               INITIAL_MAP_URL_DEFAULT;
-
-      this._embeddingOptions.initialMapName =
-         options.initialMapName !== undefined ? options.initialMapName :
-                                                INITIAL_MAP_NAME_DEFAULT;
-
-      this._embeddingOptions.showButtons =
-         options.showButtons !== undefined ? options.showButtons :
-                                             SHOW_BUTTONS_DEFAULT;
+      for (option in OPTION_INFO) {
+         this._embeddingOptions[option] =
+            options[option] !== undefined ? options[option] :
+                                            OPTION_INFO[option].default;
+      }
 
    } else {
       this._embeddingOptions = {};
 
-      this._embeddingOptions.fullPage = FULL_PAGE_DEFAULT;
-      this._embeddingOptions.height = HEIGHT_DEFAULT;
-      this._embeddingOptions.initialMapName = INITIAL_MAP_NAME_DEFAULT;
-      this._embeddingOptions.initialMapUrl = INITIAL_MAP_URL_DEFAULT;
-      this._embeddingOptions.showButtons = SHOW_BUTTONS_DEFAULT;
-      this._embeddingOptions.width = WIDTH_DEFAULT;
+      for (option in OPTION_INFO) {
+         this._embeddingOptions[option] = OPTION_INFO[option].default;
+      }
    }
 }; // _setEmbeddingOptions()
 
