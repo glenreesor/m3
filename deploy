@@ -67,10 +67,7 @@ def main():
         resultingFolderName = 'm3-new-' + folder
         resultingZipName = resultingFolderName + '.zip'
 
-        if folder == 'debug':
-            requiredOrigin = 'http://127.0.0.1/'
-        else:
-            requiredOrigin = 'http://glenreesor.ca/'
+        requiredOrigin = '' if folder == 'debug' else 'http://glenreesor.ca/'
 
         createZipfile(folder,
             resultingFolderName,
@@ -131,24 +128,25 @@ def createZipfile(sourceFolder, resultingFolderName, resultingZipName,
     ##--------------------------------------------------------------------------
     ## Set the required JS origin
     ##--------------------------------------------------------------------------
-    m3Js = m3Temp + '/m3.js'
-    m3JsNew = m3Js + '.new'
+    if requiredOrigin != '':
+        m3Js = m3Temp + '/m3.js'
+        m3JsNew = m3Js + '.new'
 
-    inputFile = open(m3Js)
-    outputFile = open(m3JsNew, mode='w')
+        inputFile = open(m3Js)
+        outputFile = open(m3JsNew, mode='w')
 
-    for line in inputFile:
-        outputFile.write(
-            re.sub(
-                'JS_ORIGIN_REPLACEMENT_STRING',
-                requiredOrigin,
-                line
+        for line in inputFile:
+            outputFile.write(
+                re.sub(
+                    'JS_ORIGIN_REPLACEMENT_STRING',
+                    requiredOrigin,
+                    line
+                )
             )
-        )
 
-    outputFile.close()
+        outputFile.close()
 
-    os.replace(m3JsNew, m3Js)
+        os.replace(m3JsNew, m3Js)
 
     ##--------------------------------------------------------------------------
     ## Set proper permissions
