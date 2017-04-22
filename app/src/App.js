@@ -200,21 +200,44 @@ App.prototype.isReadOnly = function isReadOnly() {
  */
 App.prototype._isValidOrigin = function isValidOrigin() {
 
-   // Use a goofy string so it's easy to replace in the minified source
-   // Remember the js map is created before deployment script modifies this
+   //-------------------------------------------------------------------------
+   // A special string for determining whether this script's origin
+   // is valid.
+   //
+   // String and logic are such that:
+   //    - With no post-processing of the resulting js file, no origin
+   //      checking will be performed
+   //    - A post-processing step can modify the string to be 'JS_ORIGIN_xyz',
+   //      in which case:
+   //          - The origin must match 'xyz'
+   //          - It is easy to take a deployed file, change 'JS_ORIGIN_xyz' to
+   //           'JS_ORIGIN_abc', and thus allow this file to work properly
+   //           on another origin
+   //
+   // Don't forget that the deploy script changes this *after* the source
+   // map is created, so you'll that special string in the debugger :-)
+   //-------------------------------------------------------------------------
    const REQUIRED_ORIGIN = 'JS_ORIGIN_REPLACEMENT_STRING';
 
-   let realOrigin;
+   let forRealRequiredOrigin;
    let returnVal;
    let url;
 
    returnVal = true;
    url = window.location.href;
 
-   // Only enforce origin if the REQUIRED_ORIGIN has been replaced
+   // Create real required origin string in two steps because the full string
+   // must be unique within this file
+   forRealRequiredOrigin = (
+      REQUIRED_ORIGIN.replace('JS_ORIGIN_', '')
+   ).replace('REPLACEMENT_STRING', '');
+
+   // Allow two special origins in addition to the REQUIRED_ORIGIN
    if (
-      REQUIRED_ORIGIN.substr(0, 3) !== 'JS_' &&
-      url.substr(0, REQUIRED_ORIGIN.length) !== REQUIRED_ORIGIN
+      url.substr(0, 16) !== 'http://127.0.0.1' &&
+      url.substr(0, 7) !== 'file://' &&
+      forRealRequiredOrigin !== '' &&
+      url.substr(0, forRealRequiredOrigin.length) !== forRealRequiredOrigin
    ) {
       returnVal = false;
    }

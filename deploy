@@ -67,7 +67,7 @@ def main():
         resultingFolderName = 'm3-new-' + folder
         resultingZipName = resultingFolderName + '.zip'
 
-        requiredOrigin = '' if folder == 'debug' else 'http://glenreesor.ca/'
+        requiredOrigin = 'http://glenreesor.ca/'
 
         createZipfile(folder,
             resultingFolderName,
@@ -127,26 +127,28 @@ def createZipfile(sourceFolder, resultingFolderName, resultingZipName,
 
     ##--------------------------------------------------------------------------
     ## Set the required JS origin
+    ##
+    ## Remember that we use 'JS_ORIGIN_xyz', where 'xyz' is the actual origin.
+    ## This makes it easy to modify a deployed file for use on another origin.
     ##--------------------------------------------------------------------------
-    if requiredOrigin != '':
-        m3Js = m3Temp + '/m3.js'
-        m3JsNew = m3Js + '.new'
+    m3Js = m3Temp + '/m3.js'
+    m3JsNew = m3Js + '.new'
 
-        inputFile = open(m3Js)
-        outputFile = open(m3JsNew, mode='w')
+    inputFile = open(m3Js)
+    outputFile = open(m3JsNew, mode='w')
 
-        for line in inputFile:
-            outputFile.write(
-                re.sub(
-                    'JS_ORIGIN_REPLACEMENT_STRING',
-                    requiredOrigin,
-                    line
-                )
+    for line in inputFile:
+        outputFile.write(
+            re.sub(
+                'JS_ORIGIN_REPLACEMENT_STRING',
+                'JS_ORIGIN_' + requiredOrigin,
+                line
             )
+        )
 
-        outputFile.close()
+    outputFile.close()
 
-        os.replace(m3JsNew, m3Js)
+    os.replace(m3JsNew, m3Js)
 
     ##--------------------------------------------------------------------------
     ## Set proper permissions
