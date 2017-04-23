@@ -141,6 +141,15 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
 }; // _getLocalForageDriver()
 
 /**
+ * Return the path where m3 is installed. May be absolute or relative.
+ *
+ * @return {string} - the path
+ */
+App.prototype.getM3Path = function getM3Path() {
+   return this._embeddingOptions.m3Path;
+}; // getMapModel()
+
+/**
  * Return the current MapModel
  *
  * @return {MapModel} - the current MapModel
@@ -307,6 +316,11 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       apiVersion: {
          type: 'string',
          default: '0.12'
+      },
+
+      m3Path: {
+         type: 'string',
+         default: './'
       },
 
       fullPage: {

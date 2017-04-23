@@ -39,12 +39,17 @@ export function LinkIconView(nodeView, nodeModel) {
    this._linkLocation = '';
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
+   this._imagesPath = `${m3App.getM3Path()}/images`;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
    //---------------------------------------------------------------------------
    this._svgImage = document.createElementNS(SVGNS, 'image');
-   this._svgImage.setAttributeNS(XLINKNS, 'href', 'images/link.svg');
+   this._svgImage.setAttributeNS(
+      XLINKNS,
+      'href',
+      `${this._imagesPath}/link.svg`
+   );
    this._svgImage.setAttribute('width', WIDTH);
    this._svgImage.setAttribute('height', HEIGHT);
 

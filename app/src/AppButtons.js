@@ -40,6 +40,7 @@ export function AppButtons(controller) {
    let buttonsHtmlRight;
    let domParser;
    let htmlAsDoc;
+   let imagesPath;
    let showHideBottom;
    let showHideRight;
 
@@ -49,54 +50,56 @@ export function AppButtons(controller) {
 
    this._controller = controller;
 
+   imagesPath = `${m3App.getM3Path()}/images`;
+
    buttonsHtmlBottom =
       `<div id='buttonsHtmlBottom' style='text-align: right; ` +
                                          `${showHideBottom}'>` +
 
-         "<img id='about'          style='margin-right: 10px' " +
-            "class='clickableIcon' src='images/info.svg' " +
-            "height='32px'></img>" +
+         `<img id='about'          style='margin-right: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/info.svg' ` +
+            `height='32px'></img>` +
 
-         "<img id='importExport'   style='margin-right: 10px' " +
-            "class='clickableIcon' src='images/import-export.svg' " +
-            "height='32px'></img>" +
+         `<img id='importExport'   style='margin-right: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/import-export.svg' ` +
+            `height='32px'></img>` +
 
-         "<img id='manage'         style='margin-right: 10px' " +
-            "class='clickableIcon' src='images/manage.svg' " +
-            "height='32px'></img>" +
+         `<img id='manage'         style='margin-right: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/manage.svg' ` +
+            `height='32px'></img>` +
 
-         "<img id='save'           style='margin-right: 10px' " +
-            "class='clickableIcon' src='images/save.svg' " +
-            "height='32px'></img>" +
+         `<img id='save'           style='margin-right: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/save.svg' ` +
+            `height='32px'></img>` +
 
-         "<img id='load'           style='margin-right: 10px' " +
-            "class='clickableIcon' src='images/load.svg' " +
-            "height='32px'></img>" +
+         `<img id='load'           style='margin-right: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/load.svg' ` +
+            `height='32px'></img>` +
 
-      "</div>";
+      `</div>`;
 
    buttonsHtmlRight =
       `<div id='buttonsHtmlRight' style='text-align: right;${showHideRight}'>` +
-         "<img id='delete-node'    style='margin-bottom: 10px' " +
-            "class='clickableIcon' src='images/delete.svg' " +
-            "width='32px'><br>" +
+         `<img id='delete-node'    style='margin-bottom: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/delete.svg' ` +
+            `width='32px'><br>` +
 
-         "<img id='cloud'          style='margin-bottom: 10px' " +
-            "class='clickableIcon' src='images/cloud.svg' " +
-            "width='32px'><br>" +
+         `<img id='cloud'          style='margin-bottom: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/cloud.svg' ` +
+            `width='32px'><br>` +
 
-         "<img id='add-child'      style='margin-bottom: 10px' " +
-            "class='clickableIcon' src='images/add-child.svg' " +
-            "width='32px'><br>" +
+         `<img id='add-child'      style='margin-bottom: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/add-child.svg' ` +
+            `width='32px'><br>` +
 
-         "<img id='add-sibling'    style='margin-bottom: 10px' " +
-            "class='clickableIcon' src='images/add-sibling.svg' " +
-            "width='32px'><br>" +
+         `<img id='add-sibling'    style='margin-bottom: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/add-sibling.svg' ` +
+            `width='32px'><br>` +
 
-         "<img id='edit-node'      style='margin-bottom: 10px' " +
-            "class='clickableIcon' src='images/edit.svg' " +
-            "width='32px'>" +
-      "</div>";
+         `<img id='edit-node'      style='margin-bottom: 10px' ` +
+            `class='clickableIcon' src='${imagesPath}/edit.svg' ` +
+            `width='32px'>` +
+      `</div>`;
 
    //--------------------------------------------------------------------------
    // Add the bottom buttons

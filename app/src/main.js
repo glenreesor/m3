@@ -27,9 +27,15 @@ export let m3App;
  * @return {void}
  */
 export function main() {
+   let modifiedIcon;
+
    buildAppStructure();
    m3App = new App();
    m3App.run();
+
+   // Hack to set the proper src for the "modified" icon
+   modifiedIcon = document.getElementById(`${App.HTML_ID_PREFIX}-modified`);
+   modifiedIcon.setAttribute('src', `${m3App.getM3Path()}/images/modified.svg`);
 } // main()
 
 /**
