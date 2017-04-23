@@ -1,7 +1,7 @@
 "use strict";
 /*eslint max-len: [2, 800]*/
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //

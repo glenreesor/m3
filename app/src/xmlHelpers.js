@@ -1,7 +1,7 @@
 
 "use strict";
 
-// Copyright 2016 Glen Reesor
+// Copyright 2016-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
