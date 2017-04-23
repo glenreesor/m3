@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -28,9 +28,13 @@ import {State} from "./State";
  * @constructor
  */
 export function AboutDialog() {
+   let copyrightString;
    let domParser;
    let html;
    let htmlAsDoc;
+
+   // All together without a line break for easy sed updating
+   copyrightString = 'Copyright 2015-2017 Glen Reesor';
 
    //--------------------------------------------------------------------------
    // Tags to be added
@@ -41,8 +45,7 @@ export function AboutDialog() {
               `${App.MY_NAME}</p>` +
             "<p style='text-align: center;'>Version: " +
               `${m3App.getVersionAsString()}</p>` +
-            "<p style='text-align: center;'>Copyright 2015, 2016 - " +
-              "Glen Reesor</p>" +
+            `<p style='text-align: center;'>${copyrightString}</p>` +
             "<p style='font-weight: bold;'>Source Code</p>" +
             "<ul>" +
                "<li><a href='http://github.com/glenreesor/m3' " +
