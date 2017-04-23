@@ -35,6 +35,7 @@ export function IconView(nodeView, iconModel) {
 
    this._iconModel = iconModel;
    this._myNodeView = nodeView;
+   this._imagesPath = `${m3App.getM3Path()}/images`;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
@@ -137,6 +138,6 @@ IconView.prototype.update = function update() {
    this._svgImage.setAttributeNS(
       XLINKNS,
       'href',
-      `images/icons/${iconName}.svg`
+      `${this._imagesPath}/icons/${iconName}.svg`
    );
 }; // update()

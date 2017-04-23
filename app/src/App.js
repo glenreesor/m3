@@ -141,6 +141,15 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
 }; // _getLocalForageDriver()
 
 /**
+ * Return the path where m3 is installed. May be absolute or relative.
+ *
+ * @return {string} - the path
+ */
+App.prototype.getM3Path = function getM3Path() {
+   return this._embeddingOptions.m3Path;
+}; // getMapModel()
+
+/**
  * Return the current MapModel
  *
  * @return {MapModel} - the current MapModel
@@ -277,7 +286,7 @@ App.prototype.run = function run() {
    this._setEmbeddingOptions();
    this._sizer = new Sizer();
 
-   if (this.isFullPage()) {
+   if (this.warnOnNavigateAway()) {
       //-----------------------------------------------------------------------
       // Set window title
       //-----------------------------------------------------------------------
@@ -307,6 +316,16 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       apiVersion: {
          type: 'string',
          default: '0.12'
+      },
+
+      m3Path: {
+         type: 'string',
+         default: './'
+      },
+
+      warnOnNavigateAway: {
+         type: 'boolean',
+         default: true
       },
 
       fullPage: {
@@ -437,6 +456,15 @@ App.prototype.setMapModel = function setMapModel(mapModel) {
 
    this._myMapModel = mapModel;
 }; // setMapModel()
+
+/**
+ * Get whether a warning should be displayed when user navigates away.
+ *
+ * @return {boolean} - Whether Warning should be shown
+ */
+App.prototype.warnOnNavigateAway = function warnOnNavigateAway() {
+   return this._embeddingOptions.warnOnNavigateAway;
+};
 
 /**
  * Create a new config because it doesn't exist yet (i.e. the user
