@@ -235,8 +235,8 @@ App.prototype._isValidOrigin = function isValidOrigin() {
    returnVal = true;
    url = window.location.href;
 
-   // Create real required origin string in two steps because the full string
-   // must be unique within this file
+   // Create real required origin string in two steps because REQUIRED_ORIGIN
+   // might contain the whole string, or just the first portion
    forRealRequiredOrigin = (
       REQUIRED_ORIGIN.replace('JS_ORIGIN_', '')
    ).replace('REPLACEMENT_STRING', '');
