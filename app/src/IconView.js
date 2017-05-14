@@ -35,7 +35,7 @@ export function IconView(nodeView, iconModel) {
 
    this._iconModel = iconModel;
    this._myNodeView = nodeView;
-   this._imagesPath = `${m3App.getM3Path()}/images`;
+   this._imagesPath = `${App.getM3Path()}/images`;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element

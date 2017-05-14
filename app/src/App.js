@@ -48,6 +48,32 @@ App.MY_VERSION = {major: 0,
                   releaseCandidateNum: 1};
 
 /**
+ * Return the path where m3 is installed. This is determined from the
+ * path of the currently executing script, and thus may be either absolute
+ * or relative.
+ *
+ * The path will not contain a trailing slash. If there's no directory
+ * component to the path of the currently executing script, "." is returned.
+ *
+ * Note: This is not on the prototype, so we can access it prior to object
+ *       instantiation.
+ * @return {string} - the path
+ */
+App.getM3Path = function getM3Path() {
+   let allScripts;
+   let currentScriptSrc;
+   let path;
+   let slashIndex;
+
+   allScripts = document.getElementsByTagName('script');
+   currentScriptSrc = allScripts[allScripts.length - 1].getAttribute('src');
+   slashIndex = currentScriptSrc.lastIndexOf('/');
+
+   path = (slashIndex === -1) ? '.' : currentScriptSrc.substring(0, slashIndex);
+   return path;
+}; // getM3Path()
+
+/**
  * Return the controller object
  *
  * @return {Controller} - the controller object
@@ -141,30 +167,6 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
 }; // _getLocalForageDriver()
 
 /**
- * Return the path where m3 is installed. This is determined from the
- * path of the currently executing script, and thus may be either absolute
- * or relative.
- *
- * The path will not contain a trailing slash. If there's no directory
- * component to the path of the currently executing script, "." is returned.
- *
- * @return {string} - the path
- */
-App.prototype.getM3Path = function getM3Path() {
-   let allScripts;
-   let currentScriptSrc;
-   let path;
-   let slashIndex;
-
-   allScripts = document.getElementsByTagName('script');
-   currentScriptSrc = allScripts[allScripts.length - 1].getAttribute('src');
-   slashIndex = currentScriptSrc.lastIndexOf('/');
-
-   path = (slashIndex === -1) ? '.' : currentScriptSrc.substring(0, slashIndex);
-   return path;
-}; // getM3Path()
-
-/**
  * Return the current MapModel
  *
  * @return {MapModel} - the current MapModel
@@ -225,7 +227,7 @@ App.prototype.isReadOnly = function isReadOnly() {
  */
 App.prototype._isValidOrigin = function isValidOrigin() {
    const hostnameRegex = /^([a-zA-Z]+:\/\/)([^/]+)/;
-   const jsPath = this.getM3Path();
+   const jsPath = App.getM3Path();
    const url = window.location.href;
    let returnVal;
 
