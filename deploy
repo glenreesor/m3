@@ -126,31 +126,6 @@ def createZipfile(sourceFolder, resultingFolderName, resultingZipName,
         )
 
     ##--------------------------------------------------------------------------
-    ## Set the required JS origin
-    ##
-    ## Remember that we use 'JS_ORIGIN_xyz', where 'xyz' is the actual origin.
-    ## This makes it easy to modify a deployed file for use on another origin.
-    ##--------------------------------------------------------------------------
-    m3Js = m3Temp + '/m3.js'
-    m3JsNew = m3Js + '.new'
-
-    inputFile = open(m3Js)
-    outputFile = open(m3JsNew, mode='w')
-
-    for line in inputFile:
-        outputFile.write(
-            re.sub(
-                'JS_ORIGIN_REPLACEMENT_STRING',
-                'JS_ORIGIN_' + requiredOrigin,
-                line
-            )
-        )
-
-    outputFile.close()
-
-    os.replace(m3JsNew, m3Js)
-
-    ##--------------------------------------------------------------------------
     ## Set proper permissions
     ##    - file permissions: u=rw, g=r, o=r
     ##    - folder permissions: u=rwx, g=rx, o=rx

@@ -141,13 +141,28 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
 }; // _getLocalForageDriver()
 
 /**
- * Return the path where m3 is installed. May be absolute or relative.
+ * Return the path where m3 is installed. This is determined from the
+ * path of the currently executing script, and thus may be either absolute
+ * or relative.
+ *
+ * The path will not contain a trailing slash. If there's no directory
+ * component to the path of the currently executing script, "." is returned.
  *
  * @return {string} - the path
  */
 App.prototype.getM3Path = function getM3Path() {
-   return this._embeddingOptions.m3Path;
-}; // getMapModel()
+   let allScripts;
+   let currentScriptSrc;
+   let path;
+   let slashIndex;
+
+   allScripts = document.getElementsByTagName('script');
+   currentScriptSrc = allScripts[allScripts.length - 1].getAttribute('src');
+   slashIndex = currentScriptSrc.lastIndexOf('/');
+
+   path = (slashIndex === -1) ? '.' : currentScriptSrc.substring(0, slashIndex);
+   return path;
+}; // getM3Path()
 
 /**
  * Return the current MapModel
@@ -203,52 +218,30 @@ App.prototype.isReadOnly = function isReadOnly() {
 }; // isReadOnly()
 
 /**
- * Return whether the webpage origin matches this script's origin
+ * Return whether the m3 script and webpage are on the same host.
+ * The goal is to ensure website1 doesn't use website2 as a CDN.
  *
  * @return {boolean} Whether webpage origin matches script's origin
  */
 App.prototype._isValidOrigin = function isValidOrigin() {
-
-   //-------------------------------------------------------------------------
-   // A special string for determining whether this script's origin
-   // is valid.
-   //
-   // String and logic are such that:
-   //    - With no post-processing of the resulting js file, no origin
-   //      checking will be performed
-   //    - A post-processing step can modify the string to be 'JS_ORIGIN_xyz',
-   //      in which case:
-   //          - The origin must match 'xyz'
-   //          - It is easy to take a deployed file, change 'JS_ORIGIN_xyz' to
-   //           'JS_ORIGIN_abc', and thus allow this file to work properly
-   //           on another origin
-   //
-   // Don't forget that the deploy script changes this *after* the source
-   // map is created, so you'll that special string in the debugger :-)
-   //-------------------------------------------------------------------------
-   const REQUIRED_ORIGIN = 'JS_ORIGIN_REPLACEMENT_STRING';
-
-   let forRealRequiredOrigin;
+   const hostnameRegex = /^([a-zA-Z]+:\/\/)([^/]+)/;
+   const jsPath = this.getM3Path();
+   const url = window.location.href;
    let returnVal;
-   let url;
 
-   returnVal = true;
-   url = window.location.href;
+   returnVal = false;
 
-   // Create real required origin string in two steps because REQUIRED_ORIGIN
-   // might contain the whole string, or just the first portion
-   forRealRequiredOrigin = (
-      REQUIRED_ORIGIN.replace('JS_ORIGIN_', '')
-   ).replace('REPLACEMENT_STRING', '');
+   if (jsPath.match(/^file:/)) {
+      // JS is hosted locally
+      returnVal = true;
 
-   // Allow two special origins in addition to the REQUIRED_ORIGIN
-   if (
-      url.substr(0, 16) !== 'http://127.0.0.1' &&
-      url.substr(0, 7) !== 'file://' &&
-      forRealRequiredOrigin !== '' &&
-      url.substr(0, forRealRequiredOrigin.length) !== forRealRequiredOrigin
-   ) {
-      returnVal = false;
+   } else if (!jsPath.match(/^[a-zA-Z]+:/)) {
+      // No protocol, so JS is on same host as url
+      returnVal = true;
+
+   } else if (hostnameRegex.exec(jsPath)[2] === hostnameRegex.exec(url)[2]) {
+      // Hostnames match
+      returnVal = true;
    }
 
    return returnVal;
@@ -316,11 +309,6 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       apiVersion: {
          type: 'string',
          default: '0.12'
-      },
-
-      m3Path: {
-         type: 'string',
-         default: './'
       },
 
       warnOnNavigateAway: {
