@@ -116,9 +116,12 @@ Sizer.setSize = function() {
    // Set the root svg size, because it doesn't expand to fill its parent
    // element
    //--------------------------------------------------------------------------
-   appTopHeight = document.getElementById(
-      `${App.HTML_ID_PREFIX}-top`
-   ).clientHeight;
+
+   // Need to check if we're rendering mapname, since the initial sizing
+   // happens before the mapname is disabled
+   appTopHeight = m3App.showMapName()
+      ? document.getElementById(`${App.HTML_ID_PREFIX}-top`).clientHeight
+      : 0;
 
    svgElement = document.getElementById(`${App.HTML_ID_PREFIX}-svg-element`);
    svgHeight = totalAppHeight - appTopHeight - 2*Sizer._SVG_BORDER_WIDTH -
@@ -146,13 +149,13 @@ Sizer.setSize = function() {
    //    - Bottom margins of icons: 10px
    //    - We want the bottom icon to be below the drawing area
    //    - Fudge factor to get bottom icon to line up with the bottom row of
-   //      icons: 4px
+   //      icons: 20px
    //
-   // Thus offset is 32 - (5 * (32 + 10)) + 4 = -174
+   // Thus offset is (5 * (32 + 10)) - 20 = 190
 
    document.getElementById(
       `${App.HTML_ID_PREFIX}-right`
-   ).style.marginTop = Sizer.svgHeight - 174 + 'px';
+   ).style.marginTop = appTopHeight + Sizer.svgHeight - 190 + 'px';
 
    //--------------------------------------------------------------------------
    // Store dimensions for other parts of app to reference
