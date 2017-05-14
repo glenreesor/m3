@@ -58,7 +58,8 @@ export function Sizer() {
    Sizer.setSize();
 } // Sizer()
 
-Sizer._BOTTOM_ICONS_HEIGHT = 44; // Includes blank space and active border width
+Sizer._BOTTOM_ICONS_HEIGHT = 48; // Includes blank space, active border width
+                                 // and fudge factor to make it work :-)
 Sizer._MARGINS = {appMarginTop: 1,          appMarginBottom: 1,
                   appMarginLeft: 1,         appMarginRight: 1};
 Sizer._SIDE_ICONS_WIDTH = 40; // Includes blank space and active border width
@@ -90,6 +91,8 @@ Sizer.setSize = function() {
 
    if (m3App.isFullPage()) {
       container.style.height = window.innerHeight + 'px';
+
+      // We don't want scrollbars
       document.getElementsByTagName('body')[0].style.overflow = 'hidden';
 
    } else {
@@ -144,14 +147,16 @@ Sizer.setSize = function() {
       `${App.HTML_ID_PREFIX}-left`
    ).style.width = totalAppWidth - Sizer._SIDE_ICONS_WIDTH + 'px';
 
-   // Data we're working with:
-   //    - Icon height: 32px
-   //    - Bottom margins of icons: 10px
-   //    - We want the bottom icon to be below the drawing area
-   //    - Fudge factor to get bottom icon to line up with the bottom row of
-   //      icons: 20px
-   //
-   // Thus offset is (5 * (32 + 10)) - 20 = 190
+   /*
+    * Data we're working with:
+    *    - Icon height: 32px
+    *    - Icon border: 2px *2 (top and bottom)
+    *    - Bottom margins of icons: 10px
+    *    - We want the bottom icon to be below the drawing area
+    *    - Fudge factor to line up with bottom icons
+    *
+    * Thus offset is 4 * (32 + 4 + 10) + 6 = 190
+    */
 
    document.getElementById(
       `${App.HTML_ID_PREFIX}-right`
