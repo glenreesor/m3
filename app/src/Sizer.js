@@ -175,14 +175,15 @@ Sizer.setSize = function() {
                           "margin-left: " + (svgWidth*1/4/2) + "px;");
 
    //--------------------------------------------------------------------------
-   // Determine approximately how many characters can fit across the
-   // current screen--useful for other code.
+   // Determine approximate width and height of one character. Useful for other
+   // code
    //--------------------------------------------------------------------------
    tempText = document.createElement('span');
    tempText.appendChild(document.createTextNode('X'));
    document.getElementById(`${App.HTML_ID_PREFIX}-html-sizing`)
            .appendChild(tempText);
    Sizer.characterWidth = tempText.offsetWidth;
+   Sizer.characterHeight = tempText.offsetHeight;
    document.getElementById(`${App.HTML_ID_PREFIX}-html-sizing`)
            .removeChild(tempText);
 }; // setSize()
