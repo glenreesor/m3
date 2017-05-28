@@ -24,5 +24,9 @@
 //     executed code.
 //----------------------------------------------------------------------------
 
+import {App} from './App';
 import {main} from './main';
-window.onload = main;
+
+// Must set m3Path here because it won't work if it's in a callback
+App.setM3Path();
+document.addEventListener('DOMContentLoaded', main);

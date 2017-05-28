@@ -39,6 +39,7 @@ App.KEY_LAST_VERSION_RUN = "lastVersionRun";
 App.KEY_MAPLIST = "mapList";
 App.KEY_INVOCATION_COUNT = "invocationCount";
 
+App.m3Path = null;                        // To be populated by App.setM3Path()
 App.myDB = null;                          // This will be populated by _start()
 App.MY_NAME = "m3 - Mobile Mind Mapper";
 App.MY_VERSION = {major: 0,
@@ -48,30 +49,28 @@ App.MY_VERSION = {major: 0,
                   releaseCandidateNum: 1};
 
 /**
- * Return the path where m3 is installed. This is determined from the
- * path of the currently executing script, and thus may be either absolute
+ * Set App.m3Path to be the path where m3 is installed. This is determined from
+ * the path of the currently executing script, and thus may be either absolute
  * or relative.
  *
  * The path will not contain a trailing slash. If there's no directory
  * component to the path of the currently executing script, "." is returned.
  *
- * Note: This is not on the prototype, so we can access it prior to object
- *       instantiation.
- * @return {string} - the path
+ * Note: This is not on the prototype, because we need to access it prior to
+ *       object instantiation.
+ * @return {void}
  */
-App.getM3Path = function getM3Path() {
-   let allScripts;
+App.setM3Path = function setM3Path() {
    let currentScriptSrc;
    let path;
    let slashIndex;
 
-   allScripts = document.getElementsByTagName('script');
-   currentScriptSrc = allScripts[allScripts.length - 1].getAttribute('src');
+   currentScriptSrc = document.currentScript.src;
    slashIndex = currentScriptSrc.lastIndexOf('/');
 
    path = (slashIndex === -1) ? '.' : currentScriptSrc.substring(0, slashIndex);
-   return path;
-}; // getM3Path()
+   App.m3Path = path;
+}; // setM3Path()
 
 /**
  * Return the controller object
@@ -227,7 +226,7 @@ App.prototype.isReadOnly = function isReadOnly() {
  */
 App.prototype._isValidOrigin = function isValidOrigin() {
    const hostnameRegex = /^([a-zA-Z]+:\/\/)([^/]+)/;
-   const jsPath = App.getM3Path();
+   const jsPath = App.m3Path;
    const url = window.location.href;
    let returnVal;
 

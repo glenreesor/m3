@@ -114,7 +114,7 @@ gulp.task('js-lint', function() {
 gulp.task('js-debug', function() {
    // Set up the browserify instance on a task basis
    var b = browserify({
-      entries: ['./app/src/main.js', './app/src/windowOnLoad.js'],
+      entries: ['./app/src/main.js', './app/src/runMain.js'],
       debug: true
    });
 
@@ -130,7 +130,7 @@ gulp.task('js-debug', function() {
 gulp.task('js-production', function() {
    // Set up the browserify instance on a task basis
    var b = browserify({
-      entries: ['./app/src/main.js', './app/src/windowOnLoad.js'],
+      entries: ['./app/src/main.js', './app/src/runMain.js'],
       debug: true
    });
 

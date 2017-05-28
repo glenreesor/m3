@@ -54,7 +54,7 @@ function buildAppStructure() {
       `            id='${App.HTML_ID_PREFIX}-modified' ` +
       "            style='margin-bottom: 3px;' " +
       "            height='5px' " +
-      `            src='${App.getM3Path()}/images/modified.svg'` +
+      `            src='${App.m3Path}/images/modified.svg'` +
       "         />" +
       "      </div>" +
 

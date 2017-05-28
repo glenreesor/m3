@@ -50,7 +50,7 @@ export function AppButtons(controller) {
 
    this._controller = controller;
 
-   imagesPath = `${App.getM3Path()}/images`;
+   imagesPath = `${App.m3Path}/images`;
 
    buttonsHtmlBottom =
       `<div id='buttonsHtmlBottom' style='text-align: right; ` +

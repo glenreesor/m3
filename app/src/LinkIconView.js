@@ -39,7 +39,7 @@ export function LinkIconView(nodeView, nodeModel) {
    this._linkLocation = '';
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
-   this._imagesPath = `${App.getM3Path()}/images`;
+   this._imagesPath = `${App.m3Path}/images`;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
