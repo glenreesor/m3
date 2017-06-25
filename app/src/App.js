@@ -324,6 +324,7 @@ App.prototype.run = function run() {
  * @return {void}
  */
 App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
+   const OPTIONS_OBJECT = 'm3MobileMindMapper';
    const OPTION_INFO = {
       apiVersion: {
          type: 'string',
@@ -379,13 +380,20 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
    let option;
    let options;
 
-   if (window.m3MobileMindMapper) {
-      options = window.m3MobileMindMapper;
+   /*
+    * Options can be specified in the current document, or the parent document
+    * to support iframe embedding.
+    *
+    * Since window.parent returns a reference to the current window if we're
+    * not embedded in anything, that's all we have to check.
+    */
+   options = window.parent[OPTIONS_OBJECT];
+   if (options) {
 
       //----------------------------------------------------------------------
       // Sanity checks since created by third-party
       //----------------------------------------------------------------------
-      console.log('Validating window.m3MobileMindMapper...');
+      console.log(`Validating window.${OPTIONS_OBJECT}...`);
 
       for (option in OPTION_INFO) {
          if (
