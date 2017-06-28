@@ -20,6 +20,7 @@
 import {Controller} from "./Controller";
 import {Diagnostics} from "./Diagnostics";
 import {ErrorDialog} from "./ErrorDialog";
+import {MapModel} from './MapModel';
 import {Sizer} from "./Sizer";
 import {State} from "./State";
 
@@ -129,6 +130,17 @@ App.prototype.getInitialMapUrl = function getInitialMapUrl() {
 }; // getInitialMapUrl()
 
 /**
+ * Get the list of maps loadable from the server m3 is installed on
+ *
+ * @return {object[]} An array of objects with the following keys:
+ *                      name - The name to be displayed in the UI
+ *                      url  - The URL of the map
+ */
+App.prototype.getLoadableMaps = function getLoadableMaps() {
+   return this._embeddingOptions.loadableMaps;
+}; // getLoadableMaps()
+
+/**
  * Return the best type of localforage that is actually supported.
  * Use this because localforage.supports() isn't always truthful.
  * (In particular iOS Firefox and Chrome.)
@@ -164,6 +176,44 @@ App.prototype._getLocalForageDriver = function _getLocalForageDriver() {
       });
    });
 }; // _getLocalForageDriver()
+
+/**
+ * Retrieve a map from the specified URL
+ *
+ * @param {string}   url      The URL to load
+ * @param {Function} callback Function to be called on load, that
+ *                            accepts one array of strings, representing
+ *                            the map contents
+ * @return {void}
+ */
+App.prototype.getMapFromUrl = function getMapFromUrl(url, callback) {
+   let httpRequest;
+   let loadingError;
+
+   httpRequest = new XMLHttpRequest();
+
+   if (httpRequest) {
+      httpRequest.onreadystatechange = function() {
+         if (httpRequest.readyState === 4) {
+            if (httpRequest.status !== 200) {
+               loadingError = new ErrorDialog(
+                  `Error Loading map from ${url}: ` +
+                  `${httpRequest.status} ${httpRequest.statusText}`
+               );
+            } else {
+               callback([httpRequest.response]);
+            }
+         }
+      }.bind(this);
+
+      httpRequest.open('get', url);
+      httpRequest.send();
+   } else {
+      loadingError = new ErrorDialog(
+         'Well what the heck--your browser can\'t load maps from URLs!'
+      );
+   }
+};
 
 /**
  * Return the current MapModel
@@ -312,11 +362,6 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
          default: '0.12'
       },
 
-      warnOnNavigateAway: {
-         type: 'boolean',
-         default: true
-      },
-
       fullPage: {
          type: 'boolean',
          default: true
@@ -337,6 +382,11 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
          default: null
       },
 
+      loadableMaps: {
+         type: 'array',
+         default: []
+      },
+
       readOnly: {
          type: 'boolean',
          default: false
@@ -352,6 +402,11 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
          default: true
       },
 
+      warnOnNavigateAway: {
+         type: 'boolean',
+         default: true
+      },
+
       width: {
          type: 'string',
          default: '100%'
@@ -359,6 +414,7 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
    };
 
    let option;
+   let optionIsValid;
    let options;
 
    if (window.m3MobileMindMapper) {
@@ -369,15 +425,29 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
       //----------------------------------------------------------------------
       console.log('Validating window.m3MobileMindMapper...');
 
-      for (option in OPTION_INFO) {
-         if (
-            options[option] !== undefined &&
-            typeof(options[option]) !== OPTION_INFO[option].type
-         ) {
-            throw(`${option} must be of type ${OPTION_INFO[option].type}`);
+      // First type checks
+      for (option in options) {
+         if (!OPTION_INFO[option]) {
+            throw(`${option} is not a valid ${App.MY_NAME} option`);
+         } else {
+            optionIsValid = false;
+
+            if (OPTION_INFO[option].type === 'array') {
+               // JS is brain dead and thinks arrays are objects
+               if (Array.isArray(options[option])) {
+                  optionIsValid = true;
+               }
+            } else if (OPTION_INFO[option].type === typeof(options[option])) {
+               optionIsValid = true;
+            }
+
+            if (!optionIsValid) {
+               throw(`${option} must be of type ${OPTION_INFO[option].type}`);
+            }
          }
       }
 
+      // Now specific values
       if (options.apiVersion !== '0.12') {
          throw('apiVersion must be 0.12');
       }

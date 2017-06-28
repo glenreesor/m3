@@ -200,32 +200,18 @@ Controller.prototype._loadInitialMap = function _loadInitialMap() {
                                  null);
 
    initialMapUrl = m3App.getInitialMapUrl();
-
-   if (initialMapUrl !== null) {
-      httpRequest = new XMLHttpRequest();
-
-      if (httpRequest) {
-         httpRequest.onreadystatechange = function() {
-            if (httpRequest.readyState === 4) {
-               if (httpRequest.status !== 200) {
-                  loadingError = new ErrorDialog(
-                     `Error Loading map ${initialMapUrl}: ` +
-                     `${httpRequest.status} ${httpRequest.statusText}`
-                  );
-               } else {
-                  this.newMap(
-                     MapModel.TYPE_XML,
-                     null,
-                     m3App.getInitialMapName(),
-                     [httpRequest.response]
-                  );
-               }
-            }
-         }.bind(this);
-
-         httpRequest.open('get', initialMapUrl);
-         httpRequest.send();
-      }
+   if (initialMapUrl) {
+      m3App.getMapFromUrl(
+         initialMapUrl,
+         function (mapContents) {
+            this.newMap(
+               MapModel.TYPE_XML,
+               null,
+               m3App.getInitialMapName(),
+               mapContents
+            );
+         }.bind(this)
+      );
    }
 }; // _loadInitialMap()
 
