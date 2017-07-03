@@ -58,8 +58,9 @@ export function Sizer() {
       : 0;
 
    Sizer._BOTTOM_ICONS_HEIGHT = m3App.showButtons()
-      ? 48     // Includes blank space, active border width, and fudge factor
-      : 8;     // Fudge factor -- not worried about figuring it out for now
+      || m3App.getLoadableMaps().length > 0
+         ? 48     // Includes blank space, active border width, and fudge factor
+         : 8;     // Fudge factor -- not worried about figuring it out for now
 
    //-------------------------------------------------------------------------
    // Resize whenever window changes dimensions
