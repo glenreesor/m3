@@ -293,9 +293,15 @@ Controller.prototype.setMapName = function setMapName(name) {
   * @return {void}
   */
 Controller.prototype.setModifiedIndicator =
-   function setModifiedIndicator(status) {
+   function setModifiedIndicator(status
+) {
 
-   if (status) {
+   /*
+    * Don't show the indicator if we're readonly, because even
+    * though it's readonly, changing the folding status changes
+    * the map, thus affects it's changed status
+    */
+   if (status && !m3App.isReadOnly()) {
       document.getElementById(`${App.HTML_ID_PREFIX}-modified`)
               .removeAttribute("hidden");
    } else {
