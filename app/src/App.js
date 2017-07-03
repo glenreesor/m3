@@ -681,9 +681,12 @@ App.prototype._startup = function _startup() {
       let dbConfig;
 
       if (driverName === localforage.LOCALSTORAGE) {
-         alert("Warning: Your browser does not support the longterm " +
-               "reliable storage used by m3, therefore you shouldn't " +
-               "rely on longterm storage of maps created in m3.");
+         alert(
+            "Warning: Your browser does not support the longterm " +
+            "reliable storage used by m3 for saving maps. Instead, " +
+            "your maps will be saved in 'localstorage', which may " +
+            "result in data loss on iOS."
+         );
       }
 
       dbConfig = {name: App.DB_NAME, driver: driverName};
@@ -719,7 +722,10 @@ App.prototype._startup = function _startup() {
          }).then( () => {
             if (oldVersion !== this.getVersionAsString()) {
 
-               // This should only be done for me or when debugging
+               /*
+                * Only call the minimal backend to log this if
+                * it's me and not someone else
+                */
                let url = window.location.href;
                if (
                   url.substr(0, 21) === 'http://glenreesor.ca/' ||
