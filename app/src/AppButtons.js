@@ -45,8 +45,9 @@ export function AppButtons(controller) {
    let showHideRight;
 
    showHideBottom = m3App.showButtons() ? '' : 'display: none;';
-   showHideRight = (m3App.showButtons && !m3App.isReadOnly()) ? '' :
-                                                                'display: none';
+   showHideRight = (m3App.showButtons() && !m3App.isReadOnly())
+      ? ''
+      : 'display: none';
 
    this._controller = controller;
 

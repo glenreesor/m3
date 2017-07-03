@@ -219,15 +219,25 @@ App.prototype.isReadOnly = function isReadOnly() {
 }; // isReadOnly()
 
 /**
- * Return whether the m3 script and webpage are on the same host.
+ * Return whether the m3 script and current webpage are on the same host.
  * The goal is to ensure website1 doesn't use website2 as a CDN.
  *
  * @return {boolean} Whether webpage origin matches script's origin
  */
-App.prototype._isValidOrigin = function isValidOrigin() {
+App.prototype._isValidOrigin = function _isValidOrigin() {
    const hostnameRegex = /^([a-zA-Z]+:\/\/)([^/]+)/;
    const jsPath = App.m3Path;
-   const url = window.location.href;
+   let jsMatch;
+   let urlMatch;
+
+   /*
+    * In the above description, website1 is what's being viewed by the user,
+    * hence it corresponds to window.top
+    *
+    * Note: The act of trying to access window.top.location.href will be
+    *       blocked by the browser if it's cross-origin anyway.
+    */
+   const url = window.top.location.href;
    let returnVal;
 
    returnVal = false;
@@ -240,9 +250,17 @@ App.prototype._isValidOrigin = function isValidOrigin() {
       // No protocol, so JS is on same host as url
       returnVal = true;
 
-   } else if (hostnameRegex.exec(jsPath)[2] === hostnameRegex.exec(url)[2]) {
-      // Hostnames match
-      returnVal = true;
+   } else {
+      jsMatch = hostnameRegex.exec(jsPath);
+      urlMatch = hostnameRegex.exec(url);
+
+      if (jsMatch && jsMatch[2] &&
+         urlMatch && urlMatch[2] &&
+         jsMatch[2] === urlMatch[2]
+      ) {
+         // Hostnames match
+         returnVal = true;
+      }
    }
 
    return returnVal;
@@ -306,6 +324,7 @@ App.prototype.run = function run() {
  * @return {void}
  */
 App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
+   const OPTIONS_OBJECT = 'm3MobileMindMapper';
    const OPTION_INFO = {
       apiVersion: {
          type: 'string',
@@ -361,13 +380,20 @@ App.prototype._setEmbeddingOptions = function _setEmbeddingOptions() {
    let option;
    let options;
 
-   if (window.m3MobileMindMapper) {
-      options = window.m3MobileMindMapper;
+   /*
+    * Options can be specified in the current document, or the parent document
+    * to support iframe embedding.
+    *
+    * Since window.parent returns a reference to the current window if we're
+    * not embedded in anything, that's all we have to check.
+    */
+   options = window.parent[OPTIONS_OBJECT];
+   if (options) {
 
       //----------------------------------------------------------------------
       // Sanity checks since created by third-party
       //----------------------------------------------------------------------
-      console.log('Validating window.m3MobileMindMapper...');
+      console.log(`Validating window.${OPTIONS_OBJECT}...`);
 
       for (option in OPTION_INFO) {
          if (
