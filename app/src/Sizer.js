@@ -47,8 +47,14 @@ export function Sizer() {
    app.style.marginRight  = Sizer._MARGINS.appMarginRight + "px";
 
 
-   svgElement.setAttribute("style", `border: ${Sizer._SVG_BORDER_WIDTH}px ` +
-                           "solid black;");
+   appDrawingArea.setAttribute(
+      'style',
+      `border: ${Sizer._DRAWING_AREA_BORDER_WIDTH}px solid black; ` +
+      `margin-top: ${Sizer._MARGINS.drawingAreaTop}px; ` +
+      `margin-bottom: ${Sizer._MARGINS.drawingAreaBottom}px; ` +
+      `margin-left: ${Sizer._MARGINS.drawingAreaLeft}px; ` +
+      `margin-right: ${Sizer._MARGINS.drawingAreaRight}px;`
+   );
 
    //-------------------------------------------------------------------------
    // Only reserve space for icons if they're showing
@@ -70,9 +76,18 @@ export function Sizer() {
    Sizer.setSize();
 } // Sizer()
 
-Sizer._MARGINS = {appMarginTop: 1,          appMarginBottom: 1,
-                  appMarginLeft: 1,         appMarginRight: 1};
-Sizer._SVG_BORDER_WIDTH = 1;
+Sizer._MARGINS = {
+   appMarginTop: 1,
+   appMarginBottom: 1,
+   appMarginLeft: 1,
+   appMarginRight: 1,
+   drawingAreaTop: 1,
+   drawingAreaBottom: 4,
+   drawingAreaLeft: 0,
+   drawingAreaRight: 0
+};
+
+Sizer._DRAWING_AREA_BORDER_WIDTH = 1;
 
 /**
  * The method to be called whenever the app is resized.
@@ -81,6 +96,7 @@ Sizer._SVG_BORDER_WIDTH = 1;
 Sizer.setSize = function() {
    let appPopups;
    let appTopHeight;
+   let body;
    let container;
    let requiredHeight;
    let svgElement;
@@ -102,7 +118,9 @@ Sizer.setSize = function() {
       container.style.height = window.innerHeight + 'px';
 
       // We don't want scrollbars
-      document.getElementsByTagName('body')[0].style.overflow = 'hidden';
+      body = document.getElementsByTagName('body')[0];
+      body.style.overflow = 'hidden';
+      body.style.margin = '4px';
 
    } else {
       requiredHeight = m3App.getHeight();
@@ -136,10 +154,14 @@ Sizer.setSize = function() {
       : 0;
 
    svgElement = document.getElementById(`${App.HTML_ID_PREFIX}-svg-element`);
-   svgHeight = totalAppHeight - appTopHeight - 2*Sizer._SVG_BORDER_WIDTH -
-               Sizer._BOTTOM_ICONS_HEIGHT;
+   svgHeight = totalAppHeight -
+      appTopHeight -
+      2*Sizer._DRAWING_AREA_BORDER_WIDTH -
+      Sizer._MARGINS.drawingAreaTop -
+      Sizer._MARGINS.drawingAreaBottom -
+      Sizer._BOTTOM_ICONS_HEIGHT;
 
-   svgWidth = totalAppWidth - 2*Sizer._SVG_BORDER_WIDTH -
+   svgWidth = totalAppWidth - 2*Sizer._DRAWING_AREA_BORDER_WIDTH -
               Sizer._SIDE_ICONS_WIDTH;
 
    svgElement.setAttribute("height", svgHeight + "px");
@@ -164,12 +186,12 @@ Sizer.setSize = function() {
     *    - We want the bottom icon to be below the drawing area
     *    - Fudge factor to line up with bottom icons
     *
-    * Thus offset is 4 * (32 + 4 + 10) + 6 = 190
+    * Thus offset is 4 * (32 + 4 + 10) + 2 = 186
     */
 
    document.getElementById(
       `${App.HTML_ID_PREFIX}-right`
-   ).style.marginTop = appTopHeight + Sizer.svgHeight - 190 + 'px';
+   ).style.marginTop = appTopHeight + Sizer.svgHeight - 186 + 'px';
 
    //--------------------------------------------------------------------------
    // Store dimensions for other parts of app to reference

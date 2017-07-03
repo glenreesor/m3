@@ -34,21 +34,37 @@ import {NodeView} from './NodeView';
  * @constructor
  */
 export function Controller() {
+   let initialMapUrl;
+
    this._appButtons = new AppButtons(this);
-
-   this._loadInitialMap();
-
    this._mapViewController = new MapViewController(this);
 
    if (!m3App.showMapName()) {
-      document.getElementById(`${App.HTML_ID_PREFIX}-top`).
-         style.display = 'none';
+      document.getElementById(
+         `${App.HTML_ID_PREFIX}-top`
+      ).style.display = 'none';
    }
 
-   this._rootNodeView = this._mapModel.getRoot().getView();
-   this.selectRootNode();
-   this.redrawMain();
-   this._mapViewController.centerSelectedNode();
+   /*
+    * Start with an empty map because a map specified to load on startup
+    * doesn't get loaded until after the app is fully initialized
+    */
+   this.newMap(MapModel.TYPE_EMPTY, null, "New Map", null);
+
+   initialMapUrl = m3App.getInitialMapUrl();
+   if (initialMapUrl) {
+      m3App.getMapFromUrl(
+         initialMapUrl,
+         function (mapContents) {
+            this.newMap(
+               MapModel.TYPE_XML,
+               null,
+               m3App.getInitialMapName(),
+               mapContents
+            );
+         }.bind(this)
+      );
+   }
 } // Controller()
 
 /**
@@ -185,37 +201,6 @@ Controller.prototype.getMapViewController = function getMapViewController() {
 }; // getMapViewController()
 
 /**
- * Load the initial map on app startup
- *
- * @return {void}
- */
-Controller.prototype._loadInitialMap = function _loadInitialMap() {
-   let loadingError;
-   let httpRequest;
-   let initialMapUrl;
-
-   // Start with an empty map because a map specified to load on startup
-   // doesn't get loaded until after the app is fully initialized
-   this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map",
-                                 null);
-
-   initialMapUrl = m3App.getInitialMapUrl();
-   if (initialMapUrl) {
-      m3App.getMapFromUrl(
-         initialMapUrl,
-         function (mapContents) {
-            this.newMap(
-               MapModel.TYPE_XML,
-               null,
-               m3App.getInitialMapName(),
-               mapContents
-            );
-         }.bind(this)
-      );
-   }
-}; // _loadInitialMap()
-
-/**
  * Move the specified node down in the child list
  *
  * @param {NodeModel} child The node to move down
@@ -251,7 +236,7 @@ Controller.prototype.moveNodeUp = function moveNodeUp(child) {
 }; // moveNodeUp()
 
 /**
- * Abandon current map (model and views) and create a new one
+ * Abandon current map if there is one (model and views) and create a new one
  *
  * @param {String} type - One of MapModel.TYPE_{EMPTY, XML}
  * @param {String} dbKey - The key this is saved under (null if not saved)
@@ -260,11 +245,24 @@ Controller.prototype.moveNodeUp = function moveNodeUp(child) {
  * @return {void}
  */
 Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
-   this._deleteView(this._mapModel.getRoot());  // Recursively delete all nodes
+   if (this._mapModel) {
+      this._deleteView(this._mapModel.getRoot());  // Recursively delete
+   }
+
    this._mapModel = new MapModel(this, type, dbKey, mapName, xml);
    this._rootNodeView = this._mapModel.getRoot().getView();
    this._mapViewController.reset();
    this.redrawMain();
+
+   /*
+    * Positioning of the map is done asynchronously, so hide the root svg so we
+    * don't get a flash. Visibility style doesn't work on svg, and setting
+    * visibility to hidden on parent div doesn't affect the svg :-(
+    */
+   document.getElementById(
+      `${App.HTML_ID_PREFIX}-svg-element`
+   ).style.opacity = 0;
+
    this.selectRootNode();
 }; // newMap()
 
@@ -281,6 +279,9 @@ Controller.prototype.selectRootNode = function selectRootNode() {
    let timeout = setTimeout(() => {
       this._mapViewController.nodeClicked(this._rootNodeView);
       this._mapViewController.centerSelectedNode();
+      document.getElementById(
+         `${App.HTML_ID_PREFIX}-svg-element`
+      ).style.opacity = 1;
    }, 0);
 }; // selectRootNode()
 
