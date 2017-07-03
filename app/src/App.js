@@ -34,15 +34,15 @@ export function App() {
    this._globalState = new State();
 } // App()
 
-App.DB_NAME = "m3 - Mobile Mind Mapper";
+App.DB_NAME = 'm3 - Mobile Mind Mapper';
 App.HTML_ID_PREFIX = 'm3-mobile-mind-mapper';
-App.KEY_LAST_VERSION_RUN = "lastVersionRun";
-App.KEY_MAPLIST = "mapList";
-App.KEY_INVOCATION_COUNT = "invocationCount";
+App.KEY_LAST_VERSION_RUN = 'lastVersionRun';
+App.KEY_MAPLIST = 'mapList';
+App.KEY_INVOCATION_COUNT = 'invocationCount';
 
 App.m3Path = null;                        // To be populated by App.setM3Path()
 App.myDB = null;                          // This will be populated by _start()
-App.MY_NAME = "m3 - Mobile Mind Mapper";
+App.MY_NAME = 'm3 - Mobile Mind Mapper';
 App.MY_VERSION = {major: 0,
                   minor: 11,
                   patch: 0,
@@ -660,6 +660,7 @@ App.prototype._sendStatsToServer = function _sendStatsToServer(
  * @return {void}
  */
 App.prototype._startup = function _startup() {
+   const WELCOME_MAP = 'maps/prod/welcome.mm';
    let currentOperation;     // For promise error msg (if required)
    let oldVersion;
    let newCount;             // Number of times m3 has been run
@@ -702,6 +703,19 @@ App.prototype._startup = function _startup() {
       App.myDB.getItem(App.KEY_INVOCATION_COUNT).then( (oldCount) => {
          if (oldCount === null) {
             oldCount = 0;
+
+            this.getMapFromUrl(
+               WELCOME_MAP,
+               function (mapContents) {
+                  this._controller.newMap(
+                     MapModel.TYPE_XML,
+                     null,
+                     'Welcome',
+                     mapContents
+                  );
+
+               }.bind(this)
+            );
          }
 
          newCount = oldCount + 1;
