@@ -51,6 +51,17 @@ export function Sizer() {
                            "solid black;");
 
    //-------------------------------------------------------------------------
+   // Only reserve space for icons if they're showing
+   //-------------------------------------------------------------------------
+   Sizer._SIDE_ICONS_WIDTH = (m3App.showButtons() && !m3App.isReadOnly())
+      ? 40      // Includes blank space and active border
+      : 0;
+
+   Sizer._BOTTOM_ICONS_HEIGHT = m3App.showButtons()
+      ? 48     // Includes blank space, active border width, and fudge factor
+      : 8;     // Fudge factor -- not worried about figuring it out for now
+
+   //-------------------------------------------------------------------------
    // Resize whenever window changes dimensions
    //-------------------------------------------------------------------------
    window.addEventListener("resize",  Sizer.setSize);
@@ -58,11 +69,8 @@ export function Sizer() {
    Sizer.setSize();
 } // Sizer()
 
-Sizer._BOTTOM_ICONS_HEIGHT = 48; // Includes blank space, active border width
-                                 // and fudge factor to make it work :-)
 Sizer._MARGINS = {appMarginTop: 1,          appMarginBottom: 1,
                   appMarginLeft: 1,         appMarginRight: 1};
-Sizer._SIDE_ICONS_WIDTH = 40; // Includes blank space and active border width
 Sizer._SVG_BORDER_WIDTH = 1;
 
 /**
