@@ -348,12 +348,14 @@ App.prototype.run = function run() {
    this._setEmbeddingOptions();
    this._sizer = new Sizer();
 
-   if (this.warnOnNavigateAway()) {
+   if (this.isFullPage()) {
       //-----------------------------------------------------------------------
       // Set window title
       //-----------------------------------------------------------------------
       document.title = App.MY_NAME + " " + this.getVersionAsString();
+   }
 
+   if (this.warnOnNavigateAway()) {
       //-----------------------------------------------------------------------
       // Prompt user if they navigate away from this page or close the
       // tab/window
