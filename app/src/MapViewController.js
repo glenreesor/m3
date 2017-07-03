@@ -336,21 +336,25 @@ MapViewController.prototype.toggleCloudClicked = function toggleCloudClicked() {
 }; // toggleCloudClicked()
 
 /**
- * Center the currently selected node
+ * Make the middle of the selected node the center of the display
  *
  * @return {void}
  */
 MapViewController.prototype.centerSelectedNode =
    function centerSelectedNode(
 ) {
+   let height;
+   let width;
    let x;
    let y;
 
    if (this._state.selectedNodeView !== null) {
       ({x, y} = this._state.selectedNodeView.getCoordinates());
+      height = this._state.selectedNodeView.getBubbleHeight();
+      width = this._state.selectedNodeView.getBubbleWidth();
 
-      this._state.scroll.currentTranslationX = Sizer.svgWidth/2 - x;
-      this._state.scroll.currentTranslationY = Sizer.svgHeight/2 - y;
+      this._state.scroll.currentTranslationX = Sizer.svgWidth/2 - x - width/2;
+      this._state.scroll.currentTranslationY = Sizer.svgHeight/2 - y - height/2;
 
       this._svgGElement.setAttribute(
          "transform",

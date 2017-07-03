@@ -265,15 +265,23 @@ Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
    this._rootNodeView = this._mapModel.getRoot().getView();
    this._mapViewController.reset();
    this.redrawMain();
-   this._mapViewController.centerSelectedNode();
+   this.selectRootNode();
 }; // newMap()
 
 /**
-  * Select the root node of the current map
+  * Select and center the root node of the current map
   * @return {void}
   */
 Controller.prototype.selectRootNode = function selectRootNode() {
-   this._mapViewController.nodeClicked(this._rootNodeView);
+   /*
+    * Sometimes we're called when a dialog is open, so we need
+    * to let the dialog close first, otherwise nodeClicked() won't
+    * do anything.
+    */
+   let timeout = setTimeout(() => {
+      this._mapViewController.nodeClicked(this._rootNodeView);
+      this._mapViewController.centerSelectedNode();
+   }, 0);
 }; // selectRootNode()
 
 /**

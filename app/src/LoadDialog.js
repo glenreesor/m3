@@ -20,7 +20,6 @@
 import {App} from "./App";
 import {ErrorDialog} from "./ErrorDialog";
 import {m3App} from "./main";
-import {m3SampleXml} from "./m3SampleXml";
 import {MapModel} from "./MapModel";
 import {Sizer} from "./Sizer";
 import {State} from "./State";
@@ -47,7 +46,6 @@ export function LoadDialog(controller) {
 LoadDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-loadDialog`;
 LoadDialog.CANCEL_ID = LoadDialog.DIALOG_ID + 'Cancel';
 LoadDialog.NEW_MAP_ID = LoadDialog.DIALOG_ID + 'NewMap';
-LoadDialog.SAMPLE_ID = LoadDialog.DIALOG_ID + 'Sample';
 
 /**
  * Close this Load Dialog:
@@ -143,21 +141,11 @@ LoadDialog.prototype.createMarkup = function createMarkup(savedMaps) {
    //-------------------------------------------------------------------------
    // Pre-loaded maps
    //-------------------------------------------------------------------------
-   html += `<p><b> Pre-Loaded Maps </b></p>`;
-
-   html += `
-      &nbsp; &nbsp; &nbsp;
-      <span
-         class="clickableText"
-         ${KEY_ATTRIBUTE}="${LoadDialog.SAMPLE_ID}"
-         ${NAME_ATTRIBUTE}="m3 Sample"
-         ${URL_ATTRIBUTE}=""
-      >
-         m3 Sample
-      </span><br><br>
-   `;
-
    loadableMaps = m3App.getLoadableMaps();
+   if (loadableMaps.length > 0) {
+      html += `<p><b> Pre-Loaded Maps </b></p>`;
+   }
+
    loadableMaps.forEach(function(map) {
       if (!map.url) {
          // No URL, thus show as a heading
@@ -253,19 +241,11 @@ LoadDialog.prototype.loadMap = function loadMap(mapKey, mapName, mapUrl) {
    if (mapKey === LoadDialog.NEW_MAP_ID) {
       this._controller.newMap(MapModel.TYPE_EMPTY,  null, "New Map", null);
       this.close();
-      this._controller.selectRootNode();
-
-   } else if (mapKey === LoadDialog.SAMPLE_ID) {
-      this._controller.newMap(MapModel.TYPE_XML,  null, "m3 Sample",
-                              m3SampleXml);
-      this.close();
-      this._controller.selectRootNode();
 
    } else if (mapKey !== '') {
       App.myDB.getItem(mapKey).then( (mapAsXml) => {
          this._controller.newMap(MapModel.TYPE_XML, mapKey, mapName, mapAsXml);
          this.close();
-         this._controller.selectRootNode();
       }).catch( (err) => {
          this.close();
          error = new ErrorDialog(`Error loading map '${mapName}'` +
@@ -282,11 +262,11 @@ LoadDialog.prototype.loadMap = function loadMap(mapKey, mapName, mapUrl) {
                mapName,
                mapContents
             );
+
+         this.close();
+
          }.bind(this)
       );
-      this.close();
-      this._controller.selectRootNode();
-
    } else {
       error = new ErrorDialog('Error: Unknown error loading map.');
    }

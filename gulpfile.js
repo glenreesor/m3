@@ -89,11 +89,11 @@ gulp.task('fast', function() {
       .pipe(gulp.dest(productionDir));
 
    //--------------------------------------------------------------------------
-   // Sample map
+   // Prod Sample map
    //--------------------------------------------------------------------------
-   result = gulp.src('app/*.mm')
-      .pipe(gulp.dest(debugDir))
-      .pipe(gulp.dest(productionDir));
+   result = gulp.src('app/maps/prod/*.mm')
+      .pipe(gulp.dest(debugDir + '/maps/prod'))
+      .pipe(gulp.dest(productionDir + '/maps/prod'));
 });
 
 //-----------------------------------------------------------------------------
