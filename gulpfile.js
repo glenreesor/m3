@@ -89,11 +89,18 @@ gulp.task('fast', function() {
       .pipe(gulp.dest(productionDir));
 
    //--------------------------------------------------------------------------
-   // Prod Sample map
+   // Prod Pre-Loaded Maps
    //--------------------------------------------------------------------------
    result = gulp.src('app/maps/prod/*.mm')
       .pipe(gulp.dest(debugDir + '/maps/prod'))
       .pipe(gulp.dest(productionDir + '/maps/prod'));
+
+   //--------------------------------------------------------------------------
+   // embeddingSample Pre-Loaded Maps
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/maps/embeddingSample/*.mm')
+      .pipe(gulp.dest(debugDir + '/maps/embeddingSample'))
+      .pipe(gulp.dest(productionDir + '/maps/embeddingSample'));
 });
 
 //-----------------------------------------------------------------------------
