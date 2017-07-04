@@ -267,9 +267,14 @@ Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
 }; // newMap()
 
 /**
-  * Select and center the root node of the current map
-  * @return {void}
-  */
+ * Select and position the root node of the current map.
+ * Root node will be:
+ *   - Centered if it has children on both sides
+ *   - Left-aligned if it has no children or only children on the right side
+ *   - Right-aligned if it only has children on the left side
+ *
+ * @return {void}
+ */
 Controller.prototype.selectRootNode = function selectRootNode() {
    /*
     * Sometimes we're called when a dialog is open, so we need
@@ -278,7 +283,7 @@ Controller.prototype.selectRootNode = function selectRootNode() {
     */
    let timeout = setTimeout(() => {
       this._mapViewController.nodeClicked(this._rootNodeView);
-      this._mapViewController.centerSelectedNode();
+      this._mapViewController.positionSelectedNodeOptimally();
       document.getElementById(
          `${App.HTML_ID_PREFIX}-svg-element`
       ).style.opacity = 1;
