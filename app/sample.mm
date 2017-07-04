@@ -1,1 +1,0 @@
-<map version="1.0.1"><node CREATED="1483932714278" ID="ID_1483932714278" MODIFIED="1483932741695" TEXT="Welcome!"><node CREATED="1483932721549" ID="ID_1483932721549" MODIFIED="1483932753530" POSITION="right" TEXT="This map was loaded automatically at page load."></node></node></map>

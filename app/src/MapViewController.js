@@ -336,21 +336,87 @@ MapViewController.prototype.toggleCloudClicked = function toggleCloudClicked() {
 }; // toggleCloudClicked()
 
 /**
- * Center the currently selected node
+ * Position the selected node optimally:
+ *   - Centered if it has children on both sides
+ *   - Left-aligned if it has no children or only children on the right side
+ *   - Right-aligned if it only has children on the left side
+ *
+ * @return {void}
+ */
+MapViewController.prototype.positionSelectedNodeOptimally =
+   function positionSelectedNodeOptimally(
+) {
+   let childLeft = false;
+   let childRight = false;
+   let height;
+   let model;
+   let translationX;
+   let translationY;
+   let width;
+   let x;
+   let y;
+
+   if (this._state.selectedNodeView !== null) {
+      ({x, y} = this._state.selectedNodeView.getCoordinates());
+      height = this._state.selectedNodeView.getBubbleHeight();
+      width = this._state.selectedNodeView.getBubbleWidth();
+
+      model = this._state.selectedNodeView.getModel();
+
+      model.getChildren().forEach(function(child) {
+         if (child.getSide() === NodeModel.POSITION_LEFT) {
+            childLeft = true;
+         } else {
+            childRight = true;
+         }
+      });
+
+      translationY = Sizer.svgHeight/2 - y - height/2;
+
+      if ((!childLeft && !childRight) || (!childLeft && childRight)) {
+         // No children, or only children on right, so left align with some
+         // padding
+         translationX = -x + 20;
+
+      } else if (childLeft && childRight) {
+         // Children on both sides, so center
+         translationX = Sizer.svgWidth/2 - x - width/2;
+
+      } else {
+         // Children only on left, so right align
+         translationX = Sizer.svgWidth - x - width - 20;
+      }
+
+      this._state.scroll.currentTranslationX = translationX;
+      this._state.scroll.currentTranslationY = translationY;
+
+      this._svgGElement.setAttribute(
+         "transform",
+         `translate(${translationX},${translationY})`
+      );
+   }
+}; // positionSelectedNodeOptimally()
+
+/**
+ * Make the middle of the selected node the center of the display
  *
  * @return {void}
  */
 MapViewController.prototype.centerSelectedNode =
    function centerSelectedNode(
 ) {
+   let height;
+   let width;
    let x;
    let y;
 
    if (this._state.selectedNodeView !== null) {
       ({x, y} = this._state.selectedNodeView.getCoordinates());
+      height = this._state.selectedNodeView.getBubbleHeight();
+      width = this._state.selectedNodeView.getBubbleWidth();
 
-      this._state.scroll.currentTranslationX = Sizer.svgWidth/2 - x;
-      this._state.scroll.currentTranslationY = Sizer.svgHeight/2 - y;
+      this._state.scroll.currentTranslationX = Sizer.svgWidth/2 - x - width/2;
+      this._state.scroll.currentTranslationY = Sizer.svgHeight/2 - y - height/2;
 
       this._svgGElement.setAttribute(
          "transform",

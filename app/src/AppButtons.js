@@ -38,44 +38,58 @@ export function AppButtons(controller) {
    let buttonsDivRight;
    let buttonsHtmlBottom;
    let buttonsHtmlRight;
+   let divAlignment;
    let domParser;
    let htmlAsDoc;
    let imagesPath;
-   let showHideBottom;
+   let showHideBottomLoad;
+   let showHideBottomNotLoad;
    let showHideRight;
 
-   showHideBottom = m3App.showButtons() ? '' : 'display: none;';
+   showHideBottomNotLoad = m3App.showButtons() ? '' : 'display: none;';
+   showHideBottomLoad = m3App.showButtons() ||
+      m3App.getLoadableMaps().length > 0
+         ? ''
+         : 'display: none;';
+
    showHideRight = (m3App.showButtons() && !m3App.isReadOnly())
       ? ''
       : 'display: none';
+
+   divAlignment = showHideBottomNotLoad === ''
+      ? 'right'
+      : (showHideBottomLoad === '' ? 'left' : 'right');
 
    this._controller = controller;
 
    imagesPath = `${App.m3Path}/images`;
 
    buttonsHtmlBottom =
-      `<div id='buttonsHtmlBottom' style='text-align: right; ` +
-                                         `${showHideBottom}'>` +
+      `<div id='buttonsHtmlBottom' style='text-align: ${divAlignment};'>` +
 
-         `<img id='about'          style='margin-right: 10px' ` +
-            `class='clickableIcon' src='${imagesPath}/info.svg' ` +
-            `height='32px'></img>` +
+         `<span style='${showHideBottomNotLoad}'>` +
+            `<img id='about'          style='margin-right: 10px' ` +
+               `class='clickableIcon' src='${imagesPath}/info.svg' ` +
+               `height='32px'></img>` +
 
-         `<img id='importExport'   style='margin-right: 10px' ` +
-            `class='clickableIcon' src='${imagesPath}/import-export.svg' ` +
-            `height='32px'></img>` +
+            `<img id='importExport'   style='margin-right: 10px' ` +
+               `class='clickableIcon' src='${imagesPath}/import-export.svg' ` +
+               `height='32px'></img>` +
 
-         `<img id='manage'         style='margin-right: 10px' ` +
-            `class='clickableIcon' src='${imagesPath}/manage.svg' ` +
-            `height='32px'></img>` +
+            `<img id='manage'         style='margin-right: 10px' ` +
+               `class='clickableIcon' src='${imagesPath}/manage.svg' ` +
+               `height='32px'></img>` +
 
-         `<img id='save'           style='margin-right: 10px' ` +
-            `class='clickableIcon' src='${imagesPath}/save.svg' ` +
-            `height='32px'></img>` +
+            `<img id='save'           style='margin-right: 10px' ` +
+               `class='clickableIcon' src='${imagesPath}/save.svg' ` +
+               `height='32px'></img>` +
+         `</span>` +
 
-         `<img id='load'           style='margin-right: 10px' ` +
-            `class='clickableIcon' src='${imagesPath}/load.svg' ` +
-            `height='32px'></img>` +
+         `<span style='${showHideBottomLoad}'>` +
+            `<img id='load'           style='margin-right: 10px' ` +
+               `class='clickableIcon' src='${imagesPath}/load.svg' ` +
+               `height='32px'></img>` +
+         `</span>` +
 
       `</div>`;
 
