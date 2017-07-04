@@ -22,7 +22,9 @@ import sys
 import tempfile
 
 APP_CACHE_TEMPLATE = 'm3.appcache.template'
-REQUIRED_EXTENSIONS = '.css', '.html', '.js', '.png', '.svg'
+IGNORED_FILES = ['statstest.html', 'm3iframe.html', 'embeddingSample.html']
+IGNORED_FOLDERS = ['maps/embeddingSample']
+REQUIRED_EXTENSIONS = '.css', '.html', '.js', '.mm', '.png', '.svg'
 
 ##----------------------------------------------------------------------------
 ## main()
@@ -37,7 +39,7 @@ def main():
     ##------------------------------------------------------------------------
     requiredFiles = []
     for filename in getFilesInFolder('.'):
-        if filename.endswith(REQUIRED_EXTENSIONS) and filename != 'statstest.html':
+        if filename.endswith(REQUIRED_EXTENSIONS) and filename not in IGNORED_FILES:
             requiredFiles.append(filename)
 
     ##------------------------------------------------------------------------
@@ -73,11 +75,14 @@ def getFilesInFolder(folderName):
     files = []
 
     for child in pathlib.Path(folderName).iterdir():
+        stringifiedName = str(child)
+
         if pathlib.Path(child).is_file():
-            files.append(str(child))
+            files.append(stringifiedName)
 
         elif pathlib.Path(child).is_dir():
-            files += getFilesInFolder(str(child))
+            if stringifiedName not in IGNORED_FOLDERS:
+                files += getFilesInFolder(stringifiedName)
 
         else:
             errorMsg = 'Weird. ' + str(child)
