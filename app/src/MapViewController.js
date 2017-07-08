@@ -712,7 +712,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
       if (!e.ctrlKey &&
          e.charCode >= 33 &&
          e.charCode <= 126 &&
-         !m3App.isReadonly()
+         !m3App.isReadOnly()
       ) {
          editNodeDialog = new EditNodeDialog(
             this._controller,
@@ -884,7 +884,7 @@ MapViewController.prototype._keyboardHandler = function _keyboardHandler(e) {
          //-------------------------------------------------------------------
          case 'ArrowUp':
             if (selectedNodeModel.getParent() !== null) {
-               if (e.ctrlKey && !m3App.isReadonly()) {
+               if (e.ctrlKey && !m3App.isReadOnly()) {
                   this._controller.moveNodeUp(selectedNodeModel);
 
                } else {
