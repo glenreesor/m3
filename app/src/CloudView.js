@@ -30,6 +30,8 @@ import {App} from './App';
 export function CloudView(cloudModel) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
+   this._isVisible = true;
+
    this._svgCloud = document.createElementNS(SVGNS, "path");
    this._svgCloud.setAttribute("stroke", cloudModel.getColor());
    this._svgCloud.setAttribute("fill", cloudModel.getColor());
@@ -110,6 +112,11 @@ CloudView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 CloudView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
       this._svgCloud.setAttribute("visibility", "visible");
    } else {

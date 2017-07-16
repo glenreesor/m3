@@ -36,6 +36,7 @@ export function RichTextView(nodeView, nodeModel) {
 
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
+   this._isVisible = true;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
@@ -116,6 +117,11 @@ RichTextView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 RichTextView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
       this._container.setAttribute("visibility", "visible");
    } else {

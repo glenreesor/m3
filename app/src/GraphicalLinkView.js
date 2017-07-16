@@ -34,6 +34,7 @@ export function GraphicalLinkView(myNodeView, arrowLink) {
 
    this._arrowLink = arrowLink;
    this._myNodeView = myNodeView;
+   this._isVisible = true;
 
    this._svgGraphicalLink = document.createElementNS(SVGNS, "path");
    document.getElementById(`${App.HTML_ID_PREFIX}-svgLinksLayer`)
@@ -145,6 +146,11 @@ GraphicalLinkView.prototype.draw = function draw() {
  * @return {void}
  */
 GraphicalLinkView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
       this._svgGraphicalLink.setAttribute("visibility", "visible");
    } else {

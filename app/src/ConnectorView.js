@@ -30,6 +30,8 @@ import {App} from './App';
 export function ConnectorView(nodeView) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
+   this._isVisible = true;
+
    this._svgConnector = document.createElementNS(SVGNS, "path");
    this._svgConnector.setAttribute("stroke", "#000000");
    this._svgConnector.setAttribute("fill-opacity", "0");
@@ -96,6 +98,11 @@ ConnectorView.prototype.setPosition = function setPosition(x1, y1, x2, y2) {
  * @return {void}
  */
 ConnectorView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
       this._svgConnector.setAttribute("visibility", "visible");
    } else {

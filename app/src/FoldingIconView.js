@@ -33,6 +33,7 @@ export function FoldingIconView(nodeView, nodeModel) {
 
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
+   this._isVisible = true;
 
    this._svgFoldingIcon = document.createElementNS(SVGNS, "circle");
    document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
@@ -113,6 +114,11 @@ FoldingIconView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 FoldingIconView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
       this._svgFoldingIcon.setAttribute("visibility", "visible");
    } else {

@@ -37,6 +37,7 @@ export function TextView(nodeView, nodeModel) {
    this._myNodeView = nodeView;
    this._characterHeight = 0;
    this._x = 0;    // Need to retain this for the width optimizer
+   this._isVisible = true;
 
    //---------------------------------------------------------------------------
    // One-time creation of required html/svg elements
@@ -136,6 +137,11 @@ TextView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 TextView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
       this._svgText.setAttribute("visibility", "visible");
    } else {

@@ -44,7 +44,6 @@ export function NodeView(controller, myModel) {
    this._myNodeModel = myModel;
 
    this._isRoot = (this._myNodeModel.getParent() === null);
-   this._isVisible = true;
    this._mostRecentCloudColor = null;
    this._myIconViews = [];
    this._myLinkIconView = null;
@@ -52,6 +51,7 @@ export function NodeView(controller, myModel) {
    this._myFoldingIcon = null;
    this._myGraphicalLinks = [];
    this._mySide = this._myNodeModel.getSide();
+   this._isVisible = true;
 
    //--------------------------------------------------------------------------
    // Create the required SVG sub-objects. Note that this just creates them,
@@ -270,14 +270,15 @@ NodeView.prototype.drawAt = function drawAt(
 
    //--------------------------------------------------------------------------
    // Actions required only at root level since they're recursive
-   //    - Make all of my components visible
    //    - Set mostRecentCloudColor (used for node backgrounds when no
    //      background color is specified)
    //--------------------------------------------------------------------------
    if (this._isRoot) {
-      this.setVisible(true);
       this.setMostRecentCloudColor(null);
    }
+
+   // I'm being drawn, so I must be visible
+   this.setVisible(true, false);
 
    //--------------------------------------------------------------------------
    // Connector to parent
@@ -388,7 +389,7 @@ NodeView.prototype.drawAt = function drawAt(
          if (this._myNodeModel.isFolded()) {
             // I'm folded, so hide my children
             this._myNodeModel.getChildren().forEach( (child) => {
-               child.getView().setVisible(false);
+               child.getView().setVisible(false, true);
             });
          } else {
             this._drawChildren(this._mySide);
@@ -715,12 +716,18 @@ NodeView.prototype.setSelected = function setSelected(state) {
 /**
  * Set the visibility of this NodeView (and all it's components). The specified
  * visibility will also be applied to all children of this NodeView
- * @param {boolean} visible - Whether this NodeView should be visible (true)
- *                            or not (false)
+ *j
+ * @param {boolean} visible   - Whether this NodeView should be visible (true)
+ *                              or not (false)
+ * @param {boolean} recursive - Whether to apply this visibility to children
  * @return {void}
  */
-NodeView.prototype.setVisible = function setVisible(visible) {
+NodeView.prototype.setVisible = function setVisible(visible, recursive) {
    let mapViewController;
+
+   if (this._isVisible === visible) {
+      return;
+   }
    this._isVisible = visible;
 
    //--------------------------------------------------------------------------
@@ -764,9 +771,11 @@ NodeView.prototype.setVisible = function setVisible(visible) {
    //--------------------------------------------------------------------------
    // Make all of my children visible/hidden
    //--------------------------------------------------------------------------
-   this._myNodeModel.getChildren().forEach( (child) => {
-      child.getView().setVisible(visible);
-   });
+   if (recursive) {
+      this._myNodeModel.getChildren().forEach( (child) => {
+         child.getView().setVisible(visible, true);
+      });
+   }
 }; // setVisible()
 
 /**
