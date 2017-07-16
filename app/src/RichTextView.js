@@ -123,9 +123,9 @@ RichTextView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._container.setAttribute("visibility", "visible");
+      this._container.setAttribute("display", "visible");
    } else {
-      this._container.setAttribute("visibility", "hidden");
+      this._container.setAttribute("display", "none");
    }
 }; // setVisible()
 

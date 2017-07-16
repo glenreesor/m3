@@ -120,9 +120,9 @@ FoldingIconView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._svgFoldingIcon.setAttribute("visibility", "visible");
+      this._svgFoldingIcon.setAttribute("display", "visible");
    } else {
-      this._svgFoldingIcon.setAttribute("visibility", "hidden");
+      this._svgFoldingIcon.setAttribute("display", "none");
    }
 }; // setVisible()
 

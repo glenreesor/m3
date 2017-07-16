@@ -133,9 +133,9 @@ LinkIconView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._svgImage.setAttribute("visibility", "visible");
+      this._svgImage.setAttribute("display", "visible");
    } else {
-      this._svgImage.setAttribute("visibility", "hidden");
+      this._svgImage.setAttribute("display", "none");
    }
 }; // setVisible()
 

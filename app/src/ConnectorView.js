@@ -104,8 +104,8 @@ ConnectorView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._svgConnector.setAttribute("visibility", "visible");
+      this._svgConnector.setAttribute("display", "visible");
    } else {
-      this._svgConnector.setAttribute("visibility", "hidden");
+      this._svgConnector.setAttribute("display", "none");
    }
 }; // setVisible()

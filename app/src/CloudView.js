@@ -118,8 +118,8 @@ CloudView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._svgCloud.setAttribute("visibility", "visible");
+      this._svgCloud.setAttribute("display", "visible");
    } else {
-      this._svgCloud.setAttribute("visibility", "hidden");
+      this._svgCloud.setAttribute("display", "none");
    }
 }; // setVisible()

@@ -153,8 +153,8 @@ GraphicalLinkView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._svgGraphicalLink.setAttribute("visibility", "visible");
+      this._svgGraphicalLink.setAttribute("display", "visible");
    } else {
-      this._svgGraphicalLink.setAttribute("visibility", "hidden");
+      this._svgGraphicalLink.setAttribute("display", "none");
    }
 }; // setVisible()

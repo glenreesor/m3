@@ -178,9 +178,9 @@ BubbleView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._svgBubble.setAttribute("visibility", "visible");
+      this._svgBubble.setAttribute("display", "visible");
    } else {
-      this._svgBubble.setAttribute("visibility", "hidden");
+      this._svgBubble.setAttribute("display", "none");
    }
 }; // setVisible()
 

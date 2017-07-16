@@ -143,9 +143,9 @@ TextView.prototype.setVisible = function setVisible(visible) {
    this._isVisible = visible;
 
    if (visible) {
-      this._svgText.setAttribute("visibility", "visible");
+      this._svgText.setAttribute("display", "visible");
    } else {
-      this._svgText.setAttribute("visibility", "hidden");
+      this._svgText.setAttribute("display", "none");
    }
 }; // setVisible()
 
