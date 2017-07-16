@@ -41,14 +41,10 @@ export function GraphicalLinkView(myNodeView, arrowLink) {
            .appendChild(this._svgGraphicalLink);
 
    this._svgGraphicalLink.setAttribute("stroke", this._arrowLink.getColor());
-   this._svgGraphicalLink.setAttribute(
-      "marker-end",
-      `url(#${App.HTML_ID_PREFIX}-triangle)`
-   );
    this._svgGraphicalLink.setAttribute("fill-opacity", "0");
 } // GraphicalLinkView()
 
-GraphicalLinkView.ARROW_WIDTH = 12;
+GraphicalLinkView.ARROW_WIDTH = 20;
 
 /**
  * Delete the svg component(s) corresponding to this GraphicalLink
@@ -69,6 +65,7 @@ GraphicalLinkView.prototype.draw = function draw() {
    let destCoords;
    let destNodeView;
    let destMultiplier;
+   let endMarker;
    let oneEndHidden;
    let parentModel;
    let path;
@@ -76,12 +73,7 @@ GraphicalLinkView.prototype.draw = function draw() {
    let srcNodeView;
    let srcMultiplier;
 
-   //--------------------------------------------------------------------------
-   // If one or both nodes for this link are hidden, the graphical link will
-   // be dotted. Start by assuming they're not hidden
-   //--------------------------------------------------------------------------
    oneEndHidden = false;
-   this._svgGraphicalLink.removeAttribute("stroke-dasharray");
 
    //--------------------------------------------------------------------------
    // Source Node: Make sure link starts from a visible node
@@ -107,9 +99,6 @@ GraphicalLinkView.prototype.draw = function draw() {
    // Draw it (but not if src and dest nodeViews are the same)
    //--------------------------------------------------------------------------
    if (srcNodeView !== destNodeView) {
-      if (oneEndHidden) {
-         this._svgGraphicalLink.setAttribute("stroke-dasharray", "5, 5");
-      }
       srcCoords = srcNodeView.getGraphicalLinkCoords();
       destCoords = destNodeView.getGraphicalLinkCoords();
 
@@ -132,6 +121,18 @@ GraphicalLinkView.prototype.draw = function draw() {
              `  ${destCoords.x + destMultiplier*200} ${destCoords.y} ` +
              `  ${destCoords.x} ${destCoords.y}`;
       this._svgGraphicalLink.setAttribute("d", path);
+
+      // Type of connector depends on whether both ends are visible or not
+      if (oneEndHidden) {
+         endMarker = 'triangle-open';
+      } else {
+         endMarker = 'triangle-solid';
+      }
+
+      this._svgGraphicalLink.setAttribute(
+         "marker-end",
+         `url(#${App.HTML_ID_PREFIX}-${endMarker})`
+      );
       this.setVisible(true);
    } else {
       this.setVisible(false);
