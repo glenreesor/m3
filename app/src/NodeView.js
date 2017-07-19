@@ -49,7 +49,6 @@ export function NodeView(controller, myModel) {
    this._myLinkIconView = null;
    this._myConnector = null;
    this._myFoldingIcon = null;
-   this._myGraphicalLinks = [];
    this._mySide = this._myNodeModel.getSide();
    this._isVisible = true;
 
@@ -97,10 +96,6 @@ export function NodeView(controller, myModel) {
       this._myFoldingIcon = new FoldingIconView(this, this._myNodeModel);
    }
 
-   // ArrowLinks
-   this._myNodeModel.getArrowLinks().forEach( (arrowLink) => {
-      this._myGraphicalLinks.push(new GraphicalLinkView(this, arrowLink));
-   });
 } // NodeView()
 
 NodeView.VERTICAL_SEPARATION = 15;  // Vertical separation between 2 child nodes
@@ -229,10 +224,6 @@ NodeView.prototype.deleteMyself = function deleteMyself() {
    if (this._myFoldingIcon !== null) {
       this._myFoldingIcon.deleteSvg();
    }
-
-   this._myGraphicalLinks.forEach( (link) => {
-      link.deleteSvg();
-   });
 
    this._myIconViews.forEach( (icon) => {
       icon.deleteSvg();
@@ -462,17 +453,6 @@ NodeView.prototype._drawChildren = function _drawChildren(side) {
       } // if child was on the side to be drawn
    }); // for each child
 }; // drawChildren()
-
-/**
- * Tell each of my graphical links (where this node is the source) to draw
- * themselves
- * @return {void}
- */
-NodeView.prototype.drawGraphicalLinks = function drawGraphicalLinks() {
-   this._myGraphicalLinks.forEach( (graphicalLink) => {
-      graphicalLink.draw();
-   });
-}; // drawGraphicalLinks()
 
 /**
  * Get the height of the contents of this NodeView's bubble.
@@ -852,8 +832,4 @@ NodeView.prototype.update = function update() {
       }
    }
 
-   //--------------------------------------------------------------------------
-   // GraphicalLinks
-   //--------------------------------------------------------------------------
-   // Put something profound here when you can edit graphical links
 }; // update()

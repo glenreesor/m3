@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
+import {GraphicalLinkView} from './GraphicalLinkView';
 import {createXml, loadXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
@@ -43,6 +44,7 @@ export function ArrowLink() {
    this._endArrow = null;
    this._endInclination = null;
    this._id = null;
+   this._myView = null;
    this._startArrow = null;
    this._startInclination = null;
    this._unexpectedAttributes = new Map(); // Attributes that m3 doesn't
@@ -160,6 +162,30 @@ ArrowLink.prototype.getStartArrow = function getStartArrow() {
 ArrowLink.prototype.getStartInclination = function getStartInclination() {
    return this._startInclination;
 }; // getStartInclination()
+
+/**
+ * Get this ArrowLink's view, creating it on the fly if
+ * required.
+ *
+ * @return {GraphicalLinkView} - this ArrowLink's GraphicalLinkView
+ */
+ArrowLink.prototype.getView = function getView() {
+   if (this._myView === null) {
+      this._myView = new GraphicalLinkView(this);
+   }
+   return this._myView;
+}; // getView()
+
+/**
+ * Return whether this ArrowLink already has a corresponding GraphicalLinkView,
+ * so consuming code can prevent creating a view if it's not required.
+ *
+ * @return {boolean} Whether this ArrowLink has a corresponding
+ *                   GraphicalLinkView
+ */
+ArrowLink.prototype.hasView = function hasView() {
+   return (this._myView !== null);
+};
 
 /**
  * Load this ArrowLink definition from XML.

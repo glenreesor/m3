@@ -449,6 +449,22 @@ NodeModel.prototype.getFirstChild = function getFirstChild(side) {
 }; // getFirstChild()
 
 /**
+ * Get all descendants of this node
+ *
+ * @return {NodeModel[]} The list of descendants
+ */
+NodeModel.prototype.getDescendants = function getDescendants() {
+   let descendants;
+
+   descendants = this._children;
+   this._children.forEach( (child) => {
+      descendants = descendants.concat(child.getDescendants());
+   });
+
+   return descendants;
+};
+
+/**
  * Return this node's font object
  *
  * @return {Font} This node's font object (null if no non-default values)
