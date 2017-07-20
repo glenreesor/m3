@@ -37,6 +37,7 @@ export function TextView(nodeView, nodeModel) {
    this._myNodeView = nodeView;
    this._characterHeight = 0;
    this._x = 0;    // Need to retain this for the width optimizer
+   this._isVisible = true;
 
    //---------------------------------------------------------------------------
    // One-time creation of required html/svg elements
@@ -136,10 +137,15 @@ TextView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 TextView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgText.setAttribute("visibility", "visible");
+      this._svgText.setAttribute("display", "visible");
    } else {
-      this._svgText.setAttribute("visibility", "hidden");
+      this._svgText.setAttribute("display", "none");
    }
 }; // setVisible()
 
@@ -148,24 +154,43 @@ TextView.prototype.setVisible = function setVisible(visible) {
  * @return {void}
  */
 TextView.prototype.update = function update() {
+   let fontAttributes = '';
+   let fontFamily;
+   let fontSize;
+   let fontStyle;
+   let fontWeight;
+   let modelFont;
+
    //--------------------------------------------------------------------------
    // Set font attributes first so the width of the tspans will be correct for
    // the algorithm that splits lines.
    //--------------------------------------------------------------------------
-   if (this._myNodeModel.getFont() === null) {
-      this._svgText.setAttribute("font-size", "12");
-      this._svgText.setAttribute("font-family", "verdana");
-   } else {
-      if (this._myNodeModel.getFont().isBold()) {
-         this._svgText.setAttribute("font-weight", "bold");
+   fontFamily = 'verdana';
+   fontSize = '12';
+   fontStyle = '';
+   fontWeight = '';
+
+   modelFont = this._myNodeModel.getFont();
+
+   if (modelFont) {
+      if (modelFont.isBold()) {
+         fontWeight = 'bold';
       }
 
-      if (this._myNodeModel.getFont().isItalic()) {
-         this._svgText.setAttribute("font-style", "italic");
+      if (modelFont.isItalic()) {
+         fontStyle = 'italic';
       }
 
-      this._svgText.setAttribute("font-size",
-                                 this._myNodeModel.getFont().getSize());
+      fontSize = modelFont.getSize();
+   }
+
+   this._svgText.setAttribute("font-family", fontFamily);
+   this._svgText.setAttribute("font-size", fontSize);
+   if (fontStyle !== '') {
+      this._svgText.setAttribute("font-style", fontStyle);
+   }
+   if (fontWeight !== '') {
+      this._svgText.setAttribute("font-weight", fontWeight);
    }
 
    this._svgText.setAttribute("fill", this._myNodeModel.getTextColor());
@@ -180,7 +205,17 @@ TextView.prototype.update = function update() {
       this._svgText.removeChild(this._svgText.childNodes[0]);
    }
 
-   this._characterHeight = this._getCharacterHeight();
+   /*
+    * Make an identifier for this font's characteristics so we can cache
+    * font size information
+    */
+   fontAttributes =
+      `family:${fontFamily};` +
+      `fontSize:${fontSize};` +
+      `fontStyle:${fontStyle};` +
+      `fontWeight:${fontWeight};`;
+
+   this._characterHeight = this._getCharacterHeight(fontAttributes);
 
    //--------------------------------------------------------------------------
    // Add the tspan(s) for each line of text
@@ -338,18 +373,33 @@ TextView.prototype._addTspans = function _addTspans(text) {
 /**
  * Get the height of the current font using a big character.
  *
+ * @param  {string} fontAttributes A string that identifies this font's
+ *                                 attributes, so we only have to touch the
+ *                                 DOM if we don't already know this font's
+ *                                 size;
  * @return {number} The maximum height of text for the current font.
  */
-TextView.prototype._getCharacterHeight = function _getCharacterHeight() {
+TextView.prototype._getCharacterHeight = function _getCharacterHeight(
+   fontAttributes
+) {
    let height;
    let tempTspan;
 
-   tempTspan = document.createElementNS(SVGNS, "tspan");
-   tempTspan.appendChild(document.createTextNode('X'));
-   this._svgText.appendChild(tempTspan);
+   if (!TextView._fontSizesCache) {
+      TextView._fontSizesCache = new Map();
+   }
 
-   height = this._svgText.getBBox().height;
-   this._svgText.removeChild(tempTspan);
+   height = TextView._fontSizesCache.get(fontAttributes);
+
+   if (!height) {
+      tempTspan = document.createElementNS(SVGNS, "tspan");
+      tempTspan.appendChild(document.createTextNode('X'));
+      this._svgText.appendChild(tempTspan);
+
+      height = this._svgText.getBBox().height;
+      this._svgText.removeChild(tempTspan);
+      TextView._fontSizesCache.set(fontAttributes, height);
+   }
 
    return height;
 }; // _getCharacterHeight

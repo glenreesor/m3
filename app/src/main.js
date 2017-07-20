@@ -73,13 +73,28 @@ function buildAppStructure() {
       `            id='${App.HTML_ID_PREFIX}-svg-element'` +
       "         >" +
       "            <defs>" +
-      `               <marker id='${App.HTML_ID_PREFIX}-triangle'` +
-      "                       viewBox='0 0 10 10'" +
+      `               <marker id='${App.HTML_ID_PREFIX}-triangle-solid'` +
+      "                       viewBox='-2 -2 20 20'" +
       "                       refX='1' refY='5'" +
-      "                       markerWidth='12'" +
-      "                       markerHeight='12'" +
-      "                       orient='auto'>" +
-      "                   <path d='M 0 0 L 10 5 L 0 10 z' />" +
+      "                       markerWidth='20'" +
+      "                       markerHeight='20'" +
+      "                       orient='auto'" +
+      "                       stroke='#000000'" +
+      "                       stroke-width='2'" +
+      "               >" +
+      "                   <path d='M 0 0 L 16 5 L 0 10 z' />" +
+      "              </marker>" +
+      `               <marker id='${App.HTML_ID_PREFIX}-triangle-open'` +
+      "                       viewBox='-2 -2 20 20'" +
+      "                       refX='1' refY='5'" +
+      "                       markerWidth='20'" +
+      "                       markerHeight='20'" +
+      "                       orient='auto'" +
+      "                       stroke='#000000'" +
+      "                       stroke-width='2'" +
+      "                       fill='#fff'" +
+      "               >" +
+      "                   <path d='M 0 0 L 16 5 L 0 10 z' />" +
       "              </marker>" +
       "            </defs>" +
 

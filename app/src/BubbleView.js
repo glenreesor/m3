@@ -40,6 +40,7 @@ export function BubbleView(nodeView, nodeModel, contentsWidth, contentsHeight) {
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
    this._isSelected = false;
+   this._isVisible = true;
 
    this._height = 0;
    this._width = 0;
@@ -171,10 +172,15 @@ BubbleView.prototype.setSelected = function setSelected(state) {
  * @return {void}
  */
 BubbleView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgBubble.setAttribute("visibility", "visible");
+      this._svgBubble.setAttribute("display", "visible");
    } else {
-      this._svgBubble.setAttribute("visibility", "hidden");
+      this._svgBubble.setAttribute("display", "none");
    }
 }; // setVisible()
 

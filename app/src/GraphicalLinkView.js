@@ -26,28 +26,23 @@ import {NodeModel} from './NodeModel';
  * between two nodesbetween two nodes
  *
  * @constructor
- * @param {NodeView} myNodeView - the NodeView that the link comes from
  * @param {ArrowLink} arrowLink - the ArrowLink that contains the link info
  */
-export function GraphicalLinkView(myNodeView, arrowLink) {
+export function GraphicalLinkView(arrowLink) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
    this._arrowLink = arrowLink;
-   this._myNodeView = myNodeView;
+   this._isVisible = true;
 
    this._svgGraphicalLink = document.createElementNS(SVGNS, "path");
    document.getElementById(`${App.HTML_ID_PREFIX}-svgLinksLayer`)
            .appendChild(this._svgGraphicalLink);
 
    this._svgGraphicalLink.setAttribute("stroke", this._arrowLink.getColor());
-   this._svgGraphicalLink.setAttribute(
-      "marker-end",
-      `url(#${App.HTML_ID_PREFIX}-triangle)`
-   );
    this._svgGraphicalLink.setAttribute("fill-opacity", "0");
 } // GraphicalLinkView()
 
-GraphicalLinkView.ARROW_WIDTH = 12;
+GraphicalLinkView.ARROW_WIDTH = 20;
 
 /**
  * Delete the svg component(s) corresponding to this GraphicalLink
@@ -55,86 +50,73 @@ GraphicalLinkView.ARROW_WIDTH = 12;
  * @return {void}
  */
 GraphicalLinkView.prototype.deleteSvg = function deleteSvg() {
-   document.getElementById(`${App.HTML_ID_PREFIX}-svgLinksLayer`)
-           .removeChild(this._svgGraphicalLink);
+   /*
+    * This can be called twice (once for each end of the link), so don't try to
+    * delete something that doesn't exist.
+    */
+   if (this._svgGraphicalLink) {
+      document.getElementById(`${App.HTML_ID_PREFIX}-svgLinksLayer`)
+              .removeChild(this._svgGraphicalLink);
+      this._svgGraphicalLink = null;
+   }
 }; // deleteSvg()
 
 /**
- * Draw this GraphicalLink
+ * Draw this GraphicalLink between the specified nodes.
  *
+ * @param {NodeView} srcNodeView  The node we're drawing from
+ * @param {NodeView} destNodeView The node view we're drawing to
+ * @param {boolean}  oneEndHidden Whether one end is hidden (thus we style it
+ *                                differently)
  * @return {void}
  */
-GraphicalLinkView.prototype.draw = function draw() {
+GraphicalLinkView.prototype.draw = function draw(
+   srcNodeView,
+   destNodeView,
+   oneEndHidden
+) {
    let destCoords;
-   let destNodeView;
    let destMultiplier;
-   let oneEndHidden;
-   let parentModel;
+   let endMarker;
    let path;
    let srcCoords;
-   let srcNodeView;
    let srcMultiplier;
 
-   //--------------------------------------------------------------------------
-   // If one or both nodes for this link are hidden, the graphical link will
-   // be dotted. Start by assuming they're not hidden
-   //--------------------------------------------------------------------------
-   oneEndHidden = false;
-   this._svgGraphicalLink.removeAttribute("stroke-dasharray");
+   srcCoords = srcNodeView.getGraphicalLinkCoords();
+   destCoords = destNodeView.getGraphicalLinkCoords();
 
-   //--------------------------------------------------------------------------
-   // Source Node: Make sure link starts from a visible node
-   //--------------------------------------------------------------------------
-   srcNodeView = this._myNodeView;
-   while (srcNodeView.isVisible() !== true) {
-      oneEndHidden = true;
-      parentModel = srcNodeView.getModel().getParent();
-      srcNodeView = parentModel.getView();
-   }
-
-   //--------------------------------------------------------------------------
-   // Dest Node: Make sure link ends at a visible node
-   //--------------------------------------------------------------------------
-   destNodeView = this._arrowLink.getDestinationNode().getView();
-   while (destNodeView.isVisible() !== true) {
-      oneEndHidden = true;
-      parentModel = destNodeView.getModel().getParent();
-      destNodeView = parentModel.getView();
-   }
-
-   //--------------------------------------------------------------------------
-   // Draw it (but not if src and dest nodeViews are the same)
-   //--------------------------------------------------------------------------
-   if (srcNodeView !== destNodeView) {
-      if (oneEndHidden) {
-         this._svgGraphicalLink.setAttribute("stroke-dasharray", "5, 5");
-      }
-      srcCoords = srcNodeView.getGraphicalLinkCoords();
-      destCoords = destNodeView.getGraphicalLinkCoords();
-
-      // Curvature of each end of the cubic curve depends on which side of root
-      // it is on
-      if (srcNodeView.getModel().getSide() === NodeModel.POSITION_LEFT) {
-         srcMultiplier = -1;
-      } else {
-         srcMultiplier = 1;
-      }
-
-      if (destNodeView.getModel().getSide() === NodeModel.POSITION_LEFT) {
-         destMultiplier = -1;
-      } else {
-         destMultiplier = 1;
-      }
-
-      path = `M ${srcCoords.x} ${srcCoords.y} ` +
-             `C ${srcCoords.x + srcMultiplier*200} ${srcCoords.y} ` +
-             `  ${destCoords.x + destMultiplier*200} ${destCoords.y} ` +
-             `  ${destCoords.x} ${destCoords.y}`;
-      this._svgGraphicalLink.setAttribute("d", path);
-      this.setVisible(true);
+   // Curvature of each end of the cubic curve depends on which side of root
+   // it is on
+   if (srcNodeView.getModel().getSide() === NodeModel.POSITION_LEFT) {
+      srcMultiplier = -1;
    } else {
-      this.setVisible(false);
+      srcMultiplier = 1;
    }
+
+   if (destNodeView.getModel().getSide() === NodeModel.POSITION_LEFT) {
+      destMultiplier = -1;
+   } else {
+      destMultiplier = 1;
+   }
+
+   path = `M ${srcCoords.x} ${srcCoords.y} ` +
+          `C ${srcCoords.x + srcMultiplier*200} ${srcCoords.y} ` +
+          `  ${destCoords.x + destMultiplier*200} ${destCoords.y} ` +
+          `  ${destCoords.x} ${destCoords.y}`;
+   this._svgGraphicalLink.setAttribute("d", path);
+
+   // Type of connector depends on whether both ends are visible or not
+   if (oneEndHidden) {
+      endMarker = 'triangle-open';
+   } else {
+      endMarker = 'triangle-solid';
+   }
+
+   this._svgGraphicalLink.setAttribute(
+      "marker-end",
+      `url(#${App.HTML_ID_PREFIX}-${endMarker})`
+   );
+   this.setVisible(true);
 }; // draw()
 
 /**
@@ -145,9 +127,14 @@ GraphicalLinkView.prototype.draw = function draw() {
  * @return {void}
  */
 GraphicalLinkView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgGraphicalLink.setAttribute("visibility", "visible");
+      this._svgGraphicalLink.setAttribute("display", "visible");
    } else {
-      this._svgGraphicalLink.setAttribute("visibility", "hidden");
+      this._svgGraphicalLink.setAttribute("display", "none");
    }
 }; // setVisible()

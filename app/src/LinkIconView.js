@@ -40,6 +40,7 @@ export function LinkIconView(nodeView, nodeModel) {
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
    this._imagesPath = `${App.m3Path}/images`;
+   this._isVisible = true;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
@@ -126,10 +127,15 @@ LinkIconView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 LinkIconView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgImage.setAttribute("visibility", "visible");
+      this._svgImage.setAttribute("display", "visible");
    } else {
-      this._svgImage.setAttribute("visibility", "hidden");
+      this._svgImage.setAttribute("display", "none");
    }
 }; // setVisible()
 

@@ -143,42 +143,63 @@ Controller.prototype.changeNodeText = function changeNodeText(node, text) {
 }; // changeNodeText()
 
 /**
- * Delete the specified node from its parent
+ * Delete all graphical links involving the specified node, recursively from
+ * 'currentNode'.
  *
- * @param {NodeModel} node - the node to be deleted
+ * @param {NodeModel} nodeWithLink  The NodeModel whose corresponding graphical
+ *                                  links need to be deleted.
+ * @param {NodeModel} currentNode   The node whose ArrowLinks we're examining
  * @return {void}
  */
-Controller.prototype.deleteNode = function deleteNode(node) {
+Controller.prototype.deleteGraphicalLinks = function deleteGraphicalLinks(
+   nodeWithLink,
+   currentNode
+) {
+   /*
+    * Delete any graphical links of currentNode where nodeWithLink is source or
+    * destination
+    */
+   currentNode.getArrowLinks().forEach( (arrowLink) => {
+      if (
+         nodeWithLink === currentNode ||
+         nodeWithLink === arrowLink.getDestinationNode()
+      ) {
+         if (arrowLink.hasView()) {
+            arrowLink.getView().deleteSvg();
+         }
+      }
+
+   });
+
+   /*
+    * Delete any graphical links of descendants, where nodeWithLink is source or
+    * destination
+    */
+   currentNode.getChildren().forEach( (child) => {
+      this.deleteGraphicalLinks(nodeWithLink, child);
+   });
+};
+
+/**
+ * Delete the specified node from its parent
+ *
+ * @param {NodeModel} nodeToDelete - the node to be deleted
+ * @return {void}
+ */
+Controller.prototype.deleteNode = function deleteNode(nodeToDelete) {
    let parent;
    //--------------------------------------------------------------------------
    // Update the model
    //--------------------------------------------------------------------------
-   parent = node.getParent();
-   parent.deleteChild(node);
+   parent = nodeToDelete.getParent();
+   parent.deleteChild(nodeToDelete);
 
    //--------------------------------------------------------------------------
    // Update the view
    //--------------------------------------------------------------------------
-   this._deleteView(node);
    parent.getView().update();
    this.redrawMain();
 }; // deleteNode()
-/**
- * Delete the specified view (and all child views)
- *
- * @param {NodeModel} node - The NodeModel whose view is to be deleted
- * @return {void}
- */
-Controller.prototype._deleteView = function _deleteView(node) {
-   // Delete all child views of specified node
-   node.getChildren().forEach((child) => {
-      this._deleteView(child);
-   });
-
-   // Deletes all svg elements and listeners
-   node.getView().deleteMyself();
-}; // _deleteView()
-
 
 /**
  * Return the current mapModel.
@@ -245,8 +266,21 @@ Controller.prototype.moveNodeUp = function moveNodeUp(child) {
  * @return {void}
  */
 Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
+   let root;
+
    if (this._mapModel) {
-      this._deleteView(this._mapModel.getRoot());  // Recursively delete
+      root = this._mapModel.getRoot();
+
+      /*
+       * Delete all children of the root. Can't use forEach() because the list
+       * of children is being modified in the loop
+       */
+      while (root.getChildren().length !== 0) {
+         root.deleteChild(root.getChildren()[0]);
+      }
+
+      // Root node is special since it has no parent. Just delete it's view
+      root.prepareForDelete();
    }
 
    this._mapModel = new MapModel(this, type, dbKey, mapName, xml);
@@ -369,13 +403,60 @@ Controller.prototype.toggleFoldedStatus = function toggleFoldedStatus(node) {
  * @param {NodeModel} nodeModel - The node whose graphical links should be drawn
  * @return {void}
  */
-Controller.prototype.redrawGraphicalLinks =
-   function redrawGraphicalLinks(nodeModel) {
+Controller.prototype.redrawGraphicalLinks = function redrawGraphicalLinks(
+   nodeModel
+) {
 
    // Draw the graphical links for the specified node
-   nodeModel.getView().drawGraphicalLinks();
+   nodeModel.getArrowLinks().forEach( (arrowLink) => {
+      let destNode;
+      let oneEndHidden;
+      let srcNode;
 
-   // Draw the graphical links for all children of this node
+      oneEndHidden = false;
+      /*
+       * Since the source or destination nodes may be hidden, we determine
+       * the closest source/destination ancestors that are not hidden.
+       */
+
+      srcNode = nodeModel;
+      while (
+         !srcNode.hasView() ||
+         !srcNode.getView().isVisible()
+      ) {
+         oneEndHidden = true;
+         srcNode = srcNode.getParent();
+      }
+
+      destNode = arrowLink.getDestinationNode();
+      while (
+         !destNode.hasView() ||
+         !destNode.getView().isVisible()
+      ) {
+         oneEndHidden = true;
+         destNode = destNode.getParent();
+      }
+
+      if (srcNode !== destNode) {
+         // Draw it if we're not trying to draw from/to the exact same node
+         arrowLink.getView().draw(
+            srcNode.getView(),
+            destNode.getView(),
+            oneEndHidden
+         );
+      } else {
+         // Don't draw it, and hide if it has already been drawn
+         if (arrowLink.hasView()) {
+            arrowLink.getView().setVisible(false);
+         }
+      }
+   });
+
+   /*
+    * Draw the graphical links for all children of this node.
+    * Since we draw arrows from/to the closest visible ancestors, we process
+    * all nodes, even ones that are not visible
+    */
    nodeModel.getChildren().forEach( (child) => {
       this.redrawGraphicalLinks(child);
    });
