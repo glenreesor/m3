@@ -189,19 +189,6 @@ Controller.prototype.deleteGraphicalLinks = function deleteGraphicalLinks(
 Controller.prototype.deleteNode = function deleteNode(nodeToDelete) {
    let parent;
    //--------------------------------------------------------------------------
-   // Delete any graphical links involving this node
-   //--------------------------------------------------------------------------
-   this.deleteGraphicalLinks(nodeToDelete, this._mapModel.getRoot());
-
-   //--------------------------------------------------------------------------
-   // Delete any graphical links involving any descendants of this node,
-   // because those nodes are being deleted as well
-   //--------------------------------------------------------------------------
-   nodeToDelete.getDescendants().forEach( (child) => {
-      this.deleteGraphicalLinks(child, this._mapModel.getRoot());
-   });
-
-   //--------------------------------------------------------------------------
    // Update the model
    //--------------------------------------------------------------------------
    parent = nodeToDelete.getParent();
@@ -210,26 +197,9 @@ Controller.prototype.deleteNode = function deleteNode(nodeToDelete) {
    //--------------------------------------------------------------------------
    // Update the view
    //--------------------------------------------------------------------------
-   this._deleteView(nodeToDelete);
    parent.getView().update();
    this.redrawMain();
 }; // deleteNode()
-/**
- * Delete the specified view (and all child views)
- *
- * @param {NodeModel} node - The NodeModel whose view is to be deleted
- * @return {void}
- */
-Controller.prototype._deleteView = function _deleteView(node) {
-   // Delete all child views of specified node
-   node.getChildren().forEach((child) => {
-      this._deleteView(child);
-   });
-
-   // Delete all svg elements and listeners
-   node.getView().deleteMyself();
-}; // _deleteView()
-
 
 /**
  * Return the current mapModel.
@@ -301,12 +271,16 @@ Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
    if (this._mapModel) {
       root = this._mapModel.getRoot();
 
-      // Delete all graphical links for all nodes in this map
-      root.getDescendants().forEach( (node) => {
-         // Delete all links involving this node
-         this.deleteGraphicalLinks(node, root);
-      });
-      this._deleteView(this._mapModel.getRoot());  // Recursively delete
+      /*
+       * Delete all children of the root. Can't use forEach() because the list
+       * of children is being modified in the loop
+       */
+      while (root.getChildren().length !== 0) {
+         root.deleteChild(root.getChildren()[0]);
+      }
+
+      // Root node is special since it has no parent. Just delete it's view
+      root.prepareForDelete();
    }
 
    this._mapModel = new MapModel(this, type, dbKey, mapName, xml);

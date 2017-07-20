@@ -224,6 +224,18 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
 }; // loadFromXml1_0_1()
 
 /**
+ * Do anything required prior to be deleted
+ *
+ * @return {void}
+ */
+ArrowLink.prototype.prepareForDelete = function prepareForDelete() {
+   if (this._myView !== null) {
+      this._myView.deleteSvg();
+      this._myView = null;
+   }
+};
+
+/**
  * Set the color for this ArrowLink
  * @param {String} color - the color, specified as a hex rgb triple
  * @return {void}
