@@ -378,9 +378,15 @@ NodeView.prototype.drawAt = function drawAt(
 
          // Deal with children (either draw them or tell them they're invisible)
          if (this._myNodeModel.isFolded()) {
-            // I'm folded, so hide my children
+             // I'm folded, so hide my children.
             this._myNodeModel.getChildren().forEach( (child) => {
-               child.getView().setVisible(false, true);
+               /*
+                * If child doesn't have a view, it's already not visible, so
+                * don't trigger a view creation by calling getView()
+                */
+               if (child.hasView()) {
+                  child.getView().setVisible(false, true);
+               }
             });
          } else {
             this._drawChildren(this._mySide);
@@ -674,10 +680,12 @@ NodeView.prototype.setMostRecentCloudColor = function setMostRecentCloudColor(
    }
 
    //-------------------------------------------------------------------------
-   // Now set it for all my children
+   // Now set it for all my visible children
    //-------------------------------------------------------------------------
    this._myNodeModel.getChildren().forEach((child) => {
-      child.getView().setMostRecentCloudColor(this._mostRecentCloudColor);
+      if (child.hasView()) {
+         child.getView().setMostRecentCloudColor(this._mostRecentCloudColor);
+      }
    });
 };
 
@@ -753,7 +761,17 @@ NodeView.prototype.setVisible = function setVisible(visible, recursive) {
    //--------------------------------------------------------------------------
    if (recursive) {
       this._myNodeModel.getChildren().forEach( (child) => {
-         child.getView().setVisible(visible, true);
+         if (visible) {
+            child.getView().setVisible(true, true);
+         } else {
+            /*
+             * We're telling the child to be invisible. But if it doesn't
+             * have a view, it's already invisible.
+             */
+            if (child.hasView()) {
+               child.getView().setVisible(false, true);
+            }
+         }
       });
    }
 }; // setVisible()

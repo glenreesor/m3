@@ -658,6 +658,15 @@ NodeModel.prototype.hasCloud = function hasCloud() {
 };
 
 /**
+ * Return whether this NodeModel already has an associated view
+ *
+ * @return {boolean} Whether it has a view
+ */
+NodeModel.prototype.hasView = function hasView() {
+   return (this._myView !== null);
+};
+
+/**
  * Return whether this node is folded or not
  *
  * @return {boolean} - folded status (true or false)

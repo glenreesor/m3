@@ -420,13 +420,18 @@ Controller.prototype.redrawGraphicalLinks = function redrawGraphicalLinks(
        */
 
       srcNode = nodeModel;
-      while (!srcNode.getView().isVisible()) {
+      while (
+         !srcNode.hasView() ||
+         !srcNode.getView().isVisible()
+      ) {
          oneEndHidden = true;
          srcNode = srcNode.getParent();
       }
 
       destNode = arrowLink.getDestinationNode();
-      while (!destNode.getView().isVisible()
+      while (
+         !destNode.hasView() ||
+         !destNode.getView().isVisible()
       ) {
          oneEndHidden = true;
          destNode = destNode.getParent();
