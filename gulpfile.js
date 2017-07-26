@@ -96,6 +96,13 @@ gulp.task('fast', function() {
       .pipe(gulp.dest(productionDir + '/maps/prod'));
 
    //--------------------------------------------------------------------------
+   // License file
+   //--------------------------------------------------------------------------
+   result = gulp.src('LICENSE.txt')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
    // embeddingSample Pre-Loaded Maps
    //--------------------------------------------------------------------------
    result = gulp.src('app/maps/embeddingSample/*.mm')
