@@ -47,7 +47,7 @@ App.MY_VERSION = {major: 0,
                   minor: 12,
                   patch: 0,
                   isReleaseCandidate: true,
-                  releaseCandidateNum: 1};
+                  releaseCandidateNum: 2};
 
 /**
  * Set App.m3Path to be the path where m3 is installed. This is determined from
