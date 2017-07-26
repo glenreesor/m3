@@ -1,6 +1,6 @@
 <map version="freeplane 1.5.9">
 <!--To view this file, download free mind mapping software Freeplane from http://freeplane.sourceforge.net -->
-<node TEXT="Initial Map" LOCALIZED_STYLE_REF="default" FOLDED="false" ID="ID_1401837241" CREATED="1499131041666" MODIFIED="1499131499213" STYLE="bubble"><hook NAME="MapStyle">
+<node TEXT="Initial Map" LOCALIZED_STYLE_REF="default" FOLDED="false" ID="ID_1401837241" CREATED="1499131041666" MODIFIED="1501034272052" STYLE="bubble"><hook NAME="MapStyle">
     <properties fit_to_viewport="false;"/>
 
 <map_styles>
@@ -79,14 +79,17 @@
 </stylenode>
 </map_styles>
 </hook>
-<hook NAME="AutomaticEdgeColor" COUNTER="2" RULE="ON_BRANCH_CREATION"/>
+<hook NAME="AutomaticEdgeColor" COUNTER="3" RULE="ON_BRANCH_CREATION"/>
 <edge COLOR="#000000"/>
-<node TEXT="This map is loaded when m3 first starts" POSITION="right" ID="ID_1219923756" CREATED="1499131051648" MODIFIED="1499131499215" STYLE="bubble">
+<node TEXT="This map is loaded when m3 first starts" POSITION="right" ID="ID_1219923756" CREATED="1499131051648" MODIFIED="1501034272053" STYLE="bubble">
 <edge COLOR="#000000"/>
 </node>
-<node TEXT="Lots of important information is in here" POSITION="right" ID="ID_1231916601" CREATED="1499131100948" MODIFIED="1499131499216" STYLE="bubble">
+<node TEXT="Lots of important information is in here" POSITION="right" ID="ID_1231916601" CREATED="1499131100948" MODIFIED="1501034272056" STYLE="bubble">
 <icon BUILTIN="ksmiletris"/>
 <edge COLOR="#000000"/>
+</node>
+<node TEXT="This example shows m3&apos;s buttons on the side and bottom, however you can hide them with a configuration option" POSITION="right" ID="ID_1148241801" CREATED="1501034232887" MODIFIED="1501034333072" STYLE="bubble">
+<edge COLOR="#00ff00"/>
 </node>
 </node>
 </map>
