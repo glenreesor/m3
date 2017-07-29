@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -24,5 +24,9 @@
 //     executed code.
 //----------------------------------------------------------------------------
 
+import {App} from './App';
 import {main} from './main';
-window.onload = main;
+
+// Must set m3Path here because it won't work if it's in a callback
+App.setM3Path();
+document.addEventListener('DOMContentLoaded', main);

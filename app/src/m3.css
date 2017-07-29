@@ -1,14 +1,19 @@
-body {
+#m3-mobile-mind-mapper-container {
    font-size:1em;
    margin: 0px;
-   overflow:hidden;
 }
 
-#app-popups {
+#m3-mobile-mind-mapper-popups {
    background-color: white;
    padding: 10px;
    position: fixed;
-   bottom: 50px;
+
+   /*
+    * Chrome fullscreen mode doesn't automatically shift content
+    * when keyboard appears, so we need to put the popup (for editing)
+    * near top of screen
+    */
+   top: 50px;
 }
 
 .clickableIcon {

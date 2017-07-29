@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -17,11 +17,14 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {AppButtons} from "./AppButtons";
-import {EditNodeDialog} from "./EditNodeDialog";
-import {MapModel} from "./MapModel";
-import {MapViewController} from "./MapViewController";
-import {NodeView} from "./NodeView";
+import {App} from './App';
+import {AppButtons} from './AppButtons';
+import {EditNodeDialog} from './EditNodeDialog';
+import {ErrorDialog} from './ErrorDialog';
+import {m3App} from './main';
+import {MapModel} from './MapModel';
+import {MapViewController} from './MapViewController';
+import {NodeView} from './NodeView';
 
 /**
  * This is the controller that handles actions/events that interact with the
@@ -31,14 +34,37 @@ import {NodeView} from "./NodeView";
  * @constructor
  */
 export function Controller() {
+   let initialMapUrl;
+
    this._appButtons = new AppButtons(this);
-   this._mapModel = new MapModel(this, MapModel.TYPE_EMPTY, null, "New Map",
-                                 null);
    this._mapViewController = new MapViewController(this);
-   this._rootNodeView = this._mapModel.getRoot().getView();
-   this.selectRootNode();
-   this.redrawMain();
-   this._mapViewController.centerSelectedNode();
+
+   if (!m3App.showMapName()) {
+      document.getElementById(
+         `${App.HTML_ID_PREFIX}-top`
+      ).style.display = 'none';
+   }
+
+   /*
+    * Start with an empty map because a map specified to load on startup
+    * doesn't get loaded until after the app is fully initialized
+    */
+   this.newMap(MapModel.TYPE_EMPTY, null, "New Map", null);
+
+   initialMapUrl = m3App.getInitialMapUrl();
+   if (initialMapUrl) {
+      m3App.getMapFromUrl(
+         initialMapUrl,
+         function (mapContents) {
+            this.newMap(
+               MapModel.TYPE_XML,
+               null,
+               m3App.getInitialMapName(),
+               mapContents
+            );
+         }.bind(this)
+      );
+   }
 } // Controller()
 
 /**
@@ -117,42 +143,63 @@ Controller.prototype.changeNodeText = function changeNodeText(node, text) {
 }; // changeNodeText()
 
 /**
- * Delete the specified node from its parent
+ * Delete all graphical links involving the specified node, recursively from
+ * 'currentNode'.
  *
- * @param {NodeModel} node - the node to be deleted
+ * @param {NodeModel} nodeWithLink  The NodeModel whose corresponding graphical
+ *                                  links need to be deleted.
+ * @param {NodeModel} currentNode   The node whose ArrowLinks we're examining
  * @return {void}
  */
-Controller.prototype.deleteNode = function deleteNode(node) {
+Controller.prototype.deleteGraphicalLinks = function deleteGraphicalLinks(
+   nodeWithLink,
+   currentNode
+) {
+   /*
+    * Delete any graphical links of currentNode where nodeWithLink is source or
+    * destination
+    */
+   currentNode.getArrowLinks().forEach( (arrowLink) => {
+      if (
+         nodeWithLink === currentNode ||
+         nodeWithLink === arrowLink.getDestinationNode()
+      ) {
+         if (arrowLink.hasView()) {
+            arrowLink.getView().deleteSvg();
+         }
+      }
+
+   });
+
+   /*
+    * Delete any graphical links of descendants, where nodeWithLink is source or
+    * destination
+    */
+   currentNode.getChildren().forEach( (child) => {
+      this.deleteGraphicalLinks(nodeWithLink, child);
+   });
+};
+
+/**
+ * Delete the specified node from its parent
+ *
+ * @param {NodeModel} nodeToDelete - the node to be deleted
+ * @return {void}
+ */
+Controller.prototype.deleteNode = function deleteNode(nodeToDelete) {
    let parent;
    //--------------------------------------------------------------------------
    // Update the model
    //--------------------------------------------------------------------------
-   parent = node.getParent();
-   parent.deleteChild(node);
+   parent = nodeToDelete.getParent();
+   parent.deleteChild(nodeToDelete);
 
    //--------------------------------------------------------------------------
    // Update the view
    //--------------------------------------------------------------------------
-   this._deleteView(node);
    parent.getView().update();
    this.redrawMain();
 }; // deleteNode()
-/**
- * Delete the specified view (and all child views)
- *
- * @param {NodeModel} node - The NodeModel whose view is to be deleted
- * @return {void}
- */
-Controller.prototype._deleteView = function _deleteView(node) {
-   // Delete all child views of specified node
-   node.getChildren().forEach((child) => {
-      this._deleteView(child);
-   });
-
-   // Deletes all svg elements and listeners
-   node.getView().deleteMyself();
-}; // _deleteView()
-
 
 /**
  * Return the current mapModel.
@@ -210,7 +257,7 @@ Controller.prototype.moveNodeUp = function moveNodeUp(child) {
 }; // moveNodeUp()
 
 /**
- * Abandon current map (model and views) and create a new one
+ * Abandon current map if there is one (model and views) and create a new one
  *
  * @param {String} type - One of MapModel.TYPE_{EMPTY, XML}
  * @param {String} dbKey - The key this is saved under (null if not saved)
@@ -219,20 +266,62 @@ Controller.prototype.moveNodeUp = function moveNodeUp(child) {
  * @return {void}
  */
 Controller.prototype.newMap = function newMap(type, dbKey, mapName, xml) {
-   this._deleteView(this._mapModel.getRoot());  // Recursively delete all nodes
+   let root;
+
+   if (this._mapModel) {
+      root = this._mapModel.getRoot();
+
+      /*
+       * Delete all children of the root. Can't use forEach() because the list
+       * of children is being modified in the loop
+       */
+      while (root.getChildren().length !== 0) {
+         root.deleteChild(root.getChildren()[0]);
+      }
+
+      // Root node is special since it has no parent. Just delete it's view
+      root.prepareForDelete();
+   }
+
    this._mapModel = new MapModel(this, type, dbKey, mapName, xml);
    this._rootNodeView = this._mapModel.getRoot().getView();
    this._mapViewController.reset();
    this.redrawMain();
-   this._mapViewController.centerSelectedNode();
+
+   /*
+    * Positioning of the map is done asynchronously, so hide the root svg so we
+    * don't get a flash. Visibility style doesn't work on svg, and setting
+    * visibility to hidden on parent div doesn't affect the svg :-(
+    */
+   document.getElementById(
+      `${App.HTML_ID_PREFIX}-svg-element`
+   ).style.opacity = 0;
+
+   this.selectRootNode();
 }; // newMap()
 
 /**
-  * Select the root node of the current map
-  * @return {void}
-  */
+ * Select and position the root node of the current map.
+ * Root node will be:
+ *   - Centered if it has children on both sides
+ *   - Left-aligned if it has no children or only children on the right side
+ *   - Right-aligned if it only has children on the left side
+ *
+ * @return {void}
+ */
 Controller.prototype.selectRootNode = function selectRootNode() {
-   this._mapViewController.nodeClicked(this._rootNodeView);
+   /*
+    * Sometimes we're called when a dialog is open, so we need
+    * to let the dialog close first, otherwise nodeClicked() won't
+    * do anything.
+    */
+   let timeout = setTimeout(() => {
+      this._mapViewController.nodeClicked(this._rootNodeView);
+      this._mapViewController.positionSelectedNodeOptimally();
+      document.getElementById(
+         `${App.HTML_ID_PREFIX}-svg-element`
+      ).style.opacity = 1;
+   }, 0);
 }; // selectRootNode()
 
 /**
@@ -241,7 +330,7 @@ Controller.prototype.selectRootNode = function selectRootNode() {
   * @return {void}
   */
 Controller.prototype.setMapName = function setMapName(name) {
-   document.getElementById("mapName").innerHTML = name;
+   document.getElementById(`${App.HTML_ID_PREFIX}-mapName`).innerHTML = name;
 }; // setMapName()
 
 /**
@@ -252,12 +341,20 @@ Controller.prototype.setMapName = function setMapName(name) {
   * @return {void}
   */
 Controller.prototype.setModifiedIndicator =
-   function setModifiedIndicator(status) {
+   function setModifiedIndicator(status
+) {
 
-   if (status) {
-      document.getElementById("modified").removeAttribute("hidden");
+   /*
+    * Don't show the indicator if we're readonly, because even
+    * though it's readonly, changing the folding status changes
+    * the map, thus affects it's changed status
+    */
+   if (status && !m3App.isReadOnly()) {
+      document.getElementById(`${App.HTML_ID_PREFIX}-modified`)
+              .removeAttribute("hidden");
    } else {
-      document.getElementById("modified").setAttribute("hidden", "true");
+      document.getElementById(`${App.HTML_ID_PREFIX}-modified`)
+              .setAttribute("hidden", "true");
    }
 }; // setModifiedStatus()
 
@@ -306,13 +403,60 @@ Controller.prototype.toggleFoldedStatus = function toggleFoldedStatus(node) {
  * @param {NodeModel} nodeModel - The node whose graphical links should be drawn
  * @return {void}
  */
-Controller.prototype.redrawGraphicalLinks =
-   function redrawGraphicalLinks(nodeModel) {
+Controller.prototype.redrawGraphicalLinks = function redrawGraphicalLinks(
+   nodeModel
+) {
 
    // Draw the graphical links for the specified node
-   nodeModel.getView().drawGraphicalLinks();
+   nodeModel.getArrowLinks().forEach( (arrowLink) => {
+      let destNode;
+      let oneEndHidden;
+      let srcNode;
 
-   // Draw the graphical links for all children of this node
+      oneEndHidden = false;
+      /*
+       * Since the source or destination nodes may be hidden, we determine
+       * the closest source/destination ancestors that are not hidden.
+       */
+
+      srcNode = nodeModel;
+      while (
+         !srcNode.hasView() ||
+         !srcNode.getView().isVisible()
+      ) {
+         oneEndHidden = true;
+         srcNode = srcNode.getParent();
+      }
+
+      destNode = arrowLink.getDestinationNode();
+      while (
+         !destNode.hasView() ||
+         !destNode.getView().isVisible()
+      ) {
+         oneEndHidden = true;
+         destNode = destNode.getParent();
+      }
+
+      if (srcNode !== destNode) {
+         // Draw it if we're not trying to draw from/to the exact same node
+         arrowLink.getView().draw(
+            srcNode.getView(),
+            destNode.getView(),
+            oneEndHidden
+         );
+      } else {
+         // Don't draw it, and hide if it has already been drawn
+         if (arrowLink.hasView()) {
+            arrowLink.getView().setVisible(false);
+         }
+      }
+   });
+
+   /*
+    * Draw the graphical links for all children of this node.
+    * Since we draw arrows from/to the closest visible ancestors, we process
+    * all nodes, even ones that are not visible
+    */
    nodeModel.getChildren().forEach( (child) => {
       this.redrawGraphicalLinks(child);
    });

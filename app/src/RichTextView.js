@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -17,6 +17,7 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
 import {m3App} from './main';
 import {Sizer} from './Sizer';
 
@@ -35,14 +36,14 @@ export function RichTextView(nodeView, nodeModel) {
 
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
+   this._isVisible = true;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
-   // this._container must have specified style so width optimizer will work
    //---------------------------------------------------------------------------
    this._container = document.createElementNS(SVGNS, "foreignObject");
-   this._container.setAttribute('style', 'word-wrap:break-word');
-   document.getElementById("svgTextLayer").appendChild(this._container);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .appendChild(this._container);
 
    //---------------------------------------------------------------------------
    // .bind() effectively produces a new function *each* time, thus can't use
@@ -76,7 +77,8 @@ RichTextView.prototype._clickListener = function _clickListener() {
  */
 RichTextView.prototype.deleteSvg = function deleteSvg() {
    this._container.removeEventListener("click", this._boundClickListener);
-   document.getElementById("svgTextLayer").removeChild(this._container);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .removeChild(this._container);
 }; // deleteSvg()
 
 /**
@@ -115,10 +117,15 @@ RichTextView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 RichTextView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._container.setAttribute("visibility", "visible");
+      this._container.setAttribute("display", "visible");
    } else {
-      this._container.setAttribute("visibility", "hidden");
+      this._container.setAttribute("display", "none");
    }
 }; // setVisible()
 
@@ -128,6 +135,7 @@ RichTextView.prototype.setVisible = function setVisible(visible) {
  */
 RichTextView.prototype.update = function update() {
    let domParser;
+   let finalWidth;
    let height;
    let richTextAsDoc;
    let richTextRootNode;
@@ -185,11 +193,32 @@ RichTextView.prototype.update = function update() {
       }
    }
 
-   // When the loop ends, width1 was always too narrow, and width2 too wide.
-   // Since we're within our tolerance, choose width2
-   this._container.setAttribute('width', width2);
-   this._container.setAttribute('height', richTextRootNode.clientHeight);
+   /*
+    * When the loop ends, width1 was always too narrow, and width2 too wide.
+    * Since we're within our tolerance, choose width2
+    *
+    * *But*, there's a special case where the contents didn't cause a height
+    * change (like a single image), in which case this algorithm terminated
+    * too late.
+    * We can detect this since width2 (our calculated width) will be smaller
+    * than scrollWidth (the actual required width)
+    */
+   finalWidth = width2 < richTextRootNode.scrollWidth
+      ? richTextRootNode.scrollWidth
+      : width2;
 
-   this._width = width2;
-   this._height = richTextRootNode.clientHeight;
+   this._container.setAttribute('width', finalWidth);
+
+   /*
+    * There doesn't seem to be an easy way to get the richTextRootNode's
+    * including margins. And without margins info, our calculated height
+    * will be too small. Assuming a margin of 1em seems to work.
+    */
+   this._container.setAttribute(
+      'height',
+      richTextRootNode.clientHeight + Sizer.characterHeight
+   );
+
+   this._width = finalWidth;
+   this._height = richTextRootNode.clientHeight + Sizer.characterHeight;
 }; // update()

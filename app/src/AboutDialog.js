@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -28,9 +28,13 @@ import {State} from "./State";
  * @constructor
  */
 export function AboutDialog() {
+   let copyrightString;
    let domParser;
    let html;
    let htmlAsDoc;
+
+   // All together without a line break for easy sed updating
+   copyrightString = 'Copyright 2015-2017 Glen Reesor';
 
    //--------------------------------------------------------------------------
    // Tags to be added
@@ -41,8 +45,7 @@ export function AboutDialog() {
               `${App.MY_NAME}</p>` +
             "<p style='text-align: center;'>Version: " +
               `${m3App.getVersionAsString()}</p>` +
-            "<p style='text-align: center;'>Copyright 2015, 2016 - " +
-              "Glen Reesor</p>" +
+            `<p style='text-align: center;'>${copyrightString}</p>` +
             "<p style='font-weight: bold;'>Source Code</p>" +
             "<ul>" +
                "<li><a href='http://github.com/glenreesor/m3' " +
@@ -86,7 +89,8 @@ export function AboutDialog() {
    htmlAsDoc = domParser.parseFromString(html, "text/html");
    this._aboutDialog = document.importNode(
       htmlAsDoc.getElementById(AboutDialog.DIALOG_ID), true);
-   document.getElementById("app-popups").appendChild(this._aboutDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._aboutDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
@@ -97,11 +101,12 @@ export function AboutDialog() {
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById("app-popups").removeAttribute("hidden");
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute("hidden");
    m3App.getGlobalState().setState(State.STATE_DIALOG_ABOUT);
 } // AboutDialog()
 
-AboutDialog.DIALOG_ID = "m3-aboutDialog";
+AboutDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-aboutDialog`;
 AboutDialog.OK_ID = AboutDialog.DIALOG_ID + "Ok";
 
 /**
@@ -115,7 +120,7 @@ AboutDialog.OK_ID = AboutDialog.DIALOG_ID + "Ok";
 AboutDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._aboutDialog);
 

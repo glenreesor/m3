@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {Diagnostics} from "./Diagnostics";
+import {GraphicalLinkView} from './GraphicalLinkView';
 import {createXml, loadXml} from "./xmlHelpers";
 import {m3App} from "./main";
 
@@ -43,6 +44,7 @@ export function ArrowLink() {
    this._endArrow = null;
    this._endInclination = null;
    this._id = null;
+   this._myView = null;
    this._startArrow = null;
    this._startInclination = null;
    this._unexpectedAttributes = new Map(); // Attributes that m3 doesn't
@@ -162,6 +164,30 @@ ArrowLink.prototype.getStartInclination = function getStartInclination() {
 }; // getStartInclination()
 
 /**
+ * Get this ArrowLink's view, creating it on the fly if
+ * required.
+ *
+ * @return {GraphicalLinkView} - this ArrowLink's GraphicalLinkView
+ */
+ArrowLink.prototype.getView = function getView() {
+   if (this._myView === null) {
+      this._myView = new GraphicalLinkView(this);
+   }
+   return this._myView;
+}; // getView()
+
+/**
+ * Return whether this ArrowLink already has a corresponding GraphicalLinkView,
+ * so consuming code can prevent creating a view if it's not required.
+ *
+ * @return {boolean} Whether this ArrowLink has a corresponding
+ *                   GraphicalLinkView
+ */
+ArrowLink.prototype.hasView = function hasView() {
+   return (this._myView !== null);
+};
+
+/**
  * Load this ArrowLink definition from XML.
  *
  * @param {Element} element - The element to be parsed
@@ -196,6 +222,18 @@ ArrowLink.prototype.loadFromXml1_0_1 = function loadFromXml1_0_1(element) {
    m3App.getDiagnostics().log(Diagnostics.TASK_IMPORT_XML,
                               "Created arrowlink.");
 }; // loadFromXml1_0_1()
+
+/**
+ * Do anything required prior to be deleted
+ *
+ * @return {void}
+ */
+ArrowLink.prototype.prepareForDelete = function prepareForDelete() {
+   if (this._myView !== null) {
+      this._myView.deleteSvg();
+      this._myView = null;
+   }
+};
 
 /**
  * Set the color for this ArrowLink

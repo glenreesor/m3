@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {m3App} from "./main";
+import {App} from './App';
 import {Sizer} from "./Sizer";
 import {State} from "./State";
 /**
@@ -91,7 +92,8 @@ export function ExportDialog() {
    htmlAsDoc = domParser.parseFromString(html, "text/html");
    this._exportDialog = document.importNode(
       htmlAsDoc.getElementById(ExportDialog.DIALOG_ID), true);
-   document.getElementById("app-popups").appendChild(this._exportDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._exportDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
@@ -102,11 +104,12 @@ export function ExportDialog() {
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById("app-popups").removeAttribute("hidden");
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute("hidden");
    m3App.getGlobalState().setState(State.STATE_EXPORT_POPUP);
 } // ExportDialog()
 
-ExportDialog.DIALOG_ID = "m3-importExportDialog";
+ExportDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-importExportDialog`;
 ExportDialog.OK_ID = ExportDialog.DIALOG_ID + "Ok";
 ExportDialog.TEXT_AREA_ID = ExportDialog.DIALOG_ID + "TextArea";
 
@@ -121,7 +124,7 @@ ExportDialog.TEXT_AREA_ID = ExportDialog.DIALOG_ID + "TextArea";
 ExportDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._exportDialog);
 

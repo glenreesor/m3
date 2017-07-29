@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -182,12 +182,22 @@ NodeModel.prototype.connectArrowLinks = function connectArrowLinks() {
 /**
  * Delete the specified child node.
  *
- * @param {NodeModel} child - The child node to be deleted
+ * @param {NodeModel} childToDelete - The child node to be deleted
  * @return {void}
  */
-NodeModel.prototype.deleteChild = function deleteChild(child) {
-   // Deleting the child model effectively deletes all of that node's children
-   this._children.splice(this._children.indexOf(child), 1);
+NodeModel.prototype.deleteChild = function deleteChild(childToDelete) {
+   /*
+    * Delete all descendants, depth first, so any required cleanup
+    * happens. Can't use forEach() because the list of children is being
+    * modified in the loop
+    */
+   while (childToDelete.getChildren().length !== 0) {
+      childToDelete.deleteChild(childToDelete.getChildren()[0]);
+   }
+
+   childToDelete.prepareForDelete();
+
+   this._children.splice(this._children.indexOf(childToDelete), 1);
    this._myMapModel.setModifiedStatus(true);
 }; // deleteChild()
 
@@ -449,6 +459,22 @@ NodeModel.prototype.getFirstChild = function getFirstChild(side) {
 }; // getFirstChild()
 
 /**
+ * Get all descendants of this node
+ *
+ * @return {NodeModel[]} The list of descendants
+ */
+NodeModel.prototype.getDescendants = function getDescendants() {
+   let descendants;
+
+   descendants = this._children;
+   this._children.forEach( (child) => {
+      descendants = descendants.concat(child.getDescendants());
+   });
+
+   return descendants;
+};
+
+/**
  * Return this node's font object
  *
  * @return {Font} This node's font object (null if no non-default values)
@@ -629,6 +655,15 @@ NodeModel.prototype.hasCloud = function hasCloud() {
    } else {
       return false;
    }
+};
+
+/**
+ * Return whether this NodeModel already has an associated view
+ *
+ * @return {boolean} Whether it has a view
+ */
+NodeModel.prototype.hasView = function hasView() {
+   return (this._myView !== null);
 };
 
 /**
@@ -894,6 +929,97 @@ NodeModel.prototype.moveChildUp = function moveChildUp(childToMove) {
       }
    }
 }; // moveChildUp()
+
+/**
+ * Do any cleanup required prior to getting deleted
+ *
+ * @return {void}
+ */
+NodeModel.prototype.prepareForDelete = function prepareForDelete() {
+   const root = this._myMapModel.getRoot();
+
+   // Delete my view
+   if (this._myView !== null) {
+      this._myView.deleteMyself();
+      this._myView = null;
+   }
+
+   /*
+    * For all of my arrowLinks (i.e. I'm the source):
+    *   - tell the destination node to remove their corresponding LinkTarget
+    *   - tell the ArrowLink to delete it's view (the GraphicalLink)
+    */
+   this._arrowLinks.forEach( (arrowLink) => {
+      arrowLink.getDestinationNode().removeLinkTargetWithSrc(this._id);
+      arrowLink.prepareForDelete();
+   });
+
+   /*
+    * For all of my linkTargets (i.e. I'm the destination):
+    *    - tell the source node to remove their corresponding ArrowLink
+    *    - the GraphicalLink is associated with the ArrowLink, not the
+    *      LinkTarget, thus no view to delete
+    */
+   this._linkTargets.forEach( (target) => {
+      let srcNode = this._myMapModel.getNodeModelById(root, target.getSource());
+      srcNode.removeArrowLinkWithDest(this._id);
+   });
+};
+
+/**
+ * Remove arrowLink that points to the specified node
+ *
+ * @param {NodeModel} destNodeId The ID of destination node whose links should
+ *                               be deleted
+ *
+ * @return {void}
+ */
+NodeModel.prototype.removeArrowLinkWithDest = function removeArrowLinkWithDest(
+   destNodeId
+) {
+   let indexToRemove = -1;
+   this._arrowLinks.forEach( (link, index) => {
+      if (link.getDestinationId() === destNodeId) {
+         link.prepareForDelete();
+         indexToRemove = index;
+      }
+   });
+
+   if (indexToRemove !== -1) {
+      this._arrowLinks.splice(indexToRemove, 1);
+   } else {
+      console.log(
+         `Yikes--can't delete arrowLink with destination ${destNodeId}!`
+      );
+   }
+};
+
+/**
+ * Remove linkTarget whose source is the specified node
+ *
+ * @param {NodeModel} srcNodeId  The ID of source node whose links should
+ *                               be deleted
+ *
+ * @return {void}
+ */
+NodeModel.prototype.removeLinkTargetWithSrc = function removeLinkTargetWithSrc(
+   srcNodeId
+) {
+   let indexToRemove = -1;
+   this._linkTargets.forEach( (link, index) => {
+      if (link.getSource() === srcNodeId) {
+         indexToRemove = index;
+      }
+   });
+
+   if (indexToRemove !== -1) {
+      this._linkTargets.splice(indexToRemove, 1);
+   } else {
+      console.log(
+         `Yikes--can't delete linkTarget with src ${srcNodeId}!`
+      );
+   }
+};
 
 /**
  * Set the background color to something new.

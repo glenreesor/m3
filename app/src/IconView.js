@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2016 Glen Reesor
+// Copyright 2016-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -17,6 +17,7 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
 import {m3App} from './main';
 
 const HEIGHT = 20;
@@ -34,6 +35,8 @@ export function IconView(nodeView, iconModel) {
 
    this._iconModel = iconModel;
    this._myNodeView = nodeView;
+   this._imagesPath = `${App.m3Path}/images`;
+   this._isVisible = true;
 
    //---------------------------------------------------------------------------
    // One-time creation of required svg element
@@ -42,7 +45,8 @@ export function IconView(nodeView, iconModel) {
    this._svgImage.setAttribute('width', WIDTH);
    this._svgImage.setAttribute('height', HEIGHT);
 
-   document.getElementById('svgTextLayer').appendChild(this._svgImage);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .appendChild(this._svgImage);
 
    //---------------------------------------------------------------------------
    // .bind() effectively produces a new function *each* time, thus can't use
@@ -76,7 +80,8 @@ IconView.prototype._clickListener = function _clickListener() {
  */
 IconView.prototype.deleteSvg = function deleteSvg() {
    this._svgImage.removeEventListener('click', this._boundClickListener);
-   document.getElementById('svgTextLayer').removeChild(this._svgImage);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgTextLayer`)
+           .removeChild(this._svgImage);
 }; // deleteSvg()
 
 /**
@@ -112,10 +117,15 @@ IconView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 IconView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgImage.setAttribute("visibility", "visible");
+      this._svgImage.setAttribute("display", "visible");
    } else {
-      this._svgImage.setAttribute("visibility", "hidden");
+      this._svgImage.setAttribute("display", "none");
    }
 }; // setVisible()
 
@@ -134,6 +144,6 @@ IconView.prototype.update = function update() {
    this._svgImage.setAttributeNS(
       XLINKNS,
       'href',
-      `images/icons/${iconName}.svg`
+      `${this._imagesPath}/icons/${iconName}.svg`
    );
 }; // update()

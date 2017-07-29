@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -17,7 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {m3App} from "./main";
+import {App} from './App';
+import {m3App} from './main';
 
 /**
  * A BubbleView creates and maintains the SVG elements to show a bubble
@@ -39,6 +40,7 @@ export function BubbleView(nodeView, nodeModel, contentsWidth, contentsHeight) {
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
    this._isSelected = false;
+   this._isVisible = true;
 
    this._height = 0;
    this._width = 0;
@@ -47,7 +49,8 @@ export function BubbleView(nodeView, nodeModel, contentsWidth, contentsHeight) {
    // One-time creation of required svg element
    //---------------------------------------------------------------------------
    this._svgBubble = document.createElementNS(SVGNS, "rect");
-   document.getElementById("svgBubbleLayer").appendChild(this._svgBubble);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .appendChild(this._svgBubble);
    this._svgBubble.setAttribute("rx", 5);
    this._svgBubble.setAttribute("ry", 5);
 
@@ -86,7 +89,8 @@ BubbleView.prototype._clickListener = function _clickListener() {
  */
 BubbleView.prototype.deleteSvg = function deleteSvg() {
    this._svgBubble.removeEventListener("click", this._boundClickListener);
-   document.getElementById("svgBubbleLayer").removeChild(this._svgBubble);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .removeChild(this._svgBubble);
 }; // deleteSvg()
 
 /**
@@ -168,10 +172,15 @@ BubbleView.prototype.setSelected = function setSelected(state) {
  * @return {void}
  */
 BubbleView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgBubble.setAttribute("visibility", "visible");
+      this._svgBubble.setAttribute("display", "visible");
    } else {
-      this._svgBubble.setAttribute("visibility", "hidden");
+      this._svgBubble.setAttribute("display", "none");
    }
 }; // setVisible()
 

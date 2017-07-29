@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -17,7 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-import {m3App} from "./main";
+import {App} from './App';
+import {m3App} from './main';
 
 /**
  * A FoldingIconView creates and maintains the SVG elements to show a folding
@@ -32,9 +33,11 @@ export function FoldingIconView(nodeView, nodeModel) {
 
    this._myNodeModel = nodeModel;
    this._myNodeView = nodeView;
+   this._isVisible = true;
 
    this._svgFoldingIcon = document.createElementNS(SVGNS, "circle");
-   document.getElementById("svgBubbleLayer").appendChild(this._svgFoldingIcon);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .appendChild(this._svgFoldingIcon);
 
    this._svgFoldingIcon.setAttribute("r", FoldingIconView.FOLDING_ICON_RADIUS);
    this._svgFoldingIcon.setAttribute("stroke", "#000000");
@@ -72,7 +75,8 @@ FoldingIconView.prototype._clickListener = function _clickListener() {
  */
 FoldingIconView.prototype.deleteSvg = function deleteSvg() {
    this._svgFoldingIcon.removeEventListener("click", this._boundClickListener);
-   document.getElementById("svgBubbleLayer").removeChild(this._svgFoldingIcon);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .removeChild(this._svgFoldingIcon);
 }; // deleteSvg()
 
 /**
@@ -110,10 +114,15 @@ FoldingIconView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 FoldingIconView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgFoldingIcon.setAttribute("visibility", "visible");
+      this._svgFoldingIcon.setAttribute("display", "visible");
    } else {
-      this._svgFoldingIcon.setAttribute("visibility", "hidden");
+      this._svgFoldingIcon.setAttribute("display", "none");
    }
 }; // setVisible()
 

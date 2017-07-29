@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -18,6 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 import {m3App} from './main';
+import {App} from './App';
 import {Sizer} from './Sizer';
 import {State} from './State';
 
@@ -87,7 +88,8 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
       htmlAsDoc.getElementById(EditNodeDialog.DIALOG_ID),
       true
    );
-   document.getElementById('app-popups').appendChild(this._editNodeDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._editNodeDialog);
 
    this._textEntryField =
       document.getElementById(EditNodeDialog.TEXT_ENTRY_FIELD_ID);
@@ -148,7 +150,8 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
    //--------------------------------------------------------------------------
    // Make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById('app-popups').removeAttribute('hidden');
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute('hidden');
    m3App.getGlobalState().setState(State.STATE_DIALOG_EDIT_NODE);
 
    //--------------------------------------------------------------------------
@@ -172,7 +175,7 @@ export function EditNodeDialog(controller, nodeToEdit, firstCharacter) {
 
 } // EditNodeDialog()
 
-EditNodeDialog.DIALOG_ID = 'm3-editNodeDialog';
+EditNodeDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-editNodeDialog`;
 
 EditNodeDialog.CANCEL_ID = EditNodeDialog.DIALOG_ID + 'Cancel';
 EditNodeDialog.LINE_BREAK = EditNodeDialog.DIALOG_ID + 'LineBreak';
@@ -206,7 +209,7 @@ EditNodeDialog.prototype.adjustHeight = function adjustHeight() {
 EditNodeDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById('app-popups');
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute('hidden', 'true');
    appPopups.removeChild(this._editNodeDialog);
 

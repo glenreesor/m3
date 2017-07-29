@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -50,7 +50,8 @@ export function ErrorDialog(errorMsg) {
    htmlAsDoc = domParser.parseFromString(html, "text/html");
    this._errorDialog = document.importNode(
       htmlAsDoc.getElementById(ErrorDialog.DIALOG_ID), true);
-   document.getElementById("app-popups").appendChild(this._errorDialog);
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .appendChild(this._errorDialog);
 
    //--------------------------------------------------------------------------
    // Add our listeners
@@ -61,11 +62,12 @@ export function ErrorDialog(errorMsg) {
    //--------------------------------------------------------------------------
    // Finally, make the app-popups div visible and set state
    //--------------------------------------------------------------------------
-   document.getElementById("app-popups").removeAttribute("hidden");
+   document.getElementById(`${App.HTML_ID_PREFIX}-popups`)
+           .removeAttribute("hidden");
    m3App.getGlobalState().setState(State.STATE_DIALOG_ERROR);
 } // ErrorDialog()
 
-ErrorDialog.DIALOG_ID = "m3-errorDialog";
+ErrorDialog.DIALOG_ID = `${App.HTML_ID_PREFIX}-errorDialog`;
 ErrorDialog.OK_ID = ErrorDialog.DIALOG_ID + "Ok";
 
 /**
@@ -79,7 +81,7 @@ ErrorDialog.OK_ID = ErrorDialog.DIALOG_ID + "Ok";
 ErrorDialog.prototype.close = function close() {
    let appPopups;
 
-   appPopups = document.getElementById("app-popups");
+   appPopups = document.getElementById(`${App.HTML_ID_PREFIX}-popups`);
    appPopups.setAttribute("hidden", "true");
    appPopups.removeChild(this._errorDialog);
 

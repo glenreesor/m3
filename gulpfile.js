@@ -33,7 +33,7 @@ gulp.task('fast', function() {
    //--------------------------------------------------------------------------
    // Deprecated appcache
    //--------------------------------------------------------------------------
-   result = gulp.src('app/m3.appcache*')
+   result = gulp.src('app/m3.appcache.template')
       .pipe(footer('#Timestamp to force browser reload: ${timestamp}\n',
                    {timestamp: Date.now()}))
       .pipe(gulp.dest(debugDir))
@@ -87,6 +87,27 @@ gulp.task('fast', function() {
    result = gulp.src('app/*.php')
       .pipe(gulp.dest(debugDir))
       .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // Prod Pre-Loaded Maps
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/maps/prod/*.mm')
+      .pipe(gulp.dest(debugDir + '/maps/prod'))
+      .pipe(gulp.dest(productionDir + '/maps/prod'));
+
+   //--------------------------------------------------------------------------
+   // License file
+   //--------------------------------------------------------------------------
+   result = gulp.src('LICENSE.txt')
+      .pipe(gulp.dest(debugDir))
+      .pipe(gulp.dest(productionDir));
+
+   //--------------------------------------------------------------------------
+   // embeddingSample Pre-Loaded Maps
+   //--------------------------------------------------------------------------
+   result = gulp.src('app/maps/embeddingSample/*.mm')
+      .pipe(gulp.dest(debugDir + '/maps/embeddingSample'))
+      .pipe(gulp.dest(productionDir + '/maps/embeddingSample'));
 });
 
 //-----------------------------------------------------------------------------
@@ -107,7 +128,7 @@ gulp.task('js-lint', function() {
 gulp.task('js-debug', function() {
    // Set up the browserify instance on a task basis
    var b = browserify({
-      entries: ['./app/src/main.js', './app/src/windowOnLoad.js'],
+      entries: ['./app/src/main.js', './app/src/runMain.js'],
       debug: true
    });
 
@@ -123,7 +144,7 @@ gulp.task('js-debug', function() {
 gulp.task('js-production', function() {
    // Set up the browserify instance on a task basis
    var b = browserify({
-      entries: ['./app/src/main.js', './app/src/windowOnLoad.js'],
+      entries: ['./app/src/main.js', './app/src/runMain.js'],
       debug: true
    });
 

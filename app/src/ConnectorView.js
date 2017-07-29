@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -17,6 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
+
 /**
  * A ConnectorView creates and maintains the SVG elements to show a connector
  * from the specified node to its parent
@@ -28,11 +30,14 @@
 export function ConnectorView(nodeView) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
+   this._isVisible = true;
+
    this._svgConnector = document.createElementNS(SVGNS, "path");
    this._svgConnector.setAttribute("stroke", "#000000");
    this._svgConnector.setAttribute("fill-opacity", "0");
 
-   document.getElementById("svgBubbleLayer").appendChild(this._svgConnector);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .appendChild(this._svgConnector);
 } // ConnectorView()
 
 ConnectorView.WIDTH = 30;     // The width of all connectors
@@ -42,7 +47,8 @@ ConnectorView.WIDTH = 30;     // The width of all connectors
  * @return {void}
  */
 ConnectorView.prototype.deleteSvg = function deleteSvg() {
-   document.getElementById("svgBubbleLayer").removeChild(this._svgConnector);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgBubbleLayer`)
+           .removeChild(this._svgConnector);
 }; // deleteSvg()
 
 /**
@@ -92,9 +98,14 @@ ConnectorView.prototype.setPosition = function setPosition(x1, y1, x2, y2) {
  * @return {void}
  */
 ConnectorView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgConnector.setAttribute("visibility", "visible");
+      this._svgConnector.setAttribute("display", "visible");
    } else {
-      this._svgConnector.setAttribute("visibility", "hidden");
+      this._svgConnector.setAttribute("display", "none");
    }
 }; // setVisible()

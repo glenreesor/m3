@@ -1,6 +1,6 @@
 "use strict";
 
-// Copyright 2015, 2016 Glen Reesor
+// Copyright 2015-2017 Glen Reesor
 //
 // This file is part of m3 - Mobile Mind Mapper.
 //
@@ -17,6 +17,8 @@
 // along with m3 - Mobile Mind Mapper.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+import {App} from './App';
+
 /**
  * A CloudView creates and maintains the SVG elements to show a cloud
  * around a node and its children
@@ -28,12 +30,15 @@
 export function CloudView(cloudModel) {
    const SVGNS = "http://www.w3.org/2000/svg";
 
+   this._isVisible = true;
+
    this._svgCloud = document.createElementNS(SVGNS, "path");
    this._svgCloud.setAttribute("stroke", cloudModel.getColor());
    this._svgCloud.setAttribute("fill", cloudModel.getColor());
    this._svgCloud.setAttribute("fill-opacity", "1");
 
-   document.getElementById("svgCloudLayer").appendChild(this._svgCloud);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgCloudLayer`)
+           .appendChild(this._svgCloud);
 } // CloudView()
 
 CloudView.PADDING_HORIZONTAL = 5;   // Space between enclosed region and cloud
@@ -44,7 +49,8 @@ CloudView.PADDING_VERTICAL = 5;
  * @return {void}
  */
 CloudView.prototype.deleteSvg = function deleteSvg() {
-   document.getElementById("svgCloudLayer").removeChild(this._svgCloud);
+   document.getElementById(`${App.HTML_ID_PREFIX}-svgCloudLayer`)
+           .removeChild(this._svgCloud);
 }; // deleteSvg()
 
 /**
@@ -106,9 +112,14 @@ CloudView.prototype.setPosition = function setPosition(x, y) {
  * @return {void}
  */
 CloudView.prototype.setVisible = function setVisible(visible) {
+   if (this._isVisible === visible) {
+      return;
+   }
+   this._isVisible = visible;
+
    if (visible) {
-      this._svgCloud.setAttribute("visibility", "visible");
+      this._svgCloud.setAttribute("display", "visible");
    } else {
-      this._svgCloud.setAttribute("visibility", "hidden");
+      this._svgCloud.setAttribute("display", "none");
    }
 }; // setVisible()
