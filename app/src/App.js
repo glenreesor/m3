@@ -46,8 +46,8 @@ App.MY_NAME = 'm3 - Mobile Mind Mapper';
 App.MY_VERSION = {major: 0,
                   minor: 12,
                   patch: 0,
-                  isReleaseCandidate: true,
-                  releaseCandidateNum: 2};
+                  isReleaseCandidate: false,
+                  releaseCandidateNum: 1};
 
 /**
  * Set App.m3Path to be the path where m3 is installed. This is determined from
