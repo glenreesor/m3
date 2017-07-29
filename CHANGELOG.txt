@@ -1,5 +1,21 @@
 Change Log
 
+2017-07-20 - Version 0.12.0
+   New Features
+      - Significant performance improvements for loading, scrolling, and folding
+        large maps, especially on iOS
+      - Switched from dotted links to open arrow heads when one end is hidden,
+        due to terrible iOS scrolling performance with dotted curves
+      - Support embedding m3 in another webpage
+      - Added a new Welcome map that gets displayed on first load of m3
+      - Center maps on initial load
+      - Put popups at the top of the screen rather than bottom, since Chrome
+        fullpage mode on some devices doesn't scroll contents up when displaying
+        keyboard
+
+   Bug Fixes
+      - Fix widths of some rich text nodes
+
 2016-09-11 - Version 0.11.0
    New Features
       - Wrap non-rich nodes to a maximum width

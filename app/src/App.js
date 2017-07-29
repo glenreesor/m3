@@ -44,7 +44,7 @@ App.m3Path = null;                        // To be populated by App.setM3Path()
 App.myDB = null;                          // This will be populated by _start()
 App.MY_NAME = 'm3 - Mobile Mind Mapper';
 App.MY_VERSION = {major: 0,
-                  minor: 11,
+                  minor: 12,
                   patch: 0,
                   isReleaseCandidate: false,
                   releaseCandidateNum: 1};
