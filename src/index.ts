@@ -1,3 +1,4 @@
 import * as m from 'mithril';
+import App from './components/App';
 
-m.render(document.body, 'hello world');
+m.mount(document.body, App);

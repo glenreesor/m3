@@ -7,26 +7,25 @@ module.exports = {
         app: './src/index.ts',
     },
     plugins: [
-            new CleanWebpackPlugin(),
-            new HtmlWebpackPlugin({
-                    title: 'm3',
-            }),
+        new CleanWebpackPlugin(),
+        new HtmlWebpackPlugin({
+            title: 'm3',
+        }),
     ],
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
+                test: /\.ts$/,
                 use: 'ts-loader',
                 exclude: /node_modules/,
             },
         ],
     },
     resolve: {
-        extensions: [ '.tsx', '.ts', '.js' ],
+        extensions: ['.ts'],
     },
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
     },
 };
-

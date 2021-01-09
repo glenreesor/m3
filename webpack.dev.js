@@ -10,5 +10,5 @@ module.exports = merge(
             host: '0.0.0.0',
             contentBase: './dist',
         },
-    }
+    },
 );
