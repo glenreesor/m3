@@ -49,10 +49,6 @@ module.exports = {
         ],
 
         // Rationale:
-        //  - This is handled by Typescript strict mode
-        'no-unused-vars': 'off',
-
-        // Rationale:
         //  - One less think to think about (Automatic Semicolon Insertion)
         semi: ['error', 'always'],
     },
