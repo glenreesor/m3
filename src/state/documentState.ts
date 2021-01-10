@@ -6,17 +6,17 @@
  * See return object for action functions.
  */
 export default (() => {
+    // One Node in user's document
+    interface Node {
+        id: number,
+        contents: string,
+        childIds: Array<number>,
+    }
+
     // Parts of user's document that are affected by editing, including undo
     // and redo
     interface Document {
-        nodes: Map<
-            number,
-            {
-                id: number,
-                contents: string,
-                childIds: Array<number>,
-            }
-        >,
+        nodes: Map<number, Node>,
         highestNodeId: number,
         rootId: number,
     }
@@ -47,7 +47,7 @@ export default (() => {
 
     // Initial hard-coded doc to be used for testing new functionality
     const initialDoc = {
-        nodes: (new Map())
+        nodes: (new Map() as Map<number, Node>)
             .set(
                 0,
                 {
