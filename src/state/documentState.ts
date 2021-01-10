@@ -19,7 +19,6 @@ export default (() => {
         >,
         highestNodeId: number,
         rootId: number,
-        selectedNodeId: number,
     }
 
     // Full state
@@ -41,6 +40,9 @@ export default (() => {
 
         // Whether document has been modified since last save
         isModified: boolean,
+
+        // The ID of the currently selected node
+        selectedNodeId: number,
     }
 
     // Initial hard-coded doc to be used for testing new functionality
@@ -120,7 +122,6 @@ export default (() => {
             ),
         highestNodeId: 8,
         rootId: 0,
-        selectedNodeId: 0,
     };
 
     const state: State = {
@@ -128,6 +129,7 @@ export default (() => {
         docHistory: [initialDoc],
         docName: 'New Map',
         isModified: true,
+        selectedNodeId: 0,
     };
 
     /**
@@ -203,6 +205,15 @@ export default (() => {
          *
          * @returns The ID
          */
-        getSelectedNodeId: ():number => getCurrentDoc().selectedNodeId,
+        getSelectedNodeId: ():number => state.selectedNodeId,
+
+        /**
+         * Set the currently selected node to the specified one
+         *
+         * @param nodeId The new selected node
+         */
+        setSelectedNodeId: (nodeId: number) => {
+            state.selectedNodeId = nodeId;
+        },
     };
 })();
