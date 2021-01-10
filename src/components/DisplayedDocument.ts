@@ -27,6 +27,24 @@ function DisplayedDocument(): m.Component<Attrs> {
 
     type AllDimensions = Map<number, DimensionInfo>;
 
+    // Description of a rectangular region that should be clickable
+    interface ClickableRegion {
+        // The ID of this object (e.g. a nodeId)
+        id: number,
+
+        // Top left corner x-coordinate
+        x: number,
+
+        // Top left corner y-coordinate
+        y: number,
+
+        // Width of the rectangle
+        width: number,
+
+        // Height of the rectangle
+        height: number,
+    }
+
     //--------------------------------------------------------------------------
     // Constants for layout spacing
     //
@@ -67,8 +85,11 @@ function DisplayedDocument(): m.Component<Attrs> {
         y: 5,
     };
 
-    // Our drawing context
+    let canvasElement: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
+
+    // List of clickable regions for nodes (created upon each render)
+    let clickableNodes: ClickableRegion[] = [];
 
     /**
      * Calculate dimensions for the specified node and all children of that
@@ -122,6 +143,26 @@ function DisplayedDocument(): m.Component<Attrs> {
     }
 
     /**
+     * Handle a click or tap on this canvas. Compare the clicked coordinates
+     * to our clickable regions and handle as appropriate.
+     *
+     * @param e The mouse event corresponding to the click
+     */
+    function onClick(e: MouseEvent) {
+        // Convert the mouse coordinates to be relative to the canvas
+        const canvasX = e.pageX - canvasElement.offsetLeft;
+        const canvasY = e.pageY - canvasElement.offsetTop;
+
+        clickableNodes.forEach((region) => {
+            if (
+                (canvasX >= region.x && canvasX <= region.x + region.width)
+                && (canvasY >= region.y && canvasY <= region.y + region.height)
+            ) {
+                documentState.setSelectedNodeId(region.id);
+            }
+        });
+    }
+    /**
      * Render the specified node and all of it's children
      *
      * @param allDimensions   The Map that has entries for every node in the
@@ -149,11 +190,33 @@ function DisplayedDocument(): m.Component<Attrs> {
             bubblePos.y + myDims.bubbleHeight - NODE_PADDING.y,
         );
 
+        // Style the bubble based on whether this node is selected
+        if (documentState.getSelectedNodeId() === nodeId) {
+            ctx.strokeStyle = '#0000ff';
+            ctx.lineWidth = 2;
+        } else {
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1;
+        }
         roundedRectangle(
             bubblePos.x,
             bubblePos.y,
             myDims.bubbleWidth,
             myDims.bubbleHeight,
+        );
+
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+
+        // Record the region that should respond to clicks for this node
+        clickableNodes.push(
+            {
+                id: nodeId,
+                x: bubblePos.x,
+                y: bubblePos.y,
+                width: myDims.bubbleWidth,
+                height: myDims.bubbleHeight,
+            },
         );
 
         const childIds = documentState.getNodeChildIds(nodeId);
@@ -403,7 +466,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             // Scale the canvas properly so everything looks crisp on high DPI
             // displays
             //------------------------------------------------------------------
-            const canvasElement = vnode.dom as HTMLCanvasElement;
+            canvasElement = vnode.dom as HTMLCanvasElement;
             const cssPixelsBoundingRect = canvasElement.getBoundingClientRect();
             const devicePixelRatio = window.devicePixelRatio || 1;
             ctx = canvasElement.getContext('2d') as CanvasRenderingContext2D;
@@ -425,7 +488,40 @@ function DisplayedDocument(): m.Component<Attrs> {
             ctx.scale(devicePixelRatio, devicePixelRatio);
 
             //------------------------------------------------------------------
-            // Now draw things
+            // Draw the user's map
+            //------------------------------------------------------------------
+            ctx.strokeStyle = '#000000';
+            ctx.fillStyle = '#000000';
+            ctx.font = `${FONT_SIZE}px sans-serif`;
+
+            const rootNodeId = documentState.getRootNodeId();
+            const allDimensions = new Map();
+            calculateDimensions(allDimensions, rootNodeId);
+
+            renderNode(
+                allDimensions,
+                rootNodeId,
+                {
+                    x: 10,
+                    y: vnode.attrs.documentDimensions.height / 2,
+                },
+            );
+        },
+
+        onupdate: (vnode) => {
+            // Clear the existing rendered map
+            ctx.clearRect(
+                0,
+                0,
+                vnode.attrs.documentDimensions.width,
+                vnode.attrs.documentDimensions.height,
+            );
+
+            // Reset clickable regions
+            clickableNodes = [];
+
+            //------------------------------------------------------------------
+            // Draw the user's map
             //------------------------------------------------------------------
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = '#000000';
@@ -451,6 +547,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                 height: attrs.documentDimensions.height,
                 width: attrs.documentDimensions.width,
                 style: 'border: 1px solid black',
+                onclick: onClick,
             },
         ),
     };
