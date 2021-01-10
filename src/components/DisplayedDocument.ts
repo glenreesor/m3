@@ -15,17 +15,57 @@ interface Attrs {
  */
 function DisplayedDocument(): m.Component<Attrs> {
     interface DimensionInfo {
-        // The height of the node's contents (i.e. excluding bubble)
-        nodeContentsHeight: number,
+        // The height of the node's bubble
+        bubbleHeight: number,
 
-        // The width of the node's contents
-        nodeContentsWidth: number,
+        // The width of the node's bubble
+        bubbleWidth: number,
 
         // Total height of this node and its visible children
         totalHeight: number,
     }
 
     type AllDimensions = Map<number, DimensionInfo>;
+
+    //--------------------------------------------------------------------------
+    // Constants for layout spacing
+    //
+    // ┌───────────────────────┐  ┐
+    // |                       |  ├─── NODE_PADDING.y
+    // |                       |  ┘
+    // |     Node Contents     |
+    // |                       |
+    // |                       |
+    // └───────────────────────┘
+    // └──┬──┘
+    //    └────── NODE_PADDING.x
+    //
+    // Folding icon ─────┐      ┌──── Child-to-parent connectors
+    // (circle)          |      ↓
+    //                   ↓        ┌────────────┐
+    //                         ┌──| Child Node |
+    //                  ---    |  └────────────┘  ┐
+    // ┌─────────────┐ -   -   |                  |
+    // | Parent Node |-     -──┤                  ├─── CHILD_PADDING.y
+    // └─────────────┘ -   -   |                  |
+    //                  ---    |  ┌────────────┐  ┘
+    //                └┬─┘     └──| Child Node |
+    //                 |          └────────────┘
+    // FOLDING_ICON_RADIUS   └─┬──┘
+    //                         └─── CHILD_PADDING.x
+    //
+    //--------------------------------------------------------------------------
+    const CHILD_PADDING = {
+        x: 30,
+        y: 15,
+    };
+    const FOLDING_ICON_RADIUS = 10;
+    const FONT_SIZE = 12;
+
+    const NODE_PADDING = {
+        x: 5,
+        y: 5,
+    };
 
     // Our drawing context
     let ctx: CanvasRenderingContext2D;
@@ -46,18 +86,26 @@ function DisplayedDocument(): m.Component<Attrs> {
         const textMetrics = ctx.measureText(
             documentState.getNodeContents(nodeId),
         );
-        const myContentsWidth = textMetrics.width;
-        const myContentsHeight = 12 * 1.5;
+        const bubbleDim = {
+            h: FONT_SIZE + 2 * NODE_PADDING.y,
+            w: textMetrics.width + 2 * NODE_PADDING.x,
+        };
+        const childIds = documentState.getNodeChildIds(nodeId);
 
         // Determine total height of this node's children
         let totalChildrenHeight = 0;
 
-        documentState.getNodeChildIds(nodeId).forEach((childId) => {
+        childIds.forEach((childId) => {
             calculateDimensions(allDimensions, childId);
             totalChildrenHeight += safeGetDimensions(
                 allDimensions, childId,
             ).totalHeight;
         });
+
+        // Also account for vertical padding between child nodes
+        if (childIds.length > 0) {
+            totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
+        }
 
         // We have all the required dimensions, so store them.
         // Note that even if there are multiple children, the contents of the
@@ -66,9 +114,9 @@ function DisplayedDocument(): m.Component<Attrs> {
         allDimensions.set(
             nodeId,
             {
-                nodeContentsHeight: myContentsHeight,
-                nodeContentsWidth: myContentsWidth,
-                totalHeight: Math.max(myContentsHeight, totalChildrenHeight),
+                bubbleHeight: bubbleDim.h,
+                bubbleWidth: bubbleDim.w,
+                totalHeight: Math.max(bubbleDim.h, totalChildrenHeight),
             },
         );
     }
@@ -79,76 +127,149 @@ function DisplayedDocument(): m.Component<Attrs> {
      * @param allDimensions   The Map that has entries for every node in the
      *                        document
      * @param nodeId          The ID of the node to render
-     * @param x               The x-coordinate for this node
-     * @param y               The y-coordinate for this node
+     * @param bubblePos       The coordinates of the top left corner of this
+     *                        node's bubble
+     * @param     bubblePos.x     The x-coordinate
+     * @param     bubblePos.y     The y-coordinate
      */
     function renderNode(
         allDimensions: AllDimensions,
         nodeId: number,
-        x: number,
-        y: number,
+        bubblePos: {x: number, y: number},
     ) {
         //----------------------------------------------------------------------
-        // Render the specified node's contents
+        // Render the specified node's contents and bubble
         //----------------------------------------------------------------------
-        ctx.fillText(documentState.getNodeContents(nodeId), x, y);
+        const myDims = safeGetDimensions(allDimensions, nodeId);
 
-        const children = documentState.getNodeChildIds(nodeId);
-        if (children.length > 0) {
+        // Remember that (x,y) for text is bottom left corner
+        ctx.fillText(
+            documentState.getNodeContents(nodeId),
+            bubblePos.x + NODE_PADDING.x,
+            bubblePos.y + myDims.bubbleHeight - NODE_PADDING.y,
+        );
+
+        roundedRectangle(
+            bubblePos.x,
+            bubblePos.y,
+            myDims.bubbleWidth,
+            myDims.bubbleHeight,
+        );
+
+        const childIds = documentState.getNodeChildIds(nodeId);
+        if (childIds.length > 0) {
             //------------------------------------------------------------------
-            // Render this node's children
+            // Render the folding icon
+            //------------------------------------------------------------------
+            const foldingIconPos = {
+                x: bubblePos.x + myDims.bubbleWidth + FOLDING_ICON_RADIUS,
+                y: bubblePos.y + myDims.bubbleHeight / 2,
+            };
+
+            ctx.beginPath();
+            ctx.arc(
+                foldingIconPos.x,
+                foldingIconPos.y,
+                FOLDING_ICON_RADIUS,
+                0,
+                2 * Math.PI,
+            );
+            ctx.stroke();
+
+            //------------------------------------------------------------------
+            // Calculate coordinates for this node's first child
             //------------------------------------------------------------------
 
             // Children are centered vertically on this, the parent node:
-            //                 +-------------------------------------------+
-            //                 |                                           |
-            // +----------+    |                                           |
-            // |parentNode|    |            All Children                   |
-            // +----------+    |                                           |
-            //                 |                                           |
-            //                 +-------------------------------------------+
+            //                 ┌──────────────────────────────┐
+            //                 |                              |
+            // ┌──────────┐    |                              |
+            // |parentNode|    |         All Children         |
+            // └──────────┘    |                              |
+            //                 |                              |
+            //                 └──────────────────────────────┘
 
             // The top of the first child (and all of it's children) is at the
             // top of the box shown above.
             // The top of the second child (and all of it's children) is below
             // that.
             // And so on.
-            //  +-------------------------------------------+
-            //  |     +-------------------------+           |
-            //  |     |           Grandchild 1  |           |
-            //  |     |  Child 1  Grandchild 2  |           |
-            //  |     |           Grandchild 3  |           |
-            //  |     +-------------------------+           |
-            //  |                                           |
-            //  |     +-------------------------+           |
-            //  |     |           Grandchild 1  |           |
-            //  |     |  Child 1  Grandchild 2  |           |
-            //  |     |           Grandchild 3  |           |
-            //  |     +-------------------------+           |
-            //  +-------------------------------------------+
-            const myDimensions = safeGetDimensions(allDimensions, nodeId);
+            //  ┌─────────────────────────────────────┐
+            //  |     ┌─────────────────────────┐     |
+            //  |     |           Grandchild 1  |     |
+            //  |     |  Child 1  Grandchild 2  |     |
+            //  |     |           Grandchild 3  |     |
+            //  |     └─────────────────────────┘     |
+            //  |                                     |
+            //  |     ┌─────────────────────────┐     |
+            //  |     |           Grandchild 1  |     |
+            //  |     |  Child 1  Grandchild 2  |     |
+            //  |     |           Grandchild 3  |     |
+            //  |     └─────────────────────────┘     |
+            //  └─────────────────────────────────────┘
 
-            // x-coordinate of children is easy as they're all lined up
-            const childrenX = x + myDimensions.nodeContentsWidth + 10;
+            // - x-coordinate won't change for any children
+            // - y-coordinate will be updated for each child
+            const childTop = {
+                // x-coordinate of children is easy as they're all lined up
+                x: foldingIconPos.x + FOLDING_ICON_RADIUS + CHILD_PADDING.x,
 
-            // Children are centered (vertically) on parent node, so y-coordinate
-            // of first child is half the total children height above parent
-            let childrenY = y - 0.5 * myDimensions.totalHeight;
+                // Children are centered (vertically) on parent node, so
+                // y-coordinate of first child is half the total children height
+                // above parent
+                y: (
+                    bubblePos.y + myDims.bubbleHeight / 2 // Vertical center of parent
+                    - myDims.totalHeight / 2
+                ),
+            };
 
-            // Render each child
-            children.forEach((childId) => {
-                const thisChildTotalHeight = safeGetDimensions(
-                    allDimensions,
-                    childId,
-                ).totalHeight;
+            //------------------------------------------------------------------
+            // Render each child and connector
+            //------------------------------------------------------------------
+            childIds.forEach((childId) => {
+                // Render the child
+                const thisChildDims = safeGetDimensions(allDimensions, childId);
+                const thisChildCenter = childTop.y + 0.5 * thisChildDims.totalHeight;
 
+                // Remember y-coordinates are for the top of the bubble, which
+                // is not the vertical center of the node
+                const thisChildY = (
+                    thisChildCenter - thisChildDims.bubbleHeight / 2
+                );
                 renderNode(
                     allDimensions,
                     childId,
-                    childrenX,
-                    childrenY + 0.5 * thisChildTotalHeight,
+                    {
+                        x: childTop.x,
+                        y: thisChildY,
+                    },
                 );
-                childrenY += thisChildTotalHeight;
+
+                // Render the connector
+                const curveStart = {
+                    x: foldingIconPos.x + FOLDING_ICON_RADIUS,
+                    y: foldingIconPos.y,
+                };
+
+                const curveEnd = {
+                    x: childTop.x,
+                    y: thisChildY + NODE_PADDING.y + FONT_SIZE / 2,
+                };
+
+                ctx.beginPath();
+                ctx.moveTo(curveStart.x, curveStart.y);
+                ctx.bezierCurveTo(
+                    curveEnd.x,
+                    curveStart.y,
+                    curveStart.x,
+                    curveEnd.y,
+                    curveEnd.x,
+                    curveEnd.y,
+                );
+                ctx.stroke();
+
+                // Adjust y-coordinate for next child
+                childTop.y += thisChildDims.totalHeight + CHILD_PADDING.y;
             });
         }
     }
@@ -175,6 +296,105 @@ function DisplayedDocument(): m.Component<Attrs> {
         throw new Error(
             `safeGetDimensions(): nodeID '${nodeId}' is not present`,
         );
+    }
+
+    /**
+     * Draw a rectangle with rounded corners. Coordinates and dimensions
+     * correspond to a true (90 degree corner) rectangle.
+     *
+     * @param x      x-coordinate of top left corner
+     * @param y      y-coordinate of top left corner
+     * @param width  Width of the rectangle
+     * @param height Height of the rectangle
+     */
+    function roundedRectangle(x: number, y: number, width: number, height: number) {
+        const radius = 5;
+
+        // Roughly speaking, here's a corner, with (x,y) marked by '+':
+        //
+        // +   ────  ┐
+        //   /       ├ Radius
+        //  /        ┘
+        // |
+        // |
+        //
+        // └┬─┘
+        // Radius
+
+        // Coordinates of corners as if this were a normal rectangle
+        const topLeft = {
+            x,
+            y,
+        };
+
+        const topRight = {
+            x: x + width,
+            y,
+        };
+
+        const bottomLeft = {
+            x,
+            y: y + height,
+        };
+
+        const bottomRight = {
+            x: x + width,
+            y: y + height,
+        };
+
+        // Draw in a clockwise direction starting at top left
+        ctx.beginPath();
+
+        // Top left corner
+        ctx.arc(
+            topLeft.x + radius,
+            topLeft.y + radius,
+            radius,
+            Math.PI,
+            1.5 * Math.PI,
+        );
+
+        // Top line
+        ctx.lineTo(topRight.x - radius, topRight.y);
+
+        // Top right corner
+        ctx.arc(
+            topRight.x - radius,
+            topRight.y + radius,
+            radius,
+            1.5 * Math.PI,
+            2 * Math.PI,
+        );
+
+        // Right line
+        ctx.lineTo(bottomRight.x, bottomRight.y - radius);
+
+        // Bottom right corner
+        ctx.arc(
+            bottomRight.x - radius,
+            bottomRight.y - radius,
+            radius,
+            0,
+            0.5 * Math.PI,
+        );
+
+        // Bottom line
+        ctx.lineTo(bottomLeft.x + radius, bottomLeft.y);
+
+        // Bottom left corner
+        ctx.arc(
+            bottomLeft.x + radius,
+            bottomLeft.y - radius,
+            radius,
+            0.5 * Math.PI,
+            Math.PI,
+        );
+
+        // Left line
+        ctx.lineTo(topLeft.x, topLeft.y + radius);
+
+        // And done!
+        ctx.stroke();
     }
 
     return {
@@ -209,7 +429,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             //------------------------------------------------------------------
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = '#000000';
-            ctx.font = '12px sans-serif';
+            ctx.font = `${FONT_SIZE}px sans-serif`;
 
             const rootNodeId = documentState.getRootNodeId();
             const allDimensions = new Map();
@@ -218,8 +438,10 @@ function DisplayedDocument(): m.Component<Attrs> {
             renderNode(
                 allDimensions,
                 rootNodeId,
-                10,
-                vnode.attrs.documentDimensions.height / 2,
+                {
+                    x: 10,
+                    y: vnode.attrs.documentDimensions.height / 2,
+                },
             );
         },
 
