@@ -34,6 +34,11 @@ module.exports = {
         'jsdoc/require-param-type': 'off',
 
         // Rationale:
+        //  - This is a pain when trying to write formulas that are easily
+        //    understandable
+        'no-mixed-operators': 'off',
+
+        // Rationale:
         //  - Allow for flexibility when lining up keys and values, but not be
         //    forced to
         'no-multi-spaces': 'off',
