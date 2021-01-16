@@ -11,6 +11,7 @@ export default (() => {
         id: number,
         contents: string,
         childIds: Array<number>,
+        childrenVisible: boolean,
     }
 
     // Parts of user's document that are affected by editing, including undo
@@ -54,6 +55,7 @@ export default (() => {
                     id: 0,
                     contents: 'New Map',
                     childIds: [1, 2, 3],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -62,6 +64,7 @@ export default (() => {
                     id: 1,
                     contents: 'First Child Node',
                     childIds: [4, 5],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -70,6 +73,7 @@ export default (() => {
                     id: 2,
                     contents: 'Second Child Node',
                     childIds: [],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -78,6 +82,7 @@ export default (() => {
                     id: 3,
                     contents: 'Third Child Node',
                     childIds: [6, 7, 8],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -86,6 +91,7 @@ export default (() => {
                     id: 4,
                     contents: 'First child of first child',
                     childIds: [],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -94,6 +100,7 @@ export default (() => {
                     id: 5,
                     contents: 'Second child of first child',
                     childIds: [],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -102,6 +109,7 @@ export default (() => {
                     id: 6,
                     contents: 'First child of third child',
                     childIds: [],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -110,6 +118,7 @@ export default (() => {
                     id: 7,
                     contents: 'Second child of third child',
                     childIds: [],
+                    childrenVisible: true,
                 },
             )
             .set(
@@ -118,6 +127,7 @@ export default (() => {
                     id: 8,
                     contents: 'Third child of third child',
                     childIds: [],
+                    childrenVisible: true,
                 },
             ),
         highestNodeId: 8,
@@ -141,7 +151,38 @@ export default (() => {
         return state.docHistory[state.currentDocIndex];
     }
 
+    /**
+     * Helper function to get the specified node from the current document.
+     * Throws an error if node not found
+     *
+     * @param nodeId    The ID of the node to get
+     * @param callingFn The name of the calling function, for exception message
+     *
+     * @returns Node The node
+     */
+    function safeGetNode(nodeId: number, callingFn: string): Node {
+        const node = getCurrentDoc().nodes.get(nodeId);
+
+        if (node !== undefined) return node;
+
+        throw new Error(
+            `safeGetNode() nodeId '${nodeId}' is not present in document. Called from ${callingFn}`,
+        );
+    }
+
     return {
+        /**
+         * Get whether the children of the specified node are visible
+         *
+         * @param nodeId The node in question
+         *
+         * @returns Whether the children are visible
+         */
+        getChildrenVisible: (nodeId: number):boolean => safeGetNode(
+            nodeId,
+            'getChildrenVisible',
+        ).childrenVisible,
+
         /**
          * Return the name of the current document
          *
@@ -165,15 +206,10 @@ export default (() => {
          *
          * @returns The node's children
          */
-        getNodeChildIds: (nodeId: number):Array<number> => {
-            const node = getCurrentDoc().nodes.get(nodeId);
-
-            if (node !== undefined) return node.childIds.slice();
-
-            throw new Error(
-                `getNodeChildIds(): nodeId '${nodeId}' is not present in document`,
-            );
-        },
+        getNodeChildIds: (nodeId: number):Array<number> => safeGetNode(
+            nodeId,
+            'getNodeChildIds',
+        ).childIds.slice(),
 
         /**
          * Return the contents of the specified node.
@@ -183,15 +219,10 @@ export default (() => {
          *
          * @returns The node's contents
          */
-        getNodeContents: (nodeId: number):string => {
-            const node = getCurrentDoc().nodes.get(nodeId);
-
-            if (node !== undefined) return node.contents;
-
-            throw new Error(
-                `getNodeContents(): nodeId '${nodeId}' is not present in document`,
-            );
-        },
+        getNodeContents: (nodeId: number):string => safeGetNode(
+            nodeId,
+            'getNodeContents',
+        ).contents,
 
         /**
          * Get the ID of the root node
@@ -214,6 +245,16 @@ export default (() => {
          */
         setSelectedNodeId: (nodeId: number) => {
             state.selectedNodeId = nodeId;
+        },
+
+        /**
+         * Toggle visibility of the specified node's children
+         *
+         * @param nodeId The node in question
+         */
+        toggleChildrenVisibility: (nodeId: number) => {
+            const node = safeGetNode(nodeId, 'toggleChildrenVisibility');
+            node.childrenVisible = !node.childrenVisible;
         },
     };
 })();

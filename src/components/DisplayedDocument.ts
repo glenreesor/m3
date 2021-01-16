@@ -17,9 +17,23 @@ function DisplayedDocument(): m.Component<Attrs> {
     //--------------------------------------------------------------------------
     // Interfaces and Types
     //--------------------------------------------------------------------------
+    // Description of a circular region that should be clickable
+    interface ClickableCircle {
+        // The ID of this object (e.g. a nodeId for a folding icon)
+        id: number,
+
+        // Center x-coordinate
+        x: number,
+
+        // Center y-coordinate
+        y: number,
+
+        // Radius of the circle
+        radius: number,
+    }
 
     // Description of a rectangular region that should be clickable
-    interface ClickableRegion {
+    interface ClickableRectangle {
         // The ID of this object (e.g. a nodeId)
         id: number,
 
@@ -100,8 +114,9 @@ function DisplayedDocument(): m.Component<Attrs> {
     let canvasElement: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
 
-    // List of clickable regions for nodes (created upon each render)
-    let clickableNodes: ClickableRegion[] = [];
+    // List of clickable regions (created upon each render)
+    let clickableFoldingIcons: ClickableCircle[] = [];
+    let clickableNodes: ClickableRectangle[] = [];
 
     /**
      * Calculate dimensions for the specified node and all children of that
@@ -123,21 +138,26 @@ function DisplayedDocument(): m.Component<Attrs> {
             h: FONT_SIZE + 2 * NODE_PADDING.y,
             w: textMetrics.width + 2 * NODE_PADDING.x,
         };
-        const childIds = documentState.getNodeChildIds(nodeId);
 
-        // Determine total height of this node's children
         let totalChildrenHeight = 0;
 
-        childIds.forEach((childId) => {
-            calculateDimensions(allDimensions, childId);
-            totalChildrenHeight += safeGetDimensions(
-                allDimensions, childId,
-            ).heightWithChildren;
-        });
+        // Calculate height of children if they're visible
+        if (documentState.getChildrenVisible(nodeId)) {
+            const childIds = documentState.getNodeChildIds(nodeId);
 
-        // Also account for vertical padding between child nodes
-        if (childIds.length > 0) {
-            totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
+            // Determine total height of this node's children
+
+            childIds.forEach((childId) => {
+                calculateDimensions(allDimensions, childId);
+                totalChildrenHeight += safeGetDimensions(
+                    allDimensions, childId,
+                ).heightWithChildren;
+            });
+
+            // Also account for vertical padding between child nodes
+            if (childIds.length > 0) {
+                totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
+            }
         }
 
         // We have all the required dimensions, so store them.
@@ -241,12 +261,25 @@ function DisplayedDocument(): m.Component<Attrs> {
         const canvasX = e.pageX - canvasElement.offsetLeft;
         const canvasY = e.pageY - canvasElement.offsetTop;
 
+        // Compare to clickable regions for nodes
         clickableNodes.forEach((region) => {
             if (
                 (canvasX >= region.x && canvasX <= region.x + region.width)
                 && (canvasY >= region.y && canvasY <= region.y + region.height)
             ) {
                 documentState.setSelectedNodeId(region.id);
+            }
+        });
+
+        // Compare to clickable regions for folding icons
+        clickableFoldingIcons.forEach((region) => {
+            const distanceToCenter = Math.sqrt(
+                (canvasX - region.x) ** 2
+                + (canvasY - region.y) ** 2,
+            );
+
+            if (distanceToCenter <= region.radius) {
+                documentState.toggleChildrenVisibility(region.id);
             }
         });
     }
@@ -290,6 +323,7 @@ function DisplayedDocument(): m.Component<Attrs> {
         bubblePos: Coordinates,
     ) {
         const myDims = safeGetDimensions(allDimensions, nodeId);
+        const childrenVisible = documentState.getChildrenVisible(nodeId);
         renderNodeContentsAndBubble(myDims, bubblePos, nodeId);
 
         const childIds = documentState.getNodeChildIds(nodeId);
@@ -311,39 +345,55 @@ function DisplayedDocument(): m.Component<Attrs> {
                 2 * Math.PI,
             );
 
-            ctx.stroke();
+            if (childrenVisible) {
+                ctx.stroke();
+            } else {
+                ctx.fill();
+            }
 
-            //------------------------------------------------------------------
-            // Render children and connectors
-            //------------------------------------------------------------------
-            const childrenX = foldingIconPos.x + FOLDING_ICON_RADIUS + CHILD_PADDING.x;
-            const relativeChildYCoords = getNodesRelativeYCoordinates(
-                allDimensions,
-                myDims,
-                childIds,
+            // Record the region that should respond to clicks for this icon
+            clickableFoldingIcons.push(
+                {
+                    id: nodeId,
+                    x: foldingIconPos.x,
+                    y: foldingIconPos.y,
+                    radius: FOLDING_ICON_RADIUS,
+                },
             );
 
-            childIds.forEach((childId, index) => {
-                renderChildConnector(
-                    {
-                        x: foldingIconPos.x + FOLDING_ICON_RADIUS,
-                        y: foldingIconPos.y,
-                    },
-                    {
-                        x: childrenX,
-                        y: foldingIconPos.y + relativeChildYCoords[index].bubbleCenter,
-                    },
+            //------------------------------------------------------------------
+            // Render children and connectors if visible
+            //------------------------------------------------------------------
+            if (childrenVisible) {
+                const childrenX = foldingIconPos.x + FOLDING_ICON_RADIUS + CHILD_PADDING.x;
+                const relativeChildYCoords = getNodesRelativeYCoordinates(
+                    allDimensions,
+                    myDims,
+                    childIds,
                 );
 
-                renderNodesRecursively(
-                    allDimensions,
-                    childId,
-                    {
-                        x: childrenX,
-                        y: foldingIconPos.y + relativeChildYCoords[index].bubbleTop,
-                    },
-                );
-            });
+                childIds.forEach((childId, index) => {
+                    renderChildConnector(
+                        {
+                            x: foldingIconPos.x + FOLDING_ICON_RADIUS,
+                            y: foldingIconPos.y,
+                        },
+                        {
+                            x: childrenX,
+                            y: foldingIconPos.y + relativeChildYCoords[index].bubbleCenter,
+                        },
+                    );
+
+                    renderNodesRecursively(
+                        allDimensions,
+                        childId,
+                        {
+                            x: childrenX,
+                            y: foldingIconPos.y + relativeChildYCoords[index].bubbleTop,
+                        },
+                    );
+                });
+            }
         }
     }
 
@@ -579,6 +629,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             );
 
             // Reset clickable regions
+            clickableFoldingIcons = [];
             clickableNodes = [];
 
             //------------------------------------------------------------------
