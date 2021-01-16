@@ -14,18 +14,9 @@ interface Attrs {
  * @returns An object to be consumed by m()
  */
 function DisplayedDocument(): m.Component<Attrs> {
-    interface DimensionInfo {
-        // The height of the node's bubble
-        bubbleHeight: number,
-
-        // The width of the node's bubble
-        bubbleWidth: number,
-
-        // Total height of this node and its visible children
-        totalHeight: number,
-    }
-
-    type AllDimensions = Map<number, DimensionInfo>;
+    //--------------------------------------------------------------------------
+    // Interfaces and Types
+    //--------------------------------------------------------------------------
 
     // Description of a rectangular region that should be clickable
     interface ClickableRegion {
@@ -44,6 +35,27 @@ function DisplayedDocument(): m.Component<Attrs> {
         // Height of the rectangle
         height: number,
     }
+
+    interface Coordinates {
+        x: number,
+        y: number,
+    }
+
+    interface NodeDimensionInfo {
+        // The height of the node's bubble
+        bubbleHeight: number,
+
+        // The width of the node's bubble
+        bubbleWidth: number,
+
+        // Total height of this node and its visible children
+        heightWithChildren: number,
+    }
+
+    //--------------------------------------------------------------------------
+    // Dependent Interfaces and Types
+    //--------------------------------------------------------------------------
+    type AllDimensions = Map<number, NodeDimensionInfo>;
 
     //--------------------------------------------------------------------------
     // Constants for layout spacing
@@ -120,7 +132,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             calculateDimensions(allDimensions, childId);
             totalChildrenHeight += safeGetDimensions(
                 allDimensions, childId,
-            ).totalHeight;
+            ).heightWithChildren;
         });
 
         // Also account for vertical padding between child nodes
@@ -137,9 +149,85 @@ function DisplayedDocument(): m.Component<Attrs> {
             {
                 bubbleHeight: bubbleDim.h,
                 bubbleWidth: bubbleDim.w,
-                totalHeight: Math.max(bubbleDim.h, totalChildrenHeight),
+                heightWithChildren: Math.max(bubbleDim.h, totalChildrenHeight),
             },
         );
+    }
+
+    /**
+     * Get the y-coordinates for child nodes, relative to the vertical
+     * center of the parent node.
+     *
+     * @param allDimensions The Map that has dimensions for every node in the
+     *                      document
+     * @param parentDims    The dimension info of the parent node
+     * @param childIds      The IDs of the children whose y-coordinates we
+     *                      want returned
+     *
+     * @returns An array of objects with the following keys:
+     *              bubbleTop    - The y-coordinate for the top of the child's
+     *                             bubble
+     *              bubbleCenter - The y-coordinate of the vertical center
+     *                             of the child's bubble
+     */
+    function getNodesRelativeYCoordinates(
+        allDimensions: AllDimensions,
+        parentDims: NodeDimensionInfo,
+        childIds: Array<number>,
+    ): Array<{bubbleTop: number, bubbleCenter: number}> {
+        // Children are centered vertically on the parent node:
+        //                 ┌──────────────────────────────┐
+        //                 |                              |
+        // ┌──────────┐    |                              |
+        // |parentNode|    |         All Children         |
+        // └──────────┘    |                              |
+        //                 |                              |
+        //                 └──────────────────────────────┘
+        //
+        // The top of the first child (and all of it's children) is at the
+        // top of the box shown above.
+        // The top of the second child (and all of it's children) is below
+        // that.
+        // And so on.
+        //  ┌─────────────────────────────────────┐
+        //  |     ┌─────────────────────────┐     |
+        //  |     |           Grandchild 1  |     |
+        //  |     |  Child 1  Grandchild 2  |     |
+        //  |     |           Grandchild 3  |     |
+        //  |     └─────────────────────────┘     |
+        //  |                                     |
+        //  |     ┌─────────────────────────┐     |
+        //  |     |           Grandchild 1  |     |
+        //  |     |  Child 1  Grandchild 2  |     |
+        //  |     |           Grandchild 3  |     |
+        //  |     └─────────────────────────┘     |
+        //  └─────────────────────────────────────┘
+
+        const yCoords: Array<{bubbleTop: number, bubbleCenter: number}> = [];
+
+        //------------------------------------------------------------------
+        // Determine y-coordinate (top left) for the box occupied by the first
+        // child and its children
+        //------------------------------------------------------------------
+        let nextChildBoxY = -1 * parentDims.heightWithChildren / 2;
+
+        childIds.forEach((childId) => {
+            const thisChildDims = safeGetDimensions(allDimensions, childId);
+
+            // This child must be centered vertically in the space it and
+            // it's children will occupy
+            const thisChildBoxCenter = nextChildBoxY + thisChildDims.heightWithChildren / 2;
+
+            yCoords.push({
+                bubbleTop: thisChildBoxCenter - thisChildDims.bubbleHeight / 2,
+                bubbleCenter: thisChildBoxCenter,
+            });
+
+            // Setup for the next child
+            nextChildBoxY += thisChildDims.heightWithChildren + CHILD_PADDING.y;
+        });
+
+        return yCoords;
     }
 
     /**
@@ -162,27 +250,116 @@ function DisplayedDocument(): m.Component<Attrs> {
             }
         });
     }
+
+    /**
+     * Render the curve that connects a parent node to a child node
+     *
+     * @param curveStart The coordinates for the start of the curve
+     * @param curveEnd   The coordinates for the end of the curve
+     */
+    function renderChildConnector(
+        curveStart: Coordinates,
+        curveEnd: Coordinates,
+    ) {
+        ctx.beginPath();
+        ctx.moveTo(curveStart.x, curveStart.y);
+        ctx.bezierCurveTo(
+            curveEnd.x,
+            curveStart.y,
+            curveStart.x,
+            curveEnd.y,
+            curveEnd.x,
+            curveEnd.y,
+        );
+
+        ctx.stroke();
+    }
+
     /**
      * Render the specified node and all of it's children
      *
-     * @param allDimensions   The Map that has entries for every node in the
-     *                        document
-     * @param nodeId          The ID of the node to render
-     * @param bubblePos       The coordinates of the top left corner of this
-     *                        node's bubble
-     * @param     bubblePos.x     The x-coordinate
-     * @param     bubblePos.y     The y-coordinate
+     * @param allDimensions The Map that has dimensions for every node in the
+     *                      document
+     * @param nodeId        The ID of the node to render first
+     * @param bubblePos     The coordinates of the top left corner of this
+     *                      node's bubble
      */
-    function renderNode(
+    function renderNodesRecursively(
         allDimensions: AllDimensions,
         nodeId: number,
-        bubblePos: {x: number, y: number},
+        bubblePos: Coordinates,
     ) {
-        //----------------------------------------------------------------------
-        // Render the specified node's contents and bubble
-        //----------------------------------------------------------------------
         const myDims = safeGetDimensions(allDimensions, nodeId);
+        renderNodeContentsAndBubble(myDims, bubblePos, nodeId);
 
+        const childIds = documentState.getNodeChildIds(nodeId);
+        if (childIds.length > 0) {
+            //------------------------------------------------------------------
+            // Render the folding icon
+            //------------------------------------------------------------------
+            const foldingIconPos = {
+                x: bubblePos.x + myDims.bubbleWidth + FOLDING_ICON_RADIUS,
+                y: bubblePos.y + myDims.bubbleHeight / 2,
+            };
+
+            ctx.beginPath();
+            ctx.arc(
+                foldingIconPos.x,
+                foldingIconPos.y,
+                FOLDING_ICON_RADIUS,
+                0,
+                2 * Math.PI,
+            );
+
+            ctx.stroke();
+
+            //------------------------------------------------------------------
+            // Render children and connectors
+            //------------------------------------------------------------------
+            const childrenX = foldingIconPos.x + FOLDING_ICON_RADIUS + CHILD_PADDING.x;
+            const relativeChildYCoords = getNodesRelativeYCoordinates(
+                allDimensions,
+                myDims,
+                childIds,
+            );
+
+            childIds.forEach((childId, index) => {
+                renderChildConnector(
+                    {
+                        x: foldingIconPos.x + FOLDING_ICON_RADIUS,
+                        y: foldingIconPos.y,
+                    },
+                    {
+                        x: childrenX,
+                        y: foldingIconPos.y + relativeChildYCoords[index].bubbleCenter,
+                    },
+                );
+
+                renderNodesRecursively(
+                    allDimensions,
+                    childId,
+                    {
+                        x: childrenX,
+                        y: foldingIconPos.y + relativeChildYCoords[index].bubbleTop,
+                    },
+                );
+            });
+        }
+    }
+
+    /**
+     * Render the specified node's contents and bubble
+     *
+     * @param myDims    Dimension for the specified node
+     * @param bubblePos The top left coordinates of the specified node's
+     *                  bubble
+     * @param nodeId    The ID of the node to render
+     */
+    function renderNodeContentsAndBubble(
+        myDims: NodeDimensionInfo,
+        bubblePos: Coordinates,
+        nodeId: number,
+    ) {
         // Remember that (x,y) for text is bottom left corner
         ctx.fillText(
             documentState.getNodeContents(nodeId),
@@ -198,6 +375,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
         }
+
         roundedRectangle(
             bubblePos.x,
             bubblePos.y,
@@ -218,123 +396,6 @@ function DisplayedDocument(): m.Component<Attrs> {
                 height: myDims.bubbleHeight,
             },
         );
-
-        const childIds = documentState.getNodeChildIds(nodeId);
-        if (childIds.length > 0) {
-            //------------------------------------------------------------------
-            // Render the folding icon
-            //------------------------------------------------------------------
-            const foldingIconPos = {
-                x: bubblePos.x + myDims.bubbleWidth + FOLDING_ICON_RADIUS,
-                y: bubblePos.y + myDims.bubbleHeight / 2,
-            };
-
-            ctx.beginPath();
-            ctx.arc(
-                foldingIconPos.x,
-                foldingIconPos.y,
-                FOLDING_ICON_RADIUS,
-                0,
-                2 * Math.PI,
-            );
-            ctx.stroke();
-
-            //------------------------------------------------------------------
-            // Calculate coordinates for this node's first child
-            //------------------------------------------------------------------
-
-            // Children are centered vertically on this, the parent node:
-            //                 ┌──────────────────────────────┐
-            //                 |                              |
-            // ┌──────────┐    |                              |
-            // |parentNode|    |         All Children         |
-            // └──────────┘    |                              |
-            //                 |                              |
-            //                 └──────────────────────────────┘
-
-            // The top of the first child (and all of it's children) is at the
-            // top of the box shown above.
-            // The top of the second child (and all of it's children) is below
-            // that.
-            // And so on.
-            //  ┌─────────────────────────────────────┐
-            //  |     ┌─────────────────────────┐     |
-            //  |     |           Grandchild 1  |     |
-            //  |     |  Child 1  Grandchild 2  |     |
-            //  |     |           Grandchild 3  |     |
-            //  |     └─────────────────────────┘     |
-            //  |                                     |
-            //  |     ┌─────────────────────────┐     |
-            //  |     |           Grandchild 1  |     |
-            //  |     |  Child 1  Grandchild 2  |     |
-            //  |     |           Grandchild 3  |     |
-            //  |     └─────────────────────────┘     |
-            //  └─────────────────────────────────────┘
-
-            // - x-coordinate won't change for any children
-            // - y-coordinate will be updated for each child
-            const childTop = {
-                // x-coordinate of children is easy as they're all lined up
-                x: foldingIconPos.x + FOLDING_ICON_RADIUS + CHILD_PADDING.x,
-
-                // Children are centered (vertically) on parent node, so
-                // y-coordinate of first child is half the total children height
-                // above parent
-                y: (
-                    bubblePos.y + myDims.bubbleHeight / 2 // Vertical center of parent
-                    - myDims.totalHeight / 2
-                ),
-            };
-
-            //------------------------------------------------------------------
-            // Render each child and connector
-            //------------------------------------------------------------------
-            childIds.forEach((childId) => {
-                // Render the child
-                const thisChildDims = safeGetDimensions(allDimensions, childId);
-                const thisChildCenter = childTop.y + 0.5 * thisChildDims.totalHeight;
-
-                // Remember y-coordinates are for the top of the bubble, which
-                // is not the vertical center of the node
-                const thisChildY = (
-                    thisChildCenter - thisChildDims.bubbleHeight / 2
-                );
-                renderNode(
-                    allDimensions,
-                    childId,
-                    {
-                        x: childTop.x,
-                        y: thisChildY,
-                    },
-                );
-
-                // Render the connector
-                const curveStart = {
-                    x: foldingIconPos.x + FOLDING_ICON_RADIUS,
-                    y: foldingIconPos.y,
-                };
-
-                const curveEnd = {
-                    x: childTop.x,
-                    y: thisChildY + NODE_PADDING.y + FONT_SIZE / 2,
-                };
-
-                ctx.beginPath();
-                ctx.moveTo(curveStart.x, curveStart.y);
-                ctx.bezierCurveTo(
-                    curveEnd.x,
-                    curveStart.y,
-                    curveStart.x,
-                    curveEnd.y,
-                    curveEnd.x,
-                    curveEnd.y,
-                );
-                ctx.stroke();
-
-                // Adjust y-coordinate for next child
-                childTop.y += thisChildDims.totalHeight + CHILD_PADDING.y;
-            });
-        }
     }
 
     /**
@@ -352,7 +413,7 @@ function DisplayedDocument(): m.Component<Attrs> {
     function safeGetDimensions(
         allDimensions: AllDimensions,
         nodeId: number,
-    ): DimensionInfo {
+    ): NodeDimensionInfo {
         const dimensions = allDimensions.get(nodeId);
         if (dimensions !== undefined) return dimensions;
 
@@ -498,7 +559,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             const allDimensions = new Map();
             calculateDimensions(allDimensions, rootNodeId);
 
-            renderNode(
+            renderNodesRecursively(
                 allDimensions,
                 rootNodeId,
                 {
@@ -531,7 +592,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             const allDimensions = new Map();
             calculateDimensions(allDimensions, rootNodeId);
 
-            renderNode(
+            renderNodesRecursively(
                 allDimensions,
                 rootNodeId,
                 {
