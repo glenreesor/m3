@@ -118,6 +118,22 @@ function DisplayedDocument(): m.Component<Attrs> {
     let clickableFoldingIcons: ClickableCircle[] = [];
     let clickableNodes: ClickableRectangle[] = [];
 
+    // Whether the user is dragging the document
+    let dragging = false;
+
+    // Coordinates of the mouse at previous translation event
+    let previousMouseCoords = {
+        x: 0,
+        y: 0,
+    };
+
+    // Current translation of the canvas. Required for clickable region
+    // calculations
+    const currentCanvasTranslation = {
+        x: 0,
+        y: 0,
+    };
+
     /**
      * Calculate dimensions for the specified node and all children of that
      * node. Store these dimensions in allDimensions, keyed by nodeId.
@@ -258,8 +274,8 @@ function DisplayedDocument(): m.Component<Attrs> {
      */
     function onClick(e: MouseEvent) {
         // Convert the mouse coordinates to be relative to the canvas
-        const canvasX = e.pageX - canvasElement.offsetLeft;
-        const canvasY = e.pageY - canvasElement.offsetTop;
+        const canvasX = e.pageX - canvasElement.offsetLeft - currentCanvasTranslation.x;
+        const canvasY = e.pageY - canvasElement.offsetTop - currentCanvasTranslation.y;
 
         // Compare to clickable regions for nodes
         clickableNodes.forEach((region) => {
@@ -282,6 +298,63 @@ function DisplayedDocument(): m.Component<Attrs> {
                 documentState.toggleChildrenVisibility(region.id);
             }
         });
+    }
+
+    /**
+     * Handle mouse down events
+     *
+     * @param e The triggering event
+     */
+    function onMouseDown(e: MouseEvent) {
+        dragging = true;
+        previousMouseCoords = {
+            x: e.pageX,
+            y: e.pageY,
+        };
+    }
+
+    /**
+     * Handle mouse move events by translating the user's document if we're
+     * in dragging mode
+     *
+     * @param e The triggering event
+     */
+    function onMouseMove(e: MouseEvent) {
+        if (!dragging) return;
+
+        // Calculate how much the mouse moved
+        const deltaX = e.pageX - previousMouseCoords.x;
+        const deltaY = e.pageY - previousMouseCoords.y;
+
+        // Store current mouse coordinates so we can use that in delta
+        // calculation for the next move event
+        previousMouseCoords = {
+            x: e.pageX,
+            y: e.pageY,
+        };
+
+        // Determine the total amount the canvas has been translated so we can
+        // take that into account for click targets
+        currentCanvasTranslation.x += deltaX;
+        currentCanvasTranslation.y += deltaY;
+
+        // Translate the canvas
+        ctx.translate(deltaX, deltaY);
+    }
+
+    /**
+     * Handle mouse out events -- set dragging to false so there's no weird
+     * dragging behavior when mouse re-enters the canvas
+     */
+    function onMouseOut() {
+        dragging = false;
+    }
+
+    /**
+     * Handle mouse up events by turning off dragging
+     */
+    function onMouseUp() {
+        dragging = false;
     }
 
     /**
@@ -621,11 +694,13 @@ function DisplayedDocument(): m.Component<Attrs> {
 
         onupdate: (vnode) => {
             // Clear the existing rendered map
+            // We need to clear a region larger than the actual canvas so
+            // parts of the map rendered prior to a translation also get cleared
             ctx.clearRect(
-                0,
-                0,
-                vnode.attrs.documentDimensions.width,
-                vnode.attrs.documentDimensions.height,
+                -100,
+                -100,
+                vnode.attrs.documentDimensions.width + 100,
+                vnode.attrs.documentDimensions.height + 100,
             );
 
             // Reset clickable regions
@@ -660,6 +735,10 @@ function DisplayedDocument(): m.Component<Attrs> {
                 width: attrs.documentDimensions.width,
                 style: 'border: 1px solid black',
                 onclick: onClick,
+                onmousedown: onMouseDown,
+                onmousemove: onMouseMove,
+                onmouseout: onMouseOut,
+                onmouseup: onMouseUp,
             },
         ),
     };
