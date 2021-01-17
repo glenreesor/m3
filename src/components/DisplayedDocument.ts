@@ -121,8 +121,8 @@ function DisplayedDocument(): m.Component<Attrs> {
     // Whether the user is dragging the document
     let dragging = false;
 
-    // Coordinates of the mouse at previous translation event
-    let previousMouseCoords = {
+    // Coordinates of the mouse/pointer at previous translation event
+    let previousPointerCoords = {
         x: 0,
         y: 0,
     };
@@ -188,6 +188,51 @@ function DisplayedDocument(): m.Component<Attrs> {
                 heightWithChildren: Math.max(bubbleDim.h, totalChildrenHeight),
             },
         );
+    }
+
+    /**
+     * Stop dragging of user document
+     */
+    function dragEnd() {
+        dragging = false;
+    }
+
+    /**
+     * Handle a mouse or touch move event for dragging the document
+     *
+     * @param x The mouse/touch x-coordinate
+     * @param y The mouse/touch y-coordinate
+     */
+    function dragMove(x: number, y: number) {
+        if (!dragging) return;
+
+        // Calculate how much the pointer moved
+        const deltaX = x - previousPointerCoords.x;
+        const deltaY = y - previousPointerCoords.y;
+
+        // Store current pointer coordinates so we can use that in delta
+        // calculation for the next move event
+        previousPointerCoords = { x, y };
+
+        // Determine the total amount the canvas has been translated so we can
+        // take that into account for click targets
+        currentCanvasTranslation.x += deltaX;
+        currentCanvasTranslation.y += deltaY;
+
+        // Translate the canvas
+        ctx.translate(deltaX, deltaY);
+    }
+
+    /**
+     * Handle a mouse or touch start event, which signifies start of dragging
+     * the document
+     *
+     * @param x The mouse/touch x-coordinate
+     * @param y The mouse/touch y-coordinate
+     */
+    function dragStart(x: number, y: number) {
+        dragging = true;
+        previousPointerCoords = { x, y };
     }
 
     /**
@@ -301,60 +346,63 @@ function DisplayedDocument(): m.Component<Attrs> {
     }
 
     /**
-     * Handle mouse down events
+     * Handle mouse down events by treating them as the start of dragging the
+     * document
      *
      * @param e The triggering event
      */
     function onMouseDown(e: MouseEvent) {
-        dragging = true;
-        previousMouseCoords = {
-            x: e.pageX,
-            y: e.pageY,
-        };
+        dragStart(e.pageX, e.pageY);
     }
 
     /**
-     * Handle mouse move events by translating the user's document if we're
-     * in dragging mode
+     * Handle mouse move events
      *
      * @param e The triggering event
      */
     function onMouseMove(e: MouseEvent) {
-        if (!dragging) return;
-
-        // Calculate how much the mouse moved
-        const deltaX = e.pageX - previousMouseCoords.x;
-        const deltaY = e.pageY - previousMouseCoords.y;
-
-        // Store current mouse coordinates so we can use that in delta
-        // calculation for the next move event
-        previousMouseCoords = {
-            x: e.pageX,
-            y: e.pageY,
-        };
-
-        // Determine the total amount the canvas has been translated so we can
-        // take that into account for click targets
-        currentCanvasTranslation.x += deltaX;
-        currentCanvasTranslation.y += deltaY;
-
-        // Translate the canvas
-        ctx.translate(deltaX, deltaY);
+        dragMove(e.pageX, e.pageY);
     }
 
     /**
-     * Handle mouse out events -- set dragging to false so there's no weird
-     * dragging behavior when mouse re-enters the canvas
+     * Handle mouse out events -- stop dragging so there's no weird dragging
+     * behavior when mouse re-enters the canvas
      */
     function onMouseOut() {
-        dragging = false;
+        dragEnd();
     }
 
     /**
      * Handle mouse up events by turning off dragging
      */
     function onMouseUp() {
-        dragging = false;
+        dragEnd();
+    }
+
+    /**
+     * Handle touch end events
+     */
+    function onTouchEnd() {
+        dragEnd();
+    }
+
+    /**
+     * Handle touch move events
+     *
+     * @param e The triggering event
+     */
+    function onTouchMove(e: TouchEvent) {
+        dragMove(e.touches[0].pageX, e.touches[0].pageY);
+    }
+
+    /**
+     * Handle touch start events. Treat them as the start of dragging the
+     * document, and thus assume there is just one touch point
+     *
+     * @param e The triggering event
+     */
+    function onTouchStart(e: TouchEvent) {
+        dragStart(e.touches[0].pageX, e.touches[0].pageY);
     }
 
     /**
@@ -696,11 +744,12 @@ function DisplayedDocument(): m.Component<Attrs> {
             // Clear the existing rendered map
             // We need to clear a region larger than the actual canvas so
             // parts of the map rendered prior to a translation also get cleared
+            const MAX_PREV_TRANSLATION = 200;
             ctx.clearRect(
-                -100,
-                -100,
-                vnode.attrs.documentDimensions.width + 100,
-                vnode.attrs.documentDimensions.height + 100,
+                -MAX_PREV_TRANSLATION,
+                -MAX_PREV_TRANSLATION,
+                vnode.attrs.documentDimensions.width + 2 * MAX_PREV_TRANSLATION,
+                vnode.attrs.documentDimensions.height + 2 * MAX_PREV_TRANSLATION,
             );
 
             // Reset clickable regions
@@ -739,6 +788,9 @@ function DisplayedDocument(): m.Component<Attrs> {
                 onmousemove: onMouseMove,
                 onmouseout: onMouseOut,
                 onmouseup: onMouseUp,
+                ontouchend: onTouchEnd,
+                ontouchmove: onTouchMove,
+                ontouchstart: onTouchStart,
             },
         ),
     };
