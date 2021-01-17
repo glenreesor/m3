@@ -9,6 +9,9 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
+            meta: {
+                viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0',
+            },
             title: 'm3',
         }),
     ],
