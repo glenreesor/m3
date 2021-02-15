@@ -9,6 +9,8 @@ import state from '../state/state';
  * @returns An object to be consumed by m()
  */
 function App(): m.Component {
+    let nodeInputValue = '';
+
     /**
      * Get the dimensions to be used for the document
      *
@@ -31,15 +33,36 @@ function App(): m.Component {
             'div',
             m(
                 'div',
-                m('input'),
+                m(
+                    'input',
+                    { onchange: onNodeInputValueChange },
+                ),
                 m('button', 'Add Sibling'),
-                m('button', 'Add Child'),
+                m(
+                    'button',
+                    { onclick: onAddChildClick },
+                    'Add Child',
+                ),
                 m('button', 'Delete Node'),
             ),
             m(
                 'div',
-                m('button', 'Undo'),
-                m('button', 'Redo'),
+                m(
+                    'button',
+                    {
+                        disabled: !state.document.getUndoIsAvailable(),
+                        onclick: onUndoClick,
+                    },
+                    'Undo',
+                ),
+                m(
+                    'button',
+                    {
+                        disabled: !state.document.getRedoIsAvailable(),
+                        onclick: onRedoClick,
+                    },
+                    'Redo',
+                ),
             ),
             m(
                 'div',
@@ -62,6 +85,41 @@ function App(): m.Component {
             m('button', 'Open'),
             m('button', 'Save'),
         );
+    }
+
+    /**
+     * Handling clicking of the Add Child button
+     */
+    function onAddChildClick() {
+        state.document.addChild(
+            state.document.getSelectedNodeId(),
+            nodeInputValue,
+        );
+    }
+
+    /**
+     * Handling clicking of the Undo button
+     */
+    function onUndoClick() {
+        state.document.undo();
+    }
+
+    /**
+     * Handling clicking of the Redo button
+     */
+    function onRedoClick() {
+        state.document.redo();
+    }
+
+    /**
+     * Handle a change to the input box used for node contents
+     *
+     * @param e The event that triggered this change
+     */
+    function onNodeInputValueChange(e: Event) {
+        if (e.target !== null) {
+            nodeInputValue = ((e.target) as HTMLInputElement).value;
+        }
     }
 
     return {

@@ -1,3 +1,7 @@
+import produce, { enableAllPlugins } from 'immer';
+
+enableAllPlugins();
+
 /**
  * An immediately invoked function expression that returns an object with
  * actions that operate on closed-over state.
@@ -20,6 +24,9 @@ export default (() => {
         nodes: Map<number, Node>,
         highestNodeId: number,
         rootId: number,
+
+        // The ID of the currently selected node
+        selectedNodeId: number,
     }
 
     // Full state
@@ -41,13 +48,11 @@ export default (() => {
 
         // Whether document has been modified since last save
         isModified: boolean,
-
-        // The ID of the currently selected node
-        selectedNodeId: number,
     }
 
     // Initial hard-coded doc to be used for testing new functionality
     const initialDoc = {
+        selectedNodeId: 0,
         nodes: (new Map() as Map<number, Node>)
             .set(
                 0,
@@ -139,7 +144,6 @@ export default (() => {
         docHistory: [initialDoc],
         docName: 'New Map',
         isModified: true,
-        selectedNodeId: 0,
     };
 
     /**
@@ -152,16 +156,30 @@ export default (() => {
     }
 
     /**
-     * Helper function to get the specified node from the current document.
+     * Return whether a redo step is available
+     *
+     * @returns Whether redo can be performed
+     */
+    function redoAvailable(): boolean {
+        const lastIndex = state.docHistory.length - 1;
+
+        return (lastIndex > state.currentDocIndex);
+    }
+
+    /**
+     * Helper function to get the specified node from specified document (
+     * defaults to current doc).
+     *
      * Throws an error if node not found
      *
      * @param nodeId    The ID of the node to get
      * @param callingFn The name of the calling function, for exception message
+     * @param doc       The document to search in
      *
      * @returns Node The node
      */
-    function safeGetNode(nodeId: number, callingFn: string): Node {
-        const node = getCurrentDoc().nodes.get(nodeId);
+    function safeGetNode(nodeId: number, callingFn: string, doc = getCurrentDoc()): Node {
+        const node = doc.nodes.get(nodeId);
 
         if (node !== undefined) return node;
 
@@ -170,7 +188,48 @@ export default (() => {
         );
     }
 
+    /**
+     * Return whether an undo step is available
+     *
+     * @returns Whether undo can be performed
+     */
+    function undoAvailable(): boolean {
+        return state.currentDocIndex > 0;
+    }
+
     return {
+        /**
+         * Add a child with the specified contents to the specified parent node
+         *
+         * @param parentNodeId The ID of the parent
+         * @param childContents The contents for the new node
+         */
+        addChild: (parentNodeId: number, childContents: string) => {
+            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+                const newChildId = draftDocument.highestNodeId + 1;
+                const parentNode = safeGetNode(parentNodeId, 'addChild', draftDocument);
+                const newChild = {
+                    id: newChildId,
+                    contents: childContents,
+                    childIds: [],
+                    childrenVisible: true,
+                };
+
+                /* eslint-disable no-param-reassign */
+                draftDocument.highestNodeId = newChildId;
+                parentNode.childIds.push(newChildId);
+                draftDocument.nodes.set(newChildId, newChild);
+            });
+
+            // Delete any states after the current one (i.e. redo states) since
+            // they will no longer be valid
+            state.docHistory.splice(state.currentDocIndex + 1);
+
+            // Now add the current one
+            state.currentDocIndex += 1;
+            state.docHistory.push(newDoc);
+        },
+
         /**
          * Get whether the children of the specified node are visible
          *
@@ -225,6 +284,13 @@ export default (() => {
         ).contents,
 
         /**
+         * Return whether a redo step is available
+         *
+         * @returns Whether a redo step is available
+         */
+        getRedoIsAvailable: (): boolean => redoAvailable(),
+
+        /**
          * Get the ID of the root node
          *
          * @returns The ID
@@ -236,7 +302,23 @@ export default (() => {
          *
          * @returns The ID
          */
-        getSelectedNodeId: ():number => state.selectedNodeId,
+        getSelectedNodeId: ():number => getCurrentDoc().selectedNodeId,
+
+        /**
+         * Return whether an undo step is available
+         *
+         * @returns Whether an undo step is available
+         */
+        getUndoIsAvailable: (): boolean => undoAvailable(),
+
+        /**
+         * Redo the last editor change (do nothing if no redo available)
+         */
+        redo: () => {
+            if (redoAvailable()) {
+                state.currentDocIndex += 1;
+            }
+        },
 
         /**
          * Set the currently selected node to the specified one
@@ -244,7 +326,16 @@ export default (() => {
          * @param nodeId The new selected node
          */
         setSelectedNodeId: (nodeId: number) => {
-            state.selectedNodeId = nodeId;
+            // We need to use immer since the current state is frozen.
+            // However we won't push this new state to docHistory[] since we
+            // don't want toggling children visibility to participate in
+            // undo / redo functionality
+            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+                draftDocument.selectedNodeId = nodeId;
+            });
+
+            // As described above, replace the current document with this one
+            state.docHistory[state.currentDocIndex] = newDoc;
         },
 
         /**
@@ -253,8 +344,26 @@ export default (() => {
          * @param nodeId The node in question
          */
         toggleChildrenVisibility: (nodeId: number) => {
-            const node = safeGetNode(nodeId, 'toggleChildrenVisibility');
-            node.childrenVisible = !node.childrenVisible;
+            // We need to use immer since the current state is frozen.
+            // However we won't push this new state to docHistory[] since we
+            // don't want toggling children visibility to participate in
+            // undo / redo functionality
+            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+                const node = safeGetNode(nodeId, 'toggleChildrenVisibility', draftDocument);
+                node.childrenVisible = !node.childrenVisible;
+            });
+
+            // As described above, replace the current document with this one
+            state.docHistory[state.currentDocIndex] = newDoc;
+        },
+
+        /**
+         * Undo the last editor change (do nothing if no undo available)
+         */
+        undo: () => {
+            if (undoAvailable()) {
+                state.currentDocIndex -= 1;
+            }
         },
     };
 })();
