@@ -58,6 +58,16 @@ export default (() => {
         isModified: true,
     };
 
+    function applyNewDocumentToUndoStack(newDoc: Document) {
+        // Delete any states after the current one (i.e. redo states) since
+        // they will no longer be valid
+        state.docHistory.splice(state.currentDocIndex + 1);
+
+        // Now add the current one
+        state.currentDocIndex += 1;
+        state.docHistory.push(newDoc);
+    }
+
     /**
      * A helper function to get state.docHistory[state.currentDocIndex]
      *
@@ -153,13 +163,7 @@ export default (() => {
                 draftDocument.nodes.set(newChildId, newChild);
             });
 
-            // Delete any states after the current one (i.e. redo states) since
-            // they will no longer be valid
-            state.docHistory.splice(state.currentDocIndex + 1);
-
-            // Now add the current one
-            state.currentDocIndex += 1;
-            state.docHistory.push(newDoc);
+            applyNewDocumentToUndoStack(newDoc);
         },
 
         /**
@@ -205,13 +209,7 @@ export default (() => {
                 draftDocument.nodes.set(newChildId, newChild);
             });
 
-            // Delete any states after the current one (i.e. redo states) since
-            // they will no longer be valid
-            state.docHistory.splice(state.currentDocIndex + 1);
-
-            // Now add the current one
-            state.currentDocIndex += 1;
-            state.docHistory.push(newDoc);
+            applyNewDocumentToUndoStack(newDoc);
         },
 
         deleteNode(nodeToDeleteId: number) {
@@ -240,13 +238,7 @@ export default (() => {
                 draftDocument.selectedNodeId = parentNodeId;
             });
 
-            // Delete any states after the current one (i.e. redo states) since
-            // they will no longer be valid
-            state.docHistory.splice(state.currentDocIndex + 1);
-
-            // Now add the current one
-            state.currentDocIndex += 1;
-            state.docHistory.push(newDoc);
+            applyNewDocumentToUndoStack(newDoc);
         },
 
         /**
@@ -345,13 +337,7 @@ export default (() => {
                 nodeToReplace.contents = newContents;
             });
 
-            // Delete any states after the current one (i.e. redo states) since
-            // they will no longer be valid
-            state.docHistory.splice(state.currentDocIndex + 1);
-
-            // Now add the current one
-            state.currentDocIndex += 1;
-            state.docHistory.push(newDoc);
+            applyNewDocumentToUndoStack(newDoc);
         },
 
         /**
