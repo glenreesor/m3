@@ -24,6 +24,17 @@ module.exports = {
         //    require extensions
         'import/extensions': ['error', 'always', { pattern: { ts: 'never' } }],
 
+        'import/no-extraneous-dependencies': [
+            'error',
+            {
+                devDependencies: [
+                    'webpack.common.js',
+                    'webpack.dev.js',
+                    'webpack.prod.js',
+                ],
+            },
+        ],
+
         // Rationale:
         //  - Readability
         indent: ['error', 4],
