@@ -6,7 +6,6 @@ module.exports = {
     extends: [
         'airbnb-base',
         'plugin:import/typescript',
-        'plugin:jsdoc/recommended',
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
@@ -15,7 +14,6 @@ module.exports = {
     },
     plugins: [
         '@typescript-eslint',
-        'jsdoc',
     ],
     rules: {
         /* eslint-disable indent */
@@ -37,10 +35,6 @@ module.exports = {
         ],
 
         indent: ['error', 4],
-
-        'jsdoc/require-returns-type': 'off',
-        'jsdoc/require-param-type': 'off',
-            // - JSDoc types duplicate typescript types
 
         'no-mixed-operators': 'off',
             // - This is a pain when trying to write formulas that are easily
