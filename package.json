@@ -7,7 +7,7 @@
     "scripts": {
         "build": "webpack --config webpack.prod.js",
         "devserver": "webpack serve --config webpack.dev.js",
-        "lint": "eslint *.js src/**/*.ts",
+        "lint": "eslint *.js src/*.ts src/**/*.ts",
         "test": "echo 'Error: no test specified' && exit 1"
     },
     "devDependencies": {
