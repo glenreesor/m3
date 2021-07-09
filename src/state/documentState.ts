@@ -213,6 +213,42 @@ export default (() => {
             state.currentDocIndex += 1;
             state.docHistory.push(newDoc);
         },
+
+        deleteNode(nodeToDeleteId: number) {
+            const nodeToDelete = safeGetNode(nodeToDeleteId, 'addSibling');
+            const parentNodeId = nodeToDelete.parentId;
+
+            if (parentNodeId === undefined) return;
+
+            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+                function depthFirstDelete(nodeId: number) {
+                    const node = safeGetNode(nodeId, 'deleteNode', draftDocument);
+                    node.childIds.forEach((childId) => {
+                        depthFirstDelete(childId);
+                    });
+                    draftDocument.nodes.delete(nodeId);
+                }
+
+                // Remove all nodes from the Set then remove the specified
+                // node from its parent's child list
+                depthFirstDelete(nodeToDeleteId);
+
+                const parentNode = safeGetNode(parentNodeId, 'deleteNode', draftDocument);
+                const indexOfNodeToDelete = parentNode.childIds.indexOf(nodeToDeleteId);
+                parentNode.childIds.splice(indexOfNodeToDelete, 1);
+
+                draftDocument.selectedNodeId = parentNodeId;
+            });
+
+            // Delete any states after the current one (i.e. redo states) since
+            // they will no longer be valid
+            state.docHistory.splice(state.currentDocIndex + 1);
+
+            // Now add the current one
+            state.currentDocIndex += 1;
+            state.docHistory.push(newDoc);
+        },
+
         /**
          * Get whether the children of the specified node are visible
          *

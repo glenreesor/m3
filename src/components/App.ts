@@ -52,7 +52,16 @@ function App(): m.Component {
                     { onclick: onAddChildButtonClick },
                     'Add Child',
                 ),
-                m('button', 'Delete Node'),
+                m(
+                    'button',
+                    {
+                        disabled:
+                            state.document.getSelectedNodeId()
+                            === state.document.getRootNodeId(),
+                        onclick: onDeleteNodeButtonClick,
+                    },
+                    'Delete Node',
+                ),
             ),
             m(
                 'div',
@@ -108,6 +117,10 @@ function App(): m.Component {
             state.document.getSelectedNodeId(),
             nodeInputValue,
         );
+    }
+
+    function onDeleteNodeButtonClick() {
+        state.document.deleteNode(state.document.getSelectedNodeId());
     }
 
     /**
