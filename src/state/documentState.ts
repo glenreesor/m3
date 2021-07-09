@@ -51,107 +51,9 @@ export default (() => {
         isModified: boolean,
     }
 
-    // Initial hard-coded doc to be used for testing new functionality
-    const initialDoc = {
-        selectedNodeId: 0,
-        nodes: (new Map() as Map<number, Node>)
-            .set(
-                0,
-                {
-                    id: 0,
-                    contents: 'New Map',
-                    childIds: [1, 2, 3],
-                    childrenVisible: true,
-                    parentId: undefined,
-                },
-            )
-            .set(
-                1,
-                {
-                    id: 1,
-                    contents: 'First Child Node',
-                    childIds: [4, 5],
-                    childrenVisible: true,
-                    parentId: 0,
-                },
-            )
-            .set(
-                2,
-                {
-                    id: 2,
-                    contents: 'Second Child Node',
-                    childIds: [],
-                    childrenVisible: true,
-                    parentId: 0,
-                },
-            )
-            .set(
-                3,
-                {
-                    id: 3,
-                    contents: 'Third Child Node',
-                    childIds: [6, 7, 8],
-                    childrenVisible: true,
-                    parentId: 0,
-                },
-            )
-            .set(
-                4,
-                {
-                    id: 4,
-                    contents: 'First child of first child',
-                    childIds: [],
-                    childrenVisible: true,
-                    parentId: 1,
-                },
-            )
-            .set(
-                5,
-                {
-                    id: 5,
-                    contents: 'Second child of first child',
-                    childIds: [],
-                    childrenVisible: true,
-                    parentId: 1,
-                },
-            )
-            .set(
-                6,
-                {
-                    id: 6,
-                    contents: 'First child of third child',
-                    childIds: [],
-                    childrenVisible: true,
-                    parentId: 3,
-                },
-            )
-            .set(
-                7,
-                {
-                    id: 7,
-                    contents: 'Second child of third child',
-                    childIds: [],
-                    childrenVisible: true,
-                    parentId: 3,
-                },
-            )
-            .set(
-                8,
-                {
-                    id: 8,
-                    contents: 'Third child of third child',
-                    childIds: [],
-                    childrenVisible: true,
-                    parentId: 3,
-                },
-            ),
-        highestNodeId: 8,
-        rootId: 0,
-    };
-
     const state: State = {
         currentDocIndex: 0,
-        docHistory: [initialDoc],
+        docHistory: [getInitialEmptyDoc()],
         docName: 'New Map',
         isModified: true,
     };
@@ -163,6 +65,25 @@ export default (() => {
      */
     function getCurrentDoc(): Document {
         return state.docHistory[state.currentDocIndex];
+    }
+
+    function getInitialEmptyDoc(): Document {
+        const rootNodeId = 0;
+        const rootNode = {
+            id: rootNodeId,
+            contents: 'New Map',
+            childIds: [],
+            childrenVisible: true,
+            parentId: undefined,
+        };
+        const initialDoc = {
+            selectedNodeId: rootNodeId,
+            nodes: (new Map() as Map<number, Node>).set(rootNodeId, rootNode),
+            highestNodeId: rootNodeId,
+            rootId: rootNodeId,
+        };
+
+        return initialDoc;
     }
 
     /**
