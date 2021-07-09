@@ -18,11 +18,12 @@ module.exports = {
         'jsdoc',
     ],
     rules: {
-        // Rationale:
-        //  - Typescript doesn't use extensions for code
-        //  - Eventually we'll want to import things like images, which *will*
-        //    require extensions
+        /* eslint-disable indent */
+
         'import/extensions': ['error', 'always', { pattern: { ts: 'never' } }],
+            // - Typescript doesn't use extensions for code
+            // - Eventually we'll want to import things like images, which *will*
+            //   require extensions
 
         'import/no-extraneous-dependencies': [
             'error',
@@ -35,37 +36,30 @@ module.exports = {
             },
         ],
 
-        // Rationale:
-        //  - Readability
         indent: ['error', 4],
 
-        // Rationale:
-        //  - JSDoc types duplicate typescript types
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-param-type': 'off',
+            // - JSDoc types duplicate typescript types
 
-        // Rationale:
-        //  - This is a pain when trying to write formulas that are easily
-        //    understandable
         'no-mixed-operators': 'off',
+            // - This is a pain when trying to write formulas that are easily
+            //   understandable
 
-        // Rationale:
-        //  - Allow for flexibility when lining up keys and values, but not be
-        //    forced to
         'no-multi-spaces': 'off',
+            // - Allow for flexibility when lining up keys and values, but not be
+            //   forced to
 
-        // Rationale:
-        //  - Conflicts with convention of alphabetizing methods. This will
-        //    still flag errors in problematic cases
         'no-use-before-define': [
             'error',
             {
                 functions: false,
             },
         ],
+            // - Conflicts with convention of alphabetizing methods. This will
+            //   still flag errors in problematic cases
 
-        // Rationale:
-        //  - One less think to think about (Automatic Semicolon Insertion)
         semi: ['error', 'always'],
+            // - One less thing to think about (Automatic Semicolon Insertion)
     },
 };
