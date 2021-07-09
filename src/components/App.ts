@@ -37,10 +37,19 @@ function App(): m.Component {
                     'input',
                     { onchange: onNodeInputValueChange },
                 ),
-                m('button', 'Add Sibling'),
                 m(
                     'button',
-                    { onclick: onAddChildClick },
+                    {
+                        disabled:
+                            state.document.getSelectedNodeId()
+                            === state.document.getRootNodeId(),
+                        onclick: onAddSiblingButtonClick,
+                    },
+                    'Add Sibling',
+                ),
+                m(
+                    'button',
+                    { onclick: onAddChildButtonClick },
                     'Add Child',
                 ),
                 m('button', 'Delete Node'),
@@ -87,11 +96,15 @@ function App(): m.Component {
         );
     }
 
-    /**
-     * Handling clicking of the Add Child button
-     */
-    function onAddChildClick() {
+    function onAddChildButtonClick() {
         state.document.addChild(
+            state.document.getSelectedNodeId(),
+            nodeInputValue,
+        );
+    }
+
+    function onAddSiblingButtonClick() {
+        state.document.addSibling(
             state.document.getSelectedNodeId(),
             nodeInputValue,
         );

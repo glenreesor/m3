@@ -242,6 +242,57 @@ export default (() => {
         },
 
         /**
+         * Add a sibling to the specified node using the specified contents
+         *
+         * @param siblingNodeId The ID of the node this will be a sibling to
+         * @param childContents The contents for the new node
+         */
+        addSibling: (siblingNodeId: number, childContents: string) => {
+            const siblingNode = safeGetNode(siblingNodeId, 'addSibling');
+            const parentNodeId = siblingNode.parentId;
+
+            if (parentNodeId === undefined) return;
+
+            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+                const newChildId = draftDocument.highestNodeId + 1;
+                const parentNode = safeGetNode(
+                    parentNodeId,
+                    'addSibling',
+                    draftDocument,
+                );
+                const newChild = {
+                    id: newChildId,
+                    contents: childContents,
+                    childIds: [],
+                    childrenVisible: true,
+                    parentId: parentNodeId,
+                };
+
+                /* eslint-disable no-param-reassign */
+                draftDocument.highestNodeId = newChildId;
+
+                const allSiblings = parentNode.childIds;
+                const siblingNodeIndex = allSiblings.indexOf(siblingNodeId);
+
+                allSiblings.splice(
+                    siblingNodeIndex + 1,
+                    0,
+                    newChildId,
+                );
+
+                parentNode.childIds = allSiblings;
+                draftDocument.nodes.set(newChildId, newChild);
+            });
+
+            // Delete any states after the current one (i.e. redo states) since
+            // they will no longer be valid
+            state.docHistory.splice(state.currentDocIndex + 1);
+
+            // Now add the current one
+            state.currentDocIndex += 1;
+            state.docHistory.push(newDoc);
+        },
+        /**
          * Get whether the children of the specified node are visible
          *
          * @param nodeId The node in question
