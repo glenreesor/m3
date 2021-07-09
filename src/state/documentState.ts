@@ -16,6 +16,7 @@ export default (() => {
         contents: string,
         childIds: Array<number>,
         childrenVisible: boolean,
+        parentId: number | undefined,
     }
 
     // Parts of user's document that are affected by editing, including undo
@@ -61,6 +62,7 @@ export default (() => {
                     contents: 'New Map',
                     childIds: [1, 2, 3],
                     childrenVisible: true,
+                    parentId: undefined,
                 },
             )
             .set(
@@ -70,6 +72,7 @@ export default (() => {
                     contents: 'First Child Node',
                     childIds: [4, 5],
                     childrenVisible: true,
+                    parentId: 0,
                 },
             )
             .set(
@@ -79,6 +82,7 @@ export default (() => {
                     contents: 'Second Child Node',
                     childIds: [],
                     childrenVisible: true,
+                    parentId: 0,
                 },
             )
             .set(
@@ -88,6 +92,7 @@ export default (() => {
                     contents: 'Third Child Node',
                     childIds: [6, 7, 8],
                     childrenVisible: true,
+                    parentId: 0,
                 },
             )
             .set(
@@ -97,6 +102,7 @@ export default (() => {
                     contents: 'First child of first child',
                     childIds: [],
                     childrenVisible: true,
+                    parentId: 1,
                 },
             )
             .set(
@@ -106,6 +112,7 @@ export default (() => {
                     contents: 'Second child of first child',
                     childIds: [],
                     childrenVisible: true,
+                    parentId: 1,
                 },
             )
             .set(
@@ -115,6 +122,7 @@ export default (() => {
                     contents: 'First child of third child',
                     childIds: [],
                     childrenVisible: true,
+                    parentId: 3,
                 },
             )
             .set(
@@ -124,6 +132,7 @@ export default (() => {
                     contents: 'Second child of third child',
                     childIds: [],
                     childrenVisible: true,
+                    parentId: 3,
                 },
             )
             .set(
@@ -133,6 +142,7 @@ export default (() => {
                     contents: 'Third child of third child',
                     childIds: [],
                     childrenVisible: true,
+                    parentId: 3,
                 },
             ),
         highestNodeId: 8,
@@ -213,6 +223,7 @@ export default (() => {
                     contents: childContents,
                     childIds: [],
                     childrenVisible: true,
+                    parentId: parentNode.id,
                 };
 
                 /* eslint-disable no-param-reassign */
