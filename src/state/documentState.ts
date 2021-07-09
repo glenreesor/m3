@@ -339,6 +339,21 @@ export default (() => {
             }
         },
 
+        replaceNodeContents: (nodeId: number, newContents: string) => {
+            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+                const nodeToReplace = safeGetNode(nodeId, 'replaceNodeContents', draftDocument);
+                nodeToReplace.contents = newContents;
+            });
+
+            // Delete any states after the current one (i.e. redo states) since
+            // they will no longer be valid
+            state.docHistory.splice(state.currentDocIndex + 1);
+
+            // Now add the current one
+            state.currentDocIndex += 1;
+            state.docHistory.push(newDoc);
+        },
+
         /**
          * Set the currently selected node to the specified one
          *

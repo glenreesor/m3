@@ -62,6 +62,11 @@ function App(): m.Component {
                     },
                     'Delete Node',
                 ),
+                m(
+                    'button',
+                    { onclick: onReplaceNodeContentsButtonClick },
+                    'Replace Node Contents',
+                ),
             ),
             m(
                 'div',
@@ -121,6 +126,13 @@ function App(): m.Component {
 
     function onDeleteNodeButtonClick() {
         state.document.deleteNode(state.document.getSelectedNodeId());
+    }
+
+    function onReplaceNodeContentsButtonClick() {
+        state.document.replaceNodeContents(
+            state.document.getSelectedNodeId(),
+            nodeInputValue,
+        );
     }
 
     /**
