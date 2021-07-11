@@ -160,7 +160,19 @@ function App(): m.Component {
         }
     }
 
+    function onWindowResize() {
+        m.redraw();
+    }
+
     return {
+        oncreate: () => {
+            window.addEventListener('resize', onWindowResize);
+        },
+
+        onremove: () => {
+            window.removeEventListener('resize', onWindowResize);
+        },
+
         view: () => {
             const optionalEditUi = (
                 state.ui.getEditOpsVisible() ? getEditUi() : ''
