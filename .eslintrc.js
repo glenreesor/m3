@@ -53,6 +53,10 @@ module.exports = {
             // - Conflicts with convention of alphabetizing methods. This will
             //   still flag errors in problematic cases
 
+        'operator-linebreak': 'off',
+            // - So multi-line conditions have operators at the end of the line
+            //   rather than at the beginning of the next line
+
         semi: ['error', 'always'],
             // - One less thing to think about (Automatic Semicolon Insertion)
     },
