@@ -747,7 +747,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                 ctx.scale(devicePixelRatio, devicePixelRatio);
                 ctx.translate(
                     cumulativeCanvasTranslation.x,
-                    cumulativeCanvasTranslation.y
+                    cumulativeCanvasTranslation.y,
                 );
             }
 
