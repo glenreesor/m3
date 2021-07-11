@@ -111,8 +111,14 @@ function DisplayedDocument(): m.Component<Attrs> {
         y: 5,
     };
 
+    const devicePixelRatio = window.devicePixelRatio || 1;
+
     let canvasElement: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
+    const currentDocDimensions = {
+        width: -1,
+        height: -1,
+    };
 
     // List of clickable regions (created upon each render)
     let clickableFoldingIcons: ClickableCircle[] = [];
@@ -127,9 +133,9 @@ function DisplayedDocument(): m.Component<Attrs> {
         y: 0,
     };
 
-    // Current translation of the canvas. Required for clickable region
-    // calculations
-    const currentCanvasTranslation = {
+    // Total translations amount -- required for resetting translation when
+    // canvas gets resized
+    const cumulativeCanvasTranslation = {
         x: 0,
         y: 0,
     };
@@ -216,8 +222,8 @@ function DisplayedDocument(): m.Component<Attrs> {
 
         // Determine the total amount the canvas has been translated so we can
         // take that into account for click targets
-        currentCanvasTranslation.x += deltaX;
-        currentCanvasTranslation.y += deltaY;
+        cumulativeCanvasTranslation.x += deltaX;
+        cumulativeCanvasTranslation.y += deltaY;
 
         // Translate the canvas
         ctx.translate(deltaX, deltaY);
@@ -319,8 +325,8 @@ function DisplayedDocument(): m.Component<Attrs> {
      */
     function onClick(e: MouseEvent) {
         // Convert the mouse coordinates to be relative to the canvas
-        const canvasX = e.pageX - canvasElement.offsetLeft - currentCanvasTranslation.x;
-        const canvasY = e.pageY - canvasElement.offsetTop - currentCanvasTranslation.y;
+        const canvasX = e.pageX - canvasElement.offsetLeft - cumulativeCanvasTranslation.x;
+        const canvasY = e.pageY - canvasElement.offsetTop - cumulativeCanvasTranslation.y;
 
         // Compare to clickable regions for nodes
         clickableNodes.forEach((region) => {
@@ -692,31 +698,20 @@ function DisplayedDocument(): m.Component<Attrs> {
         ctx.stroke();
     }
 
+    function saveDimensionsFromAttrs(attrs: Attrs) {
+        currentDocDimensions.width = attrs.documentDimensions.width;
+        currentDocDimensions.height = attrs.documentDimensions.height;
+    }
+
     return {
         oncreate: (vnode) => {
-            //------------------------------------------------------------------
-            // Scale the canvas properly so everything looks crisp on high DPI
-            // displays
-            //------------------------------------------------------------------
             canvasElement = vnode.dom as HTMLCanvasElement;
-            const cssPixelsBoundingRect = canvasElement.getBoundingClientRect();
-            const devicePixelRatio = window.devicePixelRatio || 1;
             ctx = canvasElement.getContext('2d') as CanvasRenderingContext2D;
 
-            // Set actual width and height to be used by the browser's drawing
-            // engine (i.e. use the full device resolution)
-            canvasElement.width = cssPixelsBoundingRect.width * devicePixelRatio;
-            canvasElement.height = cssPixelsBoundingRect.height * devicePixelRatio;
+            saveDimensionsFromAttrs(vnode.attrs);
 
-            // At this point the canvas may be bigger than the available CSS
-            // pixels (if this is a high DPI device), so scale it back down to
-            // the required CSS pixel dimensions
-            canvasElement.style.width = `${cssPixelsBoundingRect.width}px`;
-            canvasElement.style.height = `${cssPixelsBoundingRect.height}px`;
-
-            // Since the canvas size is in terms of device pixels but drawing
-            // commands are in terms of CSS pixels, we must scale drawing
-            // commands
+            // Scale the canvas properly so everything looks crisp on high DPI
+            // displays
             ctx.scale(devicePixelRatio, devicePixelRatio);
 
             //------------------------------------------------------------------
@@ -741,6 +736,21 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
+            // Canvas elements reset their scale and translation when their
+            // dimensions change, so reset when that happens
+            if (
+                currentDocDimensions.width !== vnode.attrs.documentDimensions.width ||
+                currentDocDimensions.height !== vnode.attrs.documentDimensions.height
+            ) {
+                saveDimensionsFromAttrs(vnode.attrs);
+
+                ctx.scale(devicePixelRatio, devicePixelRatio);
+                ctx.translate(
+                    cumulativeCanvasTranslation.x,
+                    cumulativeCanvasTranslation.y
+                );
+            }
+
             // Clear the existing rendered map
             // We need to clear a region larger than the actual canvas so
             // parts of the map rendered prior to a translation also get cleared
@@ -777,22 +787,38 @@ function DisplayedDocument(): m.Component<Attrs> {
             );
         },
 
-        view: ({ attrs }) => m(
-            'canvas',
-            {
-                height: attrs.documentDimensions.height,
-                width: attrs.documentDimensions.width,
-                style: 'border: 1px solid black',
-                onclick: onClick,
-                onmousedown: onMouseDown,
-                onmousemove: onMouseMove,
-                onmouseout: onMouseOut,
-                onmouseup: onMouseUp,
-                ontouchend: onTouchEnd,
-                ontouchmove: onTouchMove,
-                ontouchstart: onTouchStart,
-            },
-        ),
+        view: ({ attrs }) => {
+            const cssPixelsWidth = attrs.documentDimensions.width;
+            const cssPixelsHeight = attrs.documentDimensions.height;
+
+            // Set actual width and height to be used by the browser's drawing
+            // engine (i.e. use the full device resolution)
+            // This relies on the canvas context also being scaled by the
+            // devicePixelRatio (in oncreate and onupdate)
+            const canvasActualWidth = cssPixelsWidth * devicePixelRatio;
+            const canvasActualHeight = cssPixelsHeight * devicePixelRatio;
+
+            return m(
+                'canvas',
+                {
+                    width: canvasActualWidth,
+                    height: canvasActualHeight,
+                    style: {
+                        border: '1px solid black',
+                        width: `${cssPixelsWidth}px`,
+                        height: `${cssPixelsHeight}px`,
+                    },
+                    onclick: onClick,
+                    onmousedown: onMouseDown,
+                    onmousemove: onMouseMove,
+                    onmouseout: onMouseOut,
+                    onmouseup: onMouseUp,
+                    ontouchend: onTouchEnd,
+                    ontouchmove: onTouchMove,
+                    ontouchstart: onTouchStart,
+                },
+            );
+        },
     };
 }
 
