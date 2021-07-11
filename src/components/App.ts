@@ -207,7 +207,7 @@ function App(): m.Component {
                 m('hr'),
                 m(
                     'div',
-                    `${docName} ${isModified ? 'X' : ''}`,
+                    `${docName} ${isModified ? '(Modified)' : ''}`,
                 ),
 
                 m(
