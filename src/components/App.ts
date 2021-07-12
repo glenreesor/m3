@@ -87,12 +87,6 @@ function App(): m.Component {
                     'Redo',
                 ),
             ),
-            m(
-                'div',
-                m('button', 'Cut'),
-                m('button', 'Copy'),
-                m('button', 'Paste'),
-            ),
         );
     }
 
