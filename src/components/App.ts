@@ -128,6 +128,24 @@ function App(): m.Component {
         state.document.deleteNode(state.document.getSelectedNodeId());
     }
 
+    /**
+     * Handle a change to the input box used for node contents
+     *
+     * @param e The event that triggered this change
+     */
+    function onNodeInputValueChange(e: Event) {
+        if (e.target !== null) {
+            nodeInputValue = ((e.target) as HTMLInputElement).value;
+        }
+    }
+
+    /**
+     * Handling clicking of the Redo button
+     */
+    function onRedoClick() {
+        state.document.redo();
+    }
+
     function onReplaceNodeContentsButtonClick() {
         state.document.replaceNodeContents(
             state.document.getSelectedNodeId(),
@@ -140,24 +158,6 @@ function App(): m.Component {
      */
     function onUndoClick() {
         state.document.undo();
-    }
-
-    /**
-     * Handling clicking of the Redo button
-     */
-    function onRedoClick() {
-        state.document.redo();
-    }
-
-    /**
-     * Handle a change to the input box used for node contents
-     *
-     * @param e The event that triggered this change
-     */
-    function onNodeInputValueChange(e: Event) {
-        if (e.target !== null) {
-            nodeInputValue = ((e.target) as HTMLInputElement).value;
-        }
     }
 
     function onWindowResize() {
