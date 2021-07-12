@@ -33,6 +33,9 @@ export default (() => {
          */
         toggleEditOpsVisibility: () => {
             state.editOpsVisible = !state.editOpsVisible;
+            if (state.editOpsVisible) {
+                state.fileOpsVisible = false;
+            }
         },
 
         /**
@@ -40,6 +43,9 @@ export default (() => {
          */
         toggleFileOpsVisibility: () => {
             state.fileOpsVisible = !state.fileOpsVisible;
+            if (state.fileOpsVisible) {
+                state.editOpsVisible = false;
+            }
         },
     };
 })();

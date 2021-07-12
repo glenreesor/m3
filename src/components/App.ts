@@ -192,10 +192,6 @@ function App(): m.Component {
                     { onclick: state.ui.toggleFileOpsVisibility },
                     'File Operations',
                 ),
-                m('br'),
-                optionalFileUi,
-
-                m('hr'),
                 m(
                     'button',
                     { onclick: state.ui.toggleEditOpsVisibility },
@@ -203,6 +199,7 @@ function App(): m.Component {
                 ),
                 m('br'),
                 optionalEditUi,
+                optionalFileUi,
 
                 m('hr'),
                 m(
