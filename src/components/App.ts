@@ -35,13 +35,13 @@ function App(): m.Component {
         },
 
         view: (): m.Vnode => {
-            const docName = state.document.getDocName();
+            const documentName = state.document.getDocName();
             const isModified = state.document.getIsModified();
 
             return m(
                 'div',
                 m(UserActions),
-                m(DocumentHeader, { documentName: docName, isModified }),
+                m(DocumentHeader, { documentName, isModified }),
                 m(Document, { documentDimensions: getDocumentDimensions() }),
             );
         },
