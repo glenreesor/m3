@@ -1,6 +1,7 @@
 import * as m from 'mithril';
 
 import Document from './DisplayedDocument';
+import DocumentHeader from './DocumentHeader';
 import UserActions from './UserActions';
 import state from '../state/state';
 
@@ -40,17 +41,8 @@ function App(): m.Component {
             return m(
                 'div',
                 m(UserActions),
-                m(
-                    'div',
-                    `${docName} ${isModified ? '(Modified)' : ''}`,
-                ),
-
-                m(
-                    Document,
-                    {
-                        documentDimensions: getDocumentDimensions(),
-                    },
-                ),
+                m(DocumentHeader, { documentName: docName, isModified }),
+                m(Document, { documentDimensions: getDocumentDimensions() }),
             );
         },
     };
