@@ -1,5 +1,4 @@
 import document from './documentState';
-import ui from './uiState';
 
 /**
  * An object that holds the App's global state and functions for acting on that
@@ -9,5 +8,4 @@ import ui from './uiState';
  */
 export default {
     document,
-    ui,
 };
