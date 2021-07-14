@@ -21,7 +21,7 @@ const MENU_ICONS_MARGIN = 2;
 
 export const MENU_HEIGHT = MENU_ICONS_HEIGHT + MENU_ICONS_MARGIN;
 
-function UserActions(): m.Component {
+function Menu(): m.Component {
     type SelectedMenu = 'edit' | 'file';
     let selectedMenu: SelectedMenu = 'edit';
 
@@ -228,4 +228,4 @@ function UserActions(): m.Component {
     };
 }
 
-export default UserActions;
+export default Menu;

@@ -2,7 +2,7 @@ import * as m from 'mithril';
 
 import Document from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
-import UserActions, { MENU_HEIGHT } from './UserActions';
+import Menu, { MENU_HEIGHT } from './Menu';
 import state from '../state/state';
 
 /**
@@ -43,7 +43,7 @@ function App(): m.Component {
             return m('div',
                 m(DocumentHeader, { documentName, isModified }),
                 m(Document, { documentDimensions: getDocumentDimensions() }),
-                m(UserActions));
+                m(Menu));
         },
     };
 }
