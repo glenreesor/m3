@@ -2,10 +2,28 @@ import * as m from 'mithril';
 
 import state from '../state/state';
 
+import addChildButton from '../images/add-child.svg';
+import addSiblingButton from '../images/add-sibling.svg';
+import addSiblingButtonDisabled from '../images/add-sibling-disabled.svg';
+import deleteNodeButton from '../images/delete-node.svg';
+import deleteNodeButtonDisabled from '../images/delete-node-disabled.svg';
+import editNodeButton from '../images/edit-node.svg';
+import editMenuButton from '../images/edit-menu.svg';
+import fileMenuButton from '../images/file-menu.svg';
+import redoButton from '../images/redo.svg';
+import redoButtonDisabled from '../images/redo-disabled.svg';
+import undoButton from '../images/undo.svg';
+import undoButtonDisabled from '../images/undo-disabled.svg';
+
+const MENU_ICONS_HEIGHT = 40;
+const MENU_ICONS_WIDTH = 40;
+const MENU_ICONS_MARGIN = 2;
+
+export const MENU_HEIGHT = MENU_ICONS_HEIGHT + MENU_ICONS_MARGIN;
+
 function UserActions(): m.Component {
-    let editOperationsVisible = false;
-    let fileOperationsVisible = false;
-    let nodeInputValue = '';
+    type SelectedMenu = 'edit' | 'file';
+    let selectedMenu: SelectedMenu = 'edit';
 
     function getEditOperationsMarkup(
         rootNodeId: number,
@@ -13,57 +31,88 @@ function UserActions(): m.Component {
     ):m.Vnode {
         return m(
             'div',
+
+            // Add Sibling
             m(
-                'div',
-                m(
-                    'input',
-                    { onchange: onNodeInputValueChange },
-                ),
-                m(
-                    'button',
-                    {
-                        disabled: selectedNodeId === rootNodeId,
-                        onclick: onAddSiblingButtonClick,
-                    },
-                    'Add Sibling',
-                ),
-                m(
-                    'button',
-                    { onclick: onAddChildButtonClick },
-                    'Add Child',
-                ),
-                m(
-                    'button',
-                    {
-                        disabled: selectedNodeId === rootNodeId,
-                        onclick: onDeleteNodeButtonClick,
-                    },
-                    'Delete Node',
-                ),
-                m(
-                    'button',
-                    { onclick: onReplaceNodeContentsButtonClick },
-                    'Replace Node Contents',
-                ),
+                'img',
+                {
+                    src: selectedNodeId === rootNodeId
+                        ? addSiblingButtonDisabled
+                        : addSiblingButton,
+                    height: MENU_ICONS_HEIGHT,
+                    width: MENU_ICONS_WIDTH,
+                    style: 'margin: 2px;',
+                    onclick: onAddSiblingButtonClick,
+                },
             ),
+
+            // Add Child
             m(
-                'div',
-                m(
-                    'button',
-                    {
-                        disabled: !state.document.getUndoIsAvailable(),
-                        onclick: onUndoButtonClick,
-                    },
-                    'Undo',
-                ),
-                m(
-                    'button',
-                    {
-                        disabled: !state.document.getRedoIsAvailable(),
-                        onclick: onRedoButtonClick,
-                    },
-                    'Redo',
-                ),
+                'img',
+                {
+                    src: addChildButton,
+                    height: MENU_ICONS_HEIGHT,
+                    width: MENU_ICONS_WIDTH,
+                    style: 'margin: 2px;',
+                    onclick: onAddChildButtonClick,
+                },
+            ),
+
+            // Delete Node
+            m(
+                'img',
+                {
+                    src: selectedNodeId === rootNodeId
+                        ? deleteNodeButtonDisabled
+                        : deleteNodeButton,
+                    height: MENU_ICONS_HEIGHT,
+                    width: MENU_ICONS_WIDTH,
+                    style: 'margin: 2px;',
+                    onclick: onDeleteNodeButtonClick,
+                },
+            ),
+
+            // Edit Node
+            m(
+                'img',
+                {
+                    src: editNodeButton,
+                    height: MENU_ICONS_HEIGHT,
+                    width: MENU_ICONS_WIDTH,
+                    style: 'margin: 2px;',
+                    onclick: onReplaceNodeContentsButtonClick,
+                },
+            ),
+
+            // Undo
+            m(
+                'img',
+                {
+                    src: state.document.getUndoIsAvailable()
+                        ? undoButton
+                        : undoButtonDisabled,
+                    height: MENU_ICONS_HEIGHT,
+                    width: MENU_ICONS_WIDTH,
+                    style: 'margin: 2px;',
+                    onclick: onundoButtonButtonClick,
+                },
+                'undoButton',
+            ),
+
+            // Redo
+            m(
+                'img',
+                {
+                    // disabled: !state.document.getRedoIsAvailable(),
+                    src: state.document.getRedoIsAvailable()
+                        ? redoButton
+                        : redoButtonDisabled,
+                    height: MENU_ICONS_HEIGHT,
+                    width: MENU_ICONS_WIDTH,
+                    style: 'margin: 2px;',
+                    onclick: onRedoButtonClick,
+                },
+                'Redo',
             ),
         );
     }
@@ -77,17 +126,47 @@ function UserActions(): m.Component {
         );
     }
 
+    function getMenuSelectorMarkup(): m.Vnode {
+        const menuSelectedStyle = 'border: 2px solid blue; margin: 2px; padding-top: 2px;';
+        const menuDeselectedStyle = 'border: 2px solid grey; margin: 2px; padding-top: 2px;';
+        const editMenuButtonBorder = selectedMenu === 'edit'
+            ? menuSelectedStyle
+            : menuDeselectedStyle;
+
+        const fileMenuButtonBorder = selectedMenu === 'file'
+            ? menuSelectedStyle
+            : menuDeselectedStyle;
+
+        return m('div',
+            m('img',
+                {
+                    src: fileMenuButton,
+                    width: MENU_ICONS_WIDTH,
+                    height: MENU_ICONS_WIDTH,
+                    style: fileMenuButtonBorder,
+                    onclick: () => setSelectedMenu('file'),
+                }),
+            m('img',
+                {
+                    src: editMenuButton,
+                    width: MENU_ICONS_WIDTH,
+                    height: MENU_ICONS_WIDTH,
+                    style: editMenuButtonBorder,
+                    onclick: () => setSelectedMenu('edit'),
+                }));
+    }
+
     function onAddChildButtonClick() {
         state.document.addChild(
             state.document.getSelectedNodeId(),
-            nodeInputValue,
+            'asdf', // nodeInputValue,
         );
     }
 
     function onAddSiblingButtonClick() {
         state.document.addSibling(
             state.document.getSelectedNodeId(),
-            nodeInputValue,
+            'asdf', // nodeInputValue,
         );
     }
 
@@ -98,11 +177,13 @@ function UserActions(): m.Component {
     /**
      * Handle a change to the input box used for node contents
      */
+    /*
     function onNodeInputValueChange(e: Event) {
         if (e.target !== null) {
             nodeInputValue = ((e.target) as HTMLInputElement).value;
         }
     }
+    */
 
     function onRedoButtonClick() {
         state.document.redo();
@@ -111,58 +192,37 @@ function UserActions(): m.Component {
     function onReplaceNodeContentsButtonClick() {
         state.document.replaceNodeContents(
             state.document.getSelectedNodeId(),
-            nodeInputValue,
+            'asdf', // nodeInputValue,
         );
     }
 
-    function onUndoButtonClick() {
+    function onundoButtonButtonClick() {
         state.document.undo();
     }
 
-    function toggleEditOpsVisibility() {
-        editOperationsVisible = !editOperationsVisible;
-        if (editOperationsVisible) {
-            fileOperationsVisible = false;
-        }
-    }
-
-    function toggleFileOpsVisibility() {
-        fileOperationsVisible = !fileOperationsVisible;
-        if (fileOperationsVisible) {
-            editOperationsVisible = false;
-        }
+    function setSelectedMenu(menu: SelectedMenu) {
+        selectedMenu = menu;
     }
 
     return {
         view: (): m.Vnode => {
-            const optionalEditUi = editOperationsVisible
+            const menuSelectorMarkup = getMenuSelectorMarkup();
+            const optionalEditUi = selectedMenu === 'edit'
                 ? getEditOperationsMarkup(
                     state.document.getRootNodeId(),
                     state.document.getSelectedNodeId(),
                 )
                 : '';
 
-            const optionalFileUi = (
-                fileOperationsVisible ? getFileOperationsMarkup() : ''
-            );
+            const optionalFileUi = selectedMenu === 'file'
+                ? getFileOperationsMarkup()
+                : '';
 
             return m(
-                'div',
-                m(
-                    'button',
-                    { onclick: toggleFileOpsVisibility },
-                    'File Operations',
-                ),
-                m(
-                    'button',
-                    { onclick: toggleEditOpsVisibility },
-                    'Edit Operations',
-                ),
-                m('br'),
+                'div', { style: 'display: flex;' },
+                menuSelectorMarkup,
                 optionalEditUi,
                 optionalFileUi,
-
-                m('hr'),
             );
         },
     };

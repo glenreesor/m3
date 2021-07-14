@@ -13,6 +13,7 @@ function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
         view: ({ attrs }): m.Vnode => (
             m(
                 'div',
+                { style: 'font-size: 12px' },
                 `${attrs.documentName} ${attrs.isModified ? '(Modified)' : ''}`,
             )
         ),

@@ -2,7 +2,7 @@ import * as m from 'mithril';
 
 import Document from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
-import UserActions from './UserActions';
+import UserActions, { MENU_HEIGHT } from './UserActions';
 import state from '../state/state';
 
 /**
@@ -17,7 +17,9 @@ function App(): m.Component {
     function getDocumentDimensions(): {width: number, height: number} {
         return {
             width: window.innerWidth - 20,
-            height: window.innerHeight - 200, // Hack for stuff at top for now
+
+            // Hack for now
+            height: window.innerHeight - MENU_HEIGHT - 12 - 35,
         };
     }
 
@@ -38,12 +40,10 @@ function App(): m.Component {
             const documentName = state.document.getDocName();
             const isModified = state.document.getIsModified();
 
-            return m(
-                'div',
-                m(UserActions),
+            return m('div',
                 m(DocumentHeader, { documentName, isModified }),
                 m(Document, { documentDimensions: getDocumentDimensions() }),
-            );
+                m(UserActions));
         },
     };
 }
