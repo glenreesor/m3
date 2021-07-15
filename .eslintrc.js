@@ -18,6 +18,13 @@ module.exports = {
     rules: {
         /* eslint-disable indent */
 
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': 'error',
+            // The regular no-unused-vars doesn't understand TS things like:
+            // interface MyInterface {
+            //     myFunction(arg: string) => void
+            // }
+
         'import/extensions': ['error', 'always', { pattern: { ts: 'never' } }],
             // - Typescript doesn't use extensions for code
             // - Eventually we'll want to import things like images, which *will*
