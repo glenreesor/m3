@@ -42,10 +42,11 @@ function App(): m.Component {
                     initialValue: '',
                     onCancel: () => { state.ui.setCurrentModal('none'); },
                     onSave: (text: string) =>  {
-                        state.document.addChild(
+                        const newNodeId = state.document.addChild(
                             state.document.getSelectedNodeId(),
                             text,
                         );
+                        state.document.setSelectedNodeId(newNodeId);
                         state.ui.setCurrentModal('none');
                     },
                 },
@@ -59,10 +60,11 @@ function App(): m.Component {
                     initialValue: '',
                     onCancel: () => { state.ui.setCurrentModal('none'); },
                     onSave: (text: string) => {
-                        state.document.addSibling(
+                        const newNodeId = state.document.addSibling(
                             state.document.getSelectedNodeId(),
                             text,
                         );
+                        state.document.setSelectedNodeId(newNodeId);
                         state.ui.setCurrentModal('none');
                     },
                 },

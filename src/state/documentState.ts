@@ -144,10 +144,13 @@ export default (() => {
          *
          * @param parentNodeId The ID of the parent
          * @param childContents The contents for the new node
+         *
+         * @return The ID of the newly added node
          */
-        addChild: (parentNodeId: number, childContents: string) => {
+        addChild: (parentNodeId: number, childContents: string): number => {
+            let newChildId = -1;
             const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                const newChildId = draftDocument.highestNodeId + 1;
+                newChildId = draftDocument.highestNodeId + 1;
                 const parentNode = safeGetNode(parentNodeId, 'addChild', draftDocument);
                 const newChild = {
                     id: newChildId,
@@ -164,6 +167,7 @@ export default (() => {
             });
 
             applyNewDocumentToUndoStack(newDoc);
+            return newChildId;
         },
 
         /**
@@ -171,15 +175,18 @@ export default (() => {
          *
          * @param siblingNodeId The ID of the node this will be a sibling to
          * @param childContents The contents for the new node
+         *
+         * @return The ID of the newly added node
          */
-        addSibling: (siblingNodeId: number, childContents: string) => {
+        addSibling: (siblingNodeId: number, childContents: string): number => {
             const siblingNode = safeGetNode(siblingNodeId, 'addSibling');
             const parentNodeId = siblingNode.parentId;
+            let newChildId = -1;
 
-            if (parentNodeId === undefined) return;
+            if (parentNodeId === undefined) return -1;
 
             const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                const newChildId = draftDocument.highestNodeId + 1;
+                newChildId = draftDocument.highestNodeId + 1;
                 const parentNode = safeGetNode(
                     parentNodeId,
                     'addSibling',
@@ -210,6 +217,8 @@ export default (() => {
             });
 
             applyNewDocumentToUndoStack(newDoc);
+
+            return newChildId;
         },
 
         deleteNode(nodeToDeleteId: number) {
