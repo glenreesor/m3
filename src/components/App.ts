@@ -3,6 +3,8 @@ import * as m from 'mithril';
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
 import Menu, { MENU_HEIGHT } from './Menu';
+import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
+
 import state from '../state/state';
 
 /**
@@ -18,9 +20,66 @@ function App(): m.Component {
         return {
             width: window.innerWidth - 20,
 
-            // Hack for now
+            // TODO: Turn this into a not-hack
             height: window.innerHeight - MENU_HEIGHT - 12 - 35,
         };
+    }
+
+    function getOptionalModalMarkup(): m.Vnode<TextInputModalAttributes> {
+        if (state.ui.getCurrentModal() === 'addChild') {
+            return m(
+                TextInputModal,
+                {
+                    initialValue: '',
+                    onCancel: () => { state.ui.setCurrentModal('none'); },
+                    onSave: (text: string) =>  {
+                        state.document.addChild(
+                            state.document.getSelectedNodeId(),
+                            text,
+                        );
+                        state.ui.setCurrentModal('none');
+                    },
+                },
+            );
+        }
+
+        if (state.ui.getCurrentModal() === 'addSibling') {
+            return m(
+                TextInputModal,
+                {
+                    initialValue: '',
+                    onCancel: () => { state.ui.setCurrentModal('none'); },
+                    onSave: (text: string) => {
+                        state.document.addSibling(
+                            state.document.getSelectedNodeId(),
+                            text,
+                        );
+                        state.ui.setCurrentModal('none');
+                    },
+                },
+            );
+        }
+
+        if (state.ui.getCurrentModal() === 'editNode') {
+            return m(
+                TextInputModal,
+                {
+                    initialValue: state.document.getNodeContents(
+                        state.document.getSelectedNodeId(),
+                    ),
+                    onCancel: () => { state.ui.setCurrentModal('none'); },
+                    onSave: (text: string) => {
+                        state.document.replaceNodeContents(
+                            state.document.getSelectedNodeId(),
+                            text,
+                        );
+                        state.ui.setCurrentModal('none');
+                    },
+                },
+            );
+        }
+
+        return m('');
     }
 
     function onWindowResize() {
@@ -41,6 +100,7 @@ function App(): m.Component {
             const isModified = state.document.getIsModified();
 
             return m('div',
+                getOptionalModalMarkup(),
                 m(DocumentHeader, { documentName, isModified }),
                 m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
                 m(Menu));

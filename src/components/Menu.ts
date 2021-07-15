@@ -157,43 +157,23 @@ function Menu(): m.Component {
     }
 
     function onAddChildButtonClick() {
-        state.document.addChild(
-            state.document.getSelectedNodeId(),
-            'asdf', // nodeInputValue,
-        );
+        state.ui.setCurrentModal('addChild');
     }
 
     function onAddSiblingButtonClick() {
-        state.document.addSibling(
-            state.document.getSelectedNodeId(),
-            'asdf', // nodeInputValue,
-        );
+        state.ui.setCurrentModal('addSibling');
     }
 
     function onDeleteNodeButtonClick() {
         state.document.deleteNode(state.document.getSelectedNodeId());
     }
 
-    /**
-     * Handle a change to the input box used for node contents
-     */
-    /*
-    function onNodeInputValueChange(e: Event) {
-        if (e.target !== null) {
-            nodeInputValue = ((e.target) as HTMLInputElement).value;
-        }
-    }
-    */
-
     function onRedoButtonClick() {
         state.document.redo();
     }
 
     function onReplaceNodeContentsButtonClick() {
-        state.document.replaceNodeContents(
-            state.document.getSelectedNodeId(),
-            'asdf', // nodeInputValue,
-        );
+        state.ui.setCurrentModal('editNode');
     }
 
     function onundoButtonButtonClick() {
