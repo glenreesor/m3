@@ -8,8 +8,7 @@ import addSiblingButtonDisabled from '../images/add-sibling-disabled.svg';
 import deleteNodeButton from '../images/delete-node.svg';
 import deleteNodeButtonDisabled from '../images/delete-node-disabled.svg';
 import editNodeButton from '../images/edit-node.svg';
-import editMenuButton from '../images/edit-menu.svg';
-import fileMenuButton from '../images/file-menu.svg';
+import hamburgerMenuButton from '../images/hamburger-button.svg';
 import redoButton from '../images/redo.svg';
 import redoButtonDisabled from '../images/redo-disabled.svg';
 import undoButton from '../images/undo.svg';
@@ -22,39 +21,40 @@ const MENU_ICONS_MARGIN = 2;
 export const MENU_HEIGHT = MENU_ICONS_HEIGHT + MENU_ICONS_MARGIN;
 
 function Menu(): m.Component {
-    type SelectedMenu = 'edit' | 'file';
-    let selectedMenu: SelectedMenu = 'edit';
-
     function getEditOperationsMarkup(
         rootNodeId: number,
         selectedNodeId: number,
     ):m.Vnode {
         return m(
             'div',
+            { style: 'text-align: right' },
 
-            // Add Sibling
+            // Undo
             m(
                 'img',
                 {
-                    src: selectedNodeId === rootNodeId
-                        ? addSiblingButtonDisabled
-                        : addSiblingButton,
+                    src: state.document.getUndoIsAvailable()
+                        ? undoButton
+                        : undoButtonDisabled,
                     height: MENU_ICONS_HEIGHT,
                     width: MENU_ICONS_WIDTH,
                     style: 'margin: 2px;',
-                    onclick: onAddSiblingButtonClick,
+                    onclick: onundoButtonButtonClick,
                 },
             ),
 
-            // Add Child
+            // Redo
             m(
                 'img',
                 {
-                    src: addChildButton,
+                    // disabled: !state.document.getRedoIsAvailable(),
+                    src: state.document.getRedoIsAvailable()
+                        ? redoButton
+                        : redoButtonDisabled,
                     height: MENU_ICONS_HEIGHT,
                     width: MENU_ICONS_WIDTH,
                     style: 'margin: 2px;',
-                    onclick: onAddChildButtonClick,
+                    onclick: onRedoButtonClick,
                 },
             ),
 
@@ -84,35 +84,42 @@ function Menu(): m.Component {
                 },
             ),
 
-            // Undo
+            // Add Child
             m(
                 'img',
                 {
-                    src: state.document.getUndoIsAvailable()
-                        ? undoButton
-                        : undoButtonDisabled,
+                    src: addChildButton,
                     height: MENU_ICONS_HEIGHT,
                     width: MENU_ICONS_WIDTH,
                     style: 'margin: 2px;',
-                    onclick: onundoButtonButtonClick,
+                    onclick: onAddChildButtonClick,
                 },
-                'undoButton',
             ),
 
-            // Redo
+            // Add Sibling
             m(
                 'img',
                 {
-                    // disabled: !state.document.getRedoIsAvailable(),
-                    src: state.document.getRedoIsAvailable()
-                        ? redoButton
-                        : redoButtonDisabled,
+                    src: selectedNodeId === rootNodeId
+                        ? addSiblingButtonDisabled
+                        : addSiblingButton,
                     height: MENU_ICONS_HEIGHT,
                     width: MENU_ICONS_WIDTH,
                     style: 'margin: 2px;',
-                    onclick: onRedoButtonClick,
+                    onclick: onAddSiblingButtonClick,
                 },
-                'Redo',
+            ),
+
+            // Sidebar Button
+            m(
+                'img',
+                {
+                    src: hamburgerMenuButton,
+                    width: MENU_ICONS_WIDTH,
+                    height: MENU_ICONS_HEIGHT,
+                    style: 'margin: 2px;',
+                    onclick: () => state.ui.setSidebarVisibility(true),
+                },
             ),
         );
     }
@@ -120,40 +127,23 @@ function Menu(): m.Component {
     function getFileOperationsMarkup(): m.Vnode {
         return m(
             'div',
+            { style: 'text-align: right' },
             m('button', 'New'),
             m('button', 'Open'),
             m('button', 'Save'),
+
+            // Sidebar Button
+            m(
+                'img',
+                {
+                    src: hamburgerMenuButton,
+                    width: MENU_ICONS_WIDTH,
+                    height: MENU_ICONS_HEIGHT,
+                    style: 'margin: 2px;',
+                    onclick: () => state.ui.setSidebarVisibility(true),
+                },
+            ),
         );
-    }
-
-    function getMenuSelectorMarkup(): m.Vnode {
-        const menuSelectedStyle = 'border: 2px solid blue; margin: 2px; padding-top: 2px;';
-        const menuDeselectedStyle = 'border: 2px solid grey; margin: 2px; padding-top: 2px;';
-        const editMenuButtonBorder = selectedMenu === 'edit'
-            ? menuSelectedStyle
-            : menuDeselectedStyle;
-
-        const fileMenuButtonBorder = selectedMenu === 'file'
-            ? menuSelectedStyle
-            : menuDeselectedStyle;
-
-        return m('div',
-            m('img',
-                {
-                    src: fileMenuButton,
-                    width: MENU_ICONS_WIDTH,
-                    height: MENU_ICONS_WIDTH,
-                    style: fileMenuButtonBorder,
-                    onclick: () => setSelectedMenu('file'),
-                }),
-            m('img',
-                {
-                    src: editMenuButton,
-                    width: MENU_ICONS_WIDTH,
-                    height: MENU_ICONS_WIDTH,
-                    style: editMenuButtonBorder,
-                    onclick: () => setSelectedMenu('edit'),
-                }));
     }
 
     function onAddChildButtonClick() {
@@ -180,27 +170,21 @@ function Menu(): m.Component {
         state.document.undo();
     }
 
-    function setSelectedMenu(menu: SelectedMenu) {
-        selectedMenu = menu;
-    }
-
     return {
         view: (): m.Vnode => {
-            const menuSelectorMarkup = getMenuSelectorMarkup();
-            const optionalEditUi = selectedMenu === 'edit'
+            const optionalEditUi = state.ui.getCurrentMenu() === 'edit'
                 ? getEditOperationsMarkup(
                     state.document.getRootNodeId(),
                     state.document.getSelectedNodeId(),
                 )
                 : '';
 
-            const optionalFileUi = selectedMenu === 'file'
+            const optionalFileUi = state.ui.getCurrentMenu() === 'file'
                 ? getFileOperationsMarkup()
                 : '';
 
             return m(
-                'div', { style: 'display: flex;' },
-                menuSelectorMarkup,
+                'div',
                 optionalEditUi,
                 optionalFileUi,
             );

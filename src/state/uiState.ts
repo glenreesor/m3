@@ -7,17 +7,31 @@
  */
 export default (() => {
     type ModalType = 'none' | 'addChild' | 'addSibling' | 'editNode';
+    type MenuType = 'edit' | 'file';
 
     interface State {
+        currentMenu: MenuType,
         currentModal: ModalType,
+        sidebarIsVisible: boolean,
     }
 
     const state: State = {
+        currentMenu: 'edit',
         currentModal: 'none',
+        sidebarIsVisible: false,
     };
 
     return {
+        getCurrentMenu: () => state.currentMenu,
+        setCurrentMenu: (menu: MenuType) => { state.currentMenu = menu;  },
+
         getCurrentModal: () => state.currentModal,
         setCurrentModal: (modal: ModalType) => { state.currentModal = modal; },
+
+        getSidebarIsVisible: () => state.sidebarIsVisible,
+        setSidebarVisibility: (visible: boolean) => {
+            state.sidebarIsVisible = visible;
+        },
+
     };
 })();

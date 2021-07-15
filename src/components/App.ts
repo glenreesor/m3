@@ -3,6 +3,7 @@ import * as m from 'mithril';
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
 import Menu, { MENU_HEIGHT } from './Menu';
+import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 
 import state from '../state/state';
@@ -23,6 +24,14 @@ function App(): m.Component {
             // TODO: Turn this into a not-hack
             height: window.innerHeight - MENU_HEIGHT - 12 - 35,
         };
+    }
+
+    function getOptionalSidebar(): m.Vnode {
+        if (state.ui.getSidebarIsVisible()) {
+            return m(Sidebar);
+        }
+
+        return m('');
     }
 
     function getOptionalModalMarkup(): m.Vnode<TextInputModalAttributes> {
@@ -101,6 +110,7 @@ function App(): m.Component {
 
             return m('div',
                 getOptionalModalMarkup(),
+                getOptionalSidebar(),
                 m(DocumentHeader, { documentName, isModified }),
                 m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
                 m(Menu));
