@@ -27,7 +27,8 @@ function TextInputModal(): m.Component<TextInputModalAttributes> {
                 {
                     value: inputValue,
                     style: `width: ${window.innerWidth / 2}px`,
-                    onchange: onInputValueChange,
+                    oninput: onInputValueChange,
+                    onkeyup: (e: KeyboardEvent) => onInputKeyUp(e, attrs),
                 }),
             m('br'),
             m('button',
@@ -42,6 +43,14 @@ function TextInputModal(): m.Component<TextInputModalAttributes> {
                     onclick: attrs.onCancel,
                 },
                 'Cancel'));
+    }
+
+    function onInputKeyUp(e: KeyboardEvent, attrs: TextInputModalAttributes) {
+        if (e.key === 'Enter') {
+            attrs.onSave(inputValue);
+        } else if (e.key === 'Escape') {
+            attrs.onCancel();
+        }
     }
 
     function onInputValueChange(e: Event) {
