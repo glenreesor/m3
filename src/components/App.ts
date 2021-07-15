@@ -1,6 +1,6 @@
 import * as m from 'mithril';
 
-import Document from './DisplayedDocument';
+import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
 import Menu, { MENU_HEIGHT } from './Menu';
 import state from '../state/state';
@@ -42,7 +42,7 @@ function App(): m.Component {
 
             return m('div',
                 m(DocumentHeader, { documentName, isModified }),
-                m(Document, { documentDimensions: getDocumentDimensions() }),
+                m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
                 m(Menu));
         },
     };
