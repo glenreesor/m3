@@ -14,7 +14,14 @@ function TextInputModal(): m.Component<TextInputModalAttributes> {
             'div',
             {
                 // TODO: Don't use embedded styles
-                style: 'position: fixed; top: 0px; width: 100%; height: 100vh; background: rgba(255, 255, 255, 0.5); z-index: 10;',
+                style: {
+                    position: 'fixed',
+                    top: '0px',
+                    width: '100%',
+                    height: '100vh',
+                    background: 'rgba(255, 255, 255, 0.5)',
+                    'z-index': '10',
+                },
             },
         );
     }
@@ -24,7 +31,16 @@ function TextInputModal(): m.Component<TextInputModalAttributes> {
             'div',
             {
                 // TODO: Don't use embedded styles
-                style: 'background: #ffffff; padding: 10px; border: 2px solid blue; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20;',
+                style: {
+                    background: '#ffffff',
+                    padding: '10px',
+                    border: '2px solid blue',
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    'z-index': '20',
+                },
             },
             [
                 m(
