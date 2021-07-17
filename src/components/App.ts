@@ -110,12 +110,16 @@ function App(): m.Component {
             const documentName = state.document.getDocName();
             const isModified = state.document.getIsModified();
 
-            return m('div',
-                getOptionalModalMarkup(),
-                getOptionalSidebar(),
-                m(DocumentHeader, { documentName, isModified }),
-                m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
-                m(Menu));
+            return m(
+                'div',
+                [
+                    getOptionalModalMarkup(),
+                    getOptionalSidebar(),
+                    m(DocumentHeader, { documentName, isModified }),
+                    m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
+                    m(Menu),
+                ],
+            );
         },
     };
 }

@@ -128,21 +128,23 @@ function Menu(): m.Component {
         return m(
             'div',
             { style: 'text-align: right' },
-            m('button', 'New'),
-            m('button', 'Open'),
-            m('button', 'Save'),
+            [
+                m('button', 'New'),
+                m('button', 'Open'),
+                m('button', 'Save'),
 
-            // Sidebar Button
-            m(
-                'img',
-                {
-                    src: hamburgerMenuButton,
-                    width: MENU_ICONS_WIDTH,
-                    height: MENU_ICONS_HEIGHT,
-                    style: 'margin: 2px;',
-                    onclick: () => state.ui.setSidebarVisibility(true),
-                },
-            ),
+                // Sidebar Button
+                m(
+                    'img',
+                    {
+                        src: hamburgerMenuButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
+                        onclick: () => state.ui.setSidebarVisibility(true),
+                    },
+                ),
+            ],
         );
     }
 
@@ -185,8 +187,10 @@ function Menu(): m.Component {
 
             return m(
                 'div',
-                optionalEditUi,
-                optionalFileUi,
+                [
+                    optionalEditUi,
+                    optionalFileUi,
+                ],
             );
         },
     };

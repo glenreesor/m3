@@ -4,12 +4,14 @@ import state from '../state/state';
 
 function Sidebar(): m.Component {
     function getOverlayMarkup(): m.Vnode {
-        return m('div',
+        return m(
+            'div',
             {
                 // TODO: Don't use embedded styles
                 style: 'position: fixed; top: 0px; width: 100%; height: 100vh; z-index: 10;',
                 onclick: () => state.ui.setSidebarVisibility(false),
-            });
+            },
+        );
     }
 
     return {
