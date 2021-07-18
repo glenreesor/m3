@@ -21,7 +21,7 @@ export default (() => {
 
     // Parts of user's document that are affected by editing, including undo
     // and redo
-    interface Document {
+    interface Doc {
         nodes: Map<number, Node>,
         highestNodeId: number,
         rootId: number,
@@ -42,7 +42,7 @@ export default (() => {
         //      documentHistory[0] Contains the initial version of the document
         //      documentHistory[1] Contains the document after first edit
         //      etc.
-        docHistory: Array<Document>,
+        docHistory: Array<Doc>,
 
         // Name of document as it exists outside of m3 (e.g. filesystem)
         docName: string,
@@ -58,7 +58,7 @@ export default (() => {
         isModified: true,
     };
 
-    function applyNewDocumentToUndoStack(newDoc: Document) {
+    function applyNewDocToUndoStack(newDoc: Doc) {
         // Delete any states after the current one (i.e. redo states) since
         // they will no longer be valid
         state.docHistory.splice(state.currentDocIndex + 1);
@@ -73,11 +73,11 @@ export default (() => {
      *
      * @returns The current doc
      */
-    function getCurrentDoc(): Document {
+    function getCurrentDoc(): Doc {
         return state.docHistory[state.currentDocIndex];
     }
 
-    function getInitialEmptyDoc(): Document {
+    function getInitialEmptyDoc(): Doc {
         const rootNodeId = 0;
         const rootNode = {
             id: rootNodeId,
@@ -149,9 +149,9 @@ export default (() => {
          */
         addChild: (parentNodeId: number, childContents: string): number => {
             let newChildId = -1;
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                newChildId = draftDocument.highestNodeId + 1;
-                const parentNode = safeGetNode(parentNodeId, 'addChild', draftDocument);
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                newChildId = draftDoc.highestNodeId + 1;
+                const parentNode = safeGetNode(parentNodeId, 'addChild', draftDoc);
                 const newChild = {
                     id: newChildId,
                     contents: childContents,
@@ -161,12 +161,12 @@ export default (() => {
                 };
 
                 /* eslint-disable no-param-reassign */
-                draftDocument.highestNodeId = newChildId;
+                draftDoc.highestNodeId = newChildId;
                 parentNode.childIds.push(newChildId);
-                draftDocument.nodes.set(newChildId, newChild);
+                draftDoc.nodes.set(newChildId, newChild);
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
             return newChildId;
         },
 
@@ -185,12 +185,12 @@ export default (() => {
 
             if (parentNodeId === undefined) return -1;
 
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                newChildId = draftDocument.highestNodeId + 1;
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                newChildId = draftDoc.highestNodeId + 1;
                 const parentNode = safeGetNode(
                     parentNodeId,
                     'addSibling',
-                    draftDocument,
+                    draftDoc,
                 );
                 const newChild = {
                     id: newChildId,
@@ -201,7 +201,7 @@ export default (() => {
                 };
 
                 /* eslint-disable no-param-reassign */
-                draftDocument.highestNodeId = newChildId;
+                draftDoc.highestNodeId = newChildId;
 
                 const allSiblings = parentNode.childIds;
                 const siblingNodeIndex = allSiblings.indexOf(siblingNodeId);
@@ -213,10 +213,10 @@ export default (() => {
                 );
 
                 parentNode.childIds = allSiblings;
-                draftDocument.nodes.set(newChildId, newChild);
+                draftDoc.nodes.set(newChildId, newChild);
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
 
             return newChildId;
         },
@@ -232,27 +232,27 @@ export default (() => {
 
             if (parentNodeId === undefined) return;
 
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+            const newDoc = produce(getCurrentDoc(), (draftDocment) => {
                 function depthFirstDelete(nodeId: number) {
-                    const node = safeGetNode(nodeId, 'deleteNode', draftDocument);
+                    const node = safeGetNode(nodeId, 'deleteNode', draftDocment);
                     node.childIds.forEach((childId) => {
                         depthFirstDelete(childId);
                     });
-                    draftDocument.nodes.delete(nodeId);
+                    draftDocment.nodes.delete(nodeId);
                 }
 
                 // Remove all nodes from the Set then remove the specified
                 // node from its parent's child list
                 depthFirstDelete(nodeToDeleteId);
 
-                const parentNode = safeGetNode(parentNodeId, 'deleteNode', draftDocument);
+                const parentNode = safeGetNode(parentNodeId, 'deleteNode', draftDocment);
                 const indexOfNodeToDelete = parentNode.childIds.indexOf(nodeToDeleteId);
                 parentNode.childIds.splice(indexOfNodeToDelete, 1);
 
-                draftDocument.selectedNodeId = parentNodeId;
+                draftDocment.selectedNodeId = parentNodeId;
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
         },
 
         /**
@@ -352,12 +352,12 @@ export default (() => {
          * @param newContents The contents to put into the specified node
          */
         replaceNodeContents: (nodeId: number, newContents: string) => {
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                const nodeToReplace = safeGetNode(nodeId, 'replaceNodeContents', draftDocument);
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const nodeToReplace = safeGetNode(nodeId, 'replaceNodeContents', draftDoc);
                 nodeToReplace.contents = newContents;
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
         },
 
         /**
@@ -370,8 +370,8 @@ export default (() => {
             // However we won't push this new state to docHistory[] since we
             // don't want toggling children visibility to participate in
             // undo / redo functionality
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                draftDocument.selectedNodeId = nodeId;
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                draftDoc.selectedNodeId = nodeId;
             });
 
             // As described above, replace the current document with this one
@@ -388,8 +388,8 @@ export default (() => {
             // However we won't push this new state to docHistory[] since we
             // don't want toggling children visibility to participate in
             // undo / redo functionality
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                const node = safeGetNode(nodeId, 'toggleChildrenVisibility', draftDocument);
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const node = safeGetNode(nodeId, 'toggleChildrenVisibility', draftDoc);
                 node.childrenVisible = !node.childrenVisible;
             });
 

@@ -1,4 +1,4 @@
-import document from './documentState';
+import doc from './documentState';
 import ui from './uiState';
 
 /**
@@ -8,6 +8,6 @@ import ui from './uiState';
  * See imported sub-states for full information.
  */
 export default {
-    document,
+    doc,
     ui,
 };

@@ -44,11 +44,11 @@ function App(): m.Component {
                     initialValue: '',
                     onCancel: () => { state.ui.setCurrentModal('none'); },
                     onSave: (text: string) =>  {
-                        const newNodeId = state.document.addChild(
-                            state.document.getSelectedNodeId(),
+                        const newNodeId = state.doc.addChild(
+                            state.doc.getSelectedNodeId(),
                             text,
                         );
-                        state.document.setSelectedNodeId(newNodeId);
+                        state.doc.setSelectedNodeId(newNodeId);
                         state.ui.setCurrentModal('none');
                     },
                 },
@@ -62,11 +62,11 @@ function App(): m.Component {
                     initialValue: '',
                     onCancel: () => { state.ui.setCurrentModal('none'); },
                     onSave: (text: string) => {
-                        const newNodeId = state.document.addSibling(
-                            state.document.getSelectedNodeId(),
+                        const newNodeId = state.doc.addSibling(
+                            state.doc.getSelectedNodeId(),
                             text,
                         );
-                        state.document.setSelectedNodeId(newNodeId);
+                        state.doc.setSelectedNodeId(newNodeId);
                         state.ui.setCurrentModal('none');
                     },
                 },
@@ -77,13 +77,13 @@ function App(): m.Component {
             return m(
                 TextInputModal,
                 {
-                    initialValue: state.document.getNodeContents(
-                        state.document.getSelectedNodeId(),
+                    initialValue: state.doc.getNodeContents(
+                        state.doc.getSelectedNodeId(),
                     ),
                     onCancel: () => { state.ui.setCurrentModal('none'); },
                     onSave: (text: string) => {
-                        state.document.replaceNodeContents(
-                            state.document.getSelectedNodeId(),
+                        state.doc.replaceNodeContents(
+                            state.doc.getSelectedNodeId(),
                             text,
                         );
                         state.ui.setCurrentModal('none');
@@ -109,8 +109,8 @@ function App(): m.Component {
         },
 
         view: (): m.Vnode => {
-            const documentName = state.document.getDocName();
-            const isModified = state.document.getIsModified();
+            const documentName = state.doc.getDocName();
+            const isModified = state.doc.getIsModified();
 
             return m(
                 'div',

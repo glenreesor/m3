@@ -38,7 +38,7 @@ function Menu(): m.Component {
             m(
                 'img',
                 {
-                    src: state.document.getUndoIsAvailable()
+                    src: state.doc.getUndoIsAvailable()
                         ? undoButton
                         : undoButtonDisabled,
                     height: MENU_ICONS_HEIGHT,
@@ -52,8 +52,7 @@ function Menu(): m.Component {
             m(
                 'img',
                 {
-                    // disabled: !state.document.getRedoIsAvailable(),
-                    src: state.document.getRedoIsAvailable()
+                    src: state.doc.getRedoIsAvailable()
                         ? redoButton
                         : redoButtonDisabled,
                     height: MENU_ICONS_HEIGHT,
@@ -162,11 +161,11 @@ function Menu(): m.Component {
     }
 
     function onDeleteNodeButtonClick() {
-        state.document.deleteNode(state.document.getSelectedNodeId());
+        state.doc.deleteNode(state.doc.getSelectedNodeId());
     }
 
     function onRedoButtonClick() {
-        state.document.redo();
+        state.doc.redo();
     }
 
     function onReplaceNodeContentsButtonClick() {
@@ -174,15 +173,15 @@ function Menu(): m.Component {
     }
 
     function onundoButtonButtonClick() {
-        state.document.undo();
+        state.doc.undo();
     }
 
     return {
         view: (): m.Vnode => {
             const optionalEditUi = state.ui.getCurrentMenu() === 'edit'
                 ? getEditOperationsMarkup(
-                    state.document.getRootNodeId(),
-                    state.document.getSelectedNodeId(),
+                    state.doc.getRootNodeId(),
+                    state.doc.getSelectedNodeId(),
                 )
                 : '';
 
