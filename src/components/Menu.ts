@@ -1,6 +1,12 @@
 import * as m from 'mithril';
 
 import state from '../state/state';
+import {
+    getSavedDocument,
+    getSavedDocumentList,
+    replaceDocument,
+    saveNewDocument,
+} from '../utils/file';
 
 import addChildButton from '../images/add-child.svg';
 import addSiblingButton from '../images/add-sibling.svg';
@@ -133,9 +139,32 @@ function Menu(): m.Component {
             'div',
             { style: 'text-align: right' },
             [
-                m('button', 'New'),
-                m('button', 'Open'),
-                m('button', 'Save'),
+                // m('button', 'Import'),
+                // m('button', 'Export'),
+                // m('button', 'Save'),
+                // m('button', 'Open'),
+                // m('button', 'New'),
+                m(
+                    'button',
+                    { onclick: onSaveNewDocument },
+                    'Save New Document',
+                ),
+                m(
+                    'button',
+                    { onclick: onReplaceDocument },
+                    'Replace Document',
+                ),
+                m(
+                    'button',
+                    { onclick: onGetDocumentList },
+                    'Get Document List',
+                ),
+
+                m(
+                    'button',
+                    { onclick: onGetAllDocuments },
+                    'Get All Documents',
+                ),
 
                 // Sidebar Button
                 m(
@@ -151,6 +180,37 @@ function Menu(): m.Component {
             ],
         );
     }
+
+    function onSaveNewDocument() {
+        // Proof of concept -- just save the contents of the root node
+        const rootNodeContents = state.doc.getNodeContents(
+            state.doc.getSelectedNodeId(),
+        );
+        saveNewDocument(`name - ${rootNodeContents}`, rootNodeContents);
+    }
+
+    function onReplaceDocument() {
+        // Proof of concept -- just save the contents of the root node
+        const rootNodeContents = state.doc.getNodeContents(
+            state.doc.getSelectedNodeId(),
+        );
+
+        replaceDocument(0, rootNodeContents);
+    }
+
+    function onGetDocumentList() {
+        console.log(getSavedDocumentList());
+    }
+
+    function onGetAllDocuments() {
+        const documentList = getSavedDocumentList();
+        documentList.forEach((doc, index) => {
+            console.log(`${doc}: ${getSavedDocument(index)}`);
+        });
+    }
+
+    // -----------------------------------------------------------
+    // -----------------------------------------------------------
 
     function onAddChildButtonClick() {
         state.ui.setCurrentModal('addChild');
