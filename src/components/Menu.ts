@@ -20,6 +20,11 @@ const MENU_ICONS_MARGIN = 2;
 
 export const MENU_HEIGHT = MENU_ICONS_HEIGHT + MENU_ICONS_MARGIN;
 
+/**
+ * A component that contains the current user menu
+ *
+ * @returns An object to be consumed by m()
+ */
 function Menu(): m.Component {
     function getEditOperationsMarkup(
         rootNodeId: number,

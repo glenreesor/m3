@@ -9,7 +9,9 @@ import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 import state from '../state/state';
 
 /**
- * The m3 app entry point
+ * A component that contains the entire app.
+ *
+ * @returns An object to be consumed by m()
  */
 function App(): m.Component {
     /**

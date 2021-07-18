@@ -145,7 +145,7 @@ export default (() => {
          * @param parentNodeId The ID of the parent
          * @param childContents The contents for the new node
          *
-         * @return The ID of the newly added node
+         * @returns The ID of the newly added node
          */
         addChild: (parentNodeId: number, childContents: string): number => {
             let newChildId = -1;
@@ -176,7 +176,7 @@ export default (() => {
          * @param siblingNodeId The ID of the node this will be a sibling to
          * @param childContents The contents for the new node
          *
-         * @return The ID of the newly added node
+         * @returns The ID of the newly added node
          */
         addSibling: (siblingNodeId: number, childContents: string): number => {
             const siblingNode = safeGetNode(siblingNodeId, 'addSibling');
@@ -221,6 +221,11 @@ export default (() => {
             return newChildId;
         },
 
+        /**
+         * Delete the node with the specified ID
+         *
+         * @param nodeToDeleteId ID of the node to be deleted
+         */
         deleteNode(nodeToDeleteId: number) {
             const nodeToDelete = safeGetNode(nodeToDeleteId, 'addSibling');
             const parentNodeId = nodeToDelete.parentId;
@@ -340,6 +345,12 @@ export default (() => {
             }
         },
 
+        /**
+         * Replace the contents of the specified node
+         *
+         * @param nodeId      The ID of the node to operate on
+         * @param newContents The contents to put into the specified node
+         */
         replaceNodeContents: (nodeId: number, newContents: string) => {
             const newDoc = produce(getCurrentDoc(), (draftDocument) => {
                 const nodeToReplace = safeGetNode(nodeId, 'replaceNodeContents', draftDocument);

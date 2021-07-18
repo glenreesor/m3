@@ -6,7 +6,10 @@ interface DocumentHeaderAttributes {
 }
 
 /**
- * Header above the document (name, modified status)
+ * A component that contains the header to be shown above the document
+ * (name, modified status)
+ *
+ * @returns A component to be consumed by m()
  */
 function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
     return {
