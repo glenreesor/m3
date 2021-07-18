@@ -51,7 +51,7 @@ export default (() => {
         isModified: boolean,
     }
 
-    const state: State = {
+    let state: State = {
         currentDocIndex: 0,
         docHistory: [getInitialEmptyDoc()],
         docName: 'New Map',
@@ -275,6 +275,33 @@ export default (() => {
         getDocName: ():string => state.docName,
 
         /**
+         * Return the current doc as a JSON string
+         *
+         * @returns A string that can be used to recreate the current map
+         *
+         */
+        getCurrentDocAsJson: (): string => {
+            const currentDoc = getCurrentDoc();
+
+            // We need to create an equivalent array of the Nodes Map since
+            // JSON can't encode Maps
+            const nodeMapAsArray: Array<Node> = [];
+
+            // We don't need to expliAsArraycitly record the Map keys (which are node
+            // IDs) because each Node also contains its ID
+            currentDoc.nodes.forEach((nodeValue) => {
+                nodeMapAsArray.push(nodeValue);
+            });
+
+            const jsonCapableMap = {
+                ...currentDoc,
+                nodes: nodeMapAsArray,
+            };
+
+            return JSON.stringify(jsonCapableMap);
+        },
+
+        /**
          * Return whether the current document has been modified since last
          * load / save
          *
@@ -343,6 +370,35 @@ export default (() => {
             if (redoAvailable()) {
                 state.currentDocIndex += 1;
             }
+        },
+
+        /**
+         * Replace the currently loaded document with the specified one
+         *
+         * @param docName        The name to display for this document
+         * @param jsonEncodedDoc A JSON string representing the map to use
+         */
+        replaceCurrentDocFromJson: (docName: string, jsonEncodedDoc: string) => {
+            const docUsingArrayForNodes = JSON.parse(jsonEncodedDoc) as Doc;
+
+            // jsonEncodedDoc uses an array to encode the `nodes`. So here we
+            // convert back to a Map
+            const nodesAsMap = new Map<number, Node>();
+            docUsingArrayForNodes.nodes.forEach((node: Node) => {
+                nodesAsMap.set(node.id, node);
+            });
+
+            const docUsingNodesAsMap = {
+                ...docUsingArrayForNodes,
+                nodes: nodesAsMap,
+            };
+
+            state = {
+                currentDocIndex: 0,
+                docHistory: [docUsingNodesAsMap],
+                docName,
+                isModified: false,
+            };
         },
 
         /**

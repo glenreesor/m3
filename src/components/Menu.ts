@@ -144,6 +144,21 @@ function Menu(): m.Component {
                 // m('button', 'Save'),
                 // m('button', 'Open'),
                 // m('button', 'New'),
+                //
+                m(
+                    'button',
+                    {
+                        onclick: () => {
+                            const docAsJson = (state.doc.getCurrentDocAsJson());
+                            console.log(docAsJson);
+                            // Proof of concept -- replace the current map
+                            // using the JSON we just created
+                            state.doc.replaceCurrentDocFromJson('bob', docAsJson);
+                        },
+                    },
+                    'Get as JSON and Replace Current',
+                ),
+
                 m(
                     'button',
                     { onclick: onSaveNewDocument },
