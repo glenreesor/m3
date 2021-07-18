@@ -4,8 +4,7 @@ import state from '../state/state';
 import {
     getSavedDocument,
     getSavedDocumentList,
-    replaceDocument,
-    saveNewDocument,
+    saveDocument,
 } from '../utils/file';
 
 import addChildButton from '../images/add-child.svg';
@@ -161,8 +160,8 @@ function Menu(): m.Component {
 
                 m(
                     'button',
-                    { onclick: onSaveNewDocument },
-                    'Save New Document',
+                    { onclick: onSaveDocument },
+                    'Save Document',
                 ),
                 m(
                     'button',
@@ -196,12 +195,16 @@ function Menu(): m.Component {
         );
     }
 
-    function onSaveNewDocument() {
+    function onSaveDocument() {
         // Proof of concept -- just save the contents of the root node
         const rootNodeContents = state.doc.getNodeContents(
             state.doc.getSelectedNodeId(),
         );
-        saveNewDocument(`name - ${rootNodeContents}`, rootNodeContents);
+        saveDocument(
+            false,
+            `name - ${rootNodeContents}`,
+            rootNodeContents,
+        );
     }
 
     function onReplaceDocument() {
@@ -210,7 +213,11 @@ function Menu(): m.Component {
             state.doc.getSelectedNodeId(),
         );
 
-        replaceDocument(0, rootNodeContents);
+        saveDocument(
+            true,
+            `name - ${rootNodeContents}`,
+            rootNodeContents,
+        );
     }
 
     function onGetDocumentList() {
@@ -219,8 +226,8 @@ function Menu(): m.Component {
 
     function onGetAllDocuments() {
         const documentList = getSavedDocumentList();
-        documentList.forEach((doc, index) => {
-            console.log(`${doc}: ${getSavedDocument(index)}`);
+        documentList.forEach((docName) => {
+            console.log(`${docName}: ${getSavedDocument(docName)}`);
         });
     }
 

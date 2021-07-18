@@ -1,10 +1,13 @@
+export const FILE_EXISTS = 1;
+export const FILE_NOT_FOUND = 2;
+export const FILE_SAVE_SUCCESSFUL = 3;
+
 const DOCUMENT_LIST_KEY = 'm3DocumentList';
 
 /**
  * Return a list of documents currently saved in localStorage
  *
- * @returns An array where the indices can be used for other functions in
- *          this file, and the values are the names of the saved documents
+ * @returns An array of names of the saved documents
  */
 export function getSavedDocumentList(): string[] {
     const documentListJson = window.localStorage.getItem(DOCUMENT_LIST_KEY);
@@ -16,52 +19,56 @@ export function getSavedDocumentList(): string[] {
 /**
  * Get a document saved in localStorage
  *
- * @param index The index for the document, as returned by getSavedDocumentList()
+ * @param name The name of the document to be retrieved
  *
- * @returns The document
+ * @returns The document or an error code
  */
-export function getSavedDocument(index: number): string {
-    const documentKey = getSavedDocumentKey(index);
-    const document = window.localStorage.getItem(documentKey) || '';
+export function getSavedDocument(name: string): string | number {
+    const documentList = getSavedDocumentList();
+    const documentIndex = documentList.indexOf(name);
 
-    return document;
+    if (documentIndex === -1) {
+        return FILE_NOT_FOUND;
+    }
+
+    const documentKey = getSavedDocumentKey(documentIndex);
+    const doc = window.localStorage.getItem(documentKey) || '';
+
+    return doc;
 }
 
 /**
- * Save a new document in localStorage
+ * Save a document in localStorage
  *
- * @param documentName The name to be used for the document
- * @param document     The contents of the document
+ * @param replaceExisting Whether replacing an existing document of the same
+ *                        name is permitted
+ * @param docName         The name to be used for the document
+ * @param doc             The contents of the document
+ *
+ * @returns Status of the save operation.
  */
-export function saveNewDocument(documentName: string, document: string) {
+export function saveDocument(
+    replaceExisting: boolean,
+    docName: string,
+    doc: string,
+): number {
+    // Add this document to the current document list
     const documentList = getSavedDocumentList();
-    documentList.push(documentName);
+    if (!replaceExisting && documentList.indexOf(docName) !== -1) {
+        return FILE_EXISTS;
+    }
+
+    documentList.push(docName);
 
     const documentListJson = JSON.stringify(documentList);
 
     window.localStorage.setItem(DOCUMENT_LIST_KEY, documentListJson);
 
+    // Save the document itself
     const newDocumentIndex = documentList.length - 1;
-    window.localStorage.setItem(getSavedDocumentKey(newDocumentIndex), document);
-}
+    window.localStorage.setItem(getSavedDocumentKey(newDocumentIndex), doc);
 
-/**
- * Replace a saved document with new contents
- *
- * @param index    The index (as returned by getSavedDocumentList() of the document
- *                 to replace
- * @param document The new document to replace the old one
- */
-export function replaceDocument(index: number, document: string) {
-    const currentDocumentList = getSavedDocumentList();
-
-    if (index < 0 || index >= currentDocumentList.length) {
-        throw new Error(
-            `Invalid index provided to replaceDocument: ${index}`,
-        );
-    } else {
-        window.localStorage.setItem(getSavedDocumentKey(index), document);
-    }
+    return FILE_SAVE_SUCCESSFUL;
 }
 
 function getSavedDocumentKey(index: number) {
