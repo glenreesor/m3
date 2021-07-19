@@ -54,7 +54,7 @@ export default (() => {
     let state: State = {
         currentDocIndex: 0,
         docHistory: [getInitialEmptyDoc()],
-        docName: 'New Map',
+        docName: '',
         hasUnsavedChanges: true,
     };
 

@@ -13,13 +13,16 @@ interface DocumentHeaderAttributes {
  */
 function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
     return {
-        view: ({ attrs }): m.Vnode => (
-            m(
+        view: ({ attrs }): m.Vnode => {
+            const docName = attrs.documentName === '' ? 'New Map' : attrs.documentName;
+            const modifiedIndicator = attrs.hasUnsavedChanges ? '(Modified)' : '';
+
+            return m(
                 'div',
                 { style: 'font-size: 12px' },
-                `${attrs.documentName} ${attrs.hasUnsavedChanges ? '(Modified)' : ''}`,
-            )
-        ),
+                `${docName} ${modifiedIndicator}`,
+            );
+        },
     };
 }
 
