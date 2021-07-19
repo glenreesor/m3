@@ -2,7 +2,7 @@ import * as m from 'mithril';
 
 interface DocumentHeaderAttributes {
     documentName: string,
-    isModified: boolean,
+    hasUnsavedChanges: boolean,
 }
 
 /**
@@ -17,7 +17,7 @@ function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
             m(
                 'div',
                 { style: 'font-size: 12px' },
-                `${attrs.documentName} ${attrs.isModified ? '(Modified)' : ''}`,
+                `${attrs.documentName} ${attrs.hasUnsavedChanges ? '(Modified)' : ''}`,
             )
         ),
     };

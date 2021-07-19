@@ -110,14 +110,14 @@ function App(): m.Component {
 
         view: (): m.Vnode => {
             const documentName = state.doc.getDocName();
-            const isModified = state.doc.getIsModified();
+            const hasUnsavedChanges = state.doc.hasUnsavedChanges();
 
             return m(
                 'div',
                 [
                     getOptionalModalMarkup(),
                     getOptionalSidebar(),
-                    m(DocumentHeader, { documentName, isModified }),
+                    m(DocumentHeader, { documentName, hasUnsavedChanges }),
                     m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
                     m(Menu),
                 ],

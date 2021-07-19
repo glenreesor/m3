@@ -48,14 +48,14 @@ export default (() => {
         docName: string,
 
         // Whether document has been modified since last save
-        isModified: boolean,
+        hasUnsavedChanges: boolean,
     }
 
     let state: State = {
         currentDocIndex: 0,
         docHistory: [getInitialEmptyDoc()],
         docName: 'New Map',
-        isModified: true,
+        hasUnsavedChanges: true,
     };
 
     function applyNewDocToUndoStack(newDoc: Doc) {
@@ -302,12 +302,11 @@ export default (() => {
         },
 
         /**
-         * Return whether the current document has been modified since last
-         * load / save
+         * Return whether the current document has unsaved changes
          *
          * @returns Whether doc has been modified
          */
-        getIsModified: ():boolean => state.isModified,
+        hasUnsavedChanges: ():boolean => state.hasUnsavedChanges,
 
         /**
          * Return a copy of the child IDs of the specified node.
@@ -397,7 +396,7 @@ export default (() => {
                 currentDocIndex: 0,
                 docHistory: [docUsingNodesAsMap],
                 docName,
-                isModified: false,
+                hasUnsavedChanges: false,
             };
         },
 
