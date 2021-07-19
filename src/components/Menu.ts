@@ -140,7 +140,13 @@ function Menu(): m.Component {
             [
                 // m('button', 'Import'),
                 // m('button', 'Export'),
-                // m('button', 'Save'),
+                m(
+                    'button',
+                    {
+                        onclick: () => state.ui.setCurrentModal('fileSave'),
+                    },
+                    'Save',
+                ),
                 // m('button', 'Open'),
                 // m('button', 'New'),
                 //
@@ -158,11 +164,6 @@ function Menu(): m.Component {
                     'Get as JSON and Replace Current',
                 ),
 
-                m(
-                    'button',
-                    { onclick: onSaveDocument },
-                    'Save Document',
-                ),
                 m(
                     'button',
                     { onclick: onReplaceDocument },
@@ -192,18 +193,6 @@ function Menu(): m.Component {
                     },
                 ),
             ],
-        );
-    }
-
-    function onSaveDocument() {
-        // Proof of concept -- just save the contents of the root node
-        const rootNodeContents = state.doc.getNodeContents(
-            state.doc.getSelectedNodeId(),
-        );
-        saveDocument(
-            false,
-            `name - ${rootNodeContents}`,
-            rootNodeContents,
         );
     }
 

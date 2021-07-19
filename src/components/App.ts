@@ -2,7 +2,9 @@ import * as m from 'mithril';
 
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
+import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
 import Menu, { MENU_HEIGHT } from './Menu';
+import { saveDocument } from '../utils/file';
 import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 
@@ -36,8 +38,11 @@ function App(): m.Component {
         return m('');
     }
 
-    function getOptionalModalMarkup(): m.Vnode<TextInputModalAttributes> {
-        if (state.ui.getCurrentModal() === 'addChild') {
+    function getOptionalModalMarkup():
+        m.Vnode<TextInputModalAttributes> | m.Vnode<FileSaveModalAttributes> {
+        const currentModal = state.ui.getCurrentModal();
+
+        if (currentModal === 'addChild') {
             return m(
                 TextInputModal,
                 {
@@ -55,7 +60,7 @@ function App(): m.Component {
             );
         }
 
-        if (state.ui.getCurrentModal() === 'addSibling') {
+        if (currentModal === 'addSibling') {
             return m(
                 TextInputModal,
                 {
@@ -73,7 +78,7 @@ function App(): m.Component {
             );
         }
 
-        if (state.ui.getCurrentModal() === 'editNode') {
+        if (currentModal === 'editNode') {
             return m(
                 TextInputModal,
                 {
@@ -85,6 +90,24 @@ function App(): m.Component {
                         state.doc.replaceNodeContents(
                             state.doc.getSelectedNodeId(),
                             text,
+                        );
+                        state.ui.setCurrentModal('none');
+                    },
+                },
+            );
+        }
+
+        if (currentModal === 'fileSave') {
+            return m(
+                FileSaveModal,
+                {
+                    docName: state.doc.getDocName(),
+                    onCancel: () => state.ui.setCurrentModal('none'),
+                    onSave: (filename: string) => {
+                        saveDocument(
+                            false,
+                            filename,
+                            state.doc.getCurrentDocAsJson(),
                         );
                         state.ui.setCurrentModal('none');
                     },
