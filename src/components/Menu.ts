@@ -7,6 +7,8 @@ import addSiblingButtonDisabled from '../images/add-sibling-disabled.svg';
 import deleteNodeButton from '../images/delete-node.svg';
 import deleteNodeButtonDisabled from '../images/delete-node-disabled.svg';
 import editNodeButton from '../images/edit-node.svg';
+import fileOpenButton from '../images/file-open.svg';
+import fileSaveButton from '../images/file-save.svg';
 import hamburgerMenuButton from '../images/hamburger-button.svg';
 import redoButton from '../images/redo.svg';
 import redoButtonDisabled from '../images/redo-disabled.svg';
@@ -137,20 +139,26 @@ function Menu(): m.Component {
 
                 // Save
                 m(
-                    'button',
+                    'img',
                     {
                         onclick: () => state.ui.setCurrentModal('fileSave'),
+                        src: fileSaveButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
                     },
-                    'Save',
                 ),
 
                 // Open
                 m(
-                    'button',
+                    'img',
                     {
+                        src: fileOpenButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
                         onclick: () => state.ui.setCurrentModal('fileOpen'),
                     },
-                    'Open',
                 ),
 
                 // m('button', 'New'),
