@@ -64,6 +64,10 @@ function FileOpenModal(): m.Component<FileOpenModalAttributes> {
                     paddingTop: '10px',
                     paddingBottom: '10px',
                     paddingLeft: '55px',
+
+                    // TODO: Make this a non-hack
+                    width: '200px',
+                    maxWidth: '75%',
                 },
             },
             currentFilenamesMarkup,
