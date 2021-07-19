@@ -6,7 +6,14 @@
  * See return object for action functions.
  */
 export default (() => {
-    type ModalType = 'none' | 'addChild' | 'addSibling' | 'editNode' | 'fileSave';
+    type ModalType = (
+        'none' |
+        'addChild' |
+        'addSibling' |
+        'editNode' |
+        'fileSave' |
+        'fileOpen'
+    );
     type MenuType = 'edit' | 'file';
 
     interface State {

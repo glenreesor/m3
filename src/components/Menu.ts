@@ -1,12 +1,6 @@
 import * as m from 'mithril';
 
 import state from '../state/state';
-import {
-    getSavedDocument,
-    getSavedDocumentList,
-    saveDocument,
-} from '../utils/file';
-
 import addChildButton from '../images/add-child.svg';
 import addSiblingButton from '../images/add-sibling.svg';
 import addSiblingButtonDisabled from '../images/add-sibling-disabled.svg';
@@ -140,6 +134,8 @@ function Menu(): m.Component {
             [
                 // m('button', 'Import'),
                 // m('button', 'Export'),
+
+                // Save
                 m(
                     'button',
                     {
@@ -147,39 +143,17 @@ function Menu(): m.Component {
                     },
                     'Save',
                 ),
-                // m('button', 'Open'),
-                // m('button', 'New'),
-                //
+
+                // Open
                 m(
                     'button',
                     {
-                        onclick: () => {
-                            const docAsJson = (state.doc.getCurrentDocAsJson());
-                            console.log(docAsJson);
-                            // Proof of concept -- replace the current map
-                            // using the JSON we just created
-                            state.doc.replaceCurrentDocFromJson('bob', docAsJson);
-                        },
+                        onclick: () => state.ui.setCurrentModal('fileOpen'),
                     },
-                    'Get as JSON and Replace Current',
+                    'Open',
                 ),
 
-                m(
-                    'button',
-                    { onclick: onReplaceDocument },
-                    'Replace Document',
-                ),
-                m(
-                    'button',
-                    { onclick: onGetDocumentList },
-                    'Get Document List',
-                ),
-
-                m(
-                    'button',
-                    { onclick: onGetAllDocuments },
-                    'Get All Documents',
-                ),
+                // m('button', 'New'),
 
                 // Sidebar Button
                 m(
@@ -195,33 +169,6 @@ function Menu(): m.Component {
             ],
         );
     }
-
-    function onReplaceDocument() {
-        // Proof of concept -- just save the contents of the root node
-        const rootNodeContents = state.doc.getNodeContents(
-            state.doc.getSelectedNodeId(),
-        );
-
-        saveDocument(
-            true,
-            `name - ${rootNodeContents}`,
-            rootNodeContents,
-        );
-    }
-
-    function onGetDocumentList() {
-        console.log(getSavedDocumentList());
-    }
-
-    function onGetAllDocuments() {
-        const documentList = getSavedDocumentList();
-        documentList.forEach((docName) => {
-            console.log(`${docName}: ${getSavedDocument(docName)}`);
-        });
-    }
-
-    // -----------------------------------------------------------
-    // -----------------------------------------------------------
 
     function onAddChildButtonClick() {
         state.ui.setCurrentModal('addChild');

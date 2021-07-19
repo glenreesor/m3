@@ -2,9 +2,10 @@ import * as m from 'mithril';
 
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
+import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
 import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
 import Menu, { MENU_HEIGHT } from './Menu';
-import { saveDocument } from '../utils/file';
+import { getSavedDocument, saveDocument } from '../utils/file';
 import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 
@@ -39,7 +40,9 @@ function App(): m.Component {
     }
 
     function getOptionalModalMarkup():
-        m.Vnode<TextInputModalAttributes> | m.Vnode<FileSaveModalAttributes> {
+        m.Vnode<FileOpenModalAttributes> |
+        m.Vnode<FileSaveModalAttributes> |
+        m.Vnode<TextInputModalAttributes> {
         const currentModal = state.ui.getCurrentModal();
 
         if (currentModal === 'addChild') {
@@ -109,6 +112,27 @@ function App(): m.Component {
                             filename,
                             state.doc.getCurrentDocAsJson(),
                         );
+                        state.ui.setCurrentModal('none');
+                    },
+                },
+            );
+        }
+
+        if (currentModal === 'fileOpen') {
+            return m(
+                FileOpenModal,
+                {
+                    onCancel: () => state.ui.setCurrentModal('none'),
+                    onFileSelected: (filename: string) => {
+                        const documentAsJson = getSavedDocument(filename);
+                        if (typeof documentAsJson === 'number') {
+                            console.log('Unexpected file load error');
+                        } else {
+                            state.doc.replaceCurrentDocFromJson(
+                                filename,
+                                documentAsJson,
+                            );
+                        }
                         state.ui.setCurrentModal('none');
                     },
                 },
