@@ -19,8 +19,8 @@ function FileOpenModal(): m.Component<FileOpenModalAttributes> {
             'div',
             {
                 style: {
-                    'margin-top': '20px',
-                    'text-align': 'right',
+                    marginTop: '20px',
+                    textAlign: 'right',
                 },
             },
             [
@@ -43,10 +43,10 @@ function FileOpenModal(): m.Component<FileOpenModalAttributes> {
                         // TODO: Fix using nth child stuff
                         style: {
                             background: '#ffffff',
-                            'padding-top': index === 0 ? '10px' : '0',
-                            'padding-bottom': '10px',
-                            'padding-left': '20px',
-                            'padding-right': '20px',
+                            paddingTop: index === 0 ? '10px' : '0',
+                            paddingBottom: '10px',
+                            paddingLeft: '20px',
+                            paddingRight: '20px',
                         },
                         onclick: () => attrs.onFileSelected(filename),
                     },
@@ -61,9 +61,9 @@ function FileOpenModal(): m.Component<FileOpenModalAttributes> {
                 style: {
                     height: '100px',
                     overflow: 'auto',
-                    'padding-top': '10px',
-                    'padding-bottom': '10px',
-                    'padding-left': '55px',
+                    paddingTop: '10px',
+                    paddingBottom: '10px',
+                    paddingLeft: '55px',
                 },
             },
             currentFilenamesMarkup,
@@ -79,12 +79,12 @@ function FileOpenModal(): m.Component<FileOpenModalAttributes> {
                     background: '#dddddd',
                     padding: '10px',
                     border: '2px solid blue',
-                    'font-size': '14px',
+                    fontSize: '14px',
                     position: 'fixed',
                     left: '50%',
                     top: '35%',
                     transform: 'translate(-50%, -50%)',
-                    'z-index': '20',
+                    zIndex: '20',
                 },
             },
             [
@@ -105,7 +105,7 @@ function FileOpenModal(): m.Component<FileOpenModalAttributes> {
                     width: '100%',
                     height: '100vh',
                     background: 'rgba(255, 255, 255, 0.5)',
-                    'z-index': '10',
+                    zIndex: '10',
                 },
             },
         );
