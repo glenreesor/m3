@@ -127,15 +127,15 @@
      borderopacity="1.0"
      id="base"
      inkscape:current-layer="layer1"
-     inkscape:cx="-11.751442"
-     inkscape:cy="113.24316"
+     inkscape:cx="102.46348"
+     inkscape:cy="117.33078"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:window-height="776"
-     inkscape:window-width="1286"
-     inkscape:window-x="2228"
-     inkscape:window-y="17"
-     inkscape:zoom="0.70710678"
+     inkscape:window-height="651"
+     inkscape:window-width="835"
+     inkscape:window-x="29"
+     inkscape:window-y="6"
+     inkscape:zoom="1.4142136"
      pagecolor="#ffffff"
      showgrid="false"
      inkscape:window-maximized="0"
@@ -147,7 +147,7 @@
      transform="translate(0,111.33328)">
     <g
        id="g5828-3"
-       transform="matrix(0.53342209,0,0,1.0155735,21.059564,-53.084215)"
+       transform="matrix(0.43126535,0,0,1.0212123,40.765795,-53.449723)"
        style="opacity:1">
       <rect
          height="113.72585"
@@ -170,7 +170,7 @@
     </g>
     <g
        id="g878"
-       transform="matrix(0.47867968,0,0,0.47867968,226.21551,207.63083)"
+       transform="matrix(0.38700677,0,0,0.4813375,206.63191,208.71291)"
        style="fill:#ffff00;fill-opacity:1;stroke:#ffff00;stroke-opacity:1">
       <rect
          transform="rotate(-20)"

@@ -217,14 +217,14 @@
      borderopacity="1.0"
      id="base"
      inkscape:current-layer="layer1"
-     inkscape:cx="-68.10098"
+     inkscape:cx="99.178916"
      inkscape:cy="160.96713"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:window-height="809"
      inkscape:window-width="1472"
-     inkscape:window-x="64"
-     inkscape:window-y="180"
+     inkscape:window-x="2008"
+     inkscape:window-y="119"
      inkscape:zoom="0.8715"
      pagecolor="#ffffff"
      showgrid="false"
@@ -237,7 +237,7 @@
      transform="translate(0,111.33329)">
     <g
        id="g5828-3"
-       transform="matrix(0.53342209,0,0,1.0155735,21.184635,-52.975639)"
+       transform="matrix(0.43123977,0,0,1.028054,40.8958,-53.746322)"
        style="opacity:0.6">
       <rect
          height="113.72585"
@@ -260,8 +260,8 @@
     </g>
     <g
        id="g945"
-       transform="matrix(0.88259867,-0.88259867,0.88259867,0.88259867,-0.34172596,19.739446)"
-       style="opacity:0.6;stroke:#ff7000;stroke-opacity:1;fill:#ff7000;fill-opacity:1">
+       transform="matrix(0.7135281,-0.89344509,0.7135281,0.89344509,23.493028,19.862371)"
+       style="opacity:0.6;fill:#ff7000;fill-opacity:1;stroke:#ff7000;stroke-opacity:1">
       <rect
          transform="rotate(-90)"
          y="4.7336164"
