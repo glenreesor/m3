@@ -7,6 +7,8 @@ import addSiblingButtonDisabled from '../images/add-sibling-disabled.svg';
 import deleteNodeButton from '../images/delete-node.svg';
 import deleteNodeButtonDisabled from '../images/delete-node-disabled.svg';
 import editNodeButton from '../images/edit-node.svg';
+import fileExportButton from '../images/file-export.svg';
+import fileImportButton from '../images/file-import.svg';
 import fileOpenButton from '../images/file-open.svg';
 import fileSaveButton from '../images/file-save.svg';
 import hamburgerMenuButton from '../images/hamburger-button.svg';
@@ -14,6 +16,7 @@ import redoButton from '../images/redo.svg';
 import redoButtonDisabled from '../images/redo-disabled.svg';
 import undoButton from '../images/undo.svg';
 import undoButtonDisabled from '../images/undo-disabled.svg';
+import { saveDocument } from '../utils/file';
 
 const MENU_ICONS_HEIGHT = 40;
 const MENU_ICONS_WIDTH = 40;
@@ -45,7 +48,7 @@ function Menu(): m.Component {
                     height: MENU_ICONS_HEIGHT,
                     width: MENU_ICONS_WIDTH,
                     style: 'margin: 2px;',
-                    onclick: onundoButtonButtonClick,
+                    onclick: onUndoButtonButtonClick,
                 },
             ),
 
@@ -134,14 +137,35 @@ function Menu(): m.Component {
             'div',
             { style: 'text-align: right' },
             [
-                // m('button', 'Import'),
-                // m('button', 'Export'),
+                // Export
+                m(
+                    'img',
+                    {
+                        onclick: () => {},
+                        src: fileExportButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
+                    },
+                ),
+
+                // Import
+                m(
+                    'img',
+                    {
+                        onclick: () => state.ui.setCurrentModal('fileImport'),
+                        src: fileImportButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
+                    },
+                ),
 
                 // Save
                 m(
                     'img',
                     {
-                        onclick: () => state.ui.setCurrentModal('fileSave'),
+                        onclick: onSaveButtonClick,
                         src: fileSaveButton,
                         width: MENU_ICONS_WIDTH,
                         height: MENU_ICONS_HEIGHT,
@@ -198,7 +222,25 @@ function Menu(): m.Component {
         state.ui.setCurrentModal('editNode');
     }
 
-    function onundoButtonButtonClick() {
+    function onSaveButtonClick() {
+        const docName = state.doc.getDocName();
+        if (docName === '') {
+            state.ui.setCurrentModal('fileSave');
+        } else {
+            console.log('inside');
+            console.log(docName);
+            console.log(state.doc.getCurrentDocAsJson());
+
+            const returnVal = saveDocument(
+                true,
+                docName,
+                state.doc.getCurrentDocAsJson(),
+            );
+            console.log(returnVal);
+        }
+    }
+
+    function onUndoButtonButtonClick() {
         state.doc.undo();
     }
 
