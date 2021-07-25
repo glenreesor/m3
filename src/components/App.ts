@@ -112,6 +112,7 @@ function App(): m.Component {
                             filename,
                             state.doc.getCurrentDocAsJson(),
                         );
+                        state.doc.setDocName(filename);
                         state.ui.setCurrentModal('none');
                     },
                 },

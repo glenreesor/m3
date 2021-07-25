@@ -416,6 +416,15 @@ export default (() => {
         },
 
         /**
+         * Set the name of the current document
+         *
+         * @param docName The name to display for this document
+         */
+        setDocName: (docName: string) => {
+            state.docName = docName;
+        },
+
+        /**
          * Set the currently selected node to the specified one
          *
          * @param nodeId The new selected node
