@@ -66,6 +66,8 @@ export default (() => {
         // Now add the current one
         state.currentDocIndex += 1;
         state.docHistory.push(newDoc);
+
+        state.hasUnsavedChanges = true;
     }
 
     /**
@@ -268,13 +270,6 @@ export default (() => {
         ).childrenVisible,
 
         /**
-         * Return the name of the current document
-         *
-         * @returns The doc name
-         */
-        getDocName: ():string => state.docName,
-
-        /**
          * Return the current doc as a JSON string
          *
          * @returns A string that can be used to recreate the current map
@@ -302,11 +297,11 @@ export default (() => {
         },
 
         /**
-         * Return whether the current document has unsaved changes
+         * Return the name of the current document
          *
-         * @returns Whether doc has been modified
+         * @returns The doc name
          */
-        hasUnsavedChanges: ():boolean => state.hasUnsavedChanges,
+        getDocName: ():string => state.docName,
 
         /**
          * Return a copy of the child IDs of the specified node.
@@ -361,6 +356,13 @@ export default (() => {
          * @returns Whether an undo step is available
          */
         getUndoIsAvailable: (): boolean => undoAvailable(),
+
+        /**
+         * Return whether the current document has unsaved changes
+         *
+         * @returns Whether doc has been modified
+         */
+        hasUnsavedChanges: ():boolean => state.hasUnsavedChanges,
 
         /**
          * Redo the last editor change (do nothing if no redo available)
