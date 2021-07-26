@@ -227,10 +227,6 @@ function Menu(): m.Component {
         if (docName === '') {
             state.ui.setCurrentModal('fileSave');
         } else {
-            console.log('inside');
-            console.log(docName);
-            console.log(state.doc.getCurrentDocAsJson());
-
             const returnVal = saveDocument(
                 true,
                 docName,

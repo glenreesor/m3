@@ -38,7 +38,8 @@ export function getSavedDocument(name: string): string | number {
 }
 
 /**
- * Save a document in localStorage
+ * Save a document in localStorage. Prompt the user for a name if `docName`
+ * is ''.
  *
  * @param replaceExisting Whether replacing an existing document of the same
  *                        name is permitted
@@ -52,12 +53,18 @@ export function saveDocument(
     docName: string,
     doc: string,
 ): number {
-    // Add this document to the current document list
     const documentList = getSavedDocumentList();
-    if (!replaceExisting && documentList.indexOf(docName) !== -1) {
-        return FILE_EXISTS;
+    const currentDocIndex = documentList.indexOf(docName);
+
+    if (currentDocIndex !== -1) {
+        if (!replaceExisting) {
+            return FILE_EXISTS;
+        }
+        window.localStorage.setItem(getSavedDocumentKey(currentDocIndex), doc);
+        return FILE_SAVE_SUCCESSFUL;
     }
 
+    // Add this document to the current document list
     documentList.push(docName);
 
     const documentListJson = JSON.stringify(documentList);
