@@ -1,3 +1,5 @@
+import state from '../state/state';
+
 export const FILE_EXISTS = 1;
 export const FILE_NOT_FOUND = 2;
 export const FILE_SAVE_SUCCESSFUL = 3;
@@ -55,29 +57,32 @@ export function saveDocument(
 ): number {
     const documentList = getSavedDocumentList();
     const currentDocIndex = documentList.indexOf(docName);
+    let indexForSaveOp;
 
     if (currentDocIndex !== -1) {
         if (!replaceExisting) {
             return FILE_EXISTS;
         }
-        window.localStorage.setItem(getSavedDocumentKey(currentDocIndex), doc);
-        return FILE_SAVE_SUCCESSFUL;
+
+        indexForSaveOp = currentDocIndex;
+    } else {
+        // Add this document to the current document list
+        documentList.push(docName);
+        const documentListJson = JSON.stringify(documentList);
+        window.localStorage.setItem(DOCUMENT_LIST_KEY, documentListJson);
+        indexForSaveOp = documentList.length - 1;
     }
 
-    // Add this document to the current document list
-    documentList.push(docName);
-
-    const documentListJson = JSON.stringify(documentList);
-
-    window.localStorage.setItem(DOCUMENT_LIST_KEY, documentListJson);
-
     // Save the document itself
-    const newDocumentIndex = documentList.length - 1;
-    window.localStorage.setItem(getSavedDocumentKey(newDocumentIndex), doc);
-
+    saveDocumentAtIndex(indexForSaveOp, doc);
     return FILE_SAVE_SUCCESSFUL;
 }
 
 function getSavedDocumentKey(index: number) {
     return `m3Document-${index}`;
+}
+
+function saveDocumentAtIndex(docIndex: number, doc: string) {
+    window.localStorage.setItem(getSavedDocumentKey(docIndex), doc);
+    state.doc.setHasUnsavedChanges(false);
 }

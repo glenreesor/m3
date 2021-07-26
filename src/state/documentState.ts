@@ -370,6 +370,7 @@ export default (() => {
         redo: () => {
             if (redoAvailable()) {
                 state.currentDocIndex += 1;
+                state.hasUnsavedChanges = true;
             }
         },
 
@@ -427,6 +428,16 @@ export default (() => {
         },
 
         /**
+         * Set whether the current document has unsaved changes
+         *
+         * @param hasUnsavedChanges Whether the current doc has unsaved changes
+         *                          or not
+         */
+        setHasUnsavedChanges: (hasUnsavedChanges: boolean) => {
+            state.hasUnsavedChanges = hasUnsavedChanges;
+        },
+
+        /**
          * Set the currently selected node to the specified one
          *
          * @param nodeId The new selected node
@@ -469,6 +480,7 @@ export default (() => {
         undo: () => {
             if (undoAvailable()) {
                 state.currentDocIndex -= 1;
+                state.hasUnsavedChanges = true;
             }
         },
     };
