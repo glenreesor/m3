@@ -11,8 +11,10 @@ export default (() => {
         'addChild' |
         'addSibling' |
         'editNode' |
-        'fileSave' |
-        'fileOpen'
+        'fileExport' |
+        'fileImport' |
+        'fileOpen' |
+        'fileSave'
     );
     type MenuType = 'edit' | 'file';
 

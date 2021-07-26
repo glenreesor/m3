@@ -2,6 +2,8 @@ import * as m from 'mithril';
 
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
+import FileExportModal, { FileExportModalAttributes } from './FileExportModal';
+import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
 import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
 import Menu, { MENU_HEIGHT } from './Menu';
@@ -40,6 +42,8 @@ function App(): m.Component {
     }
 
     function getOptionalModalMarkup():
+        m.Vnode<FileExportModalAttributes> |
+        m.Vnode<FileImportModalAttributes> |
         m.Vnode<FileOpenModalAttributes> |
         m.Vnode<FileSaveModalAttributes> |
         m.Vnode<TextInputModalAttributes> {
@@ -100,20 +104,31 @@ function App(): m.Component {
             );
         }
 
-        if (currentModal === 'fileSave') {
+        if (currentModal === 'fileExport') {
             return m(
-                FileSaveModal,
+                FileExportModal,
                 {
-                    docName: state.doc.getDocName(),
+                    onClose: () => state.ui.setCurrentModal('none'),
+                },
+            );
+        }
+
+        if (currentModal === 'fileImport') {
+            return m(
+                FileImportModal,
+                {
                     onCancel: () => state.ui.setCurrentModal('none'),
-                    onSave: (filename: string) => {
-                        saveDocument(
-                            false,
-                            filename,
-                            state.doc.getCurrentDocAsJson(),
+                    onFileContentsRead: (fileContents) => {
+                        state.doc.replaceCurrentDocFromJson(
+                            '',
+                            fileContents,
                         );
-                        state.doc.setDocName(filename);
                         state.ui.setCurrentModal('none');
+
+                        // This state change was triggered by an async fileReader
+                        // operation, not a DOM event, thus we need to trigger
+                        // a rerender ourselves
+                        m.redraw();
                     },
                 },
             );
@@ -133,7 +148,26 @@ function App(): m.Component {
                                 filename,
                                 documentAsJson,
                             );
+                            state.ui.setCurrentModal('none');
                         }
+                    },
+                },
+            );
+        }
+
+        if (currentModal === 'fileSave') {
+            return m(
+                FileSaveModal,
+                {
+                    docName: state.doc.getDocName(),
+                    onCancel: () => state.ui.setCurrentModal('none'),
+                    onSave: (filename: string) => {
+                        saveDocument(
+                            false,
+                            filename,
+                            state.doc.getCurrentDocAsJson(),
+                        );
+                        state.doc.setDocName(filename);
                         state.ui.setCurrentModal('none');
                     },
                 },

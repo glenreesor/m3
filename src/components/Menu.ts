@@ -141,7 +141,7 @@ function Menu(): m.Component {
                 m(
                     'img',
                     {
-                        onclick: () => {},
+                        onclick: () => state.ui.setCurrentModal('fileExport'),
                         src: fileExportButton,
                         width: MENU_ICONS_WIDTH,
                         height: MENU_ICONS_HEIGHT,
