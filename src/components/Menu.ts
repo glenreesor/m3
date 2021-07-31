@@ -9,6 +9,7 @@ import deleteNodeButtonDisabled from '../images/delete-node-disabled.svg';
 import editNodeButton from '../images/edit-node.svg';
 import fileExportButton from '../images/file-export.svg';
 import fileImportButton from '../images/file-import.svg';
+import fileNewButton from '../images/file-new.svg';
 import fileOpenButton from '../images/file-open.svg';
 import fileSaveButton from '../images/file-save.svg';
 import hamburgerMenuButton from '../images/hamburger-button.svg';
@@ -161,6 +162,18 @@ function Menu(): m.Component {
                     },
                 ),
 
+                // New
+                m(
+                    'img',
+                    {
+                        onclick: onFileNewButtonClick,
+                        src: fileNewButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
+                    },
+                ),
+
                 // Save
                 m(
                     'img',
@@ -212,6 +225,24 @@ function Menu(): m.Component {
 
     function onDeleteNodeButtonClick() {
         state.doc.deleteNode(state.doc.getSelectedNodeId());
+    }
+
+    function onFileNewButtonClick() {
+        if (state.doc.hasUnsavedChanges()) {
+            state.ui.setCurrentModal('binaryModal');
+            state.ui.setBinaryModalAttrs({
+                prompt: 'Current document has unsaved changes. Discard changes and load new document?',
+                yesButtonText: 'Yes',
+                noButtonText: 'No',
+                onYesButtonClick: () => {
+                    state.doc.replaceCurrentDocWithNewEmptyDoc();
+                    state.ui.setCurrentModal('none');
+                },
+                onNoButtonClick: () => state.ui.setCurrentModal('none'),
+            });
+        } else {
+            state.doc.replaceCurrentDocWithNewEmptyDoc();
+        }
     }
 
     function onRedoButtonClick() {

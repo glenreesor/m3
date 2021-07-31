@@ -2,6 +2,7 @@ import * as m from 'mithril';
 
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
+import BinaryModal, { BinaryModalAttributes } from './BinaryModal';
 import FileExportModal, { FileExportModalAttributes } from './FileExportModal';
 import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
@@ -42,6 +43,7 @@ function App(): m.Component {
     }
 
     function getOptionalModalMarkup():
+        m.Vnode<BinaryModalAttributes> |
         m.Vnode<FileExportModalAttributes> |
         m.Vnode<FileImportModalAttributes> |
         m.Vnode<FileOpenModalAttributes> |
@@ -83,6 +85,17 @@ function App(): m.Component {
                     },
                 },
             );
+        }
+
+        if (currentModal === 'binaryModal') {
+            const binaryModalAttrs = state.ui.getBinaryModalAttrs();
+            return binaryModalAttrs !== undefined
+                ?
+                m(
+                    BinaryModal,
+                    binaryModalAttrs,
+                )
+                : m('');
         }
 
         if (currentModal === 'editNode') {

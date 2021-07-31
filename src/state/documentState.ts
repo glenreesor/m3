@@ -403,6 +403,15 @@ export default (() => {
             };
         },
 
+        replaceCurrentDocWithNewEmptyDoc: () => {
+            state = {
+                currentDocIndex: 0,
+                docHistory: [getInitialEmptyDoc()],
+                docName: '',
+                hasUnsavedChanges: true,
+            };
+        },
+
         /**
          * Replace the contents of the specified node
          *
