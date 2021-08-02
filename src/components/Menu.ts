@@ -194,7 +194,7 @@ function Menu(): m.Component {
                         width: MENU_ICONS_WIDTH,
                         height: MENU_ICONS_HEIGHT,
                         style: 'margin: 2px;',
-                        onclick: () => state.ui.setCurrentModal('fileOpen'),
+                        onclick: onFileOpenButtonClick,
                     },
                 ),
 
@@ -237,6 +237,23 @@ function Menu(): m.Component {
                 onYesButtonClick: () => {
                     state.doc.replaceCurrentDocWithNewEmptyDoc();
                     state.ui.setCurrentModal('none');
+                },
+                onNoButtonClick: () => state.ui.setCurrentModal('none'),
+            });
+        } else {
+            state.doc.replaceCurrentDocWithNewEmptyDoc();
+        }
+    }
+
+    function onFileOpenButtonClick() {
+        if (state.doc.hasUnsavedChanges()) {
+            state.ui.setCurrentModal('binaryModal');
+            state.ui.setBinaryModalAttrs({
+                prompt: 'Current document has unsaved changes. Discard changes to load next document?',
+                yesButtonText: 'Yes',
+                noButtonText: 'No',
+                onYesButtonClick: () => {
+                    state.ui.setCurrentModal('fileOpen');
                 },
                 onNoButtonClick: () => state.ui.setCurrentModal('none'),
             });
