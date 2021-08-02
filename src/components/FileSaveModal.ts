@@ -32,6 +32,7 @@ function FileSaveModal(): m.Component<FileSaveModalAttributes> {
                     {
                         style: 'margin-right: 10px',
                         onclick: () => onSave(attrs),
+                        disabled: inputValue === '',
                     },
                     'Save',
                 ),
