@@ -258,7 +258,7 @@ function Menu(): m.Component {
                 onNoButtonClick: () => state.ui.setCurrentModal('none'),
             });
         } else {
-            state.doc.replaceCurrentDocWithNewEmptyDoc();
+            state.ui.setCurrentModal('fileOpen');
         }
     }
 
