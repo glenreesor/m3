@@ -8,7 +8,7 @@ import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
 import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
 import Menu, { MENU_HEIGHT } from './Menu';
-import { getSavedDocument, saveDocument } from '../utils/file';
+import { FILE_EXISTS, getSavedDocument, saveDocument } from '../utils/file';
 import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 
@@ -175,18 +175,33 @@ function App(): m.Component {
                     docName: state.doc.getDocName(),
                     onCancel: () => state.ui.setCurrentModal('none'),
                     onSave: (filename: string) => {
-                        saveDocument(
+                        const saveStatus = saveDocument(
                             false,
                             filename,
                             state.doc.getCurrentDocAsJson(),
                         );
-                        state.doc.setDocName(filename);
-                        state.ui.setCurrentModal('none');
+
+                        if (saveStatus === FILE_EXISTS) {
+                            state.ui.setCurrentModal('binaryModal');
+                            state.ui.setBinaryModalAttrs({
+                                prompt: 'File exists. Overwrite?',
+                                yesButtonText: 'Yes',
+                                noButtonText: 'No',
+                                onYesButtonClick: () => {
+                                    saveDocument(true, filename, state.doc.getCurrentDocAsJson());
+                                    state.doc.setDocName(filename);
+                                    state.ui.setCurrentModal('none');
+                                },
+                                onNoButtonClick: () => state.ui.setCurrentModal('fileSave'),
+                            });
+                        } else {
+                            state.doc.setDocName(filename);
+                            state.ui.setCurrentModal('none');
+                        }
                     },
                 },
             );
         }
-
         return m('');
     }
 
