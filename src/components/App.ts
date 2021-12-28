@@ -7,6 +7,7 @@ import FileExportModal, { FileExportModalAttributes } from './FileExportModal';
 import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
 import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
+import MiscFileOpsModal, { MiscFileOpsModalAttributes } from './MiscFileOpsModal';
 import Menu, { MENU_HEIGHT } from './Menu';
 import { FILE_EXISTS, getSavedDocument, saveDocument } from '../utils/file';
 import Sidebar from './Sidebar';
@@ -48,6 +49,7 @@ function App(): m.Component {
         m.Vnode<FileImportModalAttributes> |
         m.Vnode<FileOpenModalAttributes> |
         m.Vnode<FileSaveModalAttributes> |
+        m.Vnode<MiscFileOpsModalAttributes> |
         m.Vnode<TextInputModalAttributes> {
         const currentModal = state.ui.getCurrentModal();
 
@@ -202,6 +204,16 @@ function App(): m.Component {
                 },
             );
         }
+
+        if (currentModal === 'miscFileOps') {
+            return m(
+                MiscFileOpsModal,
+                {
+                    onClose: () => state.ui.setCurrentModal('none'),
+                },
+            );
+        }
+
         return m('');
     }
 

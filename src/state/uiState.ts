@@ -17,7 +17,8 @@ export default (() => {
         'fileExport' |
         'fileImport' |
         'fileOpen' |
-        'fileSave'
+        'fileSave' |
+        'miscFileOps'
     );
     type MenuType = 'edit' | 'file';
 

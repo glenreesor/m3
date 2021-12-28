@@ -13,6 +13,7 @@ import fileNewButton from '../images/file-new.svg';
 import fileOpenButton from '../images/file-open.svg';
 import fileSaveButton from '../images/file-save.svg';
 import hamburgerMenuButton from '../images/hamburger-button.svg';
+import miscFileOpsButton from '../images/misc-file-ops.svg';
 import redoButton from '../images/redo.svg';
 import redoButtonDisabled from '../images/redo-disabled.svg';
 import undoButton from '../images/undo.svg';
@@ -138,6 +139,18 @@ function Menu(): m.Component {
             'div',
             { style: 'text-align: right' },
             [
+                // Misc File Ops
+                m(
+                    'img',
+                    {
+                        onclick: () => state.ui.setCurrentModal('miscFileOps'),
+                        src: miscFileOpsButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
+                    },
+                ),
+
                 // Export
                 m(
                     'img',

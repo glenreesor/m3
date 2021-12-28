@@ -2,9 +2,49 @@ import state from '../state/state';
 
 export const FILE_EXISTS = 1;
 export const FILE_NOT_FOUND = 2;
-export const FILE_SAVE_SUCCESSFUL = 3;
+export const FILE_OPERATION_SUCCESSFUL = 3;
 
 const DOCUMENT_LIST_KEY = 'm3DocumentList';
+
+// This module implements a simple document storage system using the browser's
+// localStorage.
+//
+// LocalStorage key, value pairs:
+//  - DOCUMENT_LIST_KEY, <Array of document names>
+//  - `m3Document-N`, JSON string of document in Nth position of
+//    DOCUMENT_LIST_KEY
+//
+// Example:
+//  DOCUMENT_LIST_KEY: ['doc1', 'doc2', 'doc3']
+//  `m3Document-0`: [JSON representation of 'doc1']
+//  `m3Document-1`: [JSON representation of 'doc2']
+//  `m3Document-2`: [JSON representation of 'doc3']
+
+/**
+ * Delete the document of the specified name
+ *
+ * @param documentName The name of the document to delete
+ *
+ * @returns The status of the delete operation
+ */
+export function deleteDocument(documentName: string): number {
+    const documentList = getSavedDocumentList();
+    const documentIndex = documentList.indexOf(documentName);
+
+    if (documentIndex === -1) {
+        return FILE_NOT_FOUND;
+    }
+
+    const newDocumentList = documentList.filter(
+        (_name, index) => index !== documentIndex,
+    );
+    const documentKey = getSavedDocumentKey(documentIndex);
+
+    window.localStorage.setItem(DOCUMENT_LIST_KEY, JSON.stringify(newDocumentList));
+    window.localStorage.removeItem(documentKey);
+
+    return FILE_OPERATION_SUCCESSFUL;
+}
 
 /**
  * Return a list of documents currently saved in localStorage
@@ -37,6 +77,30 @@ export function getSavedDocument(name: string): string | number {
     const doc = window.localStorage.getItem(documentKey) || '';
 
     return doc;
+}
+
+/**
+ * Rename the specified file
+ *
+ * @param currentName The current name of a saved document
+ * @param newName The new name
+ *
+ * @returns Status of the rename operations
+ */
+export function renameDocument(currentName: string, newName: string): number {
+    const documentList = getSavedDocumentList();
+    const documentIndex = documentList.indexOf(currentName);
+
+    if (documentIndex === -1) {
+        return FILE_NOT_FOUND;
+    }
+
+    documentList[documentIndex] = newName;
+
+    const documentListJson = JSON.stringify(documentList);
+    window.localStorage.setItem(DOCUMENT_LIST_KEY, documentListJson);
+
+    return FILE_OPERATION_SUCCESSFUL;
 }
 
 /**
@@ -75,8 +139,10 @@ export function saveDocument(
 
     // Save the document itself
     saveDocumentAtIndex(indexForSaveOp, doc);
-    return FILE_SAVE_SUCCESSFUL;
+    return FILE_OPERATION_SUCCESSFUL;
 }
+
+//------------------------------------------------------------------------------
 
 function getSavedDocumentKey(index: number) {
     return `m3Document-${index}`;
