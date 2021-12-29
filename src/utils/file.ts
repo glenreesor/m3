@@ -80,6 +80,26 @@ export function getSavedDocument(name: string): string | number {
 }
 
 /**
+ * Get a document name that is guaranteed to be unique among the currently saved
+ * docs
+ *
+ * @param baseName The base of the new filename (characters will be appended
+ *                 to this string as required in order to create a unique name)
+ *
+ * @returns The unique filename
+ */
+export function getUniqueFilename(baseName: string): string {
+    const existingSavedDocs = getSavedDocumentList();
+    let newDocName = baseName;
+
+    while (existingSavedDocs.includes(newDocName)) {
+        newDocName += '-1';
+    }
+
+    return newDocName;
+}
+
+/**
  * Rename the specified file
  *
  * @param currentName The current name of a saved document

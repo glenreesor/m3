@@ -10,6 +10,7 @@ import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
 import MiscFileOpsModal, { MiscFileOpsModalAttributes } from './MiscFileOpsModal';
 import Menu, { MENU_HEIGHT } from './Menu';
 import { FILE_EXISTS, getSavedDocument, saveDocument } from '../utils/file';
+import importFile from '../utils/importFile';
 import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 
@@ -134,10 +135,7 @@ function App(): m.Component {
                 {
                     onCancel: () => state.ui.setCurrentModal('none'),
                     onFileContentsRead: (fileContents) => {
-                        state.doc.replaceCurrentDocFromJson(
-                            '',
-                            fileContents,
-                        );
+                        importFile(fileContents);
                         state.ui.setCurrentModal('none');
 
                         // This state change was triggered by an async fileReader

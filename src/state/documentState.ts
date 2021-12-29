@@ -144,7 +144,7 @@ export default (() => {
         /**
          * Add a child with the specified contents to the specified parent node
          *
-         * @param parentNodeId The ID of the parent
+         * @param parentNodeId  The ID of the parent
          * @param childContents The contents for the new node
          *
          * @returns The ID of the newly added node
@@ -169,6 +169,7 @@ export default (() => {
             });
 
             applyNewDocToUndoStack(newDoc);
+
             return newChildId;
         },
 
@@ -282,7 +283,7 @@ export default (() => {
             // JSON can't encode Maps
             const nodeMapAsArray: Array<Node> = [];
 
-            // We don't need to expliAsArraycitly record the Map keys (which are node
+            // We don't need to explicitly record the Map keys (which are node
             // IDs) because each Node also contains its ID
             currentDoc.nodes.forEach((nodeValue) => {
                 nodeMapAsArray.push(nodeValue);
@@ -403,6 +404,9 @@ export default (() => {
             };
         },
 
+        /**
+         * Replace the currently loaded document with an empty document
+         */
         replaceCurrentDocWithNewEmptyDoc: () => {
             state = {
                 currentDocIndex: 0,
