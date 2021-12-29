@@ -754,7 +754,10 @@ function DisplayedDocument(): m.Component<Attrs> {
             // Clear the existing rendered map
             // We need to clear a region larger than the actual canvas so
             // parts of the map rendered prior to a translation also get cleared
-            const MAX_PREV_TRANSLATION = 200;
+            //
+            // I don't fully understand why this works, but it needs to be
+            // big to handle gigantically wide nodes
+            const MAX_PREV_TRANSLATION = 4000;
             ctx.clearRect(
                 -MAX_PREV_TRANSLATION,
                 -MAX_PREV_TRANSLATION,
