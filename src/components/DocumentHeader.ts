@@ -15,12 +15,17 @@ function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
     return {
         view: ({ attrs }): m.Vnode => {
             const docName = attrs.documentName === '' ? 'New Map' : attrs.documentName;
-            const modifiedIndicator = attrs.hasUnsavedChanges ? '(Modified)' : '';
+            const modifiedIndicator = attrs.hasUnsavedChanges ? ' (Modified)' : '';
 
             return m(
                 'div',
                 { style: 'font-size: 12px' },
-                `${docName} ${modifiedIndicator}`,
+                docName,
+                m(
+                    'span',
+                    { style: 'color: blue' },
+                    modifiedIndicator,
+                ),
             );
         },
     };
