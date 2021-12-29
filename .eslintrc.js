@@ -6,6 +6,7 @@ module.exports = {
     extends: [
         'airbnb-base',
         'plugin:import/typescript',
+        'plugin:jsdoc/recommended',
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
@@ -40,6 +41,15 @@ module.exports = {
                 ],
             },
         ],
+
+        'jsdoc/require-jsdoc': ['error', { publicOnly: true }],
+            // The goal is to make code as self-documenting as possible, but
+            // JSDoc is useful for IDE support -- showing function docs without
+            // having to navigate to the file containing that function
+
+        'jsdoc/require-returns-type': 'off',
+        'jsdoc/require-param-type': 'off',
+            // JSDoc types are redundant with typescript types
 
         indent: ['error', 4],
 

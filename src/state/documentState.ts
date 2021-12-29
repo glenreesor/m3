@@ -21,7 +21,7 @@ export default (() => {
 
     // Parts of user's document that are affected by editing, including undo
     // and redo
-    interface Document {
+    interface Doc {
         nodes: Map<number, Node>,
         highestNodeId: number,
         rootId: number,
@@ -42,23 +42,23 @@ export default (() => {
         //      documentHistory[0] Contains the initial version of the document
         //      documentHistory[1] Contains the document after first edit
         //      etc.
-        docHistory: Array<Document>,
+        docHistory: Array<Doc>,
 
         // Name of document as it exists outside of m3 (e.g. filesystem)
         docName: string,
 
         // Whether document has been modified since last save
-        isModified: boolean,
+        hasUnsavedChanges: boolean,
     }
 
-    const state: State = {
+    let state: State = {
         currentDocIndex: 0,
         docHistory: [getInitialEmptyDoc()],
-        docName: 'New Map',
-        isModified: true,
+        docName: '',
+        hasUnsavedChanges: true,
     };
 
-    function applyNewDocumentToUndoStack(newDoc: Document) {
+    function applyNewDocToUndoStack(newDoc: Doc) {
         // Delete any states after the current one (i.e. redo states) since
         // they will no longer be valid
         state.docHistory.splice(state.currentDocIndex + 1);
@@ -66,6 +66,8 @@ export default (() => {
         // Now add the current one
         state.currentDocIndex += 1;
         state.docHistory.push(newDoc);
+
+        state.hasUnsavedChanges = true;
     }
 
     /**
@@ -73,11 +75,11 @@ export default (() => {
      *
      * @returns The current doc
      */
-    function getCurrentDoc(): Document {
+    function getCurrentDoc(): Doc {
         return state.docHistory[state.currentDocIndex];
     }
 
-    function getInitialEmptyDoc(): Document {
+    function getInitialEmptyDoc(): Doc {
         const rootNodeId = 0;
         const rootNode = {
             id: rootNodeId,
@@ -145,13 +147,13 @@ export default (() => {
          * @param parentNodeId The ID of the parent
          * @param childContents The contents for the new node
          *
-         * @return The ID of the newly added node
+         * @returns The ID of the newly added node
          */
         addChild: (parentNodeId: number, childContents: string): number => {
             let newChildId = -1;
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                newChildId = draftDocument.highestNodeId + 1;
-                const parentNode = safeGetNode(parentNodeId, 'addChild', draftDocument);
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                newChildId = draftDoc.highestNodeId + 1;
+                const parentNode = safeGetNode(parentNodeId, 'addChild', draftDoc);
                 const newChild = {
                     id: newChildId,
                     contents: childContents,
@@ -161,12 +163,12 @@ export default (() => {
                 };
 
                 /* eslint-disable no-param-reassign */
-                draftDocument.highestNodeId = newChildId;
+                draftDoc.highestNodeId = newChildId;
                 parentNode.childIds.push(newChildId);
-                draftDocument.nodes.set(newChildId, newChild);
+                draftDoc.nodes.set(newChildId, newChild);
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
             return newChildId;
         },
 
@@ -176,7 +178,7 @@ export default (() => {
          * @param siblingNodeId The ID of the node this will be a sibling to
          * @param childContents The contents for the new node
          *
-         * @return The ID of the newly added node
+         * @returns The ID of the newly added node
          */
         addSibling: (siblingNodeId: number, childContents: string): number => {
             const siblingNode = safeGetNode(siblingNodeId, 'addSibling');
@@ -185,12 +187,12 @@ export default (() => {
 
             if (parentNodeId === undefined) return -1;
 
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                newChildId = draftDocument.highestNodeId + 1;
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                newChildId = draftDoc.highestNodeId + 1;
                 const parentNode = safeGetNode(
                     parentNodeId,
                     'addSibling',
-                    draftDocument,
+                    draftDoc,
                 );
                 const newChild = {
                     id: newChildId,
@@ -201,7 +203,7 @@ export default (() => {
                 };
 
                 /* eslint-disable no-param-reassign */
-                draftDocument.highestNodeId = newChildId;
+                draftDoc.highestNodeId = newChildId;
 
                 const allSiblings = parentNode.childIds;
                 const siblingNodeIndex = allSiblings.indexOf(siblingNodeId);
@@ -213,41 +215,46 @@ export default (() => {
                 );
 
                 parentNode.childIds = allSiblings;
-                draftDocument.nodes.set(newChildId, newChild);
+                draftDoc.nodes.set(newChildId, newChild);
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
 
             return newChildId;
         },
 
+        /**
+         * Delete the node with the specified ID
+         *
+         * @param nodeToDeleteId ID of the node to be deleted
+         */
         deleteNode(nodeToDeleteId: number) {
             const nodeToDelete = safeGetNode(nodeToDeleteId, 'addSibling');
             const parentNodeId = nodeToDelete.parentId;
 
             if (parentNodeId === undefined) return;
 
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
+            const newDoc = produce(getCurrentDoc(), (draftDocment) => {
                 function depthFirstDelete(nodeId: number) {
-                    const node = safeGetNode(nodeId, 'deleteNode', draftDocument);
+                    const node = safeGetNode(nodeId, 'deleteNode', draftDocment);
                     node.childIds.forEach((childId) => {
                         depthFirstDelete(childId);
                     });
-                    draftDocument.nodes.delete(nodeId);
+                    draftDocment.nodes.delete(nodeId);
                 }
 
                 // Remove all nodes from the Set then remove the specified
                 // node from its parent's child list
                 depthFirstDelete(nodeToDeleteId);
 
-                const parentNode = safeGetNode(parentNodeId, 'deleteNode', draftDocument);
+                const parentNode = safeGetNode(parentNodeId, 'deleteNode', draftDocment);
                 const indexOfNodeToDelete = parentNode.childIds.indexOf(nodeToDeleteId);
                 parentNode.childIds.splice(indexOfNodeToDelete, 1);
 
-                draftDocument.selectedNodeId = parentNodeId;
+                draftDocment.selectedNodeId = parentNodeId;
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
         },
 
         /**
@@ -263,19 +270,38 @@ export default (() => {
         ).childrenVisible,
 
         /**
+         * Return the current doc as a JSON string
+         *
+         * @returns A string that can be used to recreate the current map
+         *
+         */
+        getCurrentDocAsJson: (): string => {
+            const currentDoc = getCurrentDoc();
+
+            // We need to create an equivalent array of the Nodes Map since
+            // JSON can't encode Maps
+            const nodeMapAsArray: Array<Node> = [];
+
+            // We don't need to expliAsArraycitly record the Map keys (which are node
+            // IDs) because each Node also contains its ID
+            currentDoc.nodes.forEach((nodeValue) => {
+                nodeMapAsArray.push(nodeValue);
+            });
+
+            const jsonCapableMap = {
+                ...currentDoc,
+                nodes: nodeMapAsArray,
+            };
+
+            return JSON.stringify(jsonCapableMap);
+        },
+
+        /**
          * Return the name of the current document
          *
          * @returns The doc name
          */
         getDocName: ():string => state.docName,
-
-        /**
-         * Return whether the current document has been modified since last
-         * load / save
-         *
-         * @returns Whether doc has been modified
-         */
-        getIsModified: ():boolean => state.isModified,
 
         /**
          * Return a copy of the child IDs of the specified node.
@@ -332,21 +358,92 @@ export default (() => {
         getUndoIsAvailable: (): boolean => undoAvailable(),
 
         /**
+         * Return whether the current document has unsaved changes
+         *
+         * @returns Whether doc has been modified
+         */
+        hasUnsavedChanges: ():boolean => state.hasUnsavedChanges,
+
+        /**
          * Redo the last editor change (do nothing if no redo available)
          */
         redo: () => {
             if (redoAvailable()) {
                 state.currentDocIndex += 1;
+                state.hasUnsavedChanges = true;
             }
         },
 
+        /**
+         * Replace the currently loaded document with the specified one
+         *
+         * @param docName        The name to display for this document
+         * @param jsonEncodedDoc A JSON string representing the map to use
+         */
+        replaceCurrentDocFromJson: (docName: string, jsonEncodedDoc: string) => {
+            const docUsingArrayForNodes = JSON.parse(jsonEncodedDoc) as Doc;
+
+            // jsonEncodedDoc uses an array to encode the `nodes`. So here we
+            // convert back to a Map
+            const nodesAsMap = new Map<number, Node>();
+            docUsingArrayForNodes.nodes.forEach((node: Node) => {
+                nodesAsMap.set(node.id, node);
+            });
+
+            const docUsingNodesAsMap = {
+                ...docUsingArrayForNodes,
+                nodes: nodesAsMap,
+            };
+
+            state = {
+                currentDocIndex: 0,
+                docHistory: [docUsingNodesAsMap],
+                docName,
+                hasUnsavedChanges: false,
+            };
+        },
+
+        replaceCurrentDocWithNewEmptyDoc: () => {
+            state = {
+                currentDocIndex: 0,
+                docHistory: [getInitialEmptyDoc()],
+                docName: '',
+                hasUnsavedChanges: true,
+            };
+        },
+
+        /**
+         * Replace the contents of the specified node
+         *
+         * @param nodeId      The ID of the node to operate on
+         * @param newContents The contents to put into the specified node
+         */
         replaceNodeContents: (nodeId: number, newContents: string) => {
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                const nodeToReplace = safeGetNode(nodeId, 'replaceNodeContents', draftDocument);
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const nodeToReplace = safeGetNode(nodeId, 'replaceNodeContents', draftDoc);
                 nodeToReplace.contents = newContents;
             });
 
-            applyNewDocumentToUndoStack(newDoc);
+            applyNewDocToUndoStack(newDoc);
+        },
+
+        /**
+         * Set the name of the current document
+         *
+         * @param docName The name to display for this document
+         */
+        setDocName: (docName: string) => {
+            state.docName = docName;
+        },
+
+        /**
+         * Set whether the current document has unsaved changes
+         *
+         * @param hasUnsavedChanges Whether the current doc has unsaved changes
+         *                          or not
+         */
+        setHasUnsavedChanges: (hasUnsavedChanges: boolean) => {
+            state.hasUnsavedChanges = hasUnsavedChanges;
         },
 
         /**
@@ -359,8 +456,8 @@ export default (() => {
             // However we won't push this new state to docHistory[] since we
             // don't want toggling children visibility to participate in
             // undo / redo functionality
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                draftDocument.selectedNodeId = nodeId;
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                draftDoc.selectedNodeId = nodeId;
             });
 
             // As described above, replace the current document with this one
@@ -377,8 +474,8 @@ export default (() => {
             // However we won't push this new state to docHistory[] since we
             // don't want toggling children visibility to participate in
             // undo / redo functionality
-            const newDoc = produce(getCurrentDoc(), (draftDocument) => {
-                const node = safeGetNode(nodeId, 'toggleChildrenVisibility', draftDocument);
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const node = safeGetNode(nodeId, 'toggleChildrenVisibility', draftDoc);
                 node.childrenVisible = !node.childrenVisible;
             });
 
@@ -392,6 +489,7 @@ export default (() => {
         undo: () => {
             if (undoAvailable()) {
                 state.currentDocIndex -= 1;
+                state.hasUnsavedChanges = true;
             }
         },
     };

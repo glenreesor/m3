@@ -2,6 +2,12 @@ import * as m from 'mithril';
 
 import state from '../state/state';
 
+/**
+ * A sidebar on the right side, that is used to change which set of menu icons
+ * are shown
+ *
+ * @returns An object to be consumed by m()
+ */
 function Sidebar(): m.Component {
     function getOverlayMarkup(): m.Vnode {
         return m(

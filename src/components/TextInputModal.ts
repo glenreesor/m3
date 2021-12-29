@@ -6,6 +6,11 @@ export interface TextInputModalAttributes {
     onSave: (text: string) => void,
 }
 
+/**
+ * A component that contains a text input element in a centered modal
+ *
+ * @returns An object to be consumed by m()
+ */
 function TextInputModal(): m.Component<TextInputModalAttributes> {
     let inputValue = '';
 
