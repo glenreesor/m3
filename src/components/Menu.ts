@@ -167,7 +167,7 @@ function Menu(): m.Component {
                 m(
                     'img',
                     {
-                        onclick: () => state.ui.setCurrentModal('fileImport'),
+                        onclick: onFileImportButtonClick,
                         src: fileImportButton,
                         width: MENU_ICONS_WIDTH,
                         height: MENU_ICONS_HEIGHT,
@@ -258,6 +258,23 @@ function Menu(): m.Component {
         }
     }
 
+    function onFileImportButtonClick() {
+        if (state.doc.hasUnsavedChanges()) {
+            state.ui.setCurrentModal('binaryModal');
+            state.ui.setBinaryModalAttrs({
+                prompt: 'Current document has unsaved changes. Discard changes and load new document?',
+                yesButtonText: 'Yes',
+                noButtonText: 'No',
+                onYesButtonClick: () => {
+                    state.ui.setCurrentModal('fileImport');
+                },
+                onNoButtonClick: () => state.ui.setCurrentModal('none'),
+            });
+        } else {
+            state.ui.setCurrentModal('fileImport');
+        }
+    }
+
     function onFileOpenButtonClick() {
         if (state.doc.hasUnsavedChanges()) {
             state.ui.setCurrentModal('binaryModal');
@@ -293,7 +310,7 @@ function Menu(): m.Component {
                 docName,
                 state.doc.getCurrentDocAsJson(),
             );
-            console.log(returnVal);
+            console.log(`Save returnVal: ${returnVal}`);
         }
     }
 
