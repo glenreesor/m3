@@ -1,5 +1,5 @@
 import state from '../state/state';
-import { getSavedDocumentList } from './file';
+import { getUniqueFilename } from './file';
 
 /**
  * Import the specified content as the current document (replacing whatever the
@@ -39,17 +39,6 @@ function getFreeplaneTextContent(freeplaneNode: Element): string {
     return freeplaneNode.attributes.getNamedItem('TEXT')?.value || '';
 }
 
-function getNewDocName(): string {
-    const existingSavedDocs = getSavedDocumentList();
-    let proposedDocName = 'Imported Freeplane Document';
-
-    while (existingSavedDocs.includes(proposedDocName)) {
-        proposedDocName += '-1';
-    }
-
-    return proposedDocName;
-}
-
 function processImportedFreeplaneDoc(xmlDoc: Document) {
     // The root XML element is '<map>'. Double check that it's there
     const importMapElement = xmlDoc.documentElement;
@@ -60,7 +49,7 @@ function processImportedFreeplaneDoc(xmlDoc: Document) {
     }
 
     state.doc.replaceCurrentDocWithNewEmptyDoc();
-    state.doc.setDocName(getNewDocName());
+    state.doc.setDocName(getUniqueFilename('Imported Freeplane Document'));
 
     // We're assuming Freeplane can only have one root node here.
     // Hope that's right
