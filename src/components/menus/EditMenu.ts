@@ -132,15 +132,27 @@ function onAddChildButtonClick() {
 }
 
 function onAddSiblingButtonClick() {
-    state.ui.setCurrentModal('addSibling');
+    const rootNodeId = state.doc.getRootNodeId();
+    const selectedNodeId = state.doc.getSelectedNodeId();
+
+    if (selectedNodeId !== rootNodeId) {
+        state.ui.setCurrentModal('addSibling');
+    }
 }
 
 function onDeleteNodeButtonClick() {
-    state.doc.deleteNode(state.doc.getSelectedNodeId());
+    const rootNodeId = state.doc.getRootNodeId();
+    const selectedNodeId = state.doc.getSelectedNodeId();
+
+    if (selectedNodeId !== rootNodeId) {
+        state.doc.deleteNode(state.doc.getSelectedNodeId());
+    }
 }
 
 function onRedoButtonClick() {
-    state.doc.redo();
+    if (state.doc.getRedoIsAvailable()) {
+        state.doc.redo();
+    }
 }
 
 function onReplaceNodeContentsButtonClick() {
@@ -148,7 +160,9 @@ function onReplaceNodeContentsButtonClick() {
 }
 
 function onUndoButtonButtonClick() {
-    state.doc.undo();
+    if (state.doc.getUndoIsAvailable()) {
+        state.doc.undo();
+    }
 }
 
 export default EditMenu;
