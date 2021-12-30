@@ -34,7 +34,7 @@ export default (() => {
         binaryModalAttrs: undefined,
         currentMenu: 'edit',
         currentModal: 'none',
-        fontSize: 12,
+        fontSize: 14,
         sidebarIsVisible: false,
     };
 
