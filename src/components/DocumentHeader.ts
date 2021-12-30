@@ -1,5 +1,7 @@
 import * as m from 'mithril';
 
+import state from '../state/state';
+
 interface DocumentHeaderAttributes {
     documentName: string,
     hasUnsavedChanges: boolean,
@@ -19,7 +21,7 @@ function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
 
             return m(
                 'div',
-                { style: 'font-size: 12px' },
+                { style: `font-size: ${state.ui.getCurrentFontSize()}px` },
                 docName,
                 m(
                     'span',

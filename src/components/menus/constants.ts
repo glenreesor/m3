@@ -1,0 +1,4 @@
+export const MENU_ICONS_HEIGHT = 40;
+export const MENU_ICONS_WIDTH = 40;
+export const MENU_ICONS_MARGIN = 2;
+export const MENU_HEIGHT = MENU_ICONS_HEIGHT + MENU_ICONS_MARGIN;

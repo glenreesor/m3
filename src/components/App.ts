@@ -8,7 +8,8 @@ import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
 import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
 import MiscFileOpsModal, { MiscFileOpsModalAttributes } from './MiscFileOpsModal';
-import Menu, { MENU_HEIGHT } from './Menu';
+import Menu from './Menu';
+import { MENU_HEIGHT } from './menus/constants';
 import { FILE_EXISTS, getSavedDocument, saveDocument } from '../utils/file';
 import importFile from '../utils/importFile';
 import Sidebar from './Sidebar';
@@ -32,7 +33,7 @@ function App(): m.Component {
             width: window.innerWidth - 20,
 
             // TODO: Turn this into a not-hack
-            height: window.innerHeight - MENU_HEIGHT - 12 - 35,
+            height: window.innerHeight - MENU_HEIGHT - state.ui.getCurrentFontSize() - 30,
         };
     }
 
