@@ -36,9 +36,12 @@ function FileExportModal(): m.Component<FileExportModalAttributes> {
 
         /* eslint-disable prefer-template */
         const formattedDate = dateNow.getFullYear() + '-' +
-            getNumberAsZeroPaddedTwoDigits(dateNow.getMonth()) + '-' +
-            getNumberAsZeroPaddedTwoDigits(dateNow.getDay()) +
-            '::' +
+
+            // Don't forget JS months are zero-based. omg
+            getNumberAsZeroPaddedTwoDigits(dateNow.getMonth() + 1) + '-' +
+
+            getNumberAsZeroPaddedTwoDigits(dateNow.getDate()) +
+            '---' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getHours()) + ':' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getMinutes()) + ':' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getSeconds());
