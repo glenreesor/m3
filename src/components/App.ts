@@ -33,7 +33,7 @@ function App(): m.Component {
             width: window.innerWidth - 20,
 
             // TODO: Turn this into a not-hack
-            height: window.innerHeight - MENU_HEIGHT - state.ui.getCurrentFontSize() - 30,
+            height: window.innerHeight - MENU_HEIGHT - state.ui.getCurrentFontSize() - 35,
         };
     }
 
