@@ -3,6 +3,7 @@ import * as m from 'mithril';
 import state from '../state/state';
 import EditMenu from './menus/EditMenu';
 import FileMenu from './menus/FileMenu';
+import SizeSettingsMenu from './menus/SizeSettingsMenu';
 
 /**
  * A component that renders the current menu
@@ -18,6 +19,9 @@ function Menu(): m.Component {
 
             case 'file':
                 return m(FileMenu);
+
+            case 'sizeSettings':
+                return m(SizeSettingsMenu);
 
             default:
                 return m('');

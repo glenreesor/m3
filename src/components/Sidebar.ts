@@ -37,9 +37,9 @@ function Sidebar(): m.Component {
                         style: {
                             background: '#eeeeee',
                             position: 'fixed',
-                            bottom: '20px',
+                            bottom: '40px',
                             right: '0',
-                            'font-size': '14px',
+                            'font-size': `${state.ui.getCurrentFontSize()}px`,
                             width: '100px',
                             height: '100px',
                             'text-align': 'center',
@@ -47,6 +47,7 @@ function Sidebar(): m.Component {
                         },
                     },
                     [
+                        m('br'),
                         m(
                             'a',
                             {
@@ -70,6 +71,19 @@ function Sidebar(): m.Component {
                                 },
                             },
                             'Edit',
+                        ),
+                        m('br'),
+                        m('br'),
+                        m(
+                            'a',
+                            {
+                                href: '#',
+                                onclick: () => {
+                                    state.ui.setCurrentMenu('sizeSettings');
+                                    state.ui.setSidebarVisibility(false);
+                                },
+                            },
+                            'Size Settings',
                         ),
                     ],
                 ),

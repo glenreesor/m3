@@ -20,12 +20,13 @@ export default (() => {
         'fileSave' |
         'miscFileOps'
     );
-    type MenuType = 'edit' | 'file';
+    type MenuType = 'edit' | 'file' | 'sizeSettings';
 
     interface State {
         binaryModalAttrs?: BinaryModalAttributes,
         currentMenu: MenuType,
         currentModal: ModalType,
+        fontSize: number,
         sidebarIsVisible: boolean,
     }
 
@@ -33,6 +34,7 @@ export default (() => {
         binaryModalAttrs: undefined,
         currentMenu: 'edit',
         currentModal: 'none',
+        fontSize: 12,
         sidebarIsVisible: false,
     };
 
@@ -47,6 +49,11 @@ export default (() => {
 
         getCurrentModal: () => state.currentModal,
         setCurrentModal: (modal: ModalType) => { state.currentModal = modal; },
+
+        getCurrentFontSize: () => state.fontSize,
+        setCurrentFontSize: (newSize: number) => {
+            state.fontSize = newSize;
+        },
 
         getSidebarIsVisible: () => state.sidebarIsVisible,
         setSidebarVisibility: (visible: boolean) => {

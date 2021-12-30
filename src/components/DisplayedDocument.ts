@@ -1,5 +1,6 @@
 import * as m from 'mithril';
 import documentState from '../state/documentState';
+import uiState from '../state/uiState';
 
 interface Attrs {
     documentDimensions: {
@@ -104,14 +105,14 @@ function DisplayedDocument(): m.Component<Attrs> {
         y: 15,
     };
     const FOLDING_ICON_RADIUS = 10;
-    const FONT_SIZE = 12;
-
     const NODE_PADDING = {
         x: 5,
         y: 5,
     };
 
     const devicePixelRatio = window.devicePixelRatio || 1;
+
+    let fontSize = uiState.getCurrentFontSize();
 
     let canvasElement: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
@@ -157,7 +158,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             documentState.getNodeContents(nodeId),
         );
         const bubbleDim = {
-            h: FONT_SIZE + 2 * NODE_PADDING.y,
+            h: fontSize + 2 * NODE_PADDING.y,
             w: textMetrics.width + 2 * NODE_PADDING.x,
         };
 
@@ -719,7 +720,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             //------------------------------------------------------------------
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = '#000000';
-            ctx.font = `${FONT_SIZE}px sans-serif`;
+            ctx.font = `${fontSize}px sans-serif`;
 
             const rootNodeId = documentState.getRootNodeId();
             const allDimensions = new Map();
@@ -736,6 +737,8 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
+            fontSize = uiState.getCurrentFontSize();
+
             // Canvas elements reset their scale and translation when their
             // dimensions change, so reset when that happens
             if (
@@ -774,7 +777,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             //------------------------------------------------------------------
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = '#000000';
-            ctx.font = `${FONT_SIZE}px sans-serif`;
+            ctx.font = `${fontSize}px sans-serif`;
 
             const rootNodeId = documentState.getRootNodeId();
             const allDimensions = new Map();
