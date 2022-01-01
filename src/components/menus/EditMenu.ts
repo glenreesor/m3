@@ -9,10 +9,6 @@ import deleteNodeButton from './images/delete-node.svg';
 import deleteNodeButtonDisabled from './images/delete-node-disabled.svg';
 import editNodeButton from './images/edit-node.svg';
 import hamburgerMenuButton from './images/hamburger-button.svg';
-import redoButton from './images/redo.svg';
-import redoButtonDisabled from './images/redo-disabled.svg';
-import undoButton from './images/undo.svg';
-import undoButtonDisabled from './images/undo-disabled.svg';
 
 import fileSaveButton from './images/file-save.svg';
 import { onSaveButtonClick } from './FileMenu';
@@ -44,34 +40,6 @@ function EditMenu(): m.Component {
                         width: MENU_ICONS_WIDTH,
                         height: MENU_ICONS_HEIGHT,
                         style: 'margin: 2px;',
-                    },
-                ),
-
-                // Undo
-                m(
-                    'img',
-                    {
-                        src: state.doc.getUndoIsAvailable()
-                            ? undoButton
-                            : undoButtonDisabled,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onUndoButtonButtonClick,
-                    },
-                ),
-
-                // Redo
-                m(
-                    'img',
-                    {
-                        src: state.doc.getRedoIsAvailable()
-                            ? redoButton
-                            : redoButtonDisabled,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onRedoButtonClick,
                     },
                 ),
 
@@ -165,20 +133,8 @@ function onDeleteNodeButtonClick() {
     }
 }
 
-function onRedoButtonClick() {
-    if (state.doc.getRedoIsAvailable()) {
-        state.doc.redo();
-    }
-}
-
 function onReplaceNodeContentsButtonClick() {
     state.ui.setCurrentModal('editNode');
-}
-
-function onUndoButtonButtonClick() {
-    if (state.doc.getUndoIsAvailable()) {
-        state.doc.undo();
-    }
 }
 
 export default EditMenu;

@@ -26,7 +26,7 @@ export default (() => {
         'fileSave' |
         'miscFileOps'
     );
-    type MenuType = 'edit' | 'file' | 'sizeSettings';
+    type MenuType = 'edit' | 'file' | 'sizeSettings' | 'undoRedo';
 
     interface State {
         binaryModalAttrs?: BinaryModalAttributes,

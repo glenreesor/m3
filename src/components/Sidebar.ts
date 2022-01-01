@@ -41,7 +41,7 @@ function Sidebar(): m.Component {
                             right: '0',
                             'font-size': `${state.ui.getCurrentFontSize()}px`,
                             width: '100px',
-                            height: `${state.ui.getCurrentFontSize() * 10}px`,
+                            height: `${state.ui.getCurrentFontSize() * 12}px`,
                             'text-align': 'center',
                             'z-index': '20',
                         },
@@ -84,6 +84,19 @@ function Sidebar(): m.Component {
                                 },
                             },
                             'Size Settings',
+                        ),
+                        m('br'),
+                        m('br'),
+                        m(
+                            'a',
+                            {
+                                href: '#',
+                                onclick: () => {
+                                    state.ui.setCurrentMenu('undoRedo');
+                                    state.ui.setSidebarVisibility(false);
+                                },
+                            },
+                            'Undo / Redo',
                         ),
                     ],
                 ),

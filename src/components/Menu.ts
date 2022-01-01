@@ -4,6 +4,7 @@ import state from '../state/state';
 import EditMenu from './menus/EditMenu';
 import FileMenu from './menus/FileMenu';
 import SizeSettingsMenu from './menus/SizeSettingsMenu';
+import UndoRedoMenu from './menus/UndoRedoMenu';
 
 /**
  * A component that renders the current menu
@@ -22,6 +23,9 @@ function Menu(): m.Component {
 
             case 'sizeSettings':
                 return m(SizeSettingsMenu);
+
+            case 'undoRedo':
+                return m(UndoRedoMenu);
 
             default:
                 return m('');
