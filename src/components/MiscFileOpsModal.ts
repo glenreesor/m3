@@ -1,7 +1,7 @@
 import * as m from 'mithril';
 
 import { deleteDocument, getSavedDocumentList, renameDocument } from '../utils/file';
-import uiState from '../state/state';
+import state from '../state/state';
 
 export interface MiscFileOpsModalAttributes {
     onClose: () => void,
@@ -58,7 +58,7 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
 
     function getCurrentDocsMarkup(attrs: MiscFileOpsModalAttributes) {
         const currentFilenamesMarkup:Array<m.Vnode> = [];
-        const currentDocName = uiState.doc.getDocName();
+        const currentDocName = state.doc.getDocName();
 
         getSavedDocumentList().forEach((filename, index) => {
             currentFilenamesMarkup.push(
@@ -68,7 +68,7 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
                         // TODO: Fix using nth child stuff
                         style: {
                             background: '#ffffff',
-                            fontSize: `${uiState.ui.getCurrentFontSize()}px`,
+                            fontSize: `${state.ui.getCurrentFontSize()}px`,
                             paddingTop: index === 0 ? '10px' : '0',
                             paddingBottom: '10px',
                             paddingLeft: '20px',
@@ -98,7 +98,7 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
                                 {
                                     value: renameValue,
                                     style: {
-                                        fontSize: `${uiState.ui.getCurrentFontSize()}px`,
+                                        fontSize: `${state.ui.getCurrentFontSize()}px`,
                                         width: `${window.innerWidth / 2}px`,
                                     },
                                     oninput: onRenameValueChange,
