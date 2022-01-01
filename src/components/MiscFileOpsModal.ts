@@ -68,6 +68,7 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
                         // TODO: Fix using nth child stuff
                         style: {
                             background: '#ffffff',
+                            fontSize: `${uiState.ui.getCurrentFontSize()}px`,
                             paddingTop: index === 0 ? '10px' : '0',
                             paddingBottom: '10px',
                             paddingLeft: '20px',
@@ -96,7 +97,10 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
                                 'input',
                                 {
                                     value: renameValue,
-                                    style: `width: ${window.innerWidth / 2}px`,
+                                    style: {
+                                        fontSize: `${uiState.ui.getCurrentFontSize()}px`,
+                                        width: `${window.innerWidth / 2}px`,
+                                    },
                                     oninput: onRenameValueChange,
                                 },
                             ),

@@ -1,5 +1,7 @@
 import * as m from 'mithril';
 
+import state from '../state/state';
+
 import { getSavedDocumentList } from '../utils/file';
 
 export interface FileSaveModalAttributes {
@@ -99,7 +101,10 @@ function FileSaveModal(): m.Component<FileSaveModalAttributes> {
                         {
                             oninput: onInputValueChange,
                             onkeyup: (e: KeyboardEvent) => onInputKeyUp(e, attrs),
-                            style: 'margin-left: 12px',
+                            style: {
+                                fontSize: `${state.ui.getCurrentFontSize()}px`,
+                                marginLeft: '12px',
+                            },
                             value: inputValue,
 
                         },
@@ -118,7 +123,7 @@ function FileSaveModal(): m.Component<FileSaveModalAttributes> {
                     background: '#dddddd',
                     padding: '10px',
                     border: '2px solid blue',
-                    fontSize: '14px',
+                    fontSize: `${state.ui.getCurrentFontSize()}px`,
                     position: 'fixed',
                     left: '50%',
                     top: '35%',

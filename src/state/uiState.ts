@@ -1,4 +1,10 @@
-import { BinaryModalAttributes } from '../components/BinaryModal';
+export interface BinaryModalAttributes {
+    prompt: string,
+    yesButtonText: string,
+    noButtonText: string,
+    onYesButtonClick: () => void,
+    onNoButtonClick: () => void,
+}
 
 /**
  * An immediately invoked function expression that returns an object with

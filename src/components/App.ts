@@ -2,7 +2,7 @@ import * as m from 'mithril';
 
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
-import BinaryModal, { BinaryModalAttributes } from './BinaryModal';
+import BinaryModal from './BinaryModal';
 import FileExportModal, { FileExportModalAttributes } from './FileExportModal';
 import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
@@ -16,6 +16,7 @@ import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 
 import state from '../state/state';
+import { BinaryModalAttributes } from '../state/uiState';
 
 /**
  * A component that contains the entire app.

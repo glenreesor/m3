@@ -1,5 +1,7 @@
 import * as m from 'mithril';
 
+import state from '../state/state';
+
 export interface FileImportModalAttributes {
     onCancel: () => void,
     onFileContentsRead: (fileContents: string) => void,
@@ -40,7 +42,7 @@ function FileImportModal(): m.Component<FileImportModalAttributes> {
                     background: '#dddddd',
                     padding: '10px',
                     border: '2px solid blue',
-                    fontSize: '14px',
+                    fontSize: `${state.ui.getCurrentFontSize()}px`,
                     position: 'fixed',
                     left: '50%',
                     top: '35%',

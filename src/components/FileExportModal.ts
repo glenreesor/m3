@@ -60,7 +60,7 @@ function FileExportModal(): m.Component<FileExportModalAttributes> {
                     background: '#dddddd',
                     padding: '10px',
                     border: '2px solid blue',
-                    fontSize: '14px',
+                    fontSize: `${state.ui.getCurrentFontSize()}px`,
                     position: 'fixed',
                     left: '50%',
                     top: '35%',

@@ -1,12 +1,7 @@
 import * as m from 'mithril';
 
-export interface BinaryModalAttributes {
-    prompt: string,
-    yesButtonText: string,
-    noButtonText: string,
-    onYesButtonClick: () => void,
-    onNoButtonClick: () => void,
-}
+import state from '../state/state';
+import { BinaryModalAttributes } from '../state/uiState';
 
 /**
  * A component that presents a modal with two buttons, where the modal text,
@@ -24,7 +19,7 @@ function BinaryModal(): m.Component<BinaryModalAttributes> {
                     background: '#dddddd',
                     padding: '10px',
                     border: '2px solid blue',
-                    fontSize: '14px',
+                    fontSize: `${state.ui.getCurrentFontSize()}px`,
                     position: 'fixed',
                     left: '50%',
                     top: '35%',

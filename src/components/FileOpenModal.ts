@@ -1,5 +1,7 @@
 import * as m from 'mithril';
 
+import state from '../state/state';
+
 import { getSavedDocumentList } from '../utils/file';
 
 export interface FileOpenModalAttributes {
@@ -43,6 +45,7 @@ function FileOpenModal(): m.Component<FileOpenModalAttributes> {
                         // TODO: Fix using nth child stuff
                         style: {
                             background: '#ffffff',
+                            fontSize: `${state.ui.getCurrentFontSize()}px`,
                             paddingTop: index === 0 ? '10px' : '0',
                             paddingBottom: '10px',
                             paddingLeft: '20px',
