@@ -56,7 +56,7 @@ function TextInputModal(): m.Component<TextInputModalAttributes> {
                         value: inputValue,
                         style: {
                             fontSize: `${state.ui.getCurrentFontSize()}px`,
-                            width: `${window.innerWidth / 2}px`,
+                            width: `${0.75 * window.innerWidth}px`,
                         },
                         oninput: onInputValueChange,
                         onkeyup: (e: KeyboardEvent) => onInputKeyUp(e, attrs),
