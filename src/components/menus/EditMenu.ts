@@ -28,84 +28,98 @@ function EditMenu(): m.Component {
 
             return m(
                 'div',
-                { style: 'text-align: right' },
+                {
+                    style: {
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                    },
+                },
 
+                [
                 // Save Button -- not really an "Edit" thing, but put it here
                 // for user convenience
-                m(
-                    'img',
-                    {
-                        onclick: onSaveButtonClick,
-                        src: fileSaveButton,
-                        width: MENU_ICONS_WIDTH,
-                        height: MENU_ICONS_HEIGHT,
-                        style: 'margin: 2px;',
-                    },
-                ),
+                    m(
+                        'div',
+                        m(
+                            'img',
+                            {
+                                onclick: onSaveButtonClick,
+                                src: fileSaveButton,
+                                width: MENU_ICONS_WIDTH,
+                                height: MENU_ICONS_HEIGHT,
+                                style: 'margin: 2px;',
+                            },
+                        ),
+                    ),
+                ],
+                [
+                    m(
+                        'div',
+                        // Delete Node
+                        m(
+                            'img',
+                            {
+                                src: selectedNodeId === rootNodeId
+                                    ? deleteNodeButtonDisabled
+                                    : deleteNodeButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onDeleteNodeButtonClick,
+                            },
+                        ),
 
-                // Delete Node
-                m(
-                    'img',
-                    {
-                        src: selectedNodeId === rootNodeId
-                            ? deleteNodeButtonDisabled
-                            : deleteNodeButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onDeleteNodeButtonClick,
-                    },
-                ),
+                        // Edit Node
+                        m(
+                            'img',
+                            {
+                                src: editNodeButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onReplaceNodeContentsButtonClick,
+                            },
+                        ),
 
-                // Edit Node
-                m(
-                    'img',
-                    {
-                        src: editNodeButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onReplaceNodeContentsButtonClick,
-                    },
-                ),
+                        // Add Child
+                        m(
+                            'img',
+                            {
+                                src: addChildButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onAddChildButtonClick,
+                            },
+                        ),
 
-                // Add Child
-                m(
-                    'img',
-                    {
-                        src: addChildButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onAddChildButtonClick,
-                    },
-                ),
+                        // Add Sibling
+                        m(
+                            'img',
+                            {
+                                src: selectedNodeId === rootNodeId
+                                    ? addSiblingButtonDisabled
+                                    : addSiblingButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onAddSiblingButtonClick,
+                            },
+                        ),
 
-                // Add Sibling
-                m(
-                    'img',
-                    {
-                        src: selectedNodeId === rootNodeId
-                            ? addSiblingButtonDisabled
-                            : addSiblingButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onAddSiblingButtonClick,
-                    },
-                ),
-
-                // Sidebar Button
-                m(
-                    'img',
-                    {
-                        src: hamburgerMenuButton,
-                        width: MENU_ICONS_WIDTH,
-                        height: MENU_ICONS_HEIGHT,
-                        style: 'margin: 2px;',
-                        onclick: () => state.ui.setSidebarVisibility(true),
-                    },
-                ),
+                        // Sidebar Button
+                        m(
+                            'img',
+                            {
+                                src: hamburgerMenuButton,
+                                width: MENU_ICONS_WIDTH,
+                                height: MENU_ICONS_HEIGHT,
+                                style: 'margin: 2px;',
+                                onclick: () => state.ui.setSidebarVisibility(true),
+                            },
+                        ),
+                    ),
+                ],
             );
         },
     };
