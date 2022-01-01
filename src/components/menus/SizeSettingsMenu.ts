@@ -22,6 +22,9 @@ function SizeSettingsMenu(): m.Component {
                     'button',
                     {
                         onclick: onFontSizeIncreaseButtonClick,
+                        style: {
+                            marginRight: '20px',
+                        },
                     },
                     'Font +',
                 ),
@@ -30,6 +33,9 @@ function SizeSettingsMenu(): m.Component {
                     'button',
                     {
                         onclick: onFontSizeDecreaseButtonClick,
+                        style: {
+                            marginRight: '20px',
+                        },
                     },
                     'Font -',
                 ),

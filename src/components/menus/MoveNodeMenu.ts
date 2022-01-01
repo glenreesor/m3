@@ -22,6 +22,9 @@ function MoveNodeMenu(): m.Component {
                     'button',
                     {
                         onclick: onMoveNodeUpButtonClick,
+                        style: {
+                            marginRight: '20px',
+                        },
                     },
                     'Up',
                 ),
@@ -30,6 +33,9 @@ function MoveNodeMenu(): m.Component {
                     'button',
                     {
                         onclick: onMoveNodeDownButtonClick,
+                        style: {
+                            marginRight: '20px',
+                        },
                     },
                     'Down',
                 ),
