@@ -874,6 +874,22 @@ function DisplayedDocument(): m.Component<Attrs> {
             const canvasActualWidth = cssPixelsWidth * devicePixelRatio;
             const canvasActualHeight = cssPixelsHeight * devicePixelRatio;
 
+            // Event handlers trigger Mithril redraws. So only define
+            // movement handlers if a redraw is actually going to be required.
+
+            const handlers = {
+                onclick: onClick,
+
+                onmousedown: onMouseDown,
+                onmousemove: dragging ? onMouseMove : undefined,
+                onmouseout: dragging ? onMouseOut : undefined,
+                onmouseup: onMouseUp,
+
+                ontouchend: onTouchEnd,
+                ontouchmove: dragging ? onTouchMove : undefined,
+                ontouchstart: onTouchStart,
+            };
+
             return m(
                 'canvas',
                 {
@@ -884,14 +900,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                         width: `${cssPixelsWidth}px`,
                         height: `${cssPixelsHeight}px`,
                     },
-                    onclick: onClick,
-                    onmousedown: onMouseDown,
-                    onmousemove: onMouseMove,
-                    onmouseout: onMouseOut,
-                    onmouseup: onMouseUp,
-                    ontouchend: onTouchEnd,
-                    ontouchmove: onTouchMove,
-                    ontouchstart: onTouchStart,
+                    ...handlers,
                 },
             );
         },
