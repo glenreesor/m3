@@ -366,6 +366,85 @@ export default (() => {
         hasUnsavedChanges: ():boolean => state.hasUnsavedChanges,
 
         /**
+         * Move the specified node down in its list of siblings
+         *
+         * @param nodeId The ID of the node to move
+         */
+        moveNodeDownInSiblingList: (nodeId: number) => {
+            const thisNode = safeGetNode(nodeId, 'moveNodeUpInSiblingList');
+            const { parentId } = thisNode;
+
+            if (parentId === undefined) {
+                return;
+            }
+
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const parentNode = safeGetNode(
+                    parentId,
+                    'moveNodeUpInSiblingList',
+                    draftDoc,
+                );
+
+                const allSiblings = parentNode.childIds;
+                const thisNodeIndex = allSiblings.indexOf(nodeId);
+
+                if (allSiblings.length !== 1) {
+                    if (thisNodeIndex === allSiblings.length - 1) {
+                        allSiblings.pop();
+                        allSiblings.unshift(nodeId);
+                    } else {
+                        const lowerSiblingId = allSiblings[thisNodeIndex + 1];
+                        allSiblings[thisNodeIndex + 1] = nodeId;
+                        allSiblings[thisNodeIndex] = lowerSiblingId;
+                    }
+                }
+
+                parentNode.childIds = allSiblings;
+            });
+
+            applyNewDocToUndoStack(newDoc);
+        },
+        /**
+         * Move the specified node up in its list of siblings
+         *
+         * @param nodeId The ID of the node to move
+         */
+        moveNodeUpInSiblingList: (nodeId: number) => {
+            const thisNode = safeGetNode(nodeId, 'moveNodeUpInSiblingList');
+            const { parentId } = thisNode;
+
+            if (parentId === undefined) {
+                return;
+            }
+
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const parentNode = safeGetNode(
+                    parentId,
+                    'moveNodeUpInSiblingList',
+                    draftDoc,
+                );
+
+                const allSiblings = parentNode.childIds;
+                const thisNodeIndex = allSiblings.indexOf(nodeId);
+
+                if (allSiblings.length !== 1) {
+                    if (thisNodeIndex === 0) {
+                        allSiblings.shift();
+                        allSiblings.push(nodeId);
+                    } else {
+                        const higherSiblingId = allSiblings[thisNodeIndex - 1];
+                        allSiblings[thisNodeIndex - 1] = nodeId;
+                        allSiblings[thisNodeIndex] = higherSiblingId;
+                    }
+                }
+
+                parentNode.childIds = allSiblings;
+            });
+
+            applyNewDocToUndoStack(newDoc);
+        },
+
+        /**
          * Redo the last editor change (do nothing if no redo available)
          */
         redo: () => {

@@ -3,6 +3,7 @@ import * as m from 'mithril';
 import state from '../state/state';
 import EditMenu from './menus/EditMenu';
 import FileMenu from './menus/FileMenu';
+import MoveNodeMenu from './menus/MoveNodeMenu';
 import SizeSettingsMenu from './menus/SizeSettingsMenu';
 import UndoRedoMenu from './menus/UndoRedoMenu';
 
@@ -20,6 +21,9 @@ function Menu(): m.Component {
 
             case 'file':
                 return m(FileMenu);
+
+            case 'moveNode':
+                return m(MoveNodeMenu);
 
             case 'sizeSettings':
                 return m(SizeSettingsMenu);

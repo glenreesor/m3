@@ -41,7 +41,7 @@ function Sidebar(): m.Component {
                             right: '0',
                             'font-size': `${state.ui.getCurrentFontSize()}px`,
                             width: '100px',
-                            height: `${state.ui.getCurrentFontSize() * 12}px`,
+                            height: `${state.ui.getCurrentFontSize() * 14}px`,
                             'text-align': 'center',
                             'z-index': '20',
                         },
@@ -71,6 +71,19 @@ function Sidebar(): m.Component {
                                 },
                             },
                             'Edit',
+                        ),
+                        m('br'),
+                        m('br'),
+                        m(
+                            'a',
+                            {
+                                href: '#',
+                                onclick: () => {
+                                    state.ui.setCurrentMenu('moveNode');
+                                    state.ui.setSidebarVisibility(false);
+                                },
+                            },
+                            'Move Node',
                         ),
                         m('br'),
                         m('br'),
