@@ -124,8 +124,7 @@ export function renameDocument(currentName: string, newName: string): number {
 }
 
 /**
- * Save a document in localStorage. Prompt the user for a name if `docName`
- * is ''.
+ * Save a document in localStorage
  *
  * @param replaceExisting Whether replacing an existing document of the same
  *                        name is permitted
