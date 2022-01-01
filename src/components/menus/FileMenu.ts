@@ -158,11 +158,13 @@ function onFileNewButtonClick() {
             onYesButtonClick: () => {
                 state.doc.replaceCurrentDocWithNewEmptyDoc();
                 state.ui.setCurrentModal('none');
+                state.ui.setResetDueToNewDoc(true);
             },
             onNoButtonClick: () => state.ui.setCurrentModal('none'),
         });
     } else {
         state.doc.replaceCurrentDocWithNewEmptyDoc();
+        state.ui.setResetDueToNewDoc(true);
     }
 }
 

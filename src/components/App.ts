@@ -138,6 +138,7 @@ function App(): m.Component {
                     onFileContentsRead: (fileContents) => {
                         importFile(fileContents);
                         state.ui.setCurrentModal('none');
+                        state.ui.setResetDueToNewDoc(true);
 
                         // This state change was triggered by an async fileReader
                         // operation, not a DOM event, thus we need to trigger
@@ -163,6 +164,7 @@ function App(): m.Component {
                                 documentAsJson,
                             );
                             state.ui.setCurrentModal('none');
+                            state.ui.setResetDueToNewDoc(true);
                         }
                     },
                 },
@@ -232,6 +234,8 @@ function App(): m.Component {
         view: (): m.Vnode => {
             const documentName = state.doc.getDocName();
             const hasUnsavedChanges = state.doc.hasUnsavedChanges();
+            const performReset = state.ui.getResetDueToNewDoc();
+            state.ui.setResetDueToNewDoc(false);
 
             return m(
                 'div',
@@ -239,7 +243,13 @@ function App(): m.Component {
                     getOptionalModalMarkup(),
                     getOptionalSidebar(),
                     m(DocumentHeader, { documentName, hasUnsavedChanges }),
-                    m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
+                    m(
+                        DisplayedDocument,
+                        {
+                            documentDimensions: getDocumentDimensions(),
+                            performReset,
+                        },
+                    ),
                     m(Menu),
                 ],
             );

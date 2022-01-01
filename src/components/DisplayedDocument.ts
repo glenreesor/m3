@@ -7,6 +7,7 @@ interface Attrs {
         height: number,
         width: number,
     },
+    performReset: boolean,
 }
 
 /**
@@ -737,6 +738,17 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
+            if (vnode.attrs.performReset) {
+                // Perform a reset of translation data due to a new document
+                // having been loaded
+                ctx.translate(
+                    -cumulativeCanvasTranslation.x,
+                    -cumulativeCanvasTranslation.y,
+                );
+                cumulativeCanvasTranslation.x = 0;
+                cumulativeCanvasTranslation.y = 0;
+            }
+
             fontSize = uiState.getCurrentFontSize();
 
             // Canvas elements reset their scale and translation when their
