@@ -14,6 +14,9 @@ import redoButtonDisabled from './images/redo-disabled.svg';
 import undoButton from './images/undo.svg';
 import undoButtonDisabled from './images/undo-disabled.svg';
 
+import fileSaveButton from './images/file-save.svg';
+import { onSaveButtonClick } from './FileMenu';
+
 import { MENU_ICONS_HEIGHT, MENU_ICONS_WIDTH } from './constants';
 
 /**
@@ -30,6 +33,19 @@ function EditMenu(): m.Component {
             return m(
                 'div',
                 { style: 'text-align: right' },
+
+                // Save Button -- not really an "Edit" thing, but put it here
+                // for user convenience
+                m(
+                    'img',
+                    {
+                        onclick: onSaveButtonClick,
+                        src: fileSaveButton,
+                        width: MENU_ICONS_WIDTH,
+                        height: MENU_ICONS_HEIGHT,
+                        style: 'margin: 2px;',
+                    },
+                ),
 
                 // Undo
                 m(

@@ -166,7 +166,10 @@ function onFileNewButtonClick() {
     }
 }
 
-function onSaveButtonClick() {
+/**
+ * Handle clicking of the save button
+ */
+export function onSaveButtonClick() {
     const docName = state.doc.getDocName();
     if (docName === '') {
         state.ui.setCurrentModal('fileSave');
