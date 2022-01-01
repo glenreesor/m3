@@ -1,5 +1,7 @@
 import * as m from 'mithril';
 
+import state from '../state/state';
+
 export interface TextInputModalAttributes {
     initialValue: string,
     onCancel: () => void,
@@ -52,7 +54,10 @@ function TextInputModal(): m.Component<TextInputModalAttributes> {
                     'input',
                     {
                         value: inputValue,
-                        style: `width: ${window.innerWidth / 2}px`,
+                        style: {
+                            fontSize: `${state.ui.getCurrentFontSize()}px`,
+                            width: `${window.innerWidth / 2}px`,
+                        },
                         oninput: onInputValueChange,
                         onkeyup: (e: KeyboardEvent) => onInputKeyUp(e, attrs),
                     },
