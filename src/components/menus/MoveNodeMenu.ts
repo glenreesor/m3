@@ -24,37 +24,37 @@ import hamburgerMenuButton from './images/hamburger-button.svg';
 import { MENU_ICONS_HEIGHT, MENU_ICONS_WIDTH } from './constants';
 
 /**
- * A component that renders the Size Settings menu
+ * A component that renders the Move Node menu
  *
  * @returns An object to be consumed by m()
  */
-function SizeSettingsMenu(): m.Component {
+function MoveNodeMenu(): m.Component {
     return {
         view: (): m.Vnode => m(
             'div',
             { style: 'text-align: right' },
             [
-                // Increase font size
+                // Move node up
                 m(
                     'button',
                     {
-                        onclick: onFontSizeIncreaseButtonClick,
+                        onclick: onMoveNodeUpButtonClick,
                         style: {
                             marginRight: '20px',
                         },
                     },
-                    'Font +',
+                    'Up',
                 ),
                 // Decrease font size
                 m(
                     'button',
                     {
-                        onclick: onFontSizeDecreaseButtonClick,
+                        onclick: onMoveNodeDownButtonClick,
                         style: {
                             marginRight: '20px',
                         },
                     },
-                    'Font -',
+                    'Down',
                 ),
                 // Sidebar Button
                 m(
@@ -72,16 +72,12 @@ function SizeSettingsMenu(): m.Component {
     };
 }
 
-function onFontSizeDecreaseButtonClick() {
-    state.ui.setCurrentFontSize(
-        state.ui.getCurrentFontSize() - 0.5,
-    );
+function onMoveNodeDownButtonClick() {
+    state.doc.moveNodeDownInSiblingList(state.doc.getSelectedNodeId());
 }
 
-function onFontSizeIncreaseButtonClick() {
-    state.ui.setCurrentFontSize(
-        state.ui.getCurrentFontSize() + 0.5,
-    );
+function onMoveNodeUpButtonClick() {
+    state.doc.moveNodeUpInSiblingList(state.doc.getSelectedNodeId());
 }
 
-export default SizeSettingsMenu;
+export default MoveNodeMenu;

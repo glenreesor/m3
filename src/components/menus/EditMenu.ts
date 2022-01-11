@@ -1,3 +1,20 @@
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
 import * as m from 'mithril';
 
 import state from '../../state/state';
@@ -9,10 +26,9 @@ import deleteNodeButton from './images/delete-node.svg';
 import deleteNodeButtonDisabled from './images/delete-node-disabled.svg';
 import editNodeButton from './images/edit-node.svg';
 import hamburgerMenuButton from './images/hamburger-button.svg';
-import redoButton from './images/redo.svg';
-import redoButtonDisabled from './images/redo-disabled.svg';
-import undoButton from './images/undo.svg';
-import undoButtonDisabled from './images/undo-disabled.svg';
+
+import fileSaveButton from './images/file-save.svg';
+import { onSaveButtonClick } from './FileMenu';
 
 import { MENU_ICONS_HEIGHT, MENU_ICONS_WIDTH } from './constants';
 
@@ -29,99 +45,98 @@ function EditMenu(): m.Component {
 
             return m(
                 'div',
-                { style: 'text-align: right' },
-
-                // Undo
-                m(
-                    'img',
-                    {
-                        src: state.doc.getUndoIsAvailable()
-                            ? undoButton
-                            : undoButtonDisabled,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onUndoButtonButtonClick,
+                {
+                    style: {
+                        display: 'flex',
+                        justifyContent: 'space-between',
                     },
-                ),
+                },
 
-                // Redo
-                m(
-                    'img',
-                    {
-                        src: state.doc.getRedoIsAvailable()
-                            ? redoButton
-                            : redoButtonDisabled,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onRedoButtonClick,
-                    },
-                ),
+                [
+                // Save Button -- not really an "Edit" thing, but put it here
+                // for user convenience
+                    m(
+                        'div',
+                        m(
+                            'img',
+                            {
+                                onclick: onSaveButtonClick,
+                                src: fileSaveButton,
+                                width: MENU_ICONS_WIDTH,
+                                height: MENU_ICONS_HEIGHT,
+                                style: 'margin: 2px;',
+                            },
+                        ),
+                    ),
+                ],
+                [
+                    m(
+                        'div',
+                        // Delete Node
+                        m(
+                            'img',
+                            {
+                                src: selectedNodeId === rootNodeId
+                                    ? deleteNodeButtonDisabled
+                                    : deleteNodeButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onDeleteNodeButtonClick,
+                            },
+                        ),
 
-                // Delete Node
-                m(
-                    'img',
-                    {
-                        src: selectedNodeId === rootNodeId
-                            ? deleteNodeButtonDisabled
-                            : deleteNodeButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onDeleteNodeButtonClick,
-                    },
-                ),
+                        // Edit Node
+                        m(
+                            'img',
+                            {
+                                src: editNodeButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onReplaceNodeContentsButtonClick,
+                            },
+                        ),
 
-                // Edit Node
-                m(
-                    'img',
-                    {
-                        src: editNodeButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onReplaceNodeContentsButtonClick,
-                    },
-                ),
+                        // Add Child
+                        m(
+                            'img',
+                            {
+                                src: addChildButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onAddChildButtonClick,
+                            },
+                        ),
 
-                // Add Child
-                m(
-                    'img',
-                    {
-                        src: addChildButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onAddChildButtonClick,
-                    },
-                ),
+                        // Add Sibling
+                        m(
+                            'img',
+                            {
+                                src: selectedNodeId === rootNodeId
+                                    ? addSiblingButtonDisabled
+                                    : addSiblingButton,
+                                height: MENU_ICONS_HEIGHT,
+                                width: MENU_ICONS_WIDTH,
+                                style: 'margin: 2px;',
+                                onclick: onAddSiblingButtonClick,
+                            },
+                        ),
 
-                // Add Sibling
-                m(
-                    'img',
-                    {
-                        src: selectedNodeId === rootNodeId
-                            ? addSiblingButtonDisabled
-                            : addSiblingButton,
-                        height: MENU_ICONS_HEIGHT,
-                        width: MENU_ICONS_WIDTH,
-                        style: 'margin: 2px;',
-                        onclick: onAddSiblingButtonClick,
-                    },
-                ),
-
-                // Sidebar Button
-                m(
-                    'img',
-                    {
-                        src: hamburgerMenuButton,
-                        width: MENU_ICONS_WIDTH,
-                        height: MENU_ICONS_HEIGHT,
-                        style: 'margin: 2px;',
-                        onclick: () => state.ui.setSidebarVisibility(true),
-                    },
-                ),
+                        // Sidebar Button
+                        m(
+                            'img',
+                            {
+                                src: hamburgerMenuButton,
+                                width: MENU_ICONS_WIDTH,
+                                height: MENU_ICONS_HEIGHT,
+                                style: 'margin: 2px;',
+                                onclick: () => state.ui.setSidebarVisibility(true),
+                            },
+                        ),
+                    ),
+                ],
             );
         },
     };
@@ -132,23 +147,25 @@ function onAddChildButtonClick() {
 }
 
 function onAddSiblingButtonClick() {
-    state.ui.setCurrentModal('addSibling');
+    const rootNodeId = state.doc.getRootNodeId();
+    const selectedNodeId = state.doc.getSelectedNodeId();
+
+    if (selectedNodeId !== rootNodeId) {
+        state.ui.setCurrentModal('addSibling');
+    }
 }
 
 function onDeleteNodeButtonClick() {
-    state.doc.deleteNode(state.doc.getSelectedNodeId());
-}
+    const rootNodeId = state.doc.getRootNodeId();
+    const selectedNodeId = state.doc.getSelectedNodeId();
 
-function onRedoButtonClick() {
-    state.doc.redo();
+    if (selectedNodeId !== rootNodeId) {
+        state.doc.deleteNode(state.doc.getSelectedNodeId());
+    }
 }
 
 function onReplaceNodeContentsButtonClick() {
     state.ui.setCurrentModal('editNode');
-}
-
-function onUndoButtonButtonClick() {
-    state.doc.undo();
 }
 
 export default EditMenu;

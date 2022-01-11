@@ -1,3 +1,20 @@
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
 import * as m from 'mithril';
 import documentState from '../state/documentState';
 import uiState from '../state/uiState';
@@ -7,6 +24,7 @@ interface Attrs {
         height: number,
         width: number,
     },
+    performReset: boolean,
 }
 
 /**
@@ -110,6 +128,8 @@ function DisplayedDocument(): m.Component<Attrs> {
         y: 5,
     };
 
+    const NODE_LINES_VERTICAL_PADDING = 4;
+
     const devicePixelRatio = window.devicePixelRatio || 1;
 
     let fontSize = uiState.getCurrentFontSize();
@@ -154,12 +174,19 @@ function DisplayedDocument(): m.Component<Attrs> {
      */
     function calculateDimensions(allDimensions: AllDimensions, nodeId: number) {
         // Determine dimensions for the specified node's contents
-        const textMetrics = ctx.measureText(
-            documentState.getNodeContents(nodeId),
+        const linesForThisNode = getNodeLines(documentState.getNodeContents(nodeId));
+        const maxLineWidth = linesForThisNode.reduce(
+            (acc, line) => {
+                const textMetrics = ctx.measureText(line);
+                return textMetrics.width > acc ? textMetrics.width : acc;
+            },
+            0,
         );
         const bubbleDim = {
-            h: fontSize + 2 * NODE_PADDING.y,
-            w: textMetrics.width + 2 * NODE_PADDING.x,
+            h: (fontSize * linesForThisNode.length) +
+                NODE_LINES_VERTICAL_PADDING * (linesForThisNode.length - 1) +
+                2 * NODE_PADDING.y,
+            w: maxLineWidth + 2 * NODE_PADDING.x,
         };
 
         let totalChildrenHeight = 0;
@@ -240,6 +267,49 @@ function DisplayedDocument(): m.Component<Attrs> {
     function dragStart(x: number, y: number) {
         dragging = true;
         previousPointerCoords = { x, y };
+    }
+
+    /**
+     * Get the lines of text to be rendered from the specified contents.
+     * There will only be multiple lines if the contents, when rendered,
+     * will be longer than our max node width
+     *
+     * @param contents The contents of the node to be rendered
+     *
+     * @returns The lines to render, such that no line is longer than the
+     *          maximum
+     */
+    function getNodeLines(contents: string): string[] {
+        const lines = [];
+        let remainingContents = contents.slice();
+
+        while (remainingContents !== '') {
+            let lastChar = remainingContents.length - 1;
+            let requiredWidth = ctx.measureText(
+                remainingContents.substring(0, lastChar + 1),
+            ).width;
+
+            while (
+                requiredWidth > 0.75 * currentDocDimensions.width &&
+                lastChar > 0
+            ) {
+                lastChar -= 1;
+                while (
+                    remainingContents.charAt(lastChar) !== ' ' &&
+                    lastChar > 0
+                ) {
+                    lastChar -= 1;
+                }
+                requiredWidth = ctx.measureText(
+                    remainingContents.substring(0, lastChar + 1),
+                ).width;
+            }
+
+            lines.push(remainingContents.substring(0, lastChar + 1));
+            remainingContents = remainingContents.slice(lastChar + 1);
+        }
+
+        return lines;
     }
 
     /**
@@ -539,11 +609,17 @@ function DisplayedDocument(): m.Component<Attrs> {
         nodeId: number,
     ) {
         // Remember that (x,y) for text is bottom left corner
-        ctx.fillText(
-            documentState.getNodeContents(nodeId),
-            bubblePos.x + NODE_PADDING.x,
-            bubblePos.y + myDims.bubbleHeight - NODE_PADDING.y,
-        );
+        const linesForThisNode = getNodeLines(documentState.getNodeContents(nodeId));
+        let textY = bubblePos.y + fontSize + NODE_PADDING.y / 2;
+
+        linesForThisNode.forEach((line) => {
+            ctx.fillText(
+                line,
+                bubblePos.x + NODE_PADDING.x,
+                textY,
+            );
+            textY += fontSize + NODE_LINES_VERTICAL_PADDING;
+        });
 
         // Style the bubble based on whether this node is selected
         if (documentState.getSelectedNodeId() === nodeId) {
@@ -737,6 +813,17 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
+            if (vnode.attrs.performReset) {
+                // Perform a reset of translation data due to a new document
+                // having been loaded
+                ctx.translate(
+                    -cumulativeCanvasTranslation.x,
+                    -cumulativeCanvasTranslation.y,
+                );
+                cumulativeCanvasTranslation.x = 0;
+                cumulativeCanvasTranslation.y = 0;
+            }
+
             fontSize = uiState.getCurrentFontSize();
 
             // Canvas elements reset their scale and translation when their
@@ -804,6 +891,22 @@ function DisplayedDocument(): m.Component<Attrs> {
             const canvasActualWidth = cssPixelsWidth * devicePixelRatio;
             const canvasActualHeight = cssPixelsHeight * devicePixelRatio;
 
+            // Event handlers trigger Mithril redraws. So only define
+            // movement handlers if a redraw is actually going to be required.
+
+            const handlers = {
+                onclick: onClick,
+
+                onmousedown: onMouseDown,
+                onmousemove: dragging ? onMouseMove : undefined,
+                onmouseout: dragging ? onMouseOut : undefined,
+                onmouseup: onMouseUp,
+
+                ontouchend: onTouchEnd,
+                ontouchmove: dragging ? onTouchMove : undefined,
+                ontouchstart: onTouchStart,
+            };
+
             return m(
                 'canvas',
                 {
@@ -814,14 +917,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                         width: `${cssPixelsWidth}px`,
                         height: `${cssPixelsHeight}px`,
                     },
-                    onclick: onClick,
-                    onmousedown: onMouseDown,
-                    onmousemove: onMouseMove,
-                    onmouseout: onMouseOut,
-                    onmouseup: onMouseUp,
-                    ontouchend: onTouchEnd,
-                    ontouchmove: onTouchMove,
-                    ontouchstart: onTouchStart,
+                    ...handlers,
                 },
             );
         },

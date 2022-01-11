@@ -1,7 +1,24 @@
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
 import * as m from 'mithril';
 
 import { deleteDocument, getSavedDocumentList, renameDocument } from '../utils/file';
-import uiState from '../state/state';
+import state from '../state/state';
 
 export interface MiscFileOpsModalAttributes {
     onClose: () => void,
@@ -58,7 +75,7 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
 
     function getCurrentDocsMarkup(attrs: MiscFileOpsModalAttributes) {
         const currentFilenamesMarkup:Array<m.Vnode> = [];
-        const currentDocName = uiState.doc.getDocName();
+        const currentDocName = state.doc.getDocName();
 
         getSavedDocumentList().forEach((filename, index) => {
             currentFilenamesMarkup.push(
@@ -68,6 +85,7 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
                         // TODO: Fix using nth child stuff
                         style: {
                             background: '#ffffff',
+                            fontSize: `${state.ui.getCurrentFontSize()}px`,
                             paddingTop: index === 0 ? '10px' : '0',
                             paddingBottom: '10px',
                             paddingLeft: '20px',
@@ -96,7 +114,10 @@ function MiscFileOpsModal(): m.Component<MiscFileOpsModalAttributes> {
                                 'input',
                                 {
                                     value: renameValue,
-                                    style: `width: ${window.innerWidth / 2}px`,
+                                    style: {
+                                        fontSize: `${state.ui.getCurrentFontSize()}px`,
+                                        width: `${window.innerWidth / 2}px`,
+                                    },
                                     oninput: onRenameValueChange,
                                 },
                             ),

@@ -1,4 +1,23 @@
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
 import * as m from 'mithril';
+
+import state from '../state/state';
 
 export interface TextInputModalAttributes {
     initialValue: string,
@@ -52,7 +71,10 @@ function TextInputModal(): m.Component<TextInputModalAttributes> {
                     'input',
                     {
                         value: inputValue,
-                        style: `width: ${window.innerWidth / 2}px`,
+                        style: {
+                            fontSize: `${state.ui.getCurrentFontSize()}px`,
+                            width: `${0.75 * window.innerWidth}px`,
+                        },
                         oninput: onInputValueChange,
                         onkeyup: (e: KeyboardEvent) => onInputKeyUp(e, attrs),
                     },

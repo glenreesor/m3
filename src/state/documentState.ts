@@ -1,3 +1,20 @@
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
 import produce, { enableAllPlugins } from 'immer';
 
 enableAllPlugins();
@@ -364,6 +381,85 @@ export default (() => {
          * @returns Whether doc has been modified
          */
         hasUnsavedChanges: ():boolean => state.hasUnsavedChanges,
+
+        /**
+         * Move the specified node down in its list of siblings
+         *
+         * @param nodeId The ID of the node to move
+         */
+        moveNodeDownInSiblingList: (nodeId: number) => {
+            const thisNode = safeGetNode(nodeId, 'moveNodeUpInSiblingList');
+            const { parentId } = thisNode;
+
+            if (parentId === undefined) {
+                return;
+            }
+
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const parentNode = safeGetNode(
+                    parentId,
+                    'moveNodeUpInSiblingList',
+                    draftDoc,
+                );
+
+                const allSiblings = parentNode.childIds;
+                const thisNodeIndex = allSiblings.indexOf(nodeId);
+
+                if (allSiblings.length !== 1) {
+                    if (thisNodeIndex === allSiblings.length - 1) {
+                        allSiblings.pop();
+                        allSiblings.unshift(nodeId);
+                    } else {
+                        const lowerSiblingId = allSiblings[thisNodeIndex + 1];
+                        allSiblings[thisNodeIndex + 1] = nodeId;
+                        allSiblings[thisNodeIndex] = lowerSiblingId;
+                    }
+                }
+
+                parentNode.childIds = allSiblings;
+            });
+
+            applyNewDocToUndoStack(newDoc);
+        },
+        /**
+         * Move the specified node up in its list of siblings
+         *
+         * @param nodeId The ID of the node to move
+         */
+        moveNodeUpInSiblingList: (nodeId: number) => {
+            const thisNode = safeGetNode(nodeId, 'moveNodeUpInSiblingList');
+            const { parentId } = thisNode;
+
+            if (parentId === undefined) {
+                return;
+            }
+
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                const parentNode = safeGetNode(
+                    parentId,
+                    'moveNodeUpInSiblingList',
+                    draftDoc,
+                );
+
+                const allSiblings = parentNode.childIds;
+                const thisNodeIndex = allSiblings.indexOf(nodeId);
+
+                if (allSiblings.length !== 1) {
+                    if (thisNodeIndex === 0) {
+                        allSiblings.shift();
+                        allSiblings.push(nodeId);
+                    } else {
+                        const higherSiblingId = allSiblings[thisNodeIndex - 1];
+                        allSiblings[thisNodeIndex - 1] = nodeId;
+                        allSiblings[thisNodeIndex] = higherSiblingId;
+                    }
+                }
+
+                parentNode.childIds = allSiblings;
+            });
+
+            applyNewDocToUndoStack(newDoc);
+        },
 
         /**
          * Redo the last editor change (do nothing if no redo available)

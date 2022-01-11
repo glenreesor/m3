@@ -1,3 +1,20 @@
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
 import * as m from 'mithril';
 
 import state from '../state/state';
@@ -36,9 +53,12 @@ function FileExportModal(): m.Component<FileExportModalAttributes> {
 
         /* eslint-disable prefer-template */
         const formattedDate = dateNow.getFullYear() + '-' +
-            getNumberAsZeroPaddedTwoDigits(dateNow.getMonth()) + '-' +
-            getNumberAsZeroPaddedTwoDigits(dateNow.getDay()) +
-            '::' +
+
+            // Don't forget JS months are zero-based. omg
+            getNumberAsZeroPaddedTwoDigits(dateNow.getMonth() + 1) + '-' +
+
+            getNumberAsZeroPaddedTwoDigits(dateNow.getDate()) +
+            '---' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getHours()) + ':' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getMinutes()) + ':' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getSeconds());
@@ -57,7 +77,7 @@ function FileExportModal(): m.Component<FileExportModalAttributes> {
                     background: '#dddddd',
                     padding: '10px',
                     border: '2px solid blue',
-                    fontSize: '14px',
+                    fontSize: `${state.ui.getCurrentFontSize()}px`,
                     position: 'fixed',
                     left: '50%',
                     top: '35%',

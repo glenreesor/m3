@@ -1,8 +1,25 @@
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
 import * as m from 'mithril';
 
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
-import BinaryModal, { BinaryModalAttributes } from './BinaryModal';
+import BinaryModal from './BinaryModal';
 import FileExportModal, { FileExportModalAttributes } from './FileExportModal';
 import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
@@ -16,6 +33,7 @@ import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
 
 import state from '../state/state';
+import { BinaryModalAttributes } from '../state/uiState';
 
 /**
  * A component that contains the entire app.
@@ -138,6 +156,7 @@ function App(): m.Component {
                     onFileContentsRead: (fileContents) => {
                         importFile(fileContents);
                         state.ui.setCurrentModal('none');
+                        state.ui.setResetDueToNewDoc(true);
 
                         // This state change was triggered by an async fileReader
                         // operation, not a DOM event, thus we need to trigger
@@ -163,6 +182,7 @@ function App(): m.Component {
                                 documentAsJson,
                             );
                             state.ui.setCurrentModal('none');
+                            state.ui.setResetDueToNewDoc(true);
                         }
                     },
                 },
@@ -232,6 +252,8 @@ function App(): m.Component {
         view: (): m.Vnode => {
             const documentName = state.doc.getDocName();
             const hasUnsavedChanges = state.doc.hasUnsavedChanges();
+            const performReset = state.ui.getResetDueToNewDoc();
+            state.ui.setResetDueToNewDoc(false);
 
             return m(
                 'div',
@@ -239,7 +261,13 @@ function App(): m.Component {
                     getOptionalModalMarkup(),
                     getOptionalSidebar(),
                     m(DocumentHeader, { documentName, hasUnsavedChanges }),
-                    m(DisplayedDocument, { documentDimensions: getDocumentDimensions() }),
+                    m(
+                        DisplayedDocument,
+                        {
+                            documentDimensions: getDocumentDimensions(),
+                            performReset,
+                        },
+                    ),
                     m(Menu),
                 ],
             );

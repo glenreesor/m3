@@ -1,4 +1,27 @@
-import { BinaryModalAttributes } from '../components/BinaryModal';
+// Copyright 2022 Glen Reesor
+//
+// This file is part of m3 Mobile Mind Mapper.
+//
+// m3 Mobile Mind Mapper is free software: you can redistribute it and/or
+// modify it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// m3 Mobile Mind Mapper is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// m3 Mobile Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
+
+export interface BinaryModalAttributes {
+    prompt: string,
+    yesButtonText: string,
+    noButtonText: string,
+    onYesButtonClick: () => void,
+    onNoButtonClick: () => void,
+}
 
 /**
  * An immediately invoked function expression that returns an object with
@@ -20,13 +43,14 @@ export default (() => {
         'fileSave' |
         'miscFileOps'
     );
-    type MenuType = 'edit' | 'file' | 'sizeSettings';
+    type MenuType = 'edit' | 'file' | 'moveNode' | 'sizeSettings' | 'undoRedo';
 
     interface State {
         binaryModalAttrs?: BinaryModalAttributes,
         currentMenu: MenuType,
         currentModal: ModalType,
         fontSize: number,
+        resetDueToNewDoc: boolean,
         sidebarIsVisible: boolean,
     }
 
@@ -34,7 +58,8 @@ export default (() => {
         binaryModalAttrs: undefined,
         currentMenu: 'edit',
         currentModal: 'none',
-        fontSize: 12,
+        fontSize: 14,
+        resetDueToNewDoc: false,
         sidebarIsVisible: false,
     };
 
@@ -60,5 +85,9 @@ export default (() => {
             state.sidebarIsVisible = visible;
         },
 
+        getResetDueToNewDoc: () => state.resetDueToNewDoc,
+        setResetDueToNewDoc: (value: boolean) => {
+            state.resetDueToNewDoc = value;
+        },
     };
 })();
