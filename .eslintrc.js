@@ -16,6 +16,7 @@ module.exports = {
     plugins: [
         '@typescript-eslint',
     ],
+    ignorePatterns: ['*.json', '*.json'],
     rules: {
         /* eslint-disable indent */
 
