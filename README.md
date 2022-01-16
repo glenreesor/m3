@@ -14,4 +14,7 @@ shortcomings and more. The
 new one is being developed, however expect the old one to eventually
 stop working.
 
-Stay tuned for more details on the new version!
+You may want to try out the [new version](https://glenreesor.ca/projects/m3-demo),
+but keep in mind it's still very much a work-in-progress, things may change
+(including the file format, which could make your data unretrievable), and will
+not work offline.
