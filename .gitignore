@@ -1,2 +1,3 @@
-node_modules
+.gitsummaryconfig
 dist
+node_modules
