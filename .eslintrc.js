@@ -2,6 +2,7 @@ module.exports = {
     env: {
         browser: true,
         es2021: true,
+        "jest/globals": true,
     },
     extends: [
         'airbnb-base',
@@ -16,6 +17,7 @@ module.exports = {
     plugins: [
         '@typescript-eslint',
     ],
+    ignorePatterns: ['*.json'],
     rules: {
         /* eslint-disable indent */
 

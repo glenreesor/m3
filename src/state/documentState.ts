@@ -191,12 +191,14 @@ export default (() => {
         },
 
         /**
-         * Add a sibling to the specified node using the specified contents
+         * Add a sibling to the specified node using the specified contents.
+         * The added node will be after the specified node.
          *
          * @param siblingNodeId The ID of the node this will be a sibling to
          * @param childContents The contents for the new node
          *
-         * @returns The ID of the newly added node
+         * @returns The ID of the newly added node or -1 if the specified
+         *          sibling node is the root.
          */
         addSibling: (siblingNodeId: number, childContents: string): number => {
             const siblingNode = safeGetNode(siblingNodeId, 'addSibling');
