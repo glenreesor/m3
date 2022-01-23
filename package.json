@@ -37,7 +37,7 @@
         "webpack-merge": "^5.8.0"
     },
     "dependencies": {
-        "immer": "^8.0.4",
+        "immer": "^9.0.12",
         "mithril": "^2.0.4"
     }
 }
