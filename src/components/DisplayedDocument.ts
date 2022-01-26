@@ -796,7 +796,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             //------------------------------------------------------------------
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = '#000000';
-            ctx.font = `${fontSize}px sans-serif`;
+            ctx.font = `${fontSize}px Barlow Regular`;
 
             const rootNodeId = documentState.getRootNodeId();
             const allDimensions = new Map();
@@ -864,7 +864,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             //------------------------------------------------------------------
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = '#000000';
-            ctx.font = `${fontSize}px sans-serif`;
+            ctx.font = `${fontSize}px Barlow Regular`;
 
             const rootNodeId = documentState.getRootNodeId();
             const allDimensions = new Map();
