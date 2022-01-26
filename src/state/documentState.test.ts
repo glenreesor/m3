@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import docState from "./documentState";
+import docState from './documentState';
 
 function docIsInInitialState(): boolean {
     const rootNodeId = docState.getRootNodeId();
@@ -53,7 +53,7 @@ describe('addChild', () => {
         const rootNodeId = docState.getRootNodeId();
         const existingChildId = docState.addChild(
             rootNodeId,
-            'existing child'
+            'existing child',
         );
 
         const newChildContentsSrc = 'new child';
@@ -67,7 +67,6 @@ describe('addChild', () => {
     });
 
     it('retains previous doc state on the undo stack', () => {
-
         const rootNodeId = docState.getRootNodeId();
         docState.addChild(rootNodeId, 'new child');
         docState.undo();
@@ -99,7 +98,7 @@ describe('addSibling', () => {
 
         const newSiblingId = docState.addSibling(
             existingSiblingId,
-            newSiblingContentsSrc
+            newSiblingContentsSrc,
         );
 
         const rootChildren = docState.getNodeChildIds(rootNodeId);
@@ -126,7 +125,7 @@ describe('addSibling', () => {
 
         const newSiblingId = docState.addSibling(
             existingSiblingId1,
-            newSiblingContentsSrc
+            newSiblingContentsSrc,
         );
 
         const rootChildren = docState.getNodeChildIds(rootNodeId);
@@ -135,7 +134,7 @@ describe('addSibling', () => {
         expect(rootChildren).toStrictEqual([
             existingSiblingId1,
             newSiblingId,
-            existingSiblingId2
+            existingSiblingId2,
         ]);
         expect(newSiblingContents).toBe(newSiblingContentsSrc);
     });
@@ -147,7 +146,7 @@ describe('addSibling', () => {
 
         docState.addSibling(
             existingSiblingId,
-            newSiblingContentsSrc
+            newSiblingContentsSrc,
         );
 
         docState.undo();
@@ -217,7 +216,7 @@ describe('deleteNode', () => {
         const rootNodeId = docState.getRootNodeId();
         const nodeToDeleteId = docState.addChild(
             rootNodeId,
-            nodeToDeleteContentsSrc
+            nodeToDeleteContentsSrc,
         );
         docState.deleteNode(nodeToDeleteId);
         docState.undo();
@@ -226,7 +225,7 @@ describe('deleteNode', () => {
 
         expect(rootChildren).toStrictEqual([nodeToDeleteId]);
         expect(
-            docState.getNodeContents(nodeToDeleteId)
+            docState.getNodeContents(nodeToDeleteId),
         ).toBe(nodeToDeleteContentsSrc);
     });
 });
@@ -234,14 +233,14 @@ describe('deleteNode', () => {
 describe('getChildrenVisible', () => {
     it('returns true when there are no children', () => {
         const rootNodeId = docState.getRootNodeId();
-        expect(docState.getChildrenVisible(rootNodeId));
+        expect(docState.getChildrenVisible(rootNodeId)).toBe(true);
     });
 
     it('returns true when visibility has not been toggled', () => {
         const rootNodeId = docState.getRootNodeId();
         docState.addChild(rootNodeId, 'child node');
 
-        expect(docState.getChildrenVisible(rootNodeId));
+        expect(docState.getChildrenVisible(rootNodeId)).toBe(true);
     });
 
     it('returns false when visibility has been toggled', () => {
@@ -249,7 +248,7 @@ describe('getChildrenVisible', () => {
         docState.addChild(rootNodeId, 'child node');
         docState.toggleChildrenVisibility(rootNodeId);
 
-        expect(!docState.getChildrenVisible(rootNodeId));
+        expect(docState.getChildrenVisible(rootNodeId)).toBe(false);
     });
 });
 
@@ -306,7 +305,7 @@ describe('getCurrentDocAsJson', () => {
                 {
                     id: 0,
                     contents: 'New Map',
-                    childIds: [1,2],
+                    childIds: [1, 2],
                     childrenVisible: true,
                     parentId: undefined,
                 },
@@ -393,7 +392,6 @@ describe('getCurrentDocAsJson / replaceCurrentDocFromJson', () => {
         expect(newRootNodeId).toBe(0);
         expect(newRootChildren).toStrictEqual([1, 2]);
     });
-
 });
 
 describe('getDocName / setDocName', () => {
@@ -422,7 +420,7 @@ describe('getNodeChildIds', () => {
 });
 
 describe('getNodeContents', () => {
-    it('it returns the node contents', () => {
+    it('returns the node contents', () => {
         const rootNodeId = docState.getRootNodeId();
         const contents = docState.getNodeContents(rootNodeId);
 
@@ -467,6 +465,7 @@ describe('getRootNodeId', () => {
 });
 
 describe('getSelectedNodeId / setSelectedNodeId', () => {
+    it('gets/sets nodes', () => {
         const rootNodeId = docState.getRootNodeId();
         const childId = docState.addChild(rootNodeId, 'child');
 
@@ -474,6 +473,7 @@ describe('getSelectedNodeId / setSelectedNodeId', () => {
 
         docState.setSelectedNodeId(childId);
         expect(docState.getSelectedNodeId()).toBe(childId);
+    });
 });
 
 describe('getUndoIsAvailable', () => {
@@ -656,29 +656,23 @@ describe('redo / undo / getRedoIsAvailable / getUndoIsAvailable', () => {
 
         const reversedMapsBeforeChange = [...serializedMapsBeforeChange].reverse();
         reversedMapsBeforeChange.forEach((serializedMap, index) => {
+            const expectedUndoIsAvailable = (index !== serializedMapsBeforeChange.length - 1);
+
             docState.undo();
 
             expect(docState.getCurrentDocAsJson()).toStrictEqual(serializedMap);
             expect(docState.getRedoIsAvailable()).toBe(true);
-
-            if (index === serializedMapsBeforeChange.length - 1) {
-                expect(docState.getUndoIsAvailable()).toBe(false);
-            } else {
-                expect(docState.getUndoIsAvailable()).toBe(true);
-            }
+            expect(docState.getUndoIsAvailable()).toBe(expectedUndoIsAvailable);
         });
 
         serializedMapsAfterChange.forEach((serializedMap, index) => {
+            const expectedRedoIsAvailable = (index !== serializedMapsBeforeChange.length - 1);
+
             docState.redo();
 
             expect(docState.getCurrentDocAsJson()).toStrictEqual(serializedMap);
             expect(docState.getUndoIsAvailable()).toBe(true);
-
-            if (index === serializedMapsBeforeChange.length - 1){
-                expect(docState.getRedoIsAvailable()).toBe(false);
-            } else {
-                expect(docState.getRedoIsAvailable()).toBe(true);
-            }
+            expect(docState.getRedoIsAvailable()).toBe(expectedRedoIsAvailable);
         });
     });
 });
@@ -730,12 +724,14 @@ describe('replaceCurrentDocFromJson', () => {
 });
 
 describe('replaceCurrentDocWithNewEmptyDoc', () => {
-    const rootNodeId = docState.getRootNodeId();
-    docState.addChild(rootNodeId, 'child1');
-    docState.addChild(rootNodeId, 'child2');
+    it('replaces the document contents', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addChild(rootNodeId, 'child1');
+        docState.addChild(rootNodeId, 'child2');
 
-    docState.replaceCurrentDocWithNewEmptyDoc();
-    expect(docIsInInitialState()).toBe(true);
+        docState.replaceCurrentDocWithNewEmptyDoc();
+        expect(docIsInInitialState()).toBe(true);
+    });
 });
 
 describe('replaceNodeContents', () => {
