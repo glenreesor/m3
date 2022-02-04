@@ -135,7 +135,6 @@ export default (() => {
      * @param nodeId    The ID of the node to get
      * @param callingFn The name of the calling function, for exception message
      * @param doc       The document to search in
-     *
      * @returns Node The node
      */
     function safeGetNode(nodeId: number, callingFn: string, doc = getCurrentDoc()): Node {
@@ -163,7 +162,6 @@ export default (() => {
          *
          * @param parentNodeId  The ID of the parent
          * @param childContents The contents for the new node
-         *
          * @returns The ID of the newly added node
          */
         addChild: (parentNodeId: number, childContents: string): number => {
@@ -196,7 +194,6 @@ export default (() => {
          *
          * @param siblingNodeId The ID of the node this will be a sibling to
          * @param childContents The contents for the new node
-         *
          * @returns The ID of the newly added node or -1 if the specified
          *          sibling node is the root.
          */
@@ -281,7 +278,6 @@ export default (() => {
          * Get whether the children of the specified node are visible
          *
          * @param nodeId The node in question
-         *
          * @returns Whether the children are visible
          */
         getChildrenVisible: (nodeId: number):boolean => safeGetNode(
@@ -293,7 +289,6 @@ export default (() => {
          * Return the current doc as a JSON string
          *
          * @returns A string that can be used to recreate the current map
-         *
          */
         getCurrentDocAsJson: (): string => {
             const currentDoc = getCurrentDoc();
@@ -328,7 +323,6 @@ export default (() => {
          * Throw an exception if specified nodeId does not exist.
          *
          * @param nodeId The ID of the node whose children we want returned
-         *
          * @returns The node's children
          */
         getNodeChildIds: (nodeId: number):Array<number> => safeGetNode(
@@ -341,7 +335,6 @@ export default (() => {
          * Throw an exception if specified nodeId does not exist.
          *
          * @param nodeId The ID of the node whose contents we want returned
-         *
          * @returns The node's contents
          */
         getNodeContents: (nodeId: number):string => safeGetNode(

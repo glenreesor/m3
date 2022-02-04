@@ -41,7 +41,6 @@ const DOCUMENT_LIST_KEY = 'm3DocumentList';
  * Delete the document of the specified name
  *
  * @param documentName The name of the document to delete
- *
  * @returns The status of the delete operation
  */
 export function deleteDocument(documentName: string): number {
@@ -79,7 +78,6 @@ export function getSavedDocumentList(): string[] {
  * Get a document saved in localStorage
  *
  * @param name The name of the document to be retrieved
- *
  * @returns The document or an error code
  */
 export function getSavedDocument(name: string): string | number {
@@ -102,7 +100,6 @@ export function getSavedDocument(name: string): string | number {
  *
  * @param baseName The base of the new filename (characters will be appended
  *                 to this string as required in order to create a unique name)
- *
  * @returns The unique filename
  */
 export function getUniqueFilename(baseName: string): string {
@@ -121,7 +118,6 @@ export function getUniqueFilename(baseName: string): string {
  *
  * @param currentName The current name of a saved document
  * @param newName The new name
- *
  * @returns Status of the rename operations
  */
 export function renameDocument(currentName: string, newName: string): number {
@@ -147,7 +143,6 @@ export function renameDocument(currentName: string, newName: string): number {
  *                        name is permitted
  * @param docName         The name to be used for the document
  * @param doc             The contents of the document
- *
  * @returns Status of the save operation.
  */
 export function saveDocument(

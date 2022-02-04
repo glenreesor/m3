@@ -199,9 +199,7 @@ function DisplayedDocument(): m.Component<Attrs> {
 
             childIds.forEach((childId) => {
                 calculateDimensions(allDimensions, childId);
-                totalChildrenHeight += safeGetDimensions(
-                    allDimensions, childId,
-                ).heightWithChildren;
+                totalChildrenHeight += safeGetDimensions(allDimensions, childId).heightWithChildren;
             });
 
             // Also account for vertical padding between child nodes
@@ -275,7 +273,6 @@ function DisplayedDocument(): m.Component<Attrs> {
      * will be longer than our max node width
      *
      * @param contents The contents of the node to be rendered
-     *
      * @returns The lines to render, such that no line is longer than the
      *          maximum
      */
@@ -321,7 +318,6 @@ function DisplayedDocument(): m.Component<Attrs> {
      * @param parentDims    The dimension info of the parent node
      * @param childIds      The IDs of the children whose y-coordinates we
      *                      want returned
-     *
      * @returns An array of objects with the following keys:
      *              bubbleTop    - The y-coordinate for the top of the child's
      *                             bubble
@@ -661,7 +657,6 @@ function DisplayedDocument(): m.Component<Attrs> {
      *
      * @param allDimensions A Map where the keys are nodeIds
      * @param nodeId        The node whose dimensions are to be returned
-     *
      * @returns DimensionInfo The info for the specified node
      */
     function safeGetDimensions(
