@@ -38,9 +38,8 @@ module.exports = {
             'error',
             {
                 devDependencies: [
-                    'webpack.common.js',
-                    'webpack.dev.js',
-                    'webpack.prod.js',
+                    'webpack.*.js',
+                    'postcss.config.js',
                 ],
             },
         ],
