@@ -16,8 +16,8 @@
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
 import * as m from 'mithril';
-import documentState from '../state/documentState';
-import uiState from '../state/uiState';
+import documentState from '../../state/documentState';
+import uiState from '../../state/uiState';
 
 interface Attrs {
     documentDimensions: {
