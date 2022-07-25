@@ -45,6 +45,13 @@ module.exports = {
             },
         ],
 
+        'import/prefer-default-export': 'off',
+            // - This rule only makes sense for components where the thing
+            //   being exported is identical to the filename
+            // - It doesn't make sense for something like a utility file that
+            //   has a single function (or where you expect more functions to
+            //   to be added later)
+
         'jsdoc/require-jsdoc': ['error', { publicOnly: true }],
             // The goal is to make code as self-documenting as possible, but
             // JSDoc is useful for IDE support -- showing function docs without
