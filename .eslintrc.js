@@ -61,6 +61,10 @@ module.exports = {
         'jsdoc/require-param-type': 'off',
             // JSDoc types are redundant with typescript types
 
+        'jsdoc/tag-lines': 'off',
+            // Allowing blank lines is useful to make the @returns line stand
+            // out more
+
         indent: ['error', 4],
 
         'no-mixed-operators': 'off',
