@@ -19,6 +19,8 @@ import * as m from 'mithril';
 import documentState from '../../state/documentState';
 import uiState from '../../state/uiState';
 
+import { getDocumentMovementHelpers } from './documentMovement';
+
 interface Attrs {
     documentDimensions: {
         height: number,
@@ -33,6 +35,11 @@ interface Attrs {
  * @returns An object to be consumed by m()
  */
 function DisplayedDocument(): m.Component<Attrs> {
+    const documentMovementHelpers = getDocumentMovementHelpers({
+        translateCanvas,
+        docRelativeClickHandler: onCanvasClick,
+    });
+
     //--------------------------------------------------------------------------
     // Interfaces and Types
     //--------------------------------------------------------------------------
@@ -145,22 +152,6 @@ function DisplayedDocument(): m.Component<Attrs> {
     let clickableFoldingIcons: ClickableCircle[] = [];
     let clickableNodes: ClickableRectangle[] = [];
 
-    // Whether the user is dragging the document
-    let dragging = false;
-
-    // Coordinates of the mouse/pointer at previous translation event
-    let previousPointerCoords = {
-        x: 0,
-        y: 0,
-    };
-
-    // Total translations amount -- required for resetting translation when
-    // canvas gets resized
-    const cumulativeCanvasTranslation = {
-        x: 0,
-        y: 0,
-    };
-
     /**
      * Calculate dimensions for the specified node and all children of that
      * node. Store these dimensions in allDimensions, keyed by nodeId.
@@ -220,51 +211,6 @@ function DisplayedDocument(): m.Component<Attrs> {
                 heightWithChildren: Math.max(bubbleDim.h, totalChildrenHeight),
             },
         );
-    }
-
-    /**
-     * Stop dragging of user document
-     */
-    function dragEnd() {
-        dragging = false;
-    }
-
-    /**
-     * Handle a mouse or touch move event for dragging the document
-     *
-     * @param x The mouse/touch x-coordinate
-     * @param y The mouse/touch y-coordinate
-     */
-    function dragMove(x: number, y: number) {
-        if (!dragging) return;
-
-        // Calculate how much the pointer moved
-        const deltaX = x - previousPointerCoords.x;
-        const deltaY = y - previousPointerCoords.y;
-
-        // Store current pointer coordinates so we can use that in delta
-        // calculation for the next move event
-        previousPointerCoords = { x, y };
-
-        // Determine the total amount the canvas has been translated so we can
-        // take that into account for click targets
-        cumulativeCanvasTranslation.x += deltaX;
-        cumulativeCanvasTranslation.y += deltaY;
-
-        // Translate the canvas
-        ctx.translate(deltaX, deltaY);
-    }
-
-    /**
-     * Handle a mouse or touch start event, which signifies start of dragging
-     * the document
-     *
-     * @param x The mouse/touch x-coordinate
-     * @param y The mouse/touch y-coordinate
-     */
-    function dragStart(x: number, y: number) {
-        dragging = true;
-        previousPointerCoords = { x, y };
     }
 
     /**
@@ -384,22 +330,12 @@ function DisplayedDocument(): m.Component<Attrs> {
         return yCoords;
     }
 
-    /**
-     * Handle a click or tap on this canvas. Compare the clicked coordinates
-     * to our clickable regions and handle as appropriate.
-     *
-     * @param e The mouse event corresponding to the click
-     */
-    function onClick(e: MouseEvent) {
-        // Convert the mouse coordinates to be relative to the canvas
-        const canvasX = e.pageX - canvasElement.offsetLeft - cumulativeCanvasTranslation.x;
-        const canvasY = e.pageY - canvasElement.offsetTop - cumulativeCanvasTranslation.y;
-
+    function onCanvasClick(pointerX: number, pointerY: number) {
         // Compare to clickable regions for nodes
         clickableNodes.forEach((region) => {
             if (
-                (canvasX >= region.x && canvasX <= region.x + region.width)
-                && (canvasY >= region.y && canvasY <= region.y + region.height)
+                (pointerX >= region.x && pointerX <= region.x + region.width) &&
+                (pointerY >= region.y && pointerY <= region.y + region.height)
             ) {
                 documentState.setSelectedNodeId(region.id);
             }
@@ -408,74 +344,14 @@ function DisplayedDocument(): m.Component<Attrs> {
         // Compare to clickable regions for folding icons
         clickableFoldingIcons.forEach((region) => {
             const distanceToCenter = Math.sqrt(
-                (canvasX - region.x) ** 2
-                + (canvasY - region.y) ** 2,
+                (pointerX - region.x) ** 2 +
+                (pointerY - region.y) ** 2,
             );
 
             if (distanceToCenter <= region.radius) {
                 documentState.toggleChildrenVisibility(region.id);
             }
         });
-    }
-
-    /**
-     * Handle mouse down events by treating them as the start of dragging the
-     * document
-     *
-     * @param e The triggering event
-     */
-    function onMouseDown(e: MouseEvent) {
-        dragStart(e.pageX, e.pageY);
-    }
-
-    /**
-     * Handle mouse move events
-     *
-     * @param e The triggering event
-     */
-    function onMouseMove(e: MouseEvent) {
-        dragMove(e.pageX, e.pageY);
-    }
-
-    /**
-     * Handle mouse out events -- stop dragging so there's no weird dragging
-     * behavior when mouse re-enters the canvas
-     */
-    function onMouseOut() {
-        dragEnd();
-    }
-
-    /**
-     * Handle mouse up events by turning off dragging
-     */
-    function onMouseUp() {
-        dragEnd();
-    }
-
-    /**
-     * Handle touch end events
-     */
-    function onTouchEnd() {
-        dragEnd();
-    }
-
-    /**
-     * Handle touch move events
-     *
-     * @param e The triggering event
-     */
-    function onTouchMove(e: TouchEvent) {
-        dragMove(e.touches[0].pageX, e.touches[0].pageY);
-    }
-
-    /**
-     * Handle touch start events. Treat them as the start of dragging the
-     * document, and thus assume there is just one touch point
-     *
-     * @param e The triggering event
-     */
-    function onTouchStart(e: TouchEvent) {
-        dragStart(e.touches[0].pageX, e.touches[0].pageY);
     }
 
     /**
@@ -775,6 +651,10 @@ function DisplayedDocument(): m.Component<Attrs> {
         currentDocDimensions.height = attrs.documentDimensions.height;
     }
 
+    function translateCanvas(x: number, y: number) {
+        ctx.translate(x, y);
+    }
+
     return {
         oncreate: (vnode) => {
             canvasElement = vnode.dom as HTMLCanvasElement;
@@ -811,12 +691,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             if (vnode.attrs.performReset) {
                 // Perform a reset of translation data due to a new document
                 // having been loaded
-                ctx.translate(
-                    -cumulativeCanvasTranslation.x,
-                    -cumulativeCanvasTranslation.y,
-                );
-                cumulativeCanvasTranslation.x = 0;
-                cumulativeCanvasTranslation.y = 0;
+                documentMovementHelpers.resetDocTranslation();
             }
 
             fontSize = uiState.getCurrentFontSize();
@@ -830,10 +705,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                 saveDimensionsFromAttrs(vnode.attrs);
 
                 ctx.scale(devicePixelRatio, devicePixelRatio);
-                ctx.translate(
-                    cumulativeCanvasTranslation.x,
-                    cumulativeCanvasTranslation.y,
-                );
+                documentMovementHelpers.resetDocTranslation();
             }
 
             // Clear the existing rendered map
@@ -886,21 +758,13 @@ function DisplayedDocument(): m.Component<Attrs> {
             const canvasActualWidth = cssPixelsWidth * devicePixelRatio;
             const canvasActualHeight = cssPixelsHeight * devicePixelRatio;
 
-            // Event handlers trigger Mithril redraws. So only define
-            // movement handlers if a redraw is actually going to be required.
-
-            const handlers = {
-                onclick: onClick,
-
-                onmousedown: onMouseDown,
-                onmousemove: dragging ? onMouseMove : undefined,
-                onmouseout: dragging ? onMouseOut : undefined,
-                onmouseup: onMouseUp,
-
-                ontouchend: onTouchEnd,
-                ontouchmove: dragging ? onTouchMove : undefined,
-                ontouchstart: onTouchStart,
-            };
+            // Event handlers trigger Mithril redraws (of the entire app).
+            // So only define movement handlers if we actually need them, which
+            // is when the document is being dragged by the user.
+            const { alwaysActiveHandlers } = documentMovementHelpers;
+            const optionalDraggingHandlers = documentMovementHelpers.getDocIsBeingDragged()
+                ? documentMovementHelpers.onlyDraggingModeHandlers
+                : {};
 
             return m(
                 'canvas',
@@ -912,7 +776,8 @@ function DisplayedDocument(): m.Component<Attrs> {
                         width: `${cssPixelsWidth}px`,
                         height: `${cssPixelsHeight}px`,
                     },
-                    ...handlers,
+                    ...alwaysActiveHandlers,
+                    ...optionalDraggingHandlers,
                 },
             );
         },
