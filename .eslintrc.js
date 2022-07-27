@@ -6,6 +6,7 @@ module.exports = {
     },
     extends: [
         'airbnb-base',
+        'plugin:@typescript-eslint/recommended',
         'plugin:import/typescript',
         'plugin:jest/recommended',
         'plugin:jsdoc/recommended',
@@ -21,13 +22,6 @@ module.exports = {
     ignorePatterns: ['*.json'],
     rules: {
         /* eslint-disable indent */
-
-        'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': 'error',
-            // The regular no-unused-vars doesn't understand TS things like:
-            // interface MyInterface {
-            //     myFunction(arg: string) => void
-            // }
 
         'import/extensions': ['error', 'always', { pattern: { ts: 'never' } }],
             // - Typescript doesn't use extensions for code
