@@ -20,40 +20,15 @@ import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './childFoldin
 import { getNodeRenderInfo } from './node';
 import { renderParentChildConnector } from './parentChildConnector';
 
-import { Coordinates, Dimensions } from './types';
+import {
+    CircularRegion,
+    Coordinates,
+    Dimensions,
+    RectangularRegion,
+} from './types';
 
-// Description of a circular region that should be clickable
-interface ClickableCircle {
-    // The ID of this object (e.g. a nodeId for a folding icon)
-    id: number,
-
-    // Center x-coordinate
-    x: number,
-
-    // Center y-coordinate
-    y: number,
-
-    // Radius of the circle
-    radius: number,
-}
-
-// Description of a rectangular region that should be clickable
-interface ClickableRectangle {
-    // The ID of this object (e.g. a nodeId)
-    id: number,
-
-    // Top left corner x-coordinate
-    x: number,
-
-    // Top left corner y-coordinate
-    y: number,
-
-    // Width of the rectangle
-    width: number,
-
-    // Height of the rectangle
-    height: number,
-}
+type ClickableCircle = CircularRegion & {id: number};
+type ClickableRectangle = RectangularRegion & {id: number};
 
 //--------------------------------------------------------------------------
 // Constants for layout spacing
@@ -118,7 +93,7 @@ export function hackSetLocallyGlobal(
 interface NEWAllNodesRenderInfo {
     renderInfo: {
         dimensions: Dimensions;
-        renderNode: (parentConnectorCoordinates: Coordinates) => void;
+        renderNode: (parentConnectorCoordinates: Coordinates) => RectangularRegion;
     };
     heightIncludingChildren: number;
 }
@@ -210,16 +185,13 @@ function NEWrenderNodesRecursively(
 ) {
     const renderInfo = NEWsafeGetRenderInfo(allNodesRenderInfo, nodeId);
     const childrenVisible = documentState.getChildrenVisible(nodeId);
-    renderInfo.renderInfo.renderNode(coordinates);
+    const rectangularRegion = renderInfo.renderInfo.renderNode(coordinates);
 
     // Record the region that should respond to clicks for this node
     clickableNodes.push(
         {
             id: nodeId,
-            x: coordinates.x,
-            y: coordinates.y - renderInfo.renderInfo.dimensions.height / 2,
-            width: renderInfo.renderInfo.dimensions.width,
-            height: renderInfo.renderInfo.dimensions.height,
+            ...rectangularRegion,
         },
     );
 
@@ -315,8 +287,14 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
     // Compare to clickable regions for nodes
     clickableNodes.forEach((region) => {
         if (
-            (pointerX >= region.x && pointerX <= region.x + region.width) &&
-            (pointerY >= region.y && pointerY <= region.y + region.height)
+            (
+                pointerX >= region.topLeft.x &&
+                pointerX <= region.topLeft.x + region.dimensions.width
+            ) &&
+            (
+                pointerY >= region.topLeft.y &&
+                pointerY <= region.topLeft.y + region.dimensions.height
+            )
         ) {
             documentState.setSelectedNodeId(region.id);
         }
@@ -325,8 +303,8 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
     // Compare to clickable regions for folding icons
     clickableFoldingIcons.forEach((region) => {
         const distanceToCenter = Math.sqrt(
-            (pointerX - region.x) ** 2 +
-            (pointerY - region.y) ** 2,
+            (pointerX - region.center.x) ** 2 +
+            (pointerY - region.center.y) ** 2,
         );
 
         if (distanceToCenter <= region.radius) {

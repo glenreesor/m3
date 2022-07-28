@@ -24,3 +24,13 @@ export interface Dimensions {
     width: number;
     height: number;
 }
+
+export interface CircularRegion {
+    center: Coordinates;
+    radius: number;
+}
+
+export interface RectangularRegion {
+    topLeft: Coordinates;
+    dimensions: Dimensions;
+}

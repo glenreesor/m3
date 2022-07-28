@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import { Coordinates } from './types';
+import { CircularRegion, Coordinates } from './types';
 
 export const CHILD_FOLDING_ICON_RADIUS = 10;
 
@@ -26,12 +26,23 @@ interface RenderChildFoldingIconArgs {
 }
 
 /**
+ * Render a child folding icon at the specified location.
+ *
+ *          o  o
+ *       o        o
+ *      o          o
+ *  ┌─► o          o
+ *  │   o          o
+ *  │    o        o
+ *  │       o  o
+ *  │
+ *  └───── centerLeftCoordinates
  */
 export function renderChildFoldingIcon({
     ctx,
     centerLeftCoordinates,
     childrenAreVisible,
-}: RenderChildFoldingIconArgs) {
+}: RenderChildFoldingIconArgs): CircularRegion {
     ctx.beginPath();
     ctx.arc(
         centerLeftCoordinates.x + CHILD_FOLDING_ICON_RADIUS,
@@ -48,8 +59,10 @@ export function renderChildFoldingIcon({
     }
 
     return {
-        x: centerLeftCoordinates.x + CHILD_FOLDING_ICON_RADIUS,
-        y: centerLeftCoordinates.y,
+        center: {
+            x: centerLeftCoordinates.x + CHILD_FOLDING_ICON_RADIUS,
+            y: centerLeftCoordinates.y,
+        },
         radius: CHILD_FOLDING_ICON_RADIUS,
     };
 }

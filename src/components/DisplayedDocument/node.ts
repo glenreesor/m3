@@ -36,7 +36,7 @@
 
 import { drawRoundedRectangle } from './roundedRectangle';
 
-import { Coordinates, Dimensions } from './types';
+import { Coordinates, Dimensions, RectangularRegion } from './types';
 
 const PADDING_X = 5;
 const PADDING_Y = 5;
@@ -52,7 +52,7 @@ interface GetNodeRenderInfoArgs {
 
 interface GetNodeRenderInfoReturn {
     dimensions: Dimensions;
-    renderNode: (parentConnectorCoords: Coordinates) => void;
+    renderNode: (parentConnectorCoords: Coordinates) => RectangularRegion;
 }
 
 /**
@@ -78,8 +78,8 @@ export function getNodeRenderInfo({
     const textLines = getNodeTextLines({ ctx, maxWidth, contents });
     const dimensions = getNodeDimensions({ ctx, fontSize, textLines });
 
-    function renderNode(parentConnectorCoordinates: Coordinates) {
-        privateRenderNode({
+    function renderNode(parentConnectorCoordinates: Coordinates): RectangularRegion {
+        return privateRenderNode({
             ctx,
             fontSize,
             parentConnectorCoordinates,
@@ -190,7 +190,7 @@ function privateRenderNode({
     dimensions,
     nodeIsSelected,
     textLines,
-}: PrivateRenderNodeArgs) {
+}: PrivateRenderNodeArgs): RectangularRegion {
     drawRoundedRectangle({
         ctx,
         nodeIsSelected,
@@ -215,4 +215,12 @@ function privateRenderNode({
         );
         textY += fontSize + PADDING_BETWEEN_LINES;
     });
+
+    return {
+        topLeft: {
+            x: parentConnectorCoordinates.x,
+            y: parentConnectorCoordinates.y - dimensions.height / 2,
+        },
+        dimensions,
+    };
 }
