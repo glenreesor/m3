@@ -17,6 +17,8 @@
 
 import documentState from '../../state/documentState';
 import { getNodeRenderInfo } from './node';
+import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './childFoldingIcon';
+
 import { Coordinates, Dimensions } from './types';
 
 // Description of a circular region that should be clickable
@@ -55,26 +57,25 @@ interface ClickableRectangle {
 //--------------------------------------------------------------------------
 // Constants for layout spacing
 //
-// Folding icon ─────┐      ┌──── Child-to-parent connectors
-// (circle)          |      ↓
-//                   ↓        ┌────────────┐
-//                         ┌──| Child Node |
-//                  ---    |  └────────────┘  ┐
-// ┌─────────────┐ -   -   |                  |
-// | Parent Node |-     -──┤                  ├─── CHILD_PADDING.y
-// └─────────────┘ -   -   |                  |
-//                  ---    |  ┌────────────┐  ┘
-//                └┬─┘     └──| Child Node |
-//                 |          └────────────┘
-// FOLDING_ICON_RADIUS   └─┬──┘
-//                         └─── CHILD_PADDING.x
+// Folding icon ─────┐            ┌──── Child-to-parent connectors
+// (circle)          |            ↓
+//                   ↓              ┌────────────┐
+//                               ┌──| Child Node |
+//                  ---          |  └────────────┘  ┐
+// ┌─────────────┐ -   -         |                  |
+// | Parent Node |-     -────────┤                  ├─── CHILD_PADDING.y
+// └─────────────┘ -   -         |                  |
+//                  ---          |  ┌────────────┐  ┘
+//                └┬─┘           └──| Child Node |
+//                 |                └────────────┘
+// CHILD_FOLDING_ICON_RADIUS   └─┬──┘
+//                               └─── CHILD_PADDING.x
 //
 //--------------------------------------------------------------------------
 const CHILD_PADDING = {
     x: 30,
     y: 15,
 };
-const FOLDING_ICON_RADIUS = 10;
 
 let ctx: CanvasRenderingContext2D;
 let fontSize: number;
@@ -226,33 +227,20 @@ function NEWrenderNodesRecursively(
         //------------------------------------------------------------------
         // Render the folding icon
         //------------------------------------------------------------------
-        const foldingIconPos = {
-            x: coordinates.x + renderInfo.renderInfo.dimensions.width + FOLDING_ICON_RADIUS,
-            y: coordinates.y,
-        };
-
-        ctx.beginPath();
-        ctx.arc(
-            foldingIconPos.x,
-            foldingIconPos.y,
-            FOLDING_ICON_RADIUS,
-            0,
-            2 * Math.PI,
-        );
-
-        if (childrenVisible) {
-            ctx.stroke();
-        } else {
-            ctx.fill();
-        }
+        const clickableRegion = renderChildFoldingIcon({
+            ctx,
+            centerLeftCoordinates: {
+                x: coordinates.x + renderInfo.renderInfo.dimensions.width,
+                y: coordinates.y,
+            },
+            childrenAreVisible: childrenVisible,
+        });
 
         // Record the region that should respond to clicks for this icon
         clickableFoldingIcons.push(
             {
                 id: nodeId,
-                x: foldingIconPos.x,
-                y: foldingIconPos.y,
-                radius: FOLDING_ICON_RADIUS,
+                ...clickableRegion,
             },
         );
 
@@ -260,7 +248,9 @@ function NEWrenderNodesRecursively(
         // Render children and connectors if visible
         //------------------------------------------------------------------
         if (childrenVisible) {
-            const childrenX = foldingIconPos.x + FOLDING_ICON_RADIUS + CHILD_PADDING.x;
+            const childrenX = coordinates.x +
+                renderInfo.renderInfo.dimensions.width +
+                2 * CHILD_FOLDING_ICON_RADIUS + CHILD_PADDING.x;
 
             // Center children on this node
             const topOfChildrenRegion = coordinates.y - renderInfo.heightIncludingChildren / 2;
@@ -275,8 +265,10 @@ function NEWrenderNodesRecursively(
 
                 renderChildConnector(
                     {
-                        x: foldingIconPos.x + FOLDING_ICON_RADIUS,
-                        y: foldingIconPos.y,
+                        x: coordinates.x +
+                            renderInfo.renderInfo.dimensions.width +
+                            2 * CHILD_FOLDING_ICON_RADIUS,
+                        y: coordinates.y,
                     },
                     {
                         x: childrenX,
@@ -310,7 +302,6 @@ function NEWsafeGetRenderInfo(
         `NEWsafeGetRenderInfo: nodeId '${nodeId}' is not present`,
     );
 }
-
 
 /**
  * bla
