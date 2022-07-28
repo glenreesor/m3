@@ -34,6 +34,8 @@
 //   |
 //   └─── Connector to parent (not rendered or considered by code in this file)
 
+import { drawRoundedRectangle } from './roundedRectangle';
+
 import { Coordinates, Dimensions } from './types';
 
 const PADDING_X = 5;
@@ -97,108 +99,6 @@ export function getNodeRenderInfo({
 // Private Implementation
 //------------------------------------------------------------------------------
 
-interface DrawNodeRectangleArgs {
-    ctx: CanvasRenderingContext2D;
-    nodeIsSelected: boolean;
-    parentConnectorCoordinates: Coordinates;
-    dimensions: Dimensions;
-}
-
-function drawRoundedRectangle({
-    ctx,
-    nodeIsSelected,
-    parentConnectorCoordinates,
-    dimensions,
-}: DrawNodeRectangleArgs) {
-    const cornerRadius = 5;
-
-    // Coordinates of corners as if this were a normal rectangle
-    const topLeft = {
-        x: parentConnectorCoordinates.x,
-        y: parentConnectorCoordinates.y - dimensions.height / 2,
-    };
-
-    const topRight = {
-        x: topLeft.x + dimensions.width,
-        y: topLeft.y,
-    };
-
-    const bottomLeft = {
-        x: topLeft.x,
-        y: topLeft.y + dimensions.height,
-    };
-
-    const bottomRight = {
-        x: topRight.x,
-        y: bottomLeft.y,
-    };
-
-    // Draw in a clockwise direction starting at top left
-    ctx.beginPath();
-    if (nodeIsSelected) {
-        ctx.strokeStyle = '#0000ff';
-        ctx.lineWidth = 2;
-    } else {
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 1;
-    }
-
-    // Top left corner
-    ctx.arc(
-        topLeft.x + cornerRadius,
-        topLeft.y + cornerRadius,
-        cornerRadius,
-        Math.PI,
-        1.5 * Math.PI,
-    );
-
-    // Top line
-    ctx.lineTo(topRight.x - cornerRadius, topRight.y);
-
-    // Top right corner
-    ctx.arc(
-        topRight.x - cornerRadius,
-        topRight.y + cornerRadius,
-        cornerRadius,
-        1.5 * Math.PI,
-        2 * Math.PI,
-    );
-
-    // Right line
-    ctx.lineTo(bottomRight.x, bottomRight.y - cornerRadius);
-
-    // Bottom right corner
-    ctx.arc(
-        bottomRight.x - cornerRadius,
-        bottomRight.y - cornerRadius,
-        cornerRadius,
-        0,
-        0.5 * Math.PI,
-    );
-
-    // Bottom line
-    ctx.lineTo(bottomLeft.x + cornerRadius, bottomLeft.y);
-
-    // Bottom left corner
-    ctx.arc(
-        bottomLeft.x + cornerRadius,
-        bottomLeft.y - cornerRadius,
-        cornerRadius,
-        0.5 * Math.PI,
-        Math.PI,
-    );
-
-    // Left line
-    ctx.lineTo(topLeft.x, topLeft.y + cornerRadius);
-
-    // And done!
-    ctx.stroke();
-
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
-}
-
-//------------------------------------------------------------------------------
 interface GetDimensionsArgs {
     ctx: CanvasRenderingContext2D,
     fontSize: number,
