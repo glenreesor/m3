@@ -16,8 +16,9 @@
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
 import documentState from '../../state/documentState';
-import { getNodeRenderInfo } from './node';
 import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './childFoldingIcon';
+import { getNodeRenderInfo } from './node';
+import { renderParentChildConnector } from './parentChildConnector';
 
 import { Coordinates, Dimensions } from './types';
 
@@ -263,7 +264,8 @@ function NEWrenderNodesRecursively(
                 );
                 childY += heightIncludingChildren / 2;
 
-                renderChildConnector(
+                renderParentChildConnector(
+                    ctx,
                     {
                         x: coordinates.x +
                             renderInfo.renderInfo.dimensions.width +
@@ -331,28 +333,4 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
             documentState.toggleChildrenVisibility(region.id);
         }
     });
-}
-
-/**
- * Render the curve that connects a parent node to a child node
- *
- * @param curveStart The coordinates for the start of the curve
- * @param curveEnd   The coordinates for the end of the curve
- */
-function renderChildConnector(
-    curveStart: Coordinates,
-    curveEnd: Coordinates,
-) {
-    ctx.beginPath();
-    ctx.moveTo(curveStart.x, curveStart.y);
-    ctx.bezierCurveTo(
-        curveEnd.x,
-        curveStart.y,
-        curveStart.x,
-        curveEnd.y,
-        curveEnd.x,
-        curveEnd.y,
-    );
-
-    ctx.stroke();
 }
