@@ -20,7 +20,7 @@ import { Coordinates, Dimensions } from './types';
 interface DrawNodeRectangleArgs {
     ctx: CanvasRenderingContext2D;
     nodeIsSelected: boolean;
-    parentConnectorCoordinates: Coordinates;
+    topLeftCoordinates: Coordinates;
     dimensions: Dimensions;
 }
 
@@ -29,16 +29,13 @@ interface DrawNodeRectangleArgs {
 export function drawRoundedRectangle({
     ctx,
     nodeIsSelected,
-    parentConnectorCoordinates,
+    topLeftCoordinates,
     dimensions,
 }: DrawNodeRectangleArgs) {
     const cornerRadius = 5;
 
     // Coordinates of corners as if this were a normal rectangle
-    const topLeft = {
-        x: parentConnectorCoordinates.x,
-        y: parentConnectorCoordinates.y - dimensions.height / 2,
-    };
+    const topLeft = topLeftCoordinates;
 
     const topRight = {
         x: topLeft.x + dimensions.width,

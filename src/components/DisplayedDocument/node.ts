@@ -194,7 +194,10 @@ function privateRenderNode({
     drawRoundedRectangle({
         ctx,
         nodeIsSelected,
-        parentConnectorCoordinates,
+        topLeftCoordinates: {
+            x: parentConnectorCoordinates.x,
+            y: parentConnectorCoordinates.y - dimensions.height / 2,
+        },
         dimensions,
     });
 
