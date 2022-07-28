@@ -23,8 +23,8 @@ import { getDocumentMovementHelpers } from './documentMovement';
 import {
     hackSetLocallyGlobal,
     onCanvasClick,
-    renderDocument,
     resetClickableRegions,
+    NEWrenderDocument,
 } from './layout';
 
 interface Attrs {
@@ -88,7 +88,15 @@ function DisplayedDocument(): m.Component<Attrs> {
             hackSetLocallyGlobal(ctx, fontSize, currentDocDimensions);
 
             const rootNodeId = documentState.getRootNodeId();
-            renderDocument(rootNodeId, vnode.attrs.documentDimensions);
+//            renderDocument(rootNodeId, vnode.attrs.documentDimensions);
+
+            NEWrenderDocument({
+                localCtx: ctx,
+                localFontSize: fontSize,
+                localCurrentDocDimensions: currentDocDimensions,
+                rootNodeId,
+                canvasDimensions: vnode.attrs.documentDimensions,
+            });
         },
 
         onupdate: (vnode) => {
@@ -139,7 +147,15 @@ function DisplayedDocument(): m.Component<Attrs> {
             hackSetLocallyGlobal(ctx, fontSize, currentDocDimensions);
 
             const rootNodeId = documentState.getRootNodeId();
-            renderDocument(rootNodeId, vnode.attrs.documentDimensions);
+            // renderDocument(rootNodeId, vnode.attrs.documentDimensions);
+
+            NEWrenderDocument({
+                localCtx: ctx,
+                localFontSize: fontSize,
+                localCurrentDocDimensions: currentDocDimensions,
+                rootNodeId,
+                canvasDimensions: vnode.attrs.documentDimensions,
+            });
         },
 
         view: ({ attrs }) => {
