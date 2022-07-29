@@ -48,14 +48,14 @@ function DisplayedDocument(): m.Component<Attrs> {
     let canvasElement: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
 
-    const currentDocDimensions = {
+    const currentCanvasDimensions = {
         width: -1,
         height: -1,
     };
 
-    function saveDimensionsFromAttrs(attrs: Attrs) {
-        currentDocDimensions.width = attrs.documentDimensions.width;
-        currentDocDimensions.height = attrs.documentDimensions.height;
+    function saveCanvasDimensionsFromAttrs(attrs: Attrs) {
+        currentCanvasDimensions.width = attrs.documentDimensions.width;
+        currentCanvasDimensions.height = attrs.documentDimensions.height;
     }
 
     function translateCanvas(x: number, y: number) {
@@ -67,7 +67,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             canvasElement = vnode.dom as HTMLCanvasElement;
             ctx = canvasElement.getContext('2d') as CanvasRenderingContext2D;
 
-            saveDimensionsFromAttrs(vnode.attrs);
+            saveCanvasDimensionsFromAttrs(vnode.attrs);
 
             // Scale the canvas properly so everything looks crisp on high DPI
             // displays
@@ -103,10 +103,10 @@ function DisplayedDocument(): m.Component<Attrs> {
             // Canvas elements reset their scale and translation when their
             // dimensions change, so reset when that happens
             if (
-                currentDocDimensions.width !== vnode.attrs.documentDimensions.width ||
-                currentDocDimensions.height !== vnode.attrs.documentDimensions.height
+                currentCanvasDimensions.width !== vnode.attrs.documentDimensions.width ||
+                currentCanvasDimensions.height !== vnode.attrs.documentDimensions.height
             ) {
-                saveDimensionsFromAttrs(vnode.attrs);
+                saveCanvasDimensionsFromAttrs(vnode.attrs);
 
                 ctx.scale(devicePixelRatio, devicePixelRatio);
                 documentMovementHelpers.resetDocTranslation();
