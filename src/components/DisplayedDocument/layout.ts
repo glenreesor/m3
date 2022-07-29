@@ -30,29 +30,6 @@ import {
 type ClickableCircle = CircularRegion & {id: number};
 type ClickableRectangle = RectangularRegion & {id: number};
 
-//--------------------------------------------------------------------------
-// Constants for layout spacing
-//
-// Folding icon ─────┐            ┌──── Child-to-parent connectors
-// (circle)          |            ↓
-//                   ↓              ┌────────────┐
-//                               ┌──| Child Node |
-//                  ---          |  └────────────┘  ┐
-// ┌─────────────┐ -   -         |                  |
-// | Parent Node |-     -────────┤                  ├─── CHILD_PADDING.y
-// └─────────────┘ -   -         |                  |
-//                  ---          |  ┌────────────┐  ┘
-//                └┬─┘           └──| Child Node |
-//                 |                └────────────┘
-// CHILD_FOLDING_ICON_RADIUS   └─┬──┘
-//                               └─── CHILD_PADDING.x
-//
-//--------------------------------------------------------------------------
-const CHILD_PADDING = {
-    x: 30,
-    y: 15,
-};
-
 // List of clickable regions (created upon each render)
 let clickableFoldingIcons: ClickableCircle[] = [];
 let clickableNodes: ClickableRectangle[] = [];
@@ -155,6 +132,74 @@ function calculateAllNodesRenderInfo(
     );
 }
 
+function renderChildrenAndConnectors(
+    ctx: CanvasRenderingContext2D,
+    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
+    parentFoldingIconCenterRight: {x: number, y: number},
+    childIds: number[],
+    totalChildrenHeight: number,
+) {
+    //--------------------------------------------------------------------------
+    //                       ┌──── parentFoldingIconCenterRight
+    //                       |
+    //                       |          ┌────────────┐
+    //                       |       ┌──| Child Node |
+    //                  ---  |       |  └────────────┘  ┐
+    // ┌─────────────┐ -   - V       |                  |
+    // | Parent Node |-     -────────┤                  ├─── CHILD_PADDING.y
+    // └─────────────┘ -   -         |                  |
+    //                  ---          |  ┌────────────┐  ┘
+    //                               └──| Child Node |
+    //                                  └────────────┘
+    //                       └────┬─────┘
+    //                            └─── CHILD_PADDING.x
+    //--------------------------------------------------------------------------
+    const CHILD_PADDING = {
+        x: 30,
+        y: 15,
+    };
+
+    const childrenX = parentFoldingIconCenterRight.x + CHILD_PADDING.x;
+
+    // Center children on this node
+    const topOfChildrenRegion = parentFoldingIconCenterRight.y -
+        totalChildrenHeight / 2;
+
+    let childY = topOfChildrenRegion;
+
+    childIds.forEach((childId) => {
+        const { heightIncludingChildren } = safeGetRenderInfo(
+            allNodesRenderInfo,
+            childId,
+        );
+        childY += heightIncludingChildren / 2;
+
+        renderParentChildConnector(
+            ctx,
+            {
+                x: parentFoldingIconCenterRight.x,
+                y: parentFoldingIconCenterRight.y,
+            },
+            {
+                x: childrenX,
+                y: childY,
+            },
+        );
+
+        renderNodesRecursively(
+            ctx,
+            allNodesRenderInfo,
+            childId,
+            {
+                x: childrenX,
+                y: childY,
+            },
+        );
+        childY += heightIncludingChildren / 2;
+        childY += CHILD_PADDING.y;
+    });
+}
+
 function renderNodesRecursively(
     ctx: CanvasRenderingContext2D,
     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
@@ -195,51 +240,19 @@ function renderNodesRecursively(
             },
         );
 
-        //------------------------------------------------------------------
-        // Render children and connectors if visible
-        //------------------------------------------------------------------
         if (childrenVisible) {
-            const childrenX = coordinates.x +
-                renderInfo.dimensions.width +
-                2 * CHILD_FOLDING_ICON_RADIUS + CHILD_PADDING.x;
+            const foldingIconCenterRight = {
+                x: coordinates.x + renderInfo.dimensions.width + 2 * CHILD_FOLDING_ICON_RADIUS,
+                y: coordinates.y,
+            };
 
-            // Center children on this node
-            const topOfChildrenRegion = coordinates.y - renderInfo.heightIncludingChildren / 2;
-            let childY = topOfChildrenRegion;
-
-            childIds.forEach((childId) => {
-                const { heightIncludingChildren } = safeGetRenderInfo(
-                    allNodesRenderInfo,
-                    childId,
-                );
-                childY += heightIncludingChildren / 2;
-
-                renderParentChildConnector(
-                    ctx,
-                    {
-                        x: coordinates.x +
-                            renderInfo.dimensions.width +
-                            2 * CHILD_FOLDING_ICON_RADIUS,
-                        y: coordinates.y,
-                    },
-                    {
-                        x: childrenX,
-                        y: childY,
-                    },
-                );
-
-                renderNodesRecursively(
-                    ctx,
-                    allNodesRenderInfo,
-                    childId,
-                    {
-                        x: childrenX,
-                        y: childY,
-                    },
-                );
-                childY += heightIncludingChildren / 2;
-                childY += CHILD_PADDING.y;
-            });
+            renderChildrenAndConnectors(
+                ctx,
+                allNodesRenderInfo,
+                foldingIconCenterRight,
+                childIds,
+                renderInfo.heightIncludingChildren,
+            );
         }
     }
 }
