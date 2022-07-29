@@ -31,7 +31,7 @@ interface Attrs {
         height: number,
         width: number,
     },
-    performReset: boolean,
+    resetCanvasTranslation: boolean,
 }
 
 /**
@@ -88,9 +88,7 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
-            if (vnode.attrs.performReset) {
-                // Perform a reset of translation data due to a new document
-                // having been loaded
+            if (vnode.attrs.resetCanvasTranslation) {
                 documentMovementHelpers.resetDocTranslation();
             }
 
