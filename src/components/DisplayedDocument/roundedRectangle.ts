@@ -32,6 +32,9 @@ export function drawRoundedRectangle({
     topLeftCoordinates,
     dimensions,
 }: DrawNodeRectangleArgs) {
+    const originalStrokeStyle = ctx.strokeStyle;
+    const originalLineWidth = ctx.lineWidth;
+
     const cornerRadius = 5;
 
     // Coordinates of corners as if this were a normal rectangle
@@ -113,6 +116,6 @@ export function drawRoundedRectangle({
     // And done!
     ctx.stroke();
 
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = originalStrokeStyle;
+    ctx.lineWidth = originalLineWidth;
 }
