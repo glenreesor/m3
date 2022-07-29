@@ -45,8 +45,6 @@ function DisplayedDocument(): m.Component<Attrs> {
 
     const devicePixelRatio = window.devicePixelRatio || 1;
 
-    let fontSize = uiState.getCurrentFontSize();
-
     let canvasElement: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D;
 
@@ -78,6 +76,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             //------------------------------------------------------------------
             // Draw the user's map
             //------------------------------------------------------------------
+            const fontSize = uiState.getCurrentFontSize();
             ctx.strokeStyle = '#000000';
             ctx.fillStyle = '#000000';
             ctx.font = `${fontSize}px sans-serif`;
@@ -99,7 +98,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                 documentMovementHelpers.resetDocTranslation();
             }
 
-            fontSize = uiState.getCurrentFontSize();
+            const fontSize = uiState.getCurrentFontSize();
 
             // Canvas elements reset their scale and translation when their
             // dimensions change, so reset when that happens
