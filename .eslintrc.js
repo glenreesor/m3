@@ -55,6 +55,11 @@ module.exports = {
         'jsdoc/require-param-type': 'off',
             // JSDoc types are redundant with typescript types
 
+        'jsdoc/require-param': 'off',
+        'jsdoc/require-returns': 'off',
+            // Sometimes the combination of parameter name and typescript
+            // type make the parameter obvious, so JSDoc just adds clutter
+
         'jsdoc/tag-lines': 'off',
             // Allowing blank lines is useful to make the @returns line stand
             // out more
