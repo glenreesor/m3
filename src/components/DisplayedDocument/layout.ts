@@ -90,7 +90,7 @@ export function hackSetLocallyGlobal(
     currentDocDimensions = localCurrentDocDimensions;
 }
 
-interface NEWAllNodesRenderInfo {
+interface AllNodesRenderInfo {
     renderInfo: {
         dimensions: Dimensions;
         renderNode: (parentConnectorCoordinates: Coordinates) => RectangularRegion;
@@ -98,7 +98,7 @@ interface NEWAllNodesRenderInfo {
     heightIncludingChildren: number;
 }
 
-interface NEWRenderDocumentArgs {
+interface renderDocumentArgs {
     localCtx: CanvasRenderingContext2D,
     localFontSize: number;
     localCurrentDocDimensions: { width: number, height: number };
@@ -109,21 +109,21 @@ interface NEWRenderDocumentArgs {
 /**
  * Render the doc
  */
-export function NEWrenderDocument({
+export function renderDocument({
     localCtx,
     localFontSize,
     localCurrentDocDimensions,
     rootNodeId,
     canvasDimensions,
-}: NEWRenderDocumentArgs) {
+}: renderDocumentArgs) {
     ctx = localCtx;
     fontSize = localFontSize;
     currentDocDimensions = localCurrentDocDimensions;
 
-    const allNodesRenderInfo = new Map<number, NEWAllNodesRenderInfo>();
-    NEWcalculateAllNodesRenderInfo(allNodesRenderInfo, rootNodeId);
+    const allNodesRenderInfo = new Map<number, AllNodesRenderInfo>();
+    calculateAllNodesRenderInfo(allNodesRenderInfo, rootNodeId);
 
-    NEWrenderNodesRecursively(
+    renderNodesRecursively(
         allNodesRenderInfo,
         rootNodeId,
         {
@@ -133,8 +133,8 @@ export function NEWrenderDocument({
     );
 }
 
-function NEWcalculateAllNodesRenderInfo(
-    allNodesRenderInfo: Map<number, NEWAllNodesRenderInfo>,
+function calculateAllNodesRenderInfo(
+    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
     nodeId: number,
 ) {
     const nodeIsSelected = documentState.getSelectedNodeId() === nodeId;
@@ -154,8 +154,8 @@ function NEWcalculateAllNodesRenderInfo(
     if (documentState.getChildrenVisible(nodeId)) {
         const childIds = documentState.getNodeChildIds(nodeId);
         childIds.forEach((childId) => {
-            NEWcalculateAllNodesRenderInfo(allNodesRenderInfo, childId);
-            totalChildrenHeight += NEWsafeGetRenderInfo(
+            calculateAllNodesRenderInfo(allNodesRenderInfo, childId);
+            totalChildrenHeight += safeGetRenderInfo(
                 allNodesRenderInfo,
                 childId,
             ).heightIncludingChildren;
@@ -178,12 +178,12 @@ function NEWcalculateAllNodesRenderInfo(
     );
 }
 
-function NEWrenderNodesRecursively(
-    allNodesRenderInfo: Map<number, NEWAllNodesRenderInfo>,
+function renderNodesRecursively(
+    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
     nodeId: number,
     coordinates: Coordinates,
 ) {
-    const renderInfo = NEWsafeGetRenderInfo(allNodesRenderInfo, nodeId);
+    const renderInfo = safeGetRenderInfo(allNodesRenderInfo, nodeId);
     const childrenVisible = documentState.getChildrenVisible(nodeId);
     const rectangularRegion = renderInfo.renderInfo.renderNode(coordinates);
 
@@ -230,7 +230,7 @@ function NEWrenderNodesRecursively(
             let childY = topOfChildrenRegion;
 
             childIds.forEach((childId) => {
-                const { heightIncludingChildren } = NEWsafeGetRenderInfo(
+                const { heightIncludingChildren } = safeGetRenderInfo(
                     allNodesRenderInfo,
                     childId,
                 );
@@ -250,7 +250,7 @@ function NEWrenderNodesRecursively(
                     },
                 );
 
-                NEWrenderNodesRecursively(
+                renderNodesRecursively(
                     allNodesRenderInfo,
                     childId,
                     {
@@ -265,15 +265,15 @@ function NEWrenderNodesRecursively(
     }
 }
 
-function NEWsafeGetRenderInfo(
-    allNodesRenderInfo: Map<number, NEWAllNodesRenderInfo>,
+function safeGetRenderInfo(
+    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
     nodeId: number,
 ) {
     const renderInfo = allNodesRenderInfo.get(nodeId);
     if (renderInfo !== undefined) return renderInfo;
 
     throw new Error(
-        `NEWsafeGetRenderInfo: nodeId '${nodeId}' is not present`,
+        `safeGetRenderInfo: nodeId '${nodeId}' is not present`,
     );
 }
 

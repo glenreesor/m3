@@ -23,8 +23,8 @@ import { getDocumentMovementHelpers } from './documentMovement';
 import {
     hackSetLocallyGlobal,
     onCanvasClick,
+    renderDocument,
     resetClickableRegions,
-    NEWrenderDocument,
 } from './layout';
 
 interface Attrs {
@@ -37,8 +37,6 @@ interface Attrs {
 
 /**
  * A component to render the user's document in a <canvas> element
- *
- * @returns An object to be consumed by m()
  */
 function DisplayedDocument(): m.Component<Attrs> {
     const documentMovementHelpers = getDocumentMovementHelpers({
@@ -88,9 +86,8 @@ function DisplayedDocument(): m.Component<Attrs> {
             hackSetLocallyGlobal(ctx, fontSize, currentDocDimensions);
 
             const rootNodeId = documentState.getRootNodeId();
-//            renderDocument(rootNodeId, vnode.attrs.documentDimensions);
 
-            NEWrenderDocument({
+            renderDocument({
                 localCtx: ctx,
                 localFontSize: fontSize,
                 localCurrentDocDimensions: currentDocDimensions,
@@ -147,9 +144,8 @@ function DisplayedDocument(): m.Component<Attrs> {
             hackSetLocallyGlobal(ctx, fontSize, currentDocDimensions);
 
             const rootNodeId = documentState.getRootNodeId();
-            // renderDocument(rootNodeId, vnode.attrs.documentDimensions);
 
-            NEWrenderDocument({
+            renderDocument({
                 localCtx: ctx,
                 localFontSize: fontSize,
                 localCurrentDocDimensions: currentDocDimensions,
