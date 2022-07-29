@@ -66,11 +66,9 @@ export function resetClickableRegions() {
 }
 
 interface AllNodesRenderInfo {
-    renderInfo: {
-        dimensions: Dimensions;
-        renderNode: (parentConnectorCoordinates: Coordinates) => RectangularRegion;
-    };
+    dimensions: Dimensions;
     heightIncludingChildren: number;
+    renderNode: (parentConnectorCoordinates: Coordinates) => RectangularRegion;
 }
 
 interface renderDocumentArgs {
@@ -148,7 +146,7 @@ function calculateAllNodesRenderInfo(
     allNodesRenderInfo.set(
         nodeId,
         {
-            renderInfo: thisNodeRenderInfo,
+            ...thisNodeRenderInfo,
             heightIncludingChildren: Math.max(
                 thisNodeRenderInfo.dimensions.height,
                 totalChildrenHeight,
@@ -165,7 +163,7 @@ function renderNodesRecursively(
 ) {
     const renderInfo = safeGetRenderInfo(allNodesRenderInfo, nodeId);
     const childrenVisible = documentState.getChildrenVisible(nodeId);
-    const rectangularRegion = renderInfo.renderInfo.renderNode(coordinates);
+    const rectangularRegion = renderInfo.renderNode(coordinates);
 
     // Record the region that should respond to clicks for this node
     clickableNodes.push(
@@ -183,7 +181,7 @@ function renderNodesRecursively(
         const clickableRegion = renderChildFoldingIcon({
             ctx,
             centerLeftCoordinates: {
-                x: coordinates.x + renderInfo.renderInfo.dimensions.width,
+                x: coordinates.x + renderInfo.dimensions.width,
                 y: coordinates.y,
             },
             childrenAreVisible: childrenVisible,
@@ -202,7 +200,7 @@ function renderNodesRecursively(
         //------------------------------------------------------------------
         if (childrenVisible) {
             const childrenX = coordinates.x +
-                renderInfo.renderInfo.dimensions.width +
+                renderInfo.dimensions.width +
                 2 * CHILD_FOLDING_ICON_RADIUS + CHILD_PADDING.x;
 
             // Center children on this node
@@ -220,7 +218,7 @@ function renderNodesRecursively(
                     ctx,
                     {
                         x: coordinates.x +
-                            renderInfo.renderInfo.dimensions.width +
+                            renderInfo.dimensions.width +
                             2 * CHILD_FOLDING_ICON_RADIUS,
                         y: coordinates.y,
                     },
@@ -249,7 +247,7 @@ function renderNodesRecursively(
 function safeGetRenderInfo(
     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
     nodeId: number,
-) {
+): AllNodesRenderInfo {
     const renderInfo = allNodesRenderInfo.get(nodeId);
     if (renderInfo !== undefined) return renderInfo;
 
