@@ -53,14 +53,6 @@ const CHILD_PADDING = {
     y: 15,
 };
 
-let ctx: CanvasRenderingContext2D;
-let fontSize: number;
-
-let currentDocDimensions: {
-    width: number;
-    height: number;
-};
-
 // List of clickable regions (created upon each render)
 let clickableFoldingIcons: ClickableCircle[] = [];
 let clickableNodes: ClickableRectangle[] = [];
@@ -73,23 +65,6 @@ export function resetClickableRegions() {
     clickableNodes = [];
 }
 
-/**
- * Temporary hack to get some global variables
- *
- * @param localCtx                  Drawing Context
- * @param localFontSize             Current font size
- * @param localCurrentDocDimensions Current document dimensions
- */
-export function hackSetLocallyGlobal(
-    localCtx: CanvasRenderingContext2D,
-    localFontSize: number,
-    localCurrentDocDimensions: { width: number, height: number },
-) {
-    ctx = localCtx;
-    fontSize = localFontSize;
-    currentDocDimensions = localCurrentDocDimensions;
-}
-
 interface AllNodesRenderInfo {
     renderInfo: {
         dimensions: Dimensions;
@@ -99,9 +74,8 @@ interface AllNodesRenderInfo {
 }
 
 interface renderDocumentArgs {
-    localCtx: CanvasRenderingContext2D,
-    localFontSize: number;
-    localCurrentDocDimensions: { width: number, height: number };
+    ctx: CanvasRenderingContext2D,
+    fontSize: number;
     rootNodeId: number;
     canvasDimensions: Dimensions;
 }
@@ -110,20 +84,18 @@ interface renderDocumentArgs {
  * Render the doc
  */
 export function renderDocument({
-    localCtx,
-    localFontSize,
-    localCurrentDocDimensions,
+    ctx,
+    fontSize,
     rootNodeId,
     canvasDimensions,
 }: renderDocumentArgs) {
-    ctx = localCtx;
-    fontSize = localFontSize;
-    currentDocDimensions = localCurrentDocDimensions;
-
     const allNodesRenderInfo = new Map<number, AllNodesRenderInfo>();
-    calculateAllNodesRenderInfo(allNodesRenderInfo, rootNodeId);
+    const maxNodeWidth = 0.75 * canvasDimensions.width;
+
+    calculateAllNodesRenderInfo(ctx, fontSize, maxNodeWidth, allNodesRenderInfo, rootNodeId);
 
     renderNodesRecursively(
+        ctx,
         allNodesRenderInfo,
         rootNodeId,
         {
@@ -134,6 +106,9 @@ export function renderDocument({
 }
 
 function calculateAllNodesRenderInfo(
+    ctx: CanvasRenderingContext2D,
+    fontSize: number,
+    maxNodeWidth: number,
     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
     nodeId: number,
 ) {
@@ -143,7 +118,7 @@ function calculateAllNodesRenderInfo(
     const thisNodeRenderInfo = getNodeRenderInfo({
         ctx,
         fontSize,
-        maxWidth: 0.75 * currentDocDimensions.width,
+        maxWidth: maxNodeWidth,
         nodeIsSelected,
         contents: nodeContents,
     });
@@ -154,7 +129,7 @@ function calculateAllNodesRenderInfo(
     if (documentState.getChildrenVisible(nodeId)) {
         const childIds = documentState.getNodeChildIds(nodeId);
         childIds.forEach((childId) => {
-            calculateAllNodesRenderInfo(allNodesRenderInfo, childId);
+            calculateAllNodesRenderInfo(ctx, fontSize, maxNodeWidth, allNodesRenderInfo, childId);
             totalChildrenHeight += safeGetRenderInfo(
                 allNodesRenderInfo,
                 childId,
@@ -179,6 +154,7 @@ function calculateAllNodesRenderInfo(
 }
 
 function renderNodesRecursively(
+    ctx: CanvasRenderingContext2D,
     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
     nodeId: number,
     coordinates: Coordinates,
@@ -251,6 +227,7 @@ function renderNodesRecursively(
                 );
 
                 renderNodesRecursively(
+                    ctx,
                     allNodesRenderInfo,
                     childId,
                     {

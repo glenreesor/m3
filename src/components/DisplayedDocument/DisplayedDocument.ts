@@ -21,7 +21,6 @@ import uiState from '../../state/uiState';
 
 import { getDocumentMovementHelpers } from './documentMovement';
 import {
-    hackSetLocallyGlobal,
     onCanvasClick,
     renderDocument,
     resetClickableRegions,
@@ -83,14 +82,11 @@ function DisplayedDocument(): m.Component<Attrs> {
             ctx.fillStyle = '#000000';
             ctx.font = `${fontSize}px sans-serif`;
 
-            hackSetLocallyGlobal(ctx, fontSize, currentDocDimensions);
-
             const rootNodeId = documentState.getRootNodeId();
 
             renderDocument({
-                localCtx: ctx,
-                localFontSize: fontSize,
-                localCurrentDocDimensions: currentDocDimensions,
+                ctx,
+                fontSize,
                 rootNodeId,
                 canvasDimensions: vnode.attrs.documentDimensions,
             });
@@ -141,14 +137,11 @@ function DisplayedDocument(): m.Component<Attrs> {
             ctx.fillStyle = '#000000';
             ctx.font = `${fontSize}px sans-serif`;
 
-            hackSetLocallyGlobal(ctx, fontSize, currentDocDimensions);
-
             const rootNodeId = documentState.getRootNodeId();
 
             renderDocument({
-                localCtx: ctx,
-                localFontSize: fontSize,
-                localCurrentDocDimensions: currentDocDimensions,
+                ctx,
+                fontSize,
                 rootNodeId,
                 canvasDimensions: vnode.attrs.documentDimensions,
             });
