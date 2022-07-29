@@ -77,10 +77,6 @@ function DisplayedDocument(): m.Component<Attrs> {
             // Draw the user's map
             //------------------------------------------------------------------
             const fontSize = uiState.getCurrentFontSize();
-            ctx.strokeStyle = '#000000';
-            ctx.fillStyle = '#000000';
-            ctx.font = `${fontSize}px sans-serif`;
-
             const rootNodeId = documentState.getRootNodeId();
 
             renderDocument({
@@ -97,8 +93,6 @@ function DisplayedDocument(): m.Component<Attrs> {
                 // having been loaded
                 documentMovementHelpers.resetDocTranslation();
             }
-
-            const fontSize = uiState.getCurrentFontSize();
 
             // Canvas elements reset their scale and translation when their
             // dimensions change, so reset when that happens
@@ -126,16 +120,12 @@ function DisplayedDocument(): m.Component<Attrs> {
                 vnode.attrs.documentDimensions.height + 2 * MAX_PREV_TRANSLATION,
             );
 
-            // Reset clickable regions
             resetClickableRegions();
 
             //------------------------------------------------------------------
             // Draw the user's map
             //------------------------------------------------------------------
-            ctx.strokeStyle = '#000000';
-            ctx.fillStyle = '#000000';
-            ctx.font = `${fontSize}px sans-serif`;
-
+            const fontSize = uiState.getCurrentFontSize();
             const rootNodeId = documentState.getRootNodeId();
 
             renderDocument({

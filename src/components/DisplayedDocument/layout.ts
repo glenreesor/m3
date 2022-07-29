@@ -92,6 +92,10 @@ export function renderDocument({
     const allNodesRenderInfo = new Map<number, AllNodesRenderInfo>();
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
+    ctx.strokeStyle = '#000000';
+    ctx.fillStyle = '#000000';
+    ctx.font = `${fontSize}px sans-serif`;
+
     calculateAllNodesRenderInfo(ctx, fontSize, maxNodeWidth, allNodesRenderInfo, rootNodeId);
 
     renderNodesRecursively(
