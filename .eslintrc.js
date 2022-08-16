@@ -6,6 +6,7 @@ module.exports = {
     },
     extends: [
         'airbnb-base',
+        'plugin:@typescript-eslint/recommended',
         'plugin:import/typescript',
         'plugin:jest/recommended',
         'plugin:jsdoc/recommended',
@@ -21,13 +22,6 @@ module.exports = {
     ignorePatterns: ['*.json'],
     rules: {
         /* eslint-disable indent */
-
-        'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': 'error',
-            // The regular no-unused-vars doesn't understand TS things like:
-            // interface MyInterface {
-            //     myFunction(arg: string) => void
-            // }
 
         'import/extensions': ['error', 'always', { pattern: { ts: 'never' } }],
             // - Typescript doesn't use extensions for code
@@ -45,6 +39,13 @@ module.exports = {
             },
         ],
 
+        'import/prefer-default-export': 'off',
+            // - This rule only makes sense for components where the thing
+            //   being exported is identical to the filename
+            // - It doesn't make sense for something like a utility file that
+            //   has a single function (or where you expect more functions to
+            //   to be added later)
+
         'jsdoc/require-jsdoc': ['error', { publicOnly: true }],
             // The goal is to make code as self-documenting as possible, but
             // JSDoc is useful for IDE support -- showing function docs without
@@ -53,6 +54,15 @@ module.exports = {
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-param-type': 'off',
             // JSDoc types are redundant with typescript types
+
+        'jsdoc/require-param': 'off',
+        'jsdoc/require-returns': 'off',
+            // Sometimes the combination of parameter name and typescript
+            // type make the parameter obvious, so JSDoc just adds clutter
+
+        'jsdoc/tag-lines': 'off',
+            // Allowing blank lines is useful to make the @returns line stand
+            // out more
 
         indent: ['error', 4],
 
@@ -76,6 +86,9 @@ module.exports = {
         'operator-linebreak': 'off',
             // - So multi-line conditions have operators at the end of the line
             //   rather than at the beginning of the next line
+
+        'object-curly-newline': 'off',
+            // - This is just goofy
 
         semi: ['error', 'always'],
             // - One less thing to think about (Automatic Semicolon Insertion)

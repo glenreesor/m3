@@ -252,7 +252,7 @@ function App(): m.Component {
         view: (): m.Vnode => {
             const documentName = state.doc.getDocName();
             const hasUnsavedChanges = state.doc.hasUnsavedChanges();
-            const performReset = state.ui.getResetDueToNewDoc();
+            const resetCanvasTranslation = state.ui.getResetDueToNewDoc();
             state.ui.setResetDueToNewDoc(false);
 
             return m(
@@ -265,7 +265,7 @@ function App(): m.Component {
                         DisplayedDocument,
                         {
                             documentDimensions: getDocumentDimensions(),
-                            performReset,
+                            resetCanvasTranslation,
                         },
                     ),
                     m(Menu),
