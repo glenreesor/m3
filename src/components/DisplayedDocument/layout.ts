@@ -30,6 +30,26 @@ import {
 type ClickableCircle = CircularRegion & {id: number};
 type ClickableRectangle = RectangularRegion & {id: number};
 
+//--------------------------------------------------------------------------
+//                       ┌──── parentFoldingIconCenterRight
+//                       |
+//                       |          ┌────────────┐
+//                       |       ┌──| Child Node |
+//                  ---  |       |  └────────────┘  ┐
+// ┌─────────────┐ -   - V       |                  |
+// | Parent Node |-     -────────┤                  ├─── CHILD_PADDING.y
+// └─────────────┘ -   -         |                  |
+//                  ---          |  ┌────────────┐  ┘
+//                               └──| Child Node |
+//                                  └────────────┘
+//                       └────┬─────┘
+//                            └─── CHILD_PADDING.x
+//--------------------------------------------------------------------------
+const CHILD_PADDING = {
+    x: 30,
+    y: 15,
+};
+
 // List of clickable regions (created upon each render)
 let clickableFoldingIcons: ClickableCircle[] = [];
 let clickableNodes: ClickableRectangle[] = [];
@@ -139,26 +159,6 @@ function renderChildrenAndConnectors(
     childIds: number[],
     totalChildrenHeight: number,
 ) {
-    //--------------------------------------------------------------------------
-    //                       ┌──── parentFoldingIconCenterRight
-    //                       |
-    //                       |          ┌────────────┐
-    //                       |       ┌──| Child Node |
-    //                  ---  |       |  └────────────┘  ┐
-    // ┌─────────────┐ -   - V       |                  |
-    // | Parent Node |-     -────────┤                  ├─── CHILD_PADDING.y
-    // └─────────────┘ -   -         |                  |
-    //                  ---          |  ┌────────────┐  ┘
-    //                               └──| Child Node |
-    //                                  └────────────┘
-    //                       └────┬─────┘
-    //                            └─── CHILD_PADDING.x
-    //--------------------------------------------------------------------------
-    const CHILD_PADDING = {
-        x: 30,
-        y: 15,
-    };
-
     const childrenX = parentFoldingIconCenterRight.x + CHILD_PADDING.x;
 
     // Center children on this node
