@@ -42,41 +42,24 @@ const PADDING_X = 5;
 const PADDING_Y = 5;
 const PADDING_BETWEEN_LINES = 4;
 
-interface GetNodeRenderInfoArgs {
+/**
+ * Get the dimensions required for rendering a node with the specified contents,
+ * including the box around those contents, and a function to render the node
+ */
+export function getNodeRenderInfo(args: {
     ctx: CanvasRenderingContext2D,
     fontSize: number,
     maxWidth: number,
     nodeIsSelected: boolean;
     contents: string,
-}
-
-interface GetNodeRenderInfoReturn {
+}): {
     dimensions: Dimensions;
     renderNode: (parentConnectorCoords: Coordinates) => RectangularRegion;
-}
+} {
+    const { ctx, fontSize, maxWidth, nodeIsSelected, contents } = args;
 
-/**
- * Get the dimensions required for rendering a node with the specified contents,
- * including the box around those contents.
- *
- * @param args                 Args to be destructured
- * @param args.ctx             The canvas drawing context to use for determining text widths
- * @param args.fontSize        Size of font that will be rendered
- * @param args.maxWidth        The maximum width (pixels) for any node
- * @param args.nodeIsSelected Whether this node is selected
- * @param args.contents        The contents of the node to be rendered
- *
- * @returns The required dimensions
- */
-export function getNodeRenderInfo({
-    ctx,
-    fontSize,
-    maxWidth,
-    nodeIsSelected,
-    contents,
-}: GetNodeRenderInfoArgs): GetNodeRenderInfoReturn {
-    const textLines = getNodeTextLines({ ctx, maxWidth, contents });
-    const dimensions = getNodeDimensions({ ctx, fontSize, textLines });
+    const textLines = getNodeTextLines(ctx, maxWidth, contents);
+    const dimensions = getNodeDimensions(ctx, fontSize, textLines);
 
     function renderNode(parentConnectorCoordinates: Coordinates): RectangularRegion {
         return privateRenderNode({
@@ -99,13 +82,11 @@ export function getNodeRenderInfo({
 // Private Implementation
 //------------------------------------------------------------------------------
 
-interface GetDimensionsArgs {
+function getNodeDimensions(
     ctx: CanvasRenderingContext2D,
     fontSize: number,
     textLines: string[],
-}
-
-function getNodeDimensions({ ctx, fontSize, textLines }: GetDimensionsArgs): Dimensions {
+): Dimensions {
     const longestLineLength = textLines.reduce(
         (currentLongestLength, line) => {
             const textMetrics = ctx.measureText(line);
@@ -126,18 +107,15 @@ function getNodeDimensions({ ctx, fontSize, textLines }: GetDimensionsArgs): Dim
     return dimensions;
 }
 
-//------------------------------------------------------------------------------
-interface GetNodeTextLinesArgs {
-    ctx: CanvasRenderingContext2D;
-    maxWidth: number;
-    contents: string;
-}
-
-function getNodeTextLines({
-    ctx,
-    maxWidth,
-    contents,
-}: GetNodeTextLinesArgs): string[] {
+/**
+ * Get an array of lines to render, such that when rendered, the node is not
+ * wider than the specified maximum.
+ */
+function getNodeTextLines(
+    ctx: CanvasRenderingContext2D,
+    maxWidth: number,
+    contents: string,
+): string[] {
     const lines = [];
     let remainingContents = contents.slice();
 
@@ -174,23 +152,24 @@ function getNodeTextLines({
 }
 
 //------------------------------------------------------------------------------
-interface PrivateRenderNodeArgs {
+
+function privateRenderNode(args: {
     ctx: CanvasRenderingContext2D;
     fontSize: number;
     parentConnectorCoordinates: Coordinates;
     dimensions: Dimensions;
     nodeIsSelected: boolean;
     textLines: string[];
-}
+}): RectangularRegion {
+    const {
+        ctx,
+        fontSize,
+        parentConnectorCoordinates,
+        dimensions,
+        nodeIsSelected,
+        textLines,
+    } = args;
 
-function privateRenderNode({
-    ctx,
-    fontSize,
-    parentConnectorCoordinates,
-    dimensions,
-    nodeIsSelected,
-    textLines,
-}: PrivateRenderNodeArgs): RectangularRegion {
     drawRoundedRectangle({
         ctx,
         nodeIsSelected,

@@ -15,22 +15,22 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-export interface Coordinates {
+export type Coordinates = {
     x: number;
     y: number;
 }
 
-export interface Dimensions {
+export type Dimensions = {
     width: number;
     height: number;
 }
 
-export interface CircularRegion {
+export type CircularRegion = {
     center: Coordinates;
     radius: number;
 }
 
-export interface RectangularRegion {
+export type RectangularRegion = {
     topLeft: Coordinates;
     dimensions: Dimensions;
 }

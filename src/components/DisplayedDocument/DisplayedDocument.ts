@@ -38,10 +38,10 @@ interface Attrs {
  * A component to render the user's document in a <canvas> element
  */
 function DisplayedDocument(): m.Component<Attrs> {
-    const documentMovementHelpers = getDocumentMovementHelpers({
+    const documentMovementHelpers = getDocumentMovementHelpers(
         translateCanvas,
-        docRelativeClickHandler: onCanvasClick,
-    });
+        onCanvasClick,
+    );
 
     const devicePixelRatio = window.devicePixelRatio || 1;
 
@@ -79,12 +79,12 @@ function DisplayedDocument(): m.Component<Attrs> {
             const fontSize = uiState.getCurrentFontSize();
             const rootNodeId = documentState.getRootNodeId();
 
-            renderDocument({
+            renderDocument(
                 ctx,
                 fontSize,
                 rootNodeId,
-                canvasDimensions: vnode.attrs.documentDimensions,
-            });
+                vnode.attrs.documentDimensions,
+            );
         },
 
         onupdate: (vnode) => {
@@ -126,12 +126,12 @@ function DisplayedDocument(): m.Component<Attrs> {
             const fontSize = uiState.getCurrentFontSize();
             const rootNodeId = documentState.getRootNodeId();
 
-            renderDocument({
+            renderDocument(
                 ctx,
                 fontSize,
                 rootNodeId,
-                canvasDimensions: vnode.attrs.documentDimensions,
-            });
+                vnode.attrs.documentDimensions,
+            );
         },
 
         view: ({ attrs }) => {

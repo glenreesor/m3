@@ -87,6 +87,9 @@ module.exports = {
             // - So multi-line conditions have operators at the end of the line
             //   rather than at the beginning of the next line
 
+        'object-curly-newline': 'off',
+            // - This is just goofy
+
         semi: ['error', 'always'],
             // - One less thing to think about (Automatic Semicolon Insertion)
     },

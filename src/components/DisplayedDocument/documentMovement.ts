@@ -15,31 +15,19 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-interface GetDocumentMovementHelpersArgs {
-    translateCanvas: (x: number, y: number) => void;
-    docRelativeClickHandler: (x: number, y: number) => void;
-}
-
-type GetDocumentMovementHelpersReturn = {
-    alwaysActiveHandlers: Partial<GlobalEventHandlers>;
-    onlyDraggingModeHandlers: Partial<GlobalEventHandlers>;
-    getDocIsBeingDragged: () => boolean;
-    resetDocTranslation: () => void;
-};
-
 /**
  * Get event handlers and related helper functions for implementing document
  * movement (dragging).
  *
- * @param args                         The args object
- * @param args.translateCanvas         A function accepting (x, y) that will translate
- *                                     the canvas by the specified amount
- * @param args.docRelativeClickHandler A function accepting (x, y) that will be called
- *                                     for each click event, where (x, y) are relative
- *                                     to the current document (i.e. calling code
- *                                     does not have to be aware of canvas translations)
+ * @param translateCanvas         A function accepting (deltaX, deltaY) that will translate
+ *                                the canvas by the specified amount
+ * @param docRelativeClickHandler A function accepting (x, y) that will be called
+ *                                for each click event, where (x, y) are relative
+ *                                to the current document (i.e. calling code
+ *                                does not have to be aware of canvas translations)
  *
  * @returns An object with the following keys:
+ *
  *          alwaysActiveHandlers       Event handlers that should always be added
  *                                     to the DOM
  *          onlyDraggingModeHandlers   Event handlers that should only be added
@@ -50,10 +38,15 @@ type GetDocumentMovementHelpersReturn = {
  *          resetDocTranslation        Reset the document's translation in the
  *                                     canvas
  */
-export function getDocumentMovementHelpers({
-    translateCanvas,
-    docRelativeClickHandler,
-}: GetDocumentMovementHelpersArgs): GetDocumentMovementHelpersReturn {
+export function getDocumentMovementHelpers(
+    translateCanvas: (deltaX: number, deltaY: number) => void,
+    docRelativeClickHandler: (clickX: number, clickY: number) => void,
+): {
+    alwaysActiveHandlers: Partial<GlobalEventHandlers>,
+    onlyDraggingModeHandlers: Partial<GlobalEventHandlers>,
+    getDocIsBeingDragged: () => boolean,
+    resetDocTranslation: () => void,
+} {
     let docIsBeingDragged = false;
 
     // Coordinates of the mouse/pointer at previous translation event

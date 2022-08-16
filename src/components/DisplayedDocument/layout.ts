@@ -68,22 +68,15 @@ interface AllNodesRenderInfo {
     renderNode: (parentConnectorCoordinates: Coordinates) => RectangularRegion;
 }
 
-interface renderDocumentArgs {
-    ctx: CanvasRenderingContext2D,
-    fontSize: number;
-    rootNodeId: number;
-    canvasDimensions: Dimensions;
-}
-
 /**
  * Render the doc
  */
-export function renderDocument({
-    ctx,
-    fontSize,
-    rootNodeId,
-    canvasDimensions,
-}: renderDocumentArgs) {
+export function renderDocument(
+    ctx: CanvasRenderingContext2D,
+    fontSize: number,
+    rootNodeId: number,
+    canvasDimensions: Dimensions,
+) {
     const allNodesRenderInfo = new Map<number, AllNodesRenderInfo>();
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
@@ -104,6 +97,48 @@ export function renderDocument({
     );
 }
 
+/**
+ * Process a click on the canvas at the specified coordinates, selecting a node,
+ * folding / unfolding children, etc as required.
+ *
+ */
+export function onCanvasClick(pointerX: number, pointerY: number) {
+    // Compare to clickable regions for nodes
+    clickableNodes.forEach((region) => {
+        if (
+            (
+                pointerX >= region.topLeft.x &&
+                pointerX <= region.topLeft.x + region.dimensions.width
+            ) &&
+            (
+                pointerY >= region.topLeft.y &&
+                pointerY <= region.topLeft.y + region.dimensions.height
+            )
+        ) {
+            documentState.setSelectedNodeId(region.id);
+        }
+    });
+
+    // Compare to clickable regions for folding icons
+    clickableFoldingIcons.forEach((region) => {
+        const distanceToCenter = Math.sqrt(
+            (pointerX - region.center.x) ** 2 +
+            (pointerY - region.center.y) ** 2,
+        );
+
+        if (distanceToCenter <= region.radius) {
+            documentState.toggleChildrenVisibility(region.id);
+        }
+    });
+}
+//------------------------------------------------------------------------------
+// Private Interface
+//------------------------------------------------------------------------------
+
+/**
+ * Calculate the info required to render a node and all of its children,
+ * saving that info in `allNodexRenderInfo`
+ */
 function calculateAllNodesRenderInfo(
     ctx: CanvasRenderingContext2D,
     fontSize: number,
@@ -127,6 +162,7 @@ function calculateAllNodesRenderInfo(
 
     if (documentState.getChildrenVisible(nodeId)) {
         const childIds = documentState.getNodeChildIds(nodeId);
+
         childIds.forEach((childId) => {
             calculateAllNodesRenderInfo(ctx, fontSize, maxNodeWidth, allNodesRenderInfo, childId);
             totalChildrenHeight += safeGetRenderInfo(
@@ -200,6 +236,9 @@ function renderChildrenAndConnectors(
     });
 }
 
+/**
+ * Render the specified node and all its descendants
+ */
 function renderNodesRecursively(
     ctx: CanvasRenderingContext2D,
     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
@@ -223,14 +262,14 @@ function renderNodesRecursively(
         //------------------------------------------------------------------
         // Render the folding icon
         //------------------------------------------------------------------
-        const clickableRegion = renderChildFoldingIcon({
+        const clickableRegion = renderChildFoldingIcon(
             ctx,
-            centerLeftCoordinates: {
+            {
                 x: coordinates.x + renderInfo.dimensions.width,
                 y: coordinates.y,
             },
-            childrenAreVisible: childrenVisible,
-        });
+            childrenVisible,
+        );
 
         // Record the region that should respond to clicks for this icon
         clickableFoldingIcons.push(
@@ -257,6 +296,11 @@ function renderNodesRecursively(
     }
 }
 
+/**
+ * A helper function to get the render info for a node, which will throw an
+ * exception if that info isn't found (to keep typescript happy without polluting
+ * calling code)
+ */
 function safeGetRenderInfo(
     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
     nodeId: number,
@@ -267,40 +311,4 @@ function safeGetRenderInfo(
     throw new Error(
         `safeGetRenderInfo: nodeId '${nodeId}' is not present`,
     );
-}
-
-/**
- * bla
- *
- * @param pointerX X-coordinate of pointer positions
- * @param pointerY Y-coordinate of pointer positions
- */
-export function onCanvasClick(pointerX: number, pointerY: number) {
-    // Compare to clickable regions for nodes
-    clickableNodes.forEach((region) => {
-        if (
-            (
-                pointerX >= region.topLeft.x &&
-                pointerX <= region.topLeft.x + region.dimensions.width
-            ) &&
-            (
-                pointerY >= region.topLeft.y &&
-                pointerY <= region.topLeft.y + region.dimensions.height
-            )
-        ) {
-            documentState.setSelectedNodeId(region.id);
-        }
-    });
-
-    // Compare to clickable regions for folding icons
-    clickableFoldingIcons.forEach((region) => {
-        const distanceToCenter = Math.sqrt(
-            (pointerX - region.center.x) ** 2 +
-            (pointerY - region.center.y) ** 2,
-        );
-
-        if (distanceToCenter <= region.radius) {
-            documentState.toggleChildrenVisibility(region.id);
-        }
-    });
 }

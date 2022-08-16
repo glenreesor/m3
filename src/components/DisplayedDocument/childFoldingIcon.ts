@@ -19,12 +19,6 @@ import { CircularRegion, Coordinates } from './types';
 
 export const CHILD_FOLDING_ICON_RADIUS = 10;
 
-interface RenderChildFoldingIconArgs {
-    ctx: CanvasRenderingContext2D,
-    centerLeftCoordinates: Coordinates;
-    childrenAreVisible: boolean;
-}
-
 /**
  * Render a child folding icon at the specified location.
  *
@@ -35,12 +29,14 @@ interface RenderChildFoldingIconArgs {
  *  │      o o
  *  │
  *  └───── centerLeftCoordinates
+ *
+ *  @returns A description of the circular region that should respond to clicks
  */
-export function renderChildFoldingIcon({
-    ctx,
-    centerLeftCoordinates,
-    childrenAreVisible,
-}: RenderChildFoldingIconArgs): CircularRegion {
+export function renderChildFoldingIcon(
+    ctx: CanvasRenderingContext2D,
+    centerLeftCoordinates: Coordinates,
+    childrenAreVisible: boolean,
+): CircularRegion {
     ctx.beginPath();
     ctx.arc(
         centerLeftCoordinates.x + CHILD_FOLDING_ICON_RADIUS,

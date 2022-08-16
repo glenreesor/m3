@@ -17,21 +17,17 @@
 
 import { Coordinates, Dimensions } from './types';
 
-interface DrawNodeRectangleArgs {
+/**
+ * Draw a rounded rectangle at the specified position.
+ */
+export function drawRoundedRectangle(args: {
     ctx: CanvasRenderingContext2D;
     nodeIsSelected: boolean;
     topLeftCoordinates: Coordinates;
     dimensions: Dimensions;
-}
+}) {
+    const { ctx, nodeIsSelected, topLeftCoordinates, dimensions } = args;
 
-/**
- */
-export function drawRoundedRectangle({
-    ctx,
-    nodeIsSelected,
-    topLeftCoordinates,
-    dimensions,
-}: DrawNodeRectangleArgs) {
     const originalStrokeStyle = ctx.strokeStyle;
     const originalLineWidth = ctx.lineWidth;
 

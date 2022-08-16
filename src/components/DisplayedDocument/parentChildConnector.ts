@@ -18,7 +18,7 @@
 import { Coordinates } from './types';
 
 /**
- * Render the curve that connects a parent node to a child node
+ * Render the curve that connects a parent node's children foldingIcon to a child node
  */
 export function renderParentChildConnector(
     ctx: CanvasRenderingContext2D,
