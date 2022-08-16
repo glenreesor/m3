@@ -28,13 +28,11 @@ interface RenderChildFoldingIconArgs {
 /**
  * Render a child folding icon at the specified location.
  *
- *          o  o
- *       o        o
- *      o          o
- *  ┌─► o          o
- *  │   o          o
- *  │    o        o
- *  │       o  o
+ *         o o
+ *       o     o
+ *  ┌──►o       o
+ *  │    o     o
+ *  │      o o
  *  │
  *  └───── centerLeftCoordinates
  */
