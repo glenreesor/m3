@@ -28,23 +28,15 @@
  *
  * @returns An object with the following keys:
  *
- *          alwaysActiveHandlers       Event handlers that should always be added
- *                                     to the DOM
- *          onlyDraggingModeHandlers   Event handlers that should only be added
- *                                     to the DOM if the document is currently
- *                                     being dragged
- *          getDocIsBeingDragged       A function that returns whether the document
- *                                     is currently being dragged
- *          resetDocTranslation        Reset the document's translation in the
- *                                     canvas
+ *          getCanvasEventHandlers Event handlers that will handle moving the
+ *                                 canvas due to user interactions
+ *          resetDocTranslation    Reset the document's translation in the canvas
  */
 export function getDocumentMovementHelpers(
     translateCanvas: (deltaX: number, deltaY: number) => void,
     docRelativeClickHandler: (clickX: number, clickY: number) => void,
 ): {
-    alwaysActiveHandlers: Partial<GlobalEventHandlers>,
-    onlyDraggingModeHandlers: Partial<GlobalEventHandlers>,
-    getDocIsBeingDragged: () => boolean,
+    getCanvasEventHandlers: () => Partial<GlobalEventHandlers>,
     resetDocTranslation: () => void,
 } {
     let docIsBeingDragged = false;
@@ -147,24 +139,32 @@ export function getDocumentMovementHelpers(
         cumulativeCanvasTranslation.y = 0;
     }
 
-    const alwaysActiveHandlers = {
-        onclick: onClick,
-        onmousedown: onMouseDown,
-        onmouseup: onMouseUp,
-        ontouchend: onTouchEnd,
-        ontouchstart: onTouchStart,
-    };
+    function getCanvasEventHandlers() {
+        // Event handlers trigger Mithril redraws (of the entire app).
+        // So only define movement handlers if we actually need them, which
+        // is when the document is being dragged by the user.
+        const alwaysActiveHandlers = {
+            onclick: onClick,
+            onmousedown: onMouseDown,
+            onmouseup: onMouseUp,
+            ontouchend: onTouchEnd,
+            ontouchstart: onTouchStart,
+        };
 
-    const onlyDraggingModeHandlers = {
-        onmousemove: onMouseMove,
-        onmouseout: onMouseOut,
-        ontouchmove: onTouchMove,
-    };
+        const onlyDraggingModeHandlers = {
+            onmousemove: onMouseMove,
+            onmouseout: onMouseOut,
+            ontouchmove: onTouchMove,
+        };
+
+        return {
+            ...alwaysActiveHandlers,
+            ...(docIsBeingDragged ? onlyDraggingModeHandlers : {}),
+        };
+    }
 
     return {
-        alwaysActiveHandlers,
-        onlyDraggingModeHandlers,
-        getDocIsBeingDragged: () => docIsBeingDragged,
+        getCanvasEventHandlers,
         resetDocTranslation,
     };
 }

@@ -145,14 +145,6 @@ function DisplayedDocument(): m.Component<Attrs> {
             const canvasActualWidth = cssPixelsWidth * devicePixelRatio;
             const canvasActualHeight = cssPixelsHeight * devicePixelRatio;
 
-            // Event handlers trigger Mithril redraws (of the entire app).
-            // So only define movement handlers if we actually need them, which
-            // is when the document is being dragged by the user.
-            const { alwaysActiveHandlers } = documentMovementHelpers;
-            const optionalDraggingHandlers = documentMovementHelpers.getDocIsBeingDragged()
-                ? documentMovementHelpers.onlyDraggingModeHandlers
-                : {};
-
             return m(
                 'canvas',
                 {
@@ -163,8 +155,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                         width: `${cssPixelsWidth}px`,
                         height: `${cssPixelsHeight}px`,
                     },
-                    ...alwaysActiveHandlers,
-                    ...optionalDraggingHandlers,
+                    ...documentMovementHelpers.getCanvasEventHandlers(),
                 },
             );
         },
