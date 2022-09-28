@@ -41,6 +41,7 @@ function DisplayedDocument(): m.Component<Attrs> {
     const documentMovementHelpers = getDocumentMovementHelpers(
         translateCanvas,
         onCanvasClick,
+        redrawCanvas,
     );
 
     const devicePixelRatio = window.devicePixelRatio || 1;
@@ -60,6 +61,39 @@ function DisplayedDocument(): m.Component<Attrs> {
 
     function translateCanvas(x: number, y: number) {
         ctx.translate(x, y);
+    }
+
+    function redrawCanvas() {
+        // Clear the existing rendered map
+        // We need to clear a region larger than the actual canvas so
+        // parts of the map rendered prior to a translation also get cleared
+        //
+        // I don't fully understand why this works, but it needs to be
+        // big to handle gigantically wide nodes
+        const MAX_PREV_TRANSLATION = 4000;
+        ctx.clearRect(
+            -MAX_PREV_TRANSLATION,
+            -MAX_PREV_TRANSLATION,
+            currentCanvasDimensions.width + 2 * MAX_PREV_TRANSLATION,
+            currentCanvasDimensions.height + 2 * MAX_PREV_TRANSLATION,
+        );
+        resetClickableRegions();
+
+        //------------------------------------------------------------------
+        // Draw the user's map
+        //------------------------------------------------------------------
+        const fontSize = uiState.getCurrentFontSize();
+        const rootNodeId = documentState.getRootNodeId();
+
+        renderDocument(
+            ctx,
+            fontSize,
+            rootNodeId,
+            {
+                width: currentCanvasDimensions.width,
+                height: currentCanvasDimensions.height,
+            },
+        );
     }
 
     return {
@@ -104,34 +138,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                 documentMovementHelpers.resetDocTranslation();
             }
 
-            // Clear the existing rendered map
-            // We need to clear a region larger than the actual canvas so
-            // parts of the map rendered prior to a translation also get cleared
-            //
-            // I don't fully understand why this works, but it needs to be
-            // big to handle gigantically wide nodes
-            const MAX_PREV_TRANSLATION = 4000;
-            ctx.clearRect(
-                -MAX_PREV_TRANSLATION,
-                -MAX_PREV_TRANSLATION,
-                vnode.attrs.documentDimensions.width + 2 * MAX_PREV_TRANSLATION,
-                vnode.attrs.documentDimensions.height + 2 * MAX_PREV_TRANSLATION,
-            );
-
-            resetClickableRegions();
-
-            //------------------------------------------------------------------
-            // Draw the user's map
-            //------------------------------------------------------------------
-            const fontSize = uiState.getCurrentFontSize();
-            const rootNodeId = documentState.getRootNodeId();
-
-            renderDocument(
-                ctx,
-                fontSize,
-                rootNodeId,
-                vnode.attrs.documentDimensions,
-            );
+            redrawCanvas();
         },
 
         view: ({ attrs }) => {

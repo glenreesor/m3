@@ -28,28 +28,37 @@
  *
  * @returns An object with the following keys:
  *
- *          getCanvasEventHandlers Event handlers that will handle moving the
- *                                 canvas due to user interactions
- *          resetDocTranslation    Reset the document's translation in the canvas
+ *          getCanvasEventHandlers Event handlers that will handle user interactions
+ *                                 to move the document
+ *          resetDocTranslation    Reset the document's translation in the
+ *                                 canvas
  */
 export function getDocumentMovementHelpers(
     translateCanvas: (deltaX: number, deltaY: number) => void,
     docRelativeClickHandler: (clickX: number, clickY: number) => void,
+    redrawCanvas: () => void,
 ): {
     getCanvasEventHandlers: () => Partial<GlobalEventHandlers>,
     resetDocTranslation: () => void,
 } {
-    let docIsBeingDragged = false;
-
-    // Coordinates of the mouse/pointer at previous translation event
-    let previousPointerCoords = {
-        x: 0,
-        y: 0,
-    };
+    let movementState: 'none' | 'userDragging' | 'inertiaScroll' = 'none';
 
     const cumulativeCanvasTranslation = {
         x: 0,
         y: 0,
+    };
+
+    let userDragging = {
+        previousEventTime: 0,
+        previousEventPointerCoords: { x: 0, y: 0 },
+        previousVelocity: { x: 0, y: 0 },
+    };
+
+    let inertiaScroll = {
+        startTime: 0,
+        startPosition: { x: 0, y: 0 },
+        startVelocity: { x: 0, y: 0 },
+        previousPosition: { x: 0, y: 0 },
     };
 
     //-------------------------------------------------------------------------
@@ -92,30 +101,136 @@ export function getDocumentMovementHelpers(
     // Functions to handle dragging the document
     //-------------------------------------------------------------------------
     function dragStart(x: number, y: number) {
-        docIsBeingDragged = true;
-        previousPointerCoords = { x, y };
+        movementState = 'userDragging';
+        userDragging = {
+            previousEventTime: Date.now(),
+            previousEventPointerCoords: { x, y },
+            previousVelocity: { x: 0, y: 0 },
+        };
     }
 
     function dragMove(x: number, y: number) {
-        if (!docIsBeingDragged) return;
+        if (movementState !== 'userDragging') return;
 
         // Calculate how much the pointer moved
-        const deltaX = x - previousPointerCoords.x;
-        const deltaY = y - previousPointerCoords.y;
+        const deltaX = x - userDragging.previousEventPointerCoords.x;
+        const deltaY = y - userDragging.previousEventPointerCoords.y;
 
-        // Store current pointer coordinates so we can use that in delta
-        // calculation for the next move event
-        previousPointerCoords = { x, y };
+        // Apply this translation to the canvas (we rely on Mithril redrawing
+        // after this handler completes)
+        translateCanvas(deltaX, deltaY);
 
-        // Determine the total amount the canvas has been translated so we can
+        // Update the total amount the canvas has been translated so we can
         // take that into account for click targets
         cumulativeCanvasTranslation.x += deltaX;
         cumulativeCanvasTranslation.y += deltaY;
 
-        translateCanvas(deltaX, deltaY);
+        const now = Date.now();
+        const deltaT = now - userDragging.previousEventTime;
+
+        userDragging = {
+            previousEventTime: now,
+            previousEventPointerCoords: { x, y },
+            previousVelocity: { x: deltaX / deltaT, y: deltaY / deltaT },
+        };
     }
 
-    function dragEnd() { docIsBeingDragged = false; }
+    function dragEnd() {
+        movementState = 'inertiaScroll';
+
+        inertiaScroll = {
+            startTime: Date.now(),
+            startPosition: {
+                x: userDragging.previousEventPointerCoords.x,
+                y: userDragging.previousEventPointerCoords.y,
+            },
+            startVelocity: {
+                x: userDragging.previousVelocity.x,
+                y: userDragging.previousVelocity.y,
+            },
+            previousPosition: {
+                x: userDragging.previousEventPointerCoords.x,
+                y: userDragging.previousEventPointerCoords.y,
+            },
+        };
+
+        window.requestAnimationFrame(performInertiaScroll);
+    }
+
+    function performInertiaScroll() {
+        if (movementState !== 'inertiaScroll') {
+            return;
+        }
+
+        // Inspired by
+        // http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
+        //
+        // Start with an exponential function of the form:
+        //  d(t) = -a*e^(-b*t) + k    (a > 0, b > 0, k > 0)
+        //
+        // This provides a curve like this:
+        //    d
+        //    ^                    xxxxxxx
+        //    |              xxxxxx
+        //    |         xxxxx
+        //    |     xxxx
+        //    |  xxx
+        //    |xx
+        //    x
+        // --x+-------------------------------> t
+        //  x |
+        //  x |
+        //    |
+        //
+        // When user stops dragging (t=0), we know d(0) and v(0) so can solve
+        // for 2 unknowns.
+        //
+        // 'b' controls how quickly the curve approaches its horizontal
+        // asymptote, so we hard-code that as a tuning constant
+        //
+        // Solving for a and k:
+        //  a = v(0) / b
+        //  k = d(0) + a
+        //
+        // Substitute into the original function to get:
+        //  d(t) = -[v0 / b ] * e^(-b*t) + [ d0 + v0 / b]
+        //       = v0/b * [-e^(-b*t) + 1 ] + d0
+        //
+        // Use this derivation for each of horizontal and vertical directions
+
+        const b = 0.002;
+
+        const now = Date.now();
+        const t = now - inertiaScroll.startTime;
+
+        // In variables below, d0 and v0 correspond to d(0) and v(0)
+        const d0x = inertiaScroll.startPosition.x;
+        const v0x = inertiaScroll.startVelocity.x;
+        const newX = v0x / b * (-1 * Math.exp(-1 * b * t) + 1) + d0x;
+
+        const d0y = inertiaScroll.startPosition.y;
+        const v0y = inertiaScroll.startVelocity.y;
+        const newY = v0y / b * (-1 * Math.exp(-1 * b * t) + 1) + d0y;
+
+        const deltaX = newX - inertiaScroll.previousPosition.x;
+        const deltaY = newY - inertiaScroll.previousPosition.y;
+
+        cumulativeCanvasTranslation.x += deltaX;
+        cumulativeCanvasTranslation.y += deltaY;
+
+        translateCanvas(deltaX, deltaY);
+
+        inertiaScroll.previousPosition.x += deltaX;
+        inertiaScroll.previousPosition.y += deltaY;
+
+        redrawCanvas();
+
+        if (Math.abs(deltaX / t) > 0.0005 || Math.abs(deltaY / t) > 0.0005) {
+            window.requestAnimationFrame(performInertiaScroll);
+        } else {
+            movementState = 'none';
+        }
+    }
 
     //-------------------------------------------------------------------------
     // Click handler that calls the calling-code-supplied click handler with
@@ -159,7 +274,7 @@ export function getDocumentMovementHelpers(
 
         return {
             ...alwaysActiveHandlers,
-            ...(docIsBeingDragged ? onlyDraggingModeHandlers : {}),
+            ...(movementState === 'userDragging' ? onlyDraggingModeHandlers : {}),
         };
     }
 
