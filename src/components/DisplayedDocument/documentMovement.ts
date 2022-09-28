@@ -19,18 +19,18 @@
  * Get event handlers and related helper functions for implementing document
  * movement (dragging).
  *
- * @param translateCanvas         A function accepting (deltaX, deltaY) that will translate
- *                                the canvas by the specified amount
- * @param docRelativeClickHandler A function accepting (x, y) that will be called
- *                                for each click event, where (x, y) are relative
- *                                to the current document (i.e. calling code
- *                                does not have to be aware of canvas translations)
+ * @param translateCanvas         A function that will translate the canvas by a specified amount
+ * @param docRelativeClickHandler A function to handle click events, where the parameters
+ *                                (x, y) are relative to the current document
+ *                                (i.e. calling code does not have to be aware of canvas
+ *                                translations)
  *
  * @returns An object with the following keys:
  *
- *          getCanvasEventHandlers Event handlers that will handle user interactions
- *                                 to move the document
- *          resetDocTranslation    Reset the document's translation in the
+ *          getCanvasEventHandlers A function that returns appropriate Event handlers
+ *                                 that will handle user interactions to move the document.
+ *                                 The calling code must attach these to the canvas element
+ *          resetDocTranslation    A function that will Reset the document's translation in the
  *                                 canvas
  */
 export function getDocumentMovementHelpers(
@@ -157,6 +157,10 @@ export function getDocumentMovementHelpers(
         window.requestAnimationFrame(performInertiaScroll);
     }
 
+    /**
+     * Scroll the document using inertia calculation based on velocity when
+     * user stopped dragging
+     */
     function performInertiaScroll() {
         if (movementState !== 'inertiaScroll') {
             return;
@@ -245,6 +249,10 @@ export function getDocumentMovementHelpers(
     }
 
     //-------------------------------------------------------------------------
+
+    /**
+     * Reset the document translation (i.e. center the document in the canvas)
+     */
     function resetDocTranslation() {
         translateCanvas(
             -cumulativeCanvasTranslation.x,
@@ -254,6 +262,9 @@ export function getDocumentMovementHelpers(
         cumulativeCanvasTranslation.y = 0;
     }
 
+    /**
+     * Return a set of event handlers that will handle user interactions
+     */
     function getCanvasEventHandlers() {
         // Event handlers trigger Mithril redraws (of the entire app).
         // So only define movement handlers if we actually need them, which
