@@ -52,6 +52,7 @@ export function getDocumentMovementHelpers(
         previousEventTime: 0,
         previousEventPointerCoords: { x: 0, y: 0 },
         previousVelocity: { x: 0, y: 0 },
+        previousPreviousVelocity: { x: 0, y: 0 },
     };
 
     let inertiaScroll = {
@@ -106,6 +107,7 @@ export function getDocumentMovementHelpers(
             previousEventTime: Date.now(),
             previousEventPointerCoords: { x, y },
             previousVelocity: { x: 0, y: 0 },
+            previousPreviousVelocity: { x: 0, y: 0 },
         };
     }
 
@@ -132,6 +134,10 @@ export function getDocumentMovementHelpers(
             previousEventTime: now,
             previousEventPointerCoords: { x, y },
             previousVelocity: { x: deltaX / deltaT, y: deltaY / deltaT },
+            previousPreviousVelocity: {
+                x: userDragging.previousVelocity.x,
+                y: userDragging.previousVelocity.y,
+            },
         };
     }
 
@@ -144,9 +150,13 @@ export function getDocumentMovementHelpers(
                 x: userDragging.previousEventPointerCoords.x,
                 y: userDragging.previousEventPointerCoords.y,
             },
+
+            // The last velocity on a touch device can vary significantly
+            // from previous ones and thus provide an eratic user experience,
+            // so don't use it
             startVelocity: {
-                x: userDragging.previousVelocity.x,
-                y: userDragging.previousVelocity.y,
+                x: userDragging.previousPreviousVelocity.x,
+                y: userDragging.previousPreviousVelocity.y,
             },
             previousPosition: {
                 x: userDragging.previousEventPointerCoords.x,
