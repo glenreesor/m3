@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import { Coordinates } from './types';
+import { Coordinates } from '../types';
 
 /**
  * Render the curve that connects a parent node's children foldingIcon to a child node

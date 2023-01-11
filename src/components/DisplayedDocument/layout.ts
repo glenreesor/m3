@@ -16,9 +16,9 @@
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
 import documentState from '../../state/documentState';
-import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './childFoldingIcon';
-import { getNodeRenderInfo } from './node';
-import { renderParentChildConnector } from './parentChildConnector';
+import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './shapes/childFoldingIcon';
+import { getNodeRenderInfo } from './shapes/node';
+import { renderParentChildConnector } from './shapes/parentChildConnector';
 
 import {
     CircularRegion,
