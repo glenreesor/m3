@@ -51,16 +51,12 @@ const CHILD_PADDING = {
 };
 
 // List of clickable regions (created upon each render)
-let clickableFoldingIcons: ClickableCircle[] = [];
-let clickableNodes: ClickableRectangle[] = [];
+let clickableFoldingIcons: ClickableCircle[];
+let clickableNodes: ClickableRectangle[];
 
-/**
- * Reset clickable regions (probably due to canvas being resized)
- */
-export function resetClickableRegions() {
-    clickableFoldingIcons = [];
-    clickableNodes = [];
-}
+let renderableNodes: Map<number, Node>;
+let nodesTotalChildrenHeight: Map<number, number>;
+let nodesCoordinates: Map<number, Coordinates>;
 
 /**
  * Render the doc
@@ -71,9 +67,12 @@ export function renderDocument(
     rootNodeId: number,
     canvasDimensions: Dimensions,
 ) {
-    const renderableNodes = new Map<number, Node>();
-    const nodesTotalChildrenHeight = new Map<number, number>();
-    const nodesCoordinates = new Map<number, Coordinates>();
+    renderableNodes = new Map();
+    nodesTotalChildrenHeight = new Map();
+    nodesCoordinates = new Map();
+    clickableFoldingIcons = [];
+    clickableNodes = [];
+
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
     ctx.strokeStyle = '#000000';
@@ -81,8 +80,6 @@ export function renderDocument(
     ctx.font = `${fontSize}px sans-serif`;
 
     createRenderableNodeAndChildren({
-        renderableNodes,
-        nodesTotalChildrenHeight,
         ctx,
         fontSize,
         maxWidth: maxNodeWidth,
@@ -91,9 +88,6 @@ export function renderDocument(
 
     renderNodeAndChildren({
         ctx,
-        renderableNodes,
-        nodesTotalChildrenHeight,
-        nodesCoordinates,
         nodeId: rootNodeId,
         coordinates: {
             x: 10,
@@ -141,16 +135,12 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
 //------------------------------------------------------------------------------
 
 function createRenderableNodeAndChildren(args: {
-    renderableNodes: Map<number, Node>,
-    nodesTotalChildrenHeight: Map<number, number>,
     ctx: CanvasRenderingContext2D,
     fontSize: number,
     maxWidth: number,
     nodeId: number,
 }) {
     const {
-        renderableNodes,
-        nodesTotalChildrenHeight,
         ctx,
         fontSize,
         maxWidth,
@@ -171,12 +161,10 @@ function createRenderableNodeAndChildren(args: {
 
         childIds.forEach((childId) => {
             createRenderableNodeAndChildren({
-                renderableNodes,
                 ctx,
                 fontSize,
                 maxWidth,
                 nodeId: childId,
-                nodesTotalChildrenHeight,
             });
             totalChildrenHeight += (nodesTotalChildrenHeight.get(childId) as number);
         });
@@ -196,17 +184,11 @@ function createRenderableNodeAndChildren(args: {
 
 function renderNodeAndChildren(args: {
     ctx: CanvasRenderingContext2D,
-    renderableNodes: Map<number, Node>,
-    nodesTotalChildrenHeight: Map<number, number>,
-    nodesCoordinates: Map<number, Coordinates>,
     nodeId: number,
     coordinates: Coordinates,
 }) {
     const {
         ctx,
-        renderableNodes,
-        nodesTotalChildrenHeight,
-        nodesCoordinates,
         nodeId,
         coordinates,
     } = args;
@@ -267,9 +249,6 @@ function renderNodeAndChildren(args: {
 
                 renderNodeAndChildren({
                     ctx,
-                    renderableNodes,
-                    nodesTotalChildrenHeight,
-                    nodesCoordinates,
                     nodeId: childId,
                     coordinates: {
                         x: childrenX,

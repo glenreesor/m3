@@ -23,7 +23,6 @@ import { getDocumentMovementHelpers } from './documentMovement';
 import {
     onCanvasClick,
     renderDocument,
-    resetClickableRegions,
 } from './layout';
 
 interface Attrs {
@@ -77,7 +76,6 @@ function DisplayedDocument(): m.Component<Attrs> {
             currentCanvasDimensions.width + 2 * MAX_PREV_TRANSLATION,
             currentCanvasDimensions.height + 2 * MAX_PREV_TRANSLATION,
         );
-        resetClickableRegions();
 
         //------------------------------------------------------------------
         // Draw the user's map
