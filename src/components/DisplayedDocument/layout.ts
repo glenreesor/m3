@@ -73,7 +73,7 @@ export function renderDocument(
 ) {
     const renderableNodes = new Map<number, Node>();
     const nodesTotalChildrenHeight = new Map<number, number>();
-//    const nodesCoordinates = new Map<number, Coordinates>;
+    const nodesCoordinates = new Map<number, Coordinates>();
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
     ctx.strokeStyle = '#000000';
@@ -93,6 +93,7 @@ export function renderDocument(
         ctx,
         renderableNodes,
         nodesTotalChildrenHeight,
+        nodesCoordinates,
         nodeId: rootNodeId,
         coordinates: {
             x: 10,
@@ -163,9 +164,10 @@ function createRenderableNodeAndChildren(args: {
         new Node({ ctx, fontSize, maxWidth, nodeIsSelected, contents }),
     );
 
+    let totalChildrenHeight = 0;
+
     if (documentState.getChildrenVisible(nodeId)) {
         const childIds = documentState.getNodeChildIds(nodeId);
-        let totalChildrenHeight = 0;
 
         childIds.forEach((childId) => {
             createRenderableNodeAndChildren({
@@ -182,34 +184,56 @@ function createRenderableNodeAndChildren(args: {
         if (childIds.length > 0) {
             totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
         }
-
-        nodesTotalChildrenHeight.set(
-            nodeId,
-            Math.max(
-                (renderableNodes.get(nodeId) as Node).getDimensions().height,
-                totalChildrenHeight,
-            ),
-        );
     }
+    nodesTotalChildrenHeight.set(
+        nodeId,
+        Math.max(
+            (renderableNodes.get(nodeId) as Node).getDimensions().height,
+            totalChildrenHeight,
+        ),
+    );
 }
 
 function renderNodeAndChildren(args: {
     ctx: CanvasRenderingContext2D,
     renderableNodes: Map<number, Node>,
     nodesTotalChildrenHeight: Map<number, number>,
+    nodesCoordinates: Map<number, Coordinates>,
     nodeId: number,
     coordinates: Coordinates,
 }) {
-    const { ctx, renderableNodes, nodesTotalChildrenHeight, nodeId, coordinates } = args;
+    const {
+        ctx,
+        renderableNodes,
+        nodesTotalChildrenHeight,
+        nodesCoordinates,
+        nodeId,
+        coordinates,
+    } = args;
 
     const renderableNode = renderableNodes.get(nodeId) as Node;
+
     renderableNode.render(coordinates);
 
-    if (documentState.getChildrenVisible(nodeId)) {
-        const childIds = documentState.getNodeChildIds(nodeId);
+    const childIds = documentState.getNodeChildIds(nodeId);
 
-        if (childIds.length > 0) {
-            const childrenX = coordinates.x + renderableNode.getDimensions().width + 10;
+    if (childIds.length > 0) {
+        const childrenAreVisible = documentState.getChildrenVisible(nodeId);
+
+        // Render the folding icon
+        const foldingIconX = coordinates.x + renderableNode.getDimensions().width;
+        const clickableRegion = renderChildFoldingIcon(
+            ctx,
+            { x: foldingIconX, y: coordinates.y },
+            childrenAreVisible,
+        );
+        clickableFoldingIcons.push({
+            id: nodeId,
+            ...clickableRegion,
+        });
+
+        if (childrenAreVisible) {
+            const childrenX = foldingIconX + CHILD_FOLDING_ICON_RADIUS * 2 + CHILD_PADDING.x;
 
             let totalChildrenHeight = 0;
             childIds.forEach((childId) => {
@@ -226,12 +250,13 @@ function renderNodeAndChildren(args: {
 
             childIds.forEach((childId) => {
                 const heightIncludingChildren = nodesTotalChildrenHeight.get(childId) as number;
+
                 childY += heightIncludingChildren / 2;
 
                 renderParentChildConnector(
                     ctx,
                     {
-                        x: coordinates.x + renderableNode.getDimensions().width,
+                        x: foldingIconX + CHILD_FOLDING_ICON_RADIUS * 2,
                         y: coordinates.y,
                     },
                     {
@@ -244,11 +269,12 @@ function renderNodeAndChildren(args: {
                     ctx,
                     renderableNodes,
                     nodesTotalChildrenHeight,
+                    nodesCoordinates,
                     nodeId: childId,
                     coordinates: {
                         x: childrenX,
                         y: childY,
-                    }
+                    },
                 });
 
                 childY += heightIncludingChildren / 2;
