@@ -74,25 +74,25 @@ export default class Node {
         return this.#dimensions;
     }
 
-    render(parentConnectorCoordinates: Coordinates): RectangularRegion {
+    render(centerLeftCoordinates: Coordinates): RectangularRegion {
         drawRoundedRectangle({
             ctx: this.#ctx,
             nodeIsSelected: this.#nodeIsSelected,
             topLeftCoordinates: {
-                x: parentConnectorCoordinates.x,
-                y: parentConnectorCoordinates.y - this.#dimensions.height / 2,
+                x: centerLeftCoordinates.x,
+                y: centerLeftCoordinates.y - this.#dimensions.height / 2,
             },
             dimensions: this.#dimensions,
         });
 
-        const nodeTop = parentConnectorCoordinates.y - this.#dimensions.height / 2;
+        const nodeTop = centerLeftCoordinates.y - this.#dimensions.height / 2;
 
         // We want the text centered vertically, with PADDING_Y between the text
         // and the edge of the rectangle. 0.75 is a fudge factor to center it
         // since I know next to nothing about fonts :-)
         let textY = nodeTop + 0.75 * PADDING_Y + this.#fontSize;
 
-        const textX = parentConnectorCoordinates.x + PADDING_X;
+        const textX = centerLeftCoordinates.x + PADDING_X;
 
         this.#textLinesToRender.forEach((line) => {
             this.#ctx.fillText(
@@ -105,8 +105,8 @@ export default class Node {
 
         return {
             topLeft: {
-                x: parentConnectorCoordinates.x,
-                y: parentConnectorCoordinates.y - this.#dimensions.height / 2,
+                x: centerLeftCoordinates.x,
+                y: centerLeftCoordinates.y - this.#dimensions.height / 2,
             },
             dimensions: this.#dimensions,
         };

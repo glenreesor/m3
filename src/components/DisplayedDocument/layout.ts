@@ -89,7 +89,7 @@ export function renderDocument(
     renderNodeAndChildren({
         ctx,
         nodeId: rootNodeId,
-        coordinates: {
+        coordinatesCenterLeft: {
             x: 10,
             y: canvasDimensions.height / 2,
         },
@@ -185,17 +185,21 @@ function createRenderableNodeAndChildren(args: {
 function renderNodeAndChildren(args: {
     ctx: CanvasRenderingContext2D,
     nodeId: number,
-    coordinates: Coordinates,
+    coordinatesCenterLeft: Coordinates,
 }) {
     const {
         ctx,
         nodeId,
-        coordinates,
+        coordinatesCenterLeft,
     } = args;
 
     const renderableNode = renderableNodes.get(nodeId) as Node;
 
-    renderableNode.render(coordinates);
+    const clickableNodeRegion = renderableNode.render(coordinatesCenterLeft);
+    clickableNodes.push({
+        ...clickableNodeRegion,
+        id: nodeId,
+    });
 
     const childIds = documentState.getNodeChildIds(nodeId);
 
@@ -203,10 +207,10 @@ function renderNodeAndChildren(args: {
         const childrenAreVisible = documentState.getChildrenVisible(nodeId);
 
         // Render the folding icon
-        const foldingIconX = coordinates.x + renderableNode.getDimensions().width;
+        const foldingIconX = coordinatesCenterLeft.x + renderableNode.getDimensions().width;
         const clickableRegion = renderChildFoldingIcon(
             ctx,
-            { x: foldingIconX, y: coordinates.y },
+            { x: foldingIconX, y: coordinatesCenterLeft.y },
             childrenAreVisible,
         );
         clickableFoldingIcons.push({
@@ -225,7 +229,7 @@ function renderNodeAndChildren(args: {
             totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
 
             // Center children on this node
-            const topOfChildrenRegion = coordinates.y -
+            const topOfChildrenRegion = coordinatesCenterLeft.y -
                 totalChildrenHeight / 2;
 
             let childY = topOfChildrenRegion;
@@ -239,7 +243,7 @@ function renderNodeAndChildren(args: {
                     ctx,
                     {
                         x: foldingIconX + CHILD_FOLDING_ICON_RADIUS * 2,
-                        y: coordinates.y,
+                        y: coordinatesCenterLeft.y,
                     },
                     {
                         x: childrenX,
@@ -250,7 +254,7 @@ function renderNodeAndChildren(args: {
                 renderNodeAndChildren({
                     ctx,
                     nodeId: childId,
-                    coordinates: {
+                    coordinatesCenterLeft: {
                         x: childrenX,
                         y: childY,
                     },
