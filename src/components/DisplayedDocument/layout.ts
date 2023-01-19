@@ -54,9 +54,9 @@ const CHILD_PADDING = {
 let clickableFoldingIcons: ClickableCircle[];
 let clickableNodes: ClickableRectangle[];
 
+let localCtx: CanvasRenderingContext2D;
 let renderableNodes: Map<number, Node>;
-let nodesTotalChildrenHeight: Map<number, number>;
-let nodesCoordinates: Map<number, Coordinates>;
+let nodesHeightIncludingChildren: Map<number, number>;
 
 /**
  * Render the doc
@@ -67,27 +67,25 @@ export function renderDocument(
     rootNodeId: number,
     canvasDimensions: Dimensions,
 ) {
+    localCtx = ctx;
     renderableNodes = new Map();
-    nodesTotalChildrenHeight = new Map();
-    nodesCoordinates = new Map();
+    nodesHeightIncludingChildren = new Map();
     clickableFoldingIcons = [];
     clickableNodes = [];
-
-    const maxNodeWidth = 0.75 * canvasDimensions.width;
 
     ctx.strokeStyle = '#000000';
     ctx.fillStyle = '#000000';
     ctx.font = `${fontSize}px sans-serif`;
 
-    createRenderableNodeAndChildren({
-        ctx,
+    const maxNodeWidth = 0.75 * canvasDimensions.width;
+
+    createRenderingInfo({
         fontSize,
-        maxWidth: maxNodeWidth,
+        maxNodeWidth: maxNodeWidth,
         nodeId: rootNodeId,
     });
 
     renderNodeAndChildren({
-        ctx,
         nodeId: rootNodeId,
         coordinatesCenterLeft: {
             x: 10,
@@ -134,16 +132,14 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
 // Private Interface
 //------------------------------------------------------------------------------
 
-function createRenderableNodeAndChildren(args: {
-    ctx: CanvasRenderingContext2D,
+function createRenderingInfo(args: {
     fontSize: number,
-    maxWidth: number,
+    maxNodeWidth: number,
     nodeId: number,
 }) {
     const {
-        ctx,
         fontSize,
-        maxWidth,
+        maxNodeWidth,
         nodeId,
     } = args;
     const nodeIsSelected = documentState.getSelectedNodeId() === nodeId;
@@ -151,7 +147,7 @@ function createRenderableNodeAndChildren(args: {
 
     renderableNodes.set(
         nodeId,
-        new Node({ ctx, fontSize, maxWidth, nodeIsSelected, contents }),
+        new Node({ ctx: localCtx, fontSize, maxWidth: maxNodeWidth, nodeIsSelected, contents }),
     );
 
     let totalChildrenHeight = 0;
@@ -160,20 +156,19 @@ function createRenderableNodeAndChildren(args: {
         const childIds = documentState.getNodeChildIds(nodeId);
 
         childIds.forEach((childId) => {
-            createRenderableNodeAndChildren({
-                ctx,
+            createRenderingInfo({
                 fontSize,
-                maxWidth,
+                maxNodeWidth,
                 nodeId: childId,
             });
-            totalChildrenHeight += (nodesTotalChildrenHeight.get(childId) as number);
+            totalChildrenHeight += (nodesHeightIncludingChildren.get(childId) as number);
         });
 
         if (childIds.length > 0) {
             totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
         }
     }
-    nodesTotalChildrenHeight.set(
+    nodesHeightIncludingChildren.set(
         nodeId,
         Math.max(
             (renderableNodes.get(nodeId) as Node).getDimensions().height,
@@ -183,12 +178,10 @@ function createRenderableNodeAndChildren(args: {
 }
 
 function renderNodeAndChildren(args: {
-    ctx: CanvasRenderingContext2D,
     nodeId: number,
     coordinatesCenterLeft: Coordinates,
 }) {
     const {
-        ctx,
         nodeId,
         coordinatesCenterLeft,
     } = args;
@@ -208,9 +201,11 @@ function renderNodeAndChildren(args: {
 
         // Render the folding icon
         const foldingIconX = coordinatesCenterLeft.x + renderableNode.getDimensions().width;
+        const foldingIconY = coordinatesCenterLeft.y;
+
         const clickableRegion = renderChildFoldingIcon(
-            ctx,
-            { x: foldingIconX, y: coordinatesCenterLeft.y },
+            localCtx,
+            { x: foldingIconX, y: foldingIconY },
             childrenAreVisible,
         );
         clickableFoldingIcons.push({
@@ -219,52 +214,63 @@ function renderNodeAndChildren(args: {
         });
 
         if (childrenAreVisible) {
-            const childrenX = foldingIconX + CHILD_FOLDING_ICON_RADIUS * 2 + CHILD_PADDING.x;
-
-            let totalChildrenHeight = 0;
-            childIds.forEach((childId) => {
-                totalChildrenHeight += nodesTotalChildrenHeight.get(childId) as number;
-            });
-
-            totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
-
-            // Center children on this node
-            const topOfChildrenRegion = coordinatesCenterLeft.y -
-                totalChildrenHeight / 2;
-
-            let childY = topOfChildrenRegion;
-
-            childIds.forEach((childId) => {
-                const heightIncludingChildren = nodesTotalChildrenHeight.get(childId) as number;
-
-                childY += heightIncludingChildren / 2;
-
-                renderParentChildConnector(
-                    ctx,
-                    {
-                        x: foldingIconX + CHILD_FOLDING_ICON_RADIUS * 2,
-                        y: coordinatesCenterLeft.y,
-                    },
-                    {
-                        x: childrenX,
-                        y: childY,
-                    },
-                );
-
-                renderNodeAndChildren({
-                    ctx,
-                    nodeId: childId,
-                    coordinatesCenterLeft: {
-                        x: childrenX,
-                        y: childY,
-                    },
-                });
-
-                childY += heightIncludingChildren / 2;
-                childY += CHILD_PADDING.y;
-            });
+            renderChildrenAndConnectors(
+                {
+                    x: foldingIconX + CHILD_FOLDING_ICON_RADIUS * 2,
+                    y: coordinatesCenterLeft.y,
+                },
+                childIds,
+            );
         }
     }
+}
+
+function renderChildrenAndConnectors(
+    foldingIconRightCoordinates: Coordinates,
+    childIds: number[],
+) {
+    const childrenX = foldingIconRightCoordinates.x + CHILD_PADDING.x;
+
+    let totalChildrenHeight = 0;
+    childIds.forEach((childId) => {
+        totalChildrenHeight += nodesHeightIncludingChildren.get(childId) as number;
+    });
+
+    totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
+
+    const topOfChildrenRegion = foldingIconRightCoordinates.y -
+        totalChildrenHeight / 2;
+
+    let childY = topOfChildrenRegion;
+
+    childIds.forEach((childId) => {
+        const heightIncludingChildren = nodesHeightIncludingChildren.get(childId) as number;
+
+        childY += heightIncludingChildren / 2;
+
+        renderParentChildConnector(
+            localCtx,
+            {
+                x: foldingIconRightCoordinates.x,
+                y: foldingIconRightCoordinates.y,
+            },
+            {
+                x: childrenX,
+                y: childY,
+            },
+        );
+
+        renderNodeAndChildren({
+            nodeId: childId,
+            coordinatesCenterLeft: {
+                x: childrenX,
+                y: childY,
+            },
+        });
+
+        childY += heightIncludingChildren / 2;
+        childY += CHILD_PADDING.y;
+    });
 }
 
 /**
