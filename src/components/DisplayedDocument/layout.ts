@@ -17,7 +17,7 @@
 
 import documentState from '../../state/documentState';
 import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './shapes/childFoldingIcon';
-import { getNodeRenderInfo } from './shapes/node';
+import Node from './shapes/Node';
 import { renderParentChildConnector } from './shapes/parentChildConnector';
 
 import {
@@ -62,12 +62,6 @@ export function resetClickableRegions() {
     clickableNodes = [];
 }
 
-interface AllNodesRenderInfo {
-    dimensions: Dimensions;
-    heightIncludingChildren: number;
-    renderNode: (parentConnectorCoordinates: Coordinates) => RectangularRegion;
-}
-
 /**
  * Render the doc
  */
@@ -77,24 +71,44 @@ export function renderDocument(
     rootNodeId: number,
     canvasDimensions: Dimensions,
 ) {
-    const allNodesRenderInfo = new Map<number, AllNodesRenderInfo>();
+    const renderableNodes = new Map<number, Node>();
+    const nodesTotalChildrenHeight = new Map<number, number>();
+//    const nodesCoordinates = new Map<number, Coordinates>;
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
     ctx.strokeStyle = '#000000';
     ctx.fillStyle = '#000000';
     ctx.font = `${fontSize}px sans-serif`;
 
-    calculateAllNodesRenderInfo(ctx, fontSize, maxNodeWidth, allNodesRenderInfo, rootNodeId);
-
-    renderNodesRecursively(
+    createRenderableNodeAndChildren({
+        renderableNodes,
+        nodesTotalChildrenHeight,
         ctx,
-        allNodesRenderInfo,
-        rootNodeId,
-        {
+        fontSize,
+        maxWidth: maxNodeWidth,
+        nodeId: rootNodeId,
+    });
+
+    renderNodeAndChildren({
+        ctx,
+        renderableNodes,
+        nodesTotalChildrenHeight,
+        nodeId: rootNodeId,
+        coordinates: {
             x: 10,
             y: canvasDimensions.height / 2,
         },
-    );
+    });
+
+    // renderNodesRecursively(
+    //     ctx,
+    //     allNodesRenderInfo,
+    //     rootNodeId,
+    //     {
+    //         x: 10,
+    //         y: canvasDimensions.height / 2,
+    //     },
+    // );
 }
 
 /**
@@ -135,180 +149,292 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
 // Private Interface
 //------------------------------------------------------------------------------
 
-/**
- * Calculate the info required to render a node and all of its children,
- * saving that info in `allNodexRenderInfo`
- */
-function calculateAllNodesRenderInfo(
+function createRenderableNodeAndChildren(args: {
+    renderableNodes: Map<number, Node>,
+    nodesTotalChildrenHeight: Map<number, number>,
     ctx: CanvasRenderingContext2D,
     fontSize: number,
-    maxNodeWidth: number,
-    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
+    maxWidth: number,
     nodeId: number,
-) {
-    const nodeIsSelected = documentState.getSelectedNodeId() === nodeId;
-    const nodeContents = documentState.getNodeContents(nodeId);
-
-    const thisNodeRenderInfo = getNodeRenderInfo({
+}) {
+    const {
+        renderableNodes,
+        nodesTotalChildrenHeight,
         ctx,
         fontSize,
-        maxWidth: maxNodeWidth,
-        nodeIsSelected,
-        contents: nodeContents,
-    });
+        maxWidth,
+        nodeId,
+    } = args;
+    const nodeIsSelected = documentState.getSelectedNodeId() === nodeId;
+    const contents = documentState.getNodeContents(nodeId);
 
-    // Calculate total height of children if they're visible
-    let totalChildrenHeight = 0;
+    renderableNodes.set(
+        nodeId,
+        new Node({ ctx, fontSize, maxWidth, nodeIsSelected, contents }),
+    );
+
+    if (documentState.getChildrenVisible(nodeId)) {
+        const childIds = documentState.getNodeChildIds(nodeId);
+        let totalChildrenHeight = 0;
+
+        childIds.forEach((childId) => {
+            createRenderableNodeAndChildren({
+                renderableNodes,
+                ctx,
+                fontSize,
+                maxWidth,
+                nodeId: childId,
+                nodesTotalChildrenHeight,
+            });
+            totalChildrenHeight += (renderableNodes.get(childId) as Node).getDimensions().height;
+        });
+        nodesTotalChildrenHeight.set(nodeId, totalChildrenHeight);
+    }
+}
+
+function renderNodeAndChildren(args: {
+    ctx: CanvasRenderingContext2D,
+    renderableNodes: Map<number, Node>,
+    nodesTotalChildrenHeight: Map<number, number>,
+    nodeId: number,
+    coordinates: Coordinates,
+}) {
+    const { ctx, renderableNodes, nodesTotalChildrenHeight, nodeId, coordinates } = args;
+
+    const renderableNode = renderableNodes.get(nodeId) as Node;
+    renderableNode.render(coordinates);
 
     if (documentState.getChildrenVisible(nodeId)) {
         const childIds = documentState.getNodeChildIds(nodeId);
 
-        childIds.forEach((childId) => {
-            calculateAllNodesRenderInfo(ctx, fontSize, maxNodeWidth, allNodesRenderInfo, childId);
-            totalChildrenHeight += safeGetRenderInfo(
-                allNodesRenderInfo,
-                childId,
-            ).heightIncludingChildren;
-        });
-
         if (childIds.length > 0) {
+            const childrenX = coordinates.x + renderableNode.getDimensions().width + 10;
+
+            let totalChildrenHeight = 0;
+            childIds.forEach((childId) => {
+                totalChildrenHeight += nodesTotalChildrenHeight.get(childId) as number;
+            });
+
             totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
+
+            // Center children on this node
+            const topOfChildrenRegion = coordinates.y -
+                totalChildrenHeight / 2;
+
+            let childY = topOfChildrenRegion;
+
+            childIds.forEach((childId) => {
+                const heightIncludingChildren = nodesTotalChildrenHeight.get(childId) as number;
+                childY += heightIncludingChildren / 2;
+
+                renderParentChildConnector(
+                    ctx,
+                    {
+                        x: coordinates.x + renderableNode.getDimensions().width,
+                        y: coordinates.y,
+                    },
+                    {
+                        x: childrenX,
+                        y: childY,
+                    },
+                );
+
+                renderNodeAndChildren({
+                    ctx,
+                    renderableNodes,
+                    nodesTotalChildrenHeight,
+                    nodeId: childId,
+                    coordinates: {
+                        x: childrenX,
+                        y: childY,
+                    }
+                });
+
+                childY += heightIncludingChildren / 2;
+                childY += CHILD_PADDING.y;
+            });
         }
     }
-
-    allNodesRenderInfo.set(
-        nodeId,
-        {
-            ...thisNodeRenderInfo,
-            heightIncludingChildren: Math.max(
-                thisNodeRenderInfo.dimensions.height,
-                totalChildrenHeight,
-            ),
-        },
-    );
 }
 
-function renderChildrenAndConnectors(
-    ctx: CanvasRenderingContext2D,
-    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
-    parentFoldingIconCenterRight: {x: number, y: number},
-    childIds: number[],
-    totalChildrenHeight: number,
-) {
-    const childrenX = parentFoldingIconCenterRight.x + CHILD_PADDING.x;
+/**
+ * Calculate the info required to render a node and all of its children,
+ * saving that info in `allNodexRenderInfo`
+ */
+// function calculateAllNodesRenderInfo(
+//     ctx: CanvasRenderingContext2D,
+//     fontSize: number,
+//     maxNodeWidth: number,
+//     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
+//     nodeId: number,
+// ) {
+//     const nodeIsSelected = documentState.getSelectedNodeId() === nodeId;
+//     const nodeContents = documentState.getNodeContents(nodeId);
+//
+//     const thisNode = new Node({ ctx, fontSize, maxWidth: maxNodeWidth, nodeIsSelected, contents: nodeContents });
+//
+//     const thisNodeRenderInfo = {};
+//
+//     // const thisNodeRenderInfo = getNodeRenderInfo({
+//     //     ctx,
+//     //     fontSize,
+//     //     maxWidth: maxNodeWidth,
+//     //     nodeIsSelected,
+//     //     contents: nodeContents,
+//     // });
+//
+//     // Calculate total height of children if they're visible
+//     let totalChildrenHeight = 0;
+//
+//     if (documentState.getChildrenVisible(nodeId)) {
+//         const childIds = documentState.getNodeChildIds(nodeId);
+//
+//         childIds.forEach((childId) => {
+//             calculateAllNodesRenderInfo(ctx, fontSize, maxNodeWidth, allNodesRenderInfo, childId);
+//             totalChildrenHeight += safeGetRenderInfo(
+//                 allNodesRenderInfo,
+//                 childId,
+//             ).heightIncludingChildren;
+//         });
+//
+//         if (childIds.length > 0) {
+//             totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
+//         }
+//     }
+//
+//     allNodesRenderInfo.set(
+//         nodeId,
+//         {
+//             ...thisNodeRenderInfo,
+//             heightIncludingChildren: Math.max(
+//                 thisNodeRenderInfo.dimensions.height,
+//                 totalChildrenHeight,
+//             ),
+//         },
+//     );
+// }
 
-    // Center children on this node
-    const topOfChildrenRegion = parentFoldingIconCenterRight.y -
-        totalChildrenHeight / 2;
-
-    let childY = topOfChildrenRegion;
-
-    childIds.forEach((childId) => {
-        const { heightIncludingChildren } = safeGetRenderInfo(
-            allNodesRenderInfo,
-            childId,
-        );
-        childY += heightIncludingChildren / 2;
-
-        renderParentChildConnector(
-            ctx,
-            {
-                x: parentFoldingIconCenterRight.x,
-                y: parentFoldingIconCenterRight.y,
-            },
-            {
-                x: childrenX,
-                y: childY,
-            },
-        );
-
-        renderNodesRecursively(
-            ctx,
-            allNodesRenderInfo,
-            childId,
-            {
-                x: childrenX,
-                y: childY,
-            },
-        );
-        childY += heightIncludingChildren / 2;
-        childY += CHILD_PADDING.y;
-    });
-}
+// function renderChildrenAndConnectors(
+//     ctx: CanvasRenderingContext2D,
+//     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
+//     parentFoldingIconCenterRight: {x: number, y: number},
+//     childIds: number[],
+//     totalChildrenHeight: number,
+// ) {
+//     const childrenX = parentFoldingIconCenterRight.x + CHILD_PADDING.x;
+//
+//     // Center children on this node
+//     const topOfChildrenRegion = parentFoldingIconCenterRight.y -
+//         totalChildrenHeight / 2;
+//
+//     let childY = topOfChildrenRegion;
+//
+//     childIds.forEach((childId) => {
+//         const { heightIncludingChildren } = safeGetRenderInfo(
+//             allNodesRenderInfo,
+//             childId,
+//         );
+//         childY += heightIncludingChildren / 2;
+//
+//         renderParentChildConnector(
+//             ctx,
+//             {
+//                 x: parentFoldingIconCenterRight.x,
+//                 y: parentFoldingIconCenterRight.y,
+//             },
+//             {
+//                 x: childrenX,
+//                 y: childY,
+//             },
+//         );
+//
+//         renderNodesRecursively(
+//             ctx,
+//             allNodesRenderInfo,
+//             childId,
+//             {
+//                 x: childrenX,
+//                 y: childY,
+//             },
+//         );
+//         childY += heightIncludingChildren / 2;
+//         childY += CHILD_PADDING.y;
+//     });
+// }
 
 /**
  * Render the specified node and all its descendants
  */
-function renderNodesRecursively(
-    ctx: CanvasRenderingContext2D,
-    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
-    nodeId: number,
-    coordinates: Coordinates,
-) {
-    const renderInfo = safeGetRenderInfo(allNodesRenderInfo, nodeId);
-    const childrenVisible = documentState.getChildrenVisible(nodeId);
-    const rectangularRegion = renderInfo.renderNode(coordinates);
-
-    // Record the region that should respond to clicks for this node
-    clickableNodes.push(
-        {
-            id: nodeId,
-            ...rectangularRegion,
-        },
-    );
-
-    const childIds = documentState.getNodeChildIds(nodeId);
-    if (childIds.length > 0) {
-        //------------------------------------------------------------------
-        // Render the folding icon
-        //------------------------------------------------------------------
-        const clickableRegion = renderChildFoldingIcon(
-            ctx,
-            {
-                x: coordinates.x + renderInfo.dimensions.width,
-                y: coordinates.y,
-            },
-            childrenVisible,
-        );
-
-        // Record the region that should respond to clicks for this icon
-        clickableFoldingIcons.push(
-            {
-                id: nodeId,
-                ...clickableRegion,
-            },
-        );
-
-        if (childrenVisible) {
-            const foldingIconCenterRight = {
-                x: coordinates.x + renderInfo.dimensions.width + 2 * CHILD_FOLDING_ICON_RADIUS,
-                y: coordinates.y,
-            };
-
-            renderChildrenAndConnectors(
-                ctx,
-                allNodesRenderInfo,
-                foldingIconCenterRight,
-                childIds,
-                renderInfo.heightIncludingChildren,
-            );
-        }
-    }
-}
+// function renderNodesRecursively(
+//     ctx: CanvasRenderingContext2D,
+//     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
+//     nodeId: number,
+//     coordinates: Coordinates,
+// ) {
+//     const renderInfo = safeGetRenderInfo(allNodesRenderInfo, nodeId);
+//     const childrenVisible = documentState.getChildrenVisible(nodeId);
+//     const rectangularRegion = renderInfo.renderNode(coordinates);
+//
+//     // Record the region that should respond to clicks for this node
+//     clickableNodes.push(
+//         {
+//             id: nodeId,
+//             ...rectangularRegion,
+//         },
+//     );
+//
+//     const childIds = documentState.getNodeChildIds(nodeId);
+//     if (childIds.length > 0) {
+//         //------------------------------------------------------------------
+//         // Render the folding icon
+//         //------------------------------------------------------------------
+//         const clickableRegion = renderChildFoldingIcon(
+//             ctx,
+//             {
+//                 x: coordinates.x + renderInfo.dimensions.width,
+//                 y: coordinates.y,
+//             },
+//             childrenVisible,
+//         );
+//
+//         // Record the region that should respond to clicks for this icon
+//         clickableFoldingIcons.push(
+//             {
+//                 id: nodeId,
+//                 ...clickableRegion,
+//             },
+//         );
+//
+//         if (childrenVisible) {
+//             const foldingIconCenterRight = {
+//                 x: coordinates.x + renderInfo.dimensions.width + 2 * CHILD_FOLDING_ICON_RADIUS,
+//                 y: coordinates.y,
+//             };
+//
+//             renderChildrenAndConnectors(
+//                 ctx,
+//                 allNodesRenderInfo,
+//                 foldingIconCenterRight,
+//                 childIds,
+//                 renderInfo.heightIncludingChildren,
+//             );
+//         }
+//     }
+// }
 
 /**
  * A helper function to get the render info for a node, which will throw an
  * exception if that info isn't found (to keep typescript happy without polluting
  * calling code)
  */
-function safeGetRenderInfo(
-    allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
-    nodeId: number,
-): AllNodesRenderInfo {
-    const renderInfo = allNodesRenderInfo.get(nodeId);
-    if (renderInfo !== undefined) return renderInfo;
-
-    throw new Error(
-        `safeGetRenderInfo: nodeId '${nodeId}' is not present`,
-    );
-}
+// function safeGetRenderInfo(
+//     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
+//     nodeId: number,
+// ): AllNodesRenderInfo {
+//     const renderInfo = allNodesRenderInfo.get(nodeId);
+//     if (renderInfo !== undefined) return renderInfo;
+//
+//     throw new Error(
+//         `safeGetRenderInfo: nodeId '${nodeId}' is not present`,
+//     );
+// }
