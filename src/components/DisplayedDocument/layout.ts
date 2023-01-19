@@ -81,7 +81,7 @@ export function renderDocument(
 
     createRenderingInfo({
         fontSize,
-        maxNodeWidth: maxNodeWidth,
+        maxNodeWidth,
         nodeId: rootNodeId,
     });
 
@@ -161,7 +161,7 @@ function createRenderingInfo(args: {
                 maxNodeWidth,
                 nodeId: childId,
             });
-            totalChildrenHeight += (nodesHeightIncludingChildren.get(childId) as number);
+            totalChildrenHeight += safeGetNodeHeightIncludingChildren(childId);
         });
 
         if (childIds.length > 0) {
@@ -171,7 +171,7 @@ function createRenderingInfo(args: {
     nodesHeightIncludingChildren.set(
         nodeId,
         Math.max(
-            (renderableNodes.get(nodeId) as Node).getDimensions().height,
+            safeGetRenderableNode(nodeId).getDimensions().height,
             totalChildrenHeight,
         ),
     );
@@ -186,7 +186,7 @@ function renderNodeAndChildren(args: {
         coordinatesCenterLeft,
     } = args;
 
-    const renderableNode = renderableNodes.get(nodeId) as Node;
+    const renderableNode = safeGetRenderableNode(nodeId);
 
     const clickableNodeRegion = renderableNode.render(coordinatesCenterLeft);
     clickableNodes.push({
@@ -233,7 +233,7 @@ function renderChildrenAndConnectors(
 
     let totalChildrenHeight = 0;
     childIds.forEach((childId) => {
-        totalChildrenHeight += nodesHeightIncludingChildren.get(childId) as number;
+        totalChildrenHeight += safeGetNodeHeightIncludingChildren(childId);
     });
 
     totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
@@ -244,7 +244,7 @@ function renderChildrenAndConnectors(
     let childY = topOfChildrenRegion;
 
     childIds.forEach((childId) => {
-        const heightIncludingChildren = nodesHeightIncludingChildren.get(childId) as number;
+        const heightIncludingChildren = safeGetNodeHeightIncludingChildren(childId);
 
         childY += heightIncludingChildren / 2;
 
@@ -274,18 +274,29 @@ function renderChildrenAndConnectors(
 }
 
 /**
- * A helper function to get the render info for a node, which will throw an
+ * A helper function to get an entry from nodesHeightIncludingChildren, which
+ * will throw an exception if that info isn't found (to keep typescript happy
+ * without polluting calling code)
+ */
+function safeGetNodeHeightIncludingChildren(nodeId: number): number {
+    const heightIncludingChildren = nodesHeightIncludingChildren.get(nodeId);
+    if (heightIncludingChildren !== undefined) return heightIncludingChildren;
+
+    throw new Error(
+        `safeGetNodeHeightIncludingChildren: nodeId '${nodeId}' is not present`,
+    );
+}
+
+/**
+ * A helper function to get an entry from renderableNodes, which will throw an
  * exception if that info isn't found (to keep typescript happy without polluting
  * calling code)
  */
-// function safeGetRenderInfo(
-//     allNodesRenderInfo: Map<number, AllNodesRenderInfo>,
-//     nodeId: number,
-// ): AllNodesRenderInfo {
-//     const renderInfo = allNodesRenderInfo.get(nodeId);
-//     if (renderInfo !== undefined) return renderInfo;
-//
-//     throw new Error(
-//         `safeGetRenderInfo: nodeId '${nodeId}' is not present`,
-//     );
-// }
+function safeGetRenderableNode(nodeId: number): Node {
+    const node = renderableNodes.get(nodeId);
+    if (node !== undefined) return node;
+
+    throw new Error(
+        `safeGetRenderableNode: nodeId '${nodeId}' is not present`,
+    );
+}
