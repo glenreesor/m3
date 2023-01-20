@@ -42,6 +42,9 @@ const PADDING_X = 5;
 const PADDING_Y = 5;
 const PADDING_BETWEEN_LINES = 4;
 
+/**
+ * An object that knows how to render a Node when given its coordinates
+ */
 export default class Node {
     #ctx: CanvasRenderingContext2D;
 

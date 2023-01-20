@@ -56,7 +56,16 @@ let clickableFoldingIcons: ClickableCircle[];
 let clickableNodes: ClickableRectangle[];
 
 let localCtx: CanvasRenderingContext2D;
+
+/**
+ * A map where the keys are node IDs and the values are renderable objects
+ */
 let renderableNodes: Map<number, Node>;
+
+/**
+ * A map where the keys are node IDs and the values correspond to each node's
+ * height including its children
+ */
 let nodeHeightsIncludingChildren: Map<number, number>;
 
 /**
@@ -133,6 +142,10 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
 // Private Interface
 //------------------------------------------------------------------------------
 
+/**
+ * Create all the information required to render a node and its children
+ * (dimensions, height including children, etc)
+ */
 function createNodeAndChildrenRenderingInfo(args: {
     fontSize: number,
     maxNodeWidth: number,
