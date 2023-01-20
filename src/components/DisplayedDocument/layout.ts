@@ -31,19 +31,20 @@ type ClickableCircle = CircularRegion & {id: number};
 type ClickableRectangle = RectangularRegion & {id: number};
 
 //--------------------------------------------------------------------------
-//                       ┌──── parentFoldingIconCenterRight
-//                       |
-//                       |          ┌────────────┐
-//                       |       ┌──| Child Node |
-//                  ---  |       |  └────────────┘  ┐
-// ┌─────────────┐ -   - V       |                  |
-// | Parent Node |-     -────────┤                  ├─── CHILD_PADDING.y
-// └─────────────┘ -   -         |                  |
-//                  ---          |  ┌────────────┐  ┘
-//                               └──| Child Node |
-//                                  └────────────┘
-//                       └────┬─────┘
-//                            └─── CHILD_PADDING.x
+//                                          ┌──────────────┐      ─┐
+//                                       ┌──| Grand Child1 |       |
+//                         ┌────────┐    |  └──────────────┘ ┐     |   Height of
+//             ---      ┌──| Child1 |────┤                   ├┐    ├── Child1
+// ┌────────┐ -   -     |  └────────┘    |  ┌──────────────┐ ┘|    |   Including
+// | Parent |-     -────┤                └──| Grand Child2 |  |    |   it's
+// └────────┘ -   -     |                   └──────────────┘  |   ─┘   Children
+//             ---      |                                     |
+//                      |  ┌────────┐                         |
+//                      └──| Child2 |                 CHILD_PADDING.y
+//                         └────────┘
+//                 └───┬───┘
+//                     └─── CHILD_PADDING.x
+//
 //--------------------------------------------------------------------------
 const CHILD_PADDING = {
     x: 30,
@@ -56,7 +57,7 @@ let clickableNodes: ClickableRectangle[];
 
 let localCtx: CanvasRenderingContext2D;
 let renderableNodes: Map<number, Node>;
-let nodesHeightIncludingChildren: Map<number, number>;
+let nodeHeightsIncludingChildren: Map<number, number>;
 
 /**
  * Render the doc
@@ -69,7 +70,7 @@ export function renderDocument(
 ) {
     localCtx = ctx;
     renderableNodes = new Map();
-    nodesHeightIncludingChildren = new Map();
+    nodeHeightsIncludingChildren = new Map();
     clickableFoldingIcons = [];
     clickableNodes = [];
 
@@ -79,19 +80,19 @@ export function renderDocument(
 
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
-    createRenderingInfo({
+    createNodeAndChildrenRenderingInfo({
         fontSize,
         maxNodeWidth,
         nodeId: rootNodeId,
     });
 
-    renderNodeAndChildren({
-        nodeId: rootNodeId,
-        coordinatesCenterLeft: {
+    renderNodeAndChildren(
+        rootNodeId,
+        {
             x: 10,
             y: canvasDimensions.height / 2,
         },
-    });
+    );
 }
 
 /**
@@ -132,7 +133,7 @@ export function onCanvasClick(pointerX: number, pointerY: number) {
 // Private Interface
 //------------------------------------------------------------------------------
 
-function createRenderingInfo(args: {
+function createNodeAndChildrenRenderingInfo(args: {
     fontSize: number,
     maxNodeWidth: number,
     nodeId: number,
@@ -156,7 +157,7 @@ function createRenderingInfo(args: {
         const childIds = documentState.getNodeChildIds(nodeId);
 
         childIds.forEach((childId) => {
-            createRenderingInfo({
+            createNodeAndChildrenRenderingInfo({
                 fontSize,
                 maxNodeWidth,
                 nodeId: childId,
@@ -168,7 +169,7 @@ function createRenderingInfo(args: {
             totalChildrenHeight += (childIds.length - 1) * CHILD_PADDING.y;
         }
     }
-    nodesHeightIncludingChildren.set(
+    nodeHeightsIncludingChildren.set(
         nodeId,
         Math.max(
             safeGetRenderableNode(nodeId).getDimensions().height,
@@ -177,15 +178,7 @@ function createRenderingInfo(args: {
     );
 }
 
-function renderNodeAndChildren(args: {
-    nodeId: number,
-    coordinatesCenterLeft: Coordinates,
-}) {
-    const {
-        nodeId,
-        coordinatesCenterLeft,
-    } = args;
-
+function renderNodeAndChildren(nodeId: number, coordinatesCenterLeft: Coordinates) {
     const renderableNode = safeGetRenderableNode(nodeId);
 
     const clickableNodeRegion = renderableNode.render(coordinatesCenterLeft);
@@ -203,14 +196,14 @@ function renderNodeAndChildren(args: {
         const foldingIconX = coordinatesCenterLeft.x + renderableNode.getDimensions().width;
         const foldingIconY = coordinatesCenterLeft.y;
 
-        const clickableRegion = renderChildFoldingIcon(
+        const clickableFoldingIconRegion = renderChildFoldingIcon(
             localCtx,
             { x: foldingIconX, y: foldingIconY },
             childrenAreVisible,
         );
         clickableFoldingIcons.push({
             id: nodeId,
-            ...clickableRegion,
+            ...clickableFoldingIconRegion,
         });
 
         if (childrenAreVisible) {
@@ -260,13 +253,13 @@ function renderChildrenAndConnectors(
             },
         );
 
-        renderNodeAndChildren({
-            nodeId: childId,
-            coordinatesCenterLeft: {
+        renderNodeAndChildren(
+            childId,
+            {
                 x: childrenX,
                 y: childY,
             },
-        });
+        );
 
         childY += heightIncludingChildren / 2;
         childY += CHILD_PADDING.y;
@@ -279,7 +272,7 @@ function renderChildrenAndConnectors(
  * without polluting calling code)
  */
 function safeGetNodeHeightIncludingChildren(nodeId: number): number {
-    const heightIncludingChildren = nodesHeightIncludingChildren.get(nodeId);
+    const heightIncludingChildren = nodeHeightsIncludingChildren.get(nodeId);
     if (heightIncludingChildren !== undefined) return heightIncludingChildren;
 
     throw new Error(
