@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import { Coordinates, Dimensions } from './types';
+import { Coordinates, Dimensions } from '../types';
 
 /**
  * Draw a rounded rectangle at the specified position.
