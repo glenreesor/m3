@@ -15,18 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import canvasState from './canvasState';
-import doc from './documentState';
-import ui from './uiState';
-
-/**
- * An object that holds the App's global state and functions for acting on that
- * state.
- *
- * See imported sub-states for full information.
- */
-export default {
-    canvasState,
-    doc,
-    ui,
-};
+export type Coordinates = {
+    x: number;
+    y: number;
+}

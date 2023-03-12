@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -243,6 +243,10 @@ function App(): m.Component {
     return {
         oncreate: () => {
             window.addEventListener('resize', onWindowResize);
+            state.canvasState.setRootNodeCoords({
+                x: 10,
+                y: getDocumentDimensions().height / 2,
+            });
         },
 
         onremove: () => {

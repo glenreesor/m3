@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
+import canvasState from '../../state/canvasState';
 import documentState from '../../state/documentState';
 import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './shapes/childFoldingIcon';
 import Node from './shapes/Node';
@@ -97,10 +98,7 @@ export function renderDocument(
 
     renderNodeAndChildren(
         rootNodeId,
-        {
-            x: 10,
-            y: canvasDimensions.height / 2,
-        },
+        canvasState.getRootNodeCoords(),
     );
 }
 

@@ -16,6 +16,7 @@
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
 import * as m from 'mithril';
+import canvasState from '../../state/canvasState';
 import documentState from '../../state/documentState';
 import uiState from '../../state/uiState';
 
@@ -58,8 +59,8 @@ function DisplayedDocument(): m.Component<Attrs> {
         currentCanvasDimensions.height = attrs.documentDimensions.height;
     }
 
-    function translateCanvas(x: number, y: number) {
-        ctx.translate(x, y);
+    function translateCanvas(dx: number, dy: number) {
+        canvasState.translateRootNode(dx, dy);
     }
 
     function redrawCanvas() {
