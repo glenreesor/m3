@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -19,7 +19,7 @@
  * Get event handlers and related helper functions for implementing document
  * movement (dragging).
  *
- * @param translateCanvas         A function that will translate the canvas by a specified amount
+ * @param translateDocument       A function that will translate the document by a specified amount
  * @param docRelativeClickHandler A function to handle click events, where the parameters
  *                                (x, y) are relative to the current document
  *                                (i.e. calling code does not have to be aware of canvas
@@ -30,23 +30,15 @@
  *          getCanvasEventHandlers A function that returns appropriate Event handlers
  *                                 that will handle user interactions to move the document.
  *                                 The calling code must attach these to the canvas element
- *          resetDocTranslation    A function that will Reset the document's translation in the
- *                                 canvas
  */
 export function getDocumentMovementHelpers(
-    translateCanvas: (deltaX: number, deltaY: number) => void,
+    translateDocument: (deltaX: number, deltaY: number) => void,
     docRelativeClickHandler: (clickX: number, clickY: number) => void,
     redrawCanvas: () => void,
 ): {
     getCanvasEventHandlers: () => Partial<GlobalEventHandlers>,
-    resetDocTranslation: () => void,
 } {
     let movementState: 'none' | 'userDragging' | 'inertiaScroll' = 'none';
-
-    const cumulativeCanvasTranslation = {
-        x: 0,
-        y: 0,
-    };
 
     let userDragging = {
         previousEventTime: 0,
@@ -118,14 +110,9 @@ export function getDocumentMovementHelpers(
         const deltaX = x - userDragging.previousEventPointerCoords.x;
         const deltaY = y - userDragging.previousEventPointerCoords.y;
 
-        // Apply this translation to the canvas (we rely on Mithril redrawing
+        // Apply this translation to the document (we rely on Mithril redrawing
         // after this handler completes)
-        translateCanvas(deltaX, deltaY);
-
-        // Update the total amount the canvas has been translated so we can
-        // take that into account for click targets
-        cumulativeCanvasTranslation.x += deltaX;
-        cumulativeCanvasTranslation.y += deltaY;
+        translateDocument(deltaX, deltaY);
 
         const now = Date.now();
         const deltaT = now - userDragging.previousEventTime;
@@ -229,10 +216,7 @@ export function getDocumentMovementHelpers(
         const deltaX = newX - inertiaScroll.previousPosition.x;
         const deltaY = newY - inertiaScroll.previousPosition.y;
 
-        cumulativeCanvasTranslation.x += deltaX;
-        cumulativeCanvasTranslation.y += deltaY;
-
-        translateCanvas(deltaX, deltaY);
+        translateDocument(deltaX, deltaY);
 
         inertiaScroll.previousPosition.x += deltaX;
         inertiaScroll.previousPosition.y += deltaY;
@@ -253,24 +237,12 @@ export function getDocumentMovementHelpers(
     //-------------------------------------------------------------------------
     function onClick(e: MouseEvent) {
         docRelativeClickHandler(
-            e.offsetX - cumulativeCanvasTranslation.x,
-            e.offsetY - cumulativeCanvasTranslation.y,
+            e.offsetX,
+            e.offsetY,
         );
     }
 
     //-------------------------------------------------------------------------
-
-    /**
-     * Reset the document translation (i.e. center the document in the canvas)
-     */
-    function resetDocTranslation() {
-        translateCanvas(
-            -cumulativeCanvasTranslation.x,
-            -cumulativeCanvasTranslation.y,
-        );
-        cumulativeCanvasTranslation.x = 0;
-        cumulativeCanvasTranslation.y = 0;
-    }
 
     /**
      * Return a set of event handlers that will handle user interactions
@@ -299,8 +271,5 @@ export function getDocumentMovementHelpers(
         };
     }
 
-    return {
-        getCanvasEventHandlers,
-        resetDocTranslation,
-    };
+    return { getCanvasEventHandlers };
 }

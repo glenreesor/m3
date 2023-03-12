@@ -243,10 +243,8 @@ function App(): m.Component {
     return {
         oncreate: () => {
             window.addEventListener('resize', onWindowResize);
-            state.canvasState.setRootNodeCoords({
-                x: 10,
-                y: getDocumentDimensions().height / 2,
-            });
+            state.canvasState.setCanvasDimensions(getDocumentDimensions());
+            state.canvasState.resetRootNodeCoords();
         },
 
         onremove: () => {

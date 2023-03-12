@@ -39,7 +39,7 @@ interface Attrs {
  */
 function DisplayedDocument(): m.Component<Attrs> {
     const documentMovementHelpers = getDocumentMovementHelpers(
-        translateCanvas,
+        canvasState.translateRootNode,
         onCanvasClick,
         redrawCanvas,
     );
@@ -57,10 +57,6 @@ function DisplayedDocument(): m.Component<Attrs> {
     function saveCanvasDimensionsFromAttrs(attrs: Attrs) {
         currentCanvasDimensions.width = attrs.documentDimensions.width;
         currentCanvasDimensions.height = attrs.documentDimensions.height;
-    }
-
-    function translateCanvas(dx: number, dy: number) {
-        canvasState.translateRootNode(dx, dy);
     }
 
     function redrawCanvas() {
@@ -122,7 +118,7 @@ function DisplayedDocument(): m.Component<Attrs> {
 
         onupdate: (vnode) => {
             if (vnode.attrs.resetCanvasTranslation) {
-                documentMovementHelpers.resetDocTranslation();
+                canvasState.resetRootNodeCoords();
             }
 
             // Canvas elements reset their scale and translation when their
@@ -134,7 +130,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                 saveCanvasDimensionsFromAttrs(vnode.attrs);
 
                 ctx.scale(devicePixelRatio, devicePixelRatio);
-                documentMovementHelpers.resetDocTranslation();
+                canvasState.resetRootNodeCoords();
             }
 
             redrawCanvas();

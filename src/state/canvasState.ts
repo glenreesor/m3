@@ -15,21 +15,37 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import { Coordinates } from '../types';
+import { Coordinates, Dimensions } from '../types';
 
 export default (
     (): {
         getRootNodeCoords: () => Coordinates,
+        resetRootNodeCoords: () => void,
+        setCanvasDimensions: (dimensions: Dimensions) => void,
         setRootNodeCoords: (newCoords: Coordinates) => void,
         translateRootNode: (dx: number, dy: number) => void,
     } => {
+        let canvasDimensions: Dimensions = { width: 0, height: 0 };
         let rootNodeCoords: Coordinates = { x: 0, y: 0 };
 
         return {
             getRootNodeCoords: () => rootNodeCoords,
+
+            resetRootNodeCoords: () => {
+                rootNodeCoords = {
+                    x: 10,
+                    y: canvasDimensions.height / 2,
+                };
+            },
+
+            setCanvasDimensions: (dimensions: Dimensions) => {
+                canvasDimensions = { ...dimensions };
+            },
+
             setRootNodeCoords: (newCoords: Coordinates) => {
                 rootNodeCoords = { ...newCoords };
             },
+
             translateRootNode: (dx: number, dy: number) => {
                 rootNodeCoords = {
                     x: rootNodeCoords.x + dx,
