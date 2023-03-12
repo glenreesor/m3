@@ -20,7 +20,6 @@ import canvasState from '../../state/canvasState';
 import documentState from '../../state/documentState';
 import uiState from '../../state/uiState';
 
-import { getDocumentMovementHelpers } from './documentMovement';
 import {
     onCanvasClick,
     renderDocument,
@@ -37,12 +36,6 @@ interface Attrs {
  * A component to render the user's document in a <canvas> element
  */
 function DisplayedDocument(): m.Component<Attrs> {
-    const documentMovementHelpers = getDocumentMovementHelpers(
-        canvasState.translateRootNode,
-        onCanvasClick,
-        redrawCanvas,
-    );
-
     const devicePixelRatio = window.devicePixelRatio || 1;
 
     let canvasElement: HTMLCanvasElement;
@@ -52,6 +45,56 @@ function DisplayedDocument(): m.Component<Attrs> {
         width: -1,
         height: -1,
     };
+
+    function getCanvasEventHandlers() {
+        // Event handlers trigger Mithril redraws (of the entire app).
+        // So only define movement handlers if we actually need them, which
+        // is when the document is being dragged by the user.
+        const alwaysActiveHandlers = {
+            onclick: (e: MouseEvent) => {
+                onCanvasClick(e.offsetX, e.offsetY);
+            },
+            onmousedown: (e: MouseEvent) => {
+                canvasState.handleUserDragStart({
+                    x: e.pageX,
+                    y: e.pageY,
+                });
+            },
+            ontouchstart: (e: TouchEvent) => {
+                canvasState.handleUserDragStart({
+                    x: e.touches[0].pageX,
+                    y: e.touches[0].pageY,
+                });
+            },
+        };
+
+        const onlyDraggingModeHandlers = {
+            onmousemove: (e: MouseEvent) => {
+                canvasState.handleUserDragMovement({
+                    x: e.pageX,
+                    y: e.pageY,
+                });
+            },
+            onmouseout: () => canvasState.handleUserDragStop(redrawCanvas),
+            onmouseup: () => canvasState.handleUserDragStop(redrawCanvas),
+            ontouchend: () => canvasState.handleUserDragStop(redrawCanvas),
+            ontouchmove: (e: TouchEvent) => {
+                canvasState.handleUserDragMovement({
+                    x: e.touches[0].pageX,
+                    y: e.touches[1].pageY,
+                });
+            },
+        };
+
+        return {
+            ...alwaysActiveHandlers,
+            ...(
+                canvasState.getMovementState() === 'userDragging'
+                    ? onlyDraggingModeHandlers
+                    : {}
+            ),
+        };
+    }
 
     function saveCanvasDimensionsFromAttrs(attrs: Attrs) {
         currentCanvasDimensions.width = attrs.documentDimensions.width;
@@ -152,7 +195,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                         width: `${cssPixelsWidth}px`,
                         height: `${cssPixelsHeight}px`,
                     },
-                    ...documentMovementHelpers.getCanvasEventHandlers(),
+                    ...getCanvasEventHandlers(),
                 },
             );
         },
