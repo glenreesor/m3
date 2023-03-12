@@ -75,9 +75,9 @@ function DisplayedDocument(): m.Component<Attrs> {
                     y: e.pageY,
                 });
             },
-            onmouseout: () => canvasState.handleUserDragStop(redrawCanvas),
-            onmouseup: () => canvasState.handleUserDragStop(redrawCanvas),
-            ontouchend: () => canvasState.handleUserDragStop(redrawCanvas),
+            onmouseout: canvasState.handleUserDragStop,
+            onmouseup: canvasState.handleUserDragStop,
+            ontouchend: canvasState.handleUserDragStop,
             ontouchmove: (e: TouchEvent) => {
                 canvasState.handleUserDragMovement({
                     x: e.touches[0].pageX,
@@ -135,6 +135,7 @@ function DisplayedDocument(): m.Component<Attrs> {
 
     return {
         oncreate: (vnode) => {
+            canvasState.setRedrawFunction(redrawCanvas);
             canvasElement = vnode.dom as HTMLCanvasElement;
             ctx = canvasElement.getContext('2d') as CanvasRenderingContext2D;
 

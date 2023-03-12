@@ -29,7 +29,9 @@ export default (
         getMovementState: () => MovementState,
         handleUserDragStart: (pointerCoords: Coordinates) => void,
         handleUserDragMovement: (newPointerCoords: Coordinates) => void,
-        handleUserDragStop: (redrawDocument: () => void) => void,
+        handleUserDragStop: () => void,
+
+        setRedrawFunction: (redrawFunction: () => void) => void,
 
         setCanvasDimensions: (dimensions: Dimensions) => void,
     } => {
@@ -37,6 +39,9 @@ export default (
         let rootNodeCoords: Coordinates = { x: 0, y: 0 };
 
         let movementState: MovementState = 'none';
+
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        let redrawDocument = function placeHolder() { };
 
         let userDraggingState = {
             previousEventTime: 0,
@@ -56,7 +61,7 @@ export default (
          * Scroll the document using inertia calculation based on velocity when
          * user stopped dragging
          */
-        function performInertiaScroll(redrawDocument: () => void) {
+        function performInertiaScroll() {
             if (movementState !== 'inertiaScroll') {
                 return;
             }
@@ -122,9 +127,7 @@ export default (
             redrawDocument();
 
             if (Math.abs(deltaX / t) > 0.0005 || Math.abs(deltaY / t) > 0.0005) {
-                window.requestAnimationFrame(
-                    () => performInertiaScroll(redrawDocument),
-                );
+                window.requestAnimationFrame(performInertiaScroll);
             } else {
                 movementState = 'none';
             }
@@ -183,7 +186,7 @@ export default (
                 };
             },
 
-            handleUserDragStop: (redrawDocument: () => void) => {
+            handleUserDragStop: () => {
                 movementState = 'inertiaScroll';
 
                 inertiaScrollState = {
@@ -206,9 +209,7 @@ export default (
                     },
                 };
 
-                window.requestAnimationFrame(
-                    () => performInertiaScroll(redrawDocument),
-                );
+                window.requestAnimationFrame(performInertiaScroll);
             },
 
             resetRootNodeCoords: () => {
@@ -220,6 +221,10 @@ export default (
 
             setCanvasDimensions: (dimensions: Dimensions) => {
                 canvasDimensions = { ...dimensions };
+            },
+
+            setRedrawFunction: (documentRedrawFunction: () => void) => {
+                redrawDocument = documentRedrawFunction;
             },
 
             setRootNodeCoords: (newCoords: Coordinates) => {
