@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import canvasState from './canvasState';
+import canvas from './canvasState';
 import doc from './documentState';
 import ui from './uiState';
 
@@ -26,7 +26,7 @@ import ui from './uiState';
  * See imported sub-states for full information.
  */
 export default {
-    canvasState,
+    canvas,
     doc,
     ui,
 };

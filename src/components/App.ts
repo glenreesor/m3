@@ -156,7 +156,7 @@ function App(): m.Component {
                     onFileContentsRead: (fileContents) => {
                         importFile(fileContents);
                         state.ui.setCurrentModal('none');
-                        state.canvasState.resetRootNodeCoords();
+                        state.canvas.resetRootNodeCoords();
 
                         // This state change was triggered by an async fileReader
                         // operation, not a DOM event, thus we need to trigger
@@ -182,7 +182,7 @@ function App(): m.Component {
                                 documentAsJson,
                             );
                             state.ui.setCurrentModal('none');
-                            state.canvasState.resetRootNodeCoords();
+                            state.canvas.resetRootNodeCoords();
                         }
                     },
                 },
@@ -243,8 +243,8 @@ function App(): m.Component {
     return {
         oncreate: () => {
             window.addEventListener('resize', onWindowResize);
-            state.canvasState.setCanvasDimensions(getDocumentDimensions());
-            state.canvasState.resetRootNodeCoords();
+            state.canvas.setCanvasDimensions(getDocumentDimensions());
+            state.canvas.resetRootNodeCoords();
         },
 
         onremove: () => {

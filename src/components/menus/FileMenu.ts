@@ -175,13 +175,13 @@ function onFileNewButtonClick() {
             onYesButtonClick: () => {
                 state.doc.replaceCurrentDocWithNewEmptyDoc();
                 state.ui.setCurrentModal('none');
-                state.canvasState.resetRootNodeCoords();
+                state.canvas.resetRootNodeCoords();
             },
             onNoButtonClick: () => state.ui.setCurrentModal('none'),
         });
     } else {
         state.doc.replaceCurrentDocWithNewEmptyDoc();
-        state.canvasState.resetRootNodeCoords();
+        state.canvas.resetRootNodeCoords();
     }
 }
 
