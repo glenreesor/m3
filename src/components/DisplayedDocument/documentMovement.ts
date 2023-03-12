@@ -19,11 +19,9 @@
  * Get event handlers and related helper functions for implementing document
  * movement (dragging).
  *
- * @param translateDocument       A function that will translate the document by a specified amount
- * @param docRelativeClickHandler A function to handle click events, where the parameters
- *                                (x, y) are relative to the current document
- *                                (i.e. calling code does not have to be aware of canvas
- *                                translations)
+ * @param translateDocument A function that will translate the document by a specified amount
+ * @param clickHandler      A function to handle click events (selecting nodes,
+ *                          unfolding children, etc)
  *
  * @returns An object with the following keys:
  *
@@ -33,7 +31,7 @@
  */
 export function getDocumentMovementHelpers(
     translateDocument: (deltaX: number, deltaY: number) => void,
-    docRelativeClickHandler: (clickX: number, clickY: number) => void,
+    clickHandler: (clickX: number, clickY: number) => void,
     redrawCanvas: () => void,
 ): {
     getCanvasEventHandlers: () => Partial<GlobalEventHandlers>,
@@ -231,18 +229,10 @@ export function getDocumentMovementHelpers(
     }
 
     //-------------------------------------------------------------------------
-    // Click handler that calls the calling-code-supplied click handler with
-    // (x, y) adjusted by the current translation amount, so calling code need
-    // not be aware of canvas translations.
-    //-------------------------------------------------------------------------
-    function onClick(e: MouseEvent) {
-        docRelativeClickHandler(
-            e.offsetX,
-            e.offsetY,
-        );
-    }
 
-    //-------------------------------------------------------------------------
+    function onClick(e: MouseEvent) {
+        clickHandler(e.offsetX, e.offsetY);
+    }
 
     /**
      * Return a set of event handlers that will handle user interactions
