@@ -38,14 +38,14 @@ export default (
 
         let movementState: MovementState = 'none';
 
-        let userDragging = {
+        let userDraggingState = {
             previousEventTime: 0,
             previousEventPointerCoords: { x: 0, y: 0 },
             previousVelocity: { x: 0, y: 0 },
             previousPreviousVelocity: { x: 0, y: 0 },
         };
 
-        let inertiaScroll = {
+        let inertiaScrollState = {
             startTime: 0,
             startPosition: { x: 0, y: 0 },
             startVelocity: { x: 0, y: 0 },
@@ -100,24 +100,24 @@ export default (
             const b = 0.002;
 
             const now = Date.now();
-            const t = now - inertiaScroll.startTime;
+            const t = now - inertiaScrollState.startTime;
 
             // In variables below, d0 and v0 correspond to d(0) and v(0)
-            const d0x = inertiaScroll.startPosition.x;
-            const v0x = inertiaScroll.startVelocity.x;
+            const d0x = inertiaScrollState.startPosition.x;
+            const v0x = inertiaScrollState.startVelocity.x;
             const newX = v0x / b * (-1 * Math.exp(-1 * b * t) + 1) + d0x;
 
-            const d0y = inertiaScroll.startPosition.y;
-            const v0y = inertiaScroll.startVelocity.y;
+            const d0y = inertiaScrollState.startPosition.y;
+            const v0y = inertiaScrollState.startVelocity.y;
             const newY = v0y / b * (-1 * Math.exp(-1 * b * t) + 1) + d0y;
 
-            const deltaX = newX - inertiaScroll.previousPosition.x;
-            const deltaY = newY - inertiaScroll.previousPosition.y;
+            const deltaX = newX - inertiaScrollState.previousPosition.x;
+            const deltaY = newY - inertiaScrollState.previousPosition.y;
 
             translateDocument(deltaX, deltaY);
 
-            inertiaScroll.previousPosition.x += deltaX;
-            inertiaScroll.previousPosition.y += deltaY;
+            inertiaScrollState.previousPosition.x += deltaX;
+            inertiaScrollState.previousPosition.y += deltaY;
 
             redrawDocument();
 
@@ -144,7 +144,7 @@ export default (
 
             handleUserDragStart: (pointerCoords: Coordinates) => {
                 movementState = 'userDragging';
-                userDragging = {
+                userDraggingState = {
                     previousEventTime: Date.now(),
                     previousEventPointerCoords: {
                         x: pointerCoords.x,
@@ -159,17 +159,17 @@ export default (
                 if (movementState !== 'userDragging') return;
 
                 // Calculate how much the pointer moved
-                const dx = newPointerCoords.x - userDragging.previousEventPointerCoords.x;
-                const dy = newPointerCoords.y - userDragging.previousEventPointerCoords.y;
+                const dx = newPointerCoords.x - userDraggingState.previousEventPointerCoords.x;
+                const dy = newPointerCoords.y - userDraggingState.previousEventPointerCoords.y;
 
                 // Apply this translation to the document (we rely on Mithril redrawing
                 // after this handler completes)
                 translateDocument(dx, dy);
 
                 const now = Date.now();
-                const deltaT = now - userDragging.previousEventTime;
+                const deltaT = now - userDraggingState.previousEventTime;
 
-                userDragging = {
+                userDraggingState = {
                     previousEventTime: now,
                     previousEventPointerCoords: {
                         x: newPointerCoords.x,
@@ -177,8 +177,8 @@ export default (
                     },
                     previousVelocity: { x: dx / deltaT, y: dy / deltaT },
                     previousPreviousVelocity: {
-                        x: userDragging.previousVelocity.x,
-                        y: userDragging.previousVelocity.y,
+                        x: userDraggingState.previousVelocity.x,
+                        y: userDraggingState.previousVelocity.y,
                     },
                 };
             },
@@ -186,23 +186,23 @@ export default (
             handleUserDragStop: (redrawDocument: () => void) => {
                 movementState = 'inertiaScroll';
 
-                inertiaScroll = {
+                inertiaScrollState = {
                     startTime: Date.now(),
                     startPosition: {
-                        x: userDragging.previousEventPointerCoords.x,
-                        y: userDragging.previousEventPointerCoords.y,
+                        x: userDraggingState.previousEventPointerCoords.x,
+                        y: userDraggingState.previousEventPointerCoords.y,
                     },
 
                     // The last velocity on a touch device can vary significantly
                     // from previous ones and thus provide an eratic user experience,
                     // so don't use it
                     startVelocity: {
-                        x: userDragging.previousPreviousVelocity.x,
-                        y: userDragging.previousPreviousVelocity.y,
+                        x: userDraggingState.previousPreviousVelocity.x,
+                        y: userDraggingState.previousPreviousVelocity.y,
                     },
                     previousPosition: {
-                        x: userDragging.previousEventPointerCoords.x,
-                        y: userDragging.previousEventPointerCoords.y,
+                        x: userDraggingState.previousEventPointerCoords.x,
+                        y: userDraggingState.previousEventPointerCoords.y,
                     },
                 };
 
