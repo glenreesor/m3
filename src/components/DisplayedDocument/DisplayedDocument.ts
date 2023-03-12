@@ -31,7 +31,6 @@ interface Attrs {
         height: number,
         width: number,
     },
-    resetCanvasTranslation: boolean,
 }
 
 /**
@@ -117,10 +116,6 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
-            if (vnode.attrs.resetCanvasTranslation) {
-                canvasState.resetRootNodeCoords();
-            }
-
             // Canvas elements reset their scale and translation when their
             // dimensions change, so reset when that happens
             if (

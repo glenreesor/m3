@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -175,13 +175,13 @@ function onFileNewButtonClick() {
             onYesButtonClick: () => {
                 state.doc.replaceCurrentDocWithNewEmptyDoc();
                 state.ui.setCurrentModal('none');
-                state.ui.setResetDueToNewDoc(true);
+                state.canvasState.resetRootNodeCoords();
             },
             onNoButtonClick: () => state.ui.setCurrentModal('none'),
         });
     } else {
         state.doc.replaceCurrentDocWithNewEmptyDoc();
-        state.ui.setResetDueToNewDoc(true);
+        state.canvasState.resetRootNodeCoords();
     }
 }
 
