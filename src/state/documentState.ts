@@ -110,7 +110,7 @@ export default (() => {
             highestNodeId: rootNodeId,
             selectedNodeId: rootNodeId,
 
-            bookmarkedNodeIds: [0, 3],
+            bookmarkedNodeIds: [],
             nodes: (new Map() as Map<number, Node>).set(rootNodeId, rootNode),
         };
 
