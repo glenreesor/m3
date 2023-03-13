@@ -23,13 +23,15 @@ export default (
     (): {
         getRootNodeCoords: () => Coordinates,
         resetRootNodeCoords: () => void,
-        setRootNodeCoords: (newCoords: Coordinates) => void,
         translateRootNode: (dx: number, dy: number) => void,
 
         getMovementState: () => MovementState,
         handleUserDragStart: (pointerCoords: Coordinates) => void,
         handleUserDragMovement: (newPointerCoords: Coordinates) => void,
         handleUserDragStop: () => void,
+
+        resetAllRenderedNodesCoordinates: () => void,
+        setRenderedNodeCoordinates: (nodeId: number, coords: Coordinates) => void,
 
         setRedrawFunction: (redrawFunction: () => void) => void,
 
@@ -39,6 +41,8 @@ export default (
         let rootNodeCoords: Coordinates = { x: 0, y: 0 };
 
         let movementState: MovementState = 'none';
+
+        let renderedNodesCoordinates = new Map<number, Coordinates>();
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         let redrawDocument = function placeHolder() { };
@@ -227,8 +231,12 @@ export default (
                 redrawDocument = documentRedrawFunction;
             },
 
-            setRootNodeCoords: (newCoords: Coordinates) => {
-                rootNodeCoords = { ...newCoords };
+            resetAllRenderedNodesCoordinates: () => {
+                renderedNodesCoordinates = new Map<number, Coordinates>();
+            },
+
+            setRenderedNodeCoordinates: (nodeId: number, coords: Coordinates) => {
+                renderedNodesCoordinates.set(nodeId, coords);
             },
 
             translateRootNode: (dx: number, dy: number) => {

@@ -86,7 +86,7 @@ export function renderDocument(
 
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
-    canvasState.resetAllRenderedNodesInfo();
+    canvasState.resetAllRenderedNodesCoordinates();
 
     createNodeAndChildrenRenderingInfo({
         fontSize,
@@ -196,7 +196,7 @@ function createNodeAndChildrenRenderingInfo(args: {
 }
 
 function renderNodeAndChildren(nodeId: number, coordinatesCenterLeft: Coordinates) {
-    canvasState.setRenderedNodeInfo(nodeId, { leftCenterCoords: coordinatesCenterLeft });
+    canvasState.setRenderedNodeCoordinates(nodeId, coordinatesCenterLeft);
 
     const renderableNode = safeGetRenderableNode(nodeId);
 
