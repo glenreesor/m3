@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -39,12 +39,12 @@ export default (() => {
     // Parts of user's document that are affected by editing, including undo
     // and redo
     interface Doc {
-        nodes: Map<number, Node>,
-        highestNodeId: number,
         rootId: number,
-
-        // The ID of the currently selected node
+        highestNodeId: number,
         selectedNodeId: number,
+
+        bookmarkedNodeIds: number[],
+        nodes: Map<number, Node>,
     }
 
     // Full state
@@ -106,10 +106,12 @@ export default (() => {
             parentId: undefined,
         };
         const initialDoc = {
-            selectedNodeId: rootNodeId,
-            nodes: (new Map() as Map<number, Node>).set(rootNodeId, rootNode),
-            highestNodeId: rootNodeId,
             rootId: rootNodeId,
+            highestNodeId: rootNodeId,
+            selectedNodeId: rootNodeId,
+
+            bookmarkedNodeIds: [0, 3],
+            nodes: (new Map() as Map<number, Node>).set(rootNodeId, rootNode),
         };
 
         return initialDoc;
@@ -273,6 +275,8 @@ export default (() => {
 
             applyNewDocToUndoStack(newDoc);
         },
+
+        getBookmarkedNodeIds: ():number[] => getCurrentDoc().bookmarkedNodeIds,
 
         /**
          * Get whether the children of the specified node are visible
@@ -486,6 +490,12 @@ export default (() => {
                 ...docUsingArrayForNodes,
                 nodes: nodesAsMap,
             };
+
+            // To deal with importing a document that was creating prior to
+            // adding bookmarkedNodeIds to the document structure
+            if (docUsingArrayForNodes.bookmarkedNodeIds === undefined) {
+                docUsingNodesAsMap.bookmarkedNodeIds = [];
+            }
 
             state = {
                 currentDocIndex: 0,

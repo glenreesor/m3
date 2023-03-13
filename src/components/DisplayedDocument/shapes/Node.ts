@@ -34,6 +34,7 @@
 //   |
 //   └─── Connector to parent (not rendered or considered by code in this file)
 
+import { BOOKMARK_ICON_WIDTH, drawBookmarkIcon } from './bookmarkIcon';
 import { drawRoundedRectangle } from './roundedRectangle';
 
 import { Coordinates, Dimensions } from '../../../types';
@@ -55,12 +56,15 @@ export default class Node {
 
     #textLinesToRender: string[];
 
+    #nodeIsBookmarked: boolean;
+
     #nodeIsSelected: boolean;
 
     constructor(args: {
         ctx: CanvasRenderingContext2D,
         fontSize: number,
         maxWidth: number,
+        nodeIsBookmarked: boolean;
         nodeIsSelected: boolean;
         contents: string,
     }) {
@@ -68,6 +72,7 @@ export default class Node {
 
         this.#ctx = args.ctx;
         this.#fontSize = args.fontSize;
+        this.#nodeIsBookmarked = args.nodeIsBookmarked;
         this.#nodeIsSelected = args.nodeIsSelected;
 
         this.#textLinesToRender = this.#getTextLinesToRender(maxWidth, contents);
@@ -91,12 +96,23 @@ export default class Node {
 
         const nodeTop = centerLeftCoordinates.y - this.#dimensions.height / 2;
 
+        if (this.#nodeIsBookmarked) {
+            drawBookmarkIcon({
+                ctx: this.#ctx,
+                centerLeftCoordinates: {
+                    x: centerLeftCoordinates.x + PADDING_X,
+                    y: centerLeftCoordinates.y,
+                },
+            });
+        }
+
         // We want the text centered vertically, with PADDING_Y between the text
         // and the edge of the rectangle. 0.75 is a fudge factor to center it
         // since I know next to nothing about fonts :-)
         let textY = nodeTop + 0.75 * PADDING_Y + this.#fontSize;
 
-        const textX = centerLeftCoordinates.x + PADDING_X;
+        const textX = centerLeftCoordinates.x + PADDING_X +
+            (this.#nodeIsBookmarked ? PADDING_X + BOOKMARK_ICON_WIDTH : 0);
 
         this.#textLinesToRender.forEach((line) => {
             this.#ctx.fillText(
@@ -131,7 +147,9 @@ export default class Node {
             height: this.#fontSize * this.#textLinesToRender.length +
                     PADDING_BETWEEN_LINES * (this.#textLinesToRender.length - 1) +
                     2 * PADDING_Y,
-            width: longestLineLength + 2 * PADDING_X,
+            width:
+                longestLineLength + 2 * PADDING_X +
+                (this.#nodeIsBookmarked ? PADDING_X + BOOKMARK_ICON_WIDTH : 0),
         };
 
         return dimensions;
