@@ -36,7 +36,8 @@
 
 import { drawRoundedRectangle } from './roundedRectangle';
 
-import { Coordinates, Dimensions, RectangularRegion } from '../types';
+import { Coordinates, Dimensions } from '../../../types';
+import { RectangularRegion } from '../types';
 
 const PADDING_X = 5;
 const PADDING_Y = 5;

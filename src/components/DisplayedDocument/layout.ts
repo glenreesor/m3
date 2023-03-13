@@ -21,12 +21,8 @@ import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './shapes/chil
 import Node from './shapes/Node';
 import { renderParentChildConnector } from './shapes/parentChildConnector';
 
-import {
-    CircularRegion,
-    Coordinates,
-    Dimensions,
-    RectangularRegion,
-} from './types';
+import { Coordinates, Dimensions } from '../../types';
+import { CircularRegion, RectangularRegion } from './types';
 
 type ClickableCircle = CircularRegion & {id: number};
 type ClickableRectangle = RectangularRegion & {id: number};
