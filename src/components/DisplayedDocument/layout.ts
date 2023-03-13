@@ -15,17 +15,14 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
+import canvasState from '../../state/canvasState';
 import documentState from '../../state/documentState';
 import { CHILD_FOLDING_ICON_RADIUS, renderChildFoldingIcon } from './shapes/childFoldingIcon';
 import Node from './shapes/Node';
 import { renderParentChildConnector } from './shapes/parentChildConnector';
 
-import {
-    CircularRegion,
-    Coordinates,
-    Dimensions,
-    RectangularRegion,
-} from './types';
+import { Coordinates, Dimensions } from '../../types';
+import { CircularRegion, RectangularRegion } from './types';
 
 type ClickableCircle = CircularRegion & {id: number};
 type ClickableRectangle = RectangularRegion & {id: number};
@@ -97,10 +94,7 @@ export function renderDocument(
 
     renderNodeAndChildren(
         rootNodeId,
-        {
-            x: 10,
-            y: canvasDimensions.height / 2,
-        },
+        canvasState.getRootNodeCoords(),
     );
 }
 

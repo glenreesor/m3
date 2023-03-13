@@ -15,14 +15,12 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import { Coordinates, Dimensions } from '../../types';
-
-export type CircularRegion = {
-    center: Coordinates;
-    radius: number;
+export type Coordinates = {
+    x: number;
+    y: number;
 }
 
-export type RectangularRegion = {
-    topLeft: Coordinates;
-    dimensions: Dimensions;
+export type Dimensions = {
+    width: number;
+    height: number;
 }

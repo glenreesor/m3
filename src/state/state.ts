@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
+import canvas from './canvasState';
 import doc from './documentState';
 import ui from './uiState';
 
@@ -25,6 +26,7 @@ import ui from './uiState';
  * See imported sub-states for full information.
  */
 export default {
+    canvas,
     doc,
     ui,
 };

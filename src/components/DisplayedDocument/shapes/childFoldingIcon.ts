@@ -15,7 +15,8 @@
 // You should have received a copy of the GNU General Public License along with
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
-import { CircularRegion, Coordinates } from '../types';
+import { Coordinates } from '../../../types';
+import { CircularRegion } from '../types';
 
 export const CHILD_FOLDING_ICON_RADIUS = 10;
 

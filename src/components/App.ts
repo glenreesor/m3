@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -156,7 +156,7 @@ function App(): m.Component {
                     onFileContentsRead: (fileContents) => {
                         importFile(fileContents);
                         state.ui.setCurrentModal('none');
-                        state.ui.setResetDueToNewDoc(true);
+                        state.canvas.resetRootNodeCoords();
 
                         // This state change was triggered by an async fileReader
                         // operation, not a DOM event, thus we need to trigger
@@ -182,7 +182,7 @@ function App(): m.Component {
                                 documentAsJson,
                             );
                             state.ui.setCurrentModal('none');
-                            state.ui.setResetDueToNewDoc(true);
+                            state.canvas.resetRootNodeCoords();
                         }
                     },
                 },
@@ -243,6 +243,8 @@ function App(): m.Component {
     return {
         oncreate: () => {
             window.addEventListener('resize', onWindowResize);
+            state.canvas.setCanvasDimensions(getDocumentDimensions());
+            state.canvas.resetRootNodeCoords();
         },
 
         onremove: () => {
@@ -252,8 +254,6 @@ function App(): m.Component {
         view: (): m.Vnode => {
             const documentName = state.doc.getDocName();
             const hasUnsavedChanges = state.doc.hasUnsavedChanges();
-            const resetCanvasTranslation = state.ui.getResetDueToNewDoc();
-            state.ui.setResetDueToNewDoc(false);
 
             return m(
                 'div',
@@ -265,7 +265,6 @@ function App(): m.Component {
                         DisplayedDocument,
                         {
                             documentDimensions: getDocumentDimensions(),
-                            resetCanvasTranslation,
                         },
                     ),
                     m(Menu),

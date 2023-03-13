@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -50,7 +50,6 @@ export default (() => {
         currentMenu: MenuType,
         currentModal: ModalType,
         fontSize: number,
-        resetDueToNewDoc: boolean,
         sidebarIsVisible: boolean,
     }
 
@@ -59,7 +58,6 @@ export default (() => {
         currentMenu: 'edit',
         currentModal: 'none',
         fontSize: 14,
-        resetDueToNewDoc: false,
         sidebarIsVisible: false,
     };
 
@@ -83,11 +81,6 @@ export default (() => {
         getSidebarIsVisible: () => state.sidebarIsVisible,
         setSidebarVisibility: (visible: boolean) => {
             state.sidebarIsVisible = visible;
-        },
-
-        getResetDueToNewDoc: () => state.resetDueToNewDoc,
-        setResetDueToNewDoc: (value: boolean) => {
-            state.resetDueToNewDoc = value;
         },
     };
 })();

@@ -16,10 +16,10 @@
 // m3 Mind Mapper. If not, see <https://www.gnu.org/licenses/>.
 
 import * as m from 'mithril';
+import canvasState from '../../state/canvasState';
 import documentState from '../../state/documentState';
 import uiState from '../../state/uiState';
 
-import { getDocumentMovementHelpers } from './documentMovement';
 import {
     onCanvasClick,
     renderDocument,
@@ -30,19 +30,12 @@ interface Attrs {
         height: number,
         width: number,
     },
-    resetCanvasTranslation: boolean,
 }
 
 /**
  * A component to render the user's document in a <canvas> element
  */
 function DisplayedDocument(): m.Component<Attrs> {
-    const documentMovementHelpers = getDocumentMovementHelpers(
-        translateCanvas,
-        onCanvasClick,
-        redrawCanvas,
-    );
-
     const devicePixelRatio = window.devicePixelRatio || 1;
 
     let canvasElement: HTMLCanvasElement;
@@ -53,13 +46,59 @@ function DisplayedDocument(): m.Component<Attrs> {
         height: -1,
     };
 
+    function getCanvasEventHandlers() {
+        // Event handlers trigger Mithril redraws (of the entire app).
+        // So only define movement handlers if we actually need them, which
+        // is when the document is being dragged by the user.
+        const alwaysActiveHandlers = {
+            onclick: (e: MouseEvent) => {
+                onCanvasClick(e.offsetX, e.offsetY);
+            },
+            onmousedown: (e: MouseEvent) => {
+                canvasState.handleUserDragStart({
+                    x: e.pageX,
+                    y: e.pageY,
+                });
+            },
+            ontouchstart: (e: TouchEvent) => {
+                canvasState.handleUserDragStart({
+                    x: e.touches[0].pageX,
+                    y: e.touches[0].pageY,
+                });
+            },
+        };
+
+        const onlyDraggingModeHandlers = {
+            onmousemove: (e: MouseEvent) => {
+                canvasState.handleUserDragMovement({
+                    x: e.pageX,
+                    y: e.pageY,
+                });
+            },
+            onmouseout: canvasState.handleUserDragStop,
+            onmouseup: canvasState.handleUserDragStop,
+            ontouchend: canvasState.handleUserDragStop,
+            ontouchmove: (e: TouchEvent) => {
+                canvasState.handleUserDragMovement({
+                    x: e.touches[0].pageX,
+                    y: e.touches[1].pageY,
+                });
+            },
+        };
+
+        return {
+            ...alwaysActiveHandlers,
+            ...(
+                canvasState.getMovementState() === 'userDragging'
+                    ? onlyDraggingModeHandlers
+                    : {}
+            ),
+        };
+    }
+
     function saveCanvasDimensionsFromAttrs(attrs: Attrs) {
         currentCanvasDimensions.width = attrs.documentDimensions.width;
         currentCanvasDimensions.height = attrs.documentDimensions.height;
-    }
-
-    function translateCanvas(x: number, y: number) {
-        ctx.translate(x, y);
     }
 
     function redrawCanvas() {
@@ -96,6 +135,7 @@ function DisplayedDocument(): m.Component<Attrs> {
 
     return {
         oncreate: (vnode) => {
+            canvasState.setRedrawFunction(redrawCanvas);
             canvasElement = vnode.dom as HTMLCanvasElement;
             ctx = canvasElement.getContext('2d') as CanvasRenderingContext2D;
 
@@ -120,10 +160,6 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
-            if (vnode.attrs.resetCanvasTranslation) {
-                documentMovementHelpers.resetDocTranslation();
-            }
-
             // Canvas elements reset their scale and translation when their
             // dimensions change, so reset when that happens
             if (
@@ -133,7 +169,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                 saveCanvasDimensionsFromAttrs(vnode.attrs);
 
                 ctx.scale(devicePixelRatio, devicePixelRatio);
-                documentMovementHelpers.resetDocTranslation();
+                canvasState.resetRootNodeCoords();
             }
 
             redrawCanvas();
@@ -160,7 +196,7 @@ function DisplayedDocument(): m.Component<Attrs> {
                         width: `${cssPixelsWidth}px`,
                         height: `${cssPixelsHeight}px`,
                     },
-                    ...documentMovementHelpers.getCanvasEventHandlers(),
+                    ...getCanvasEventHandlers(),
                 },
             );
         },
