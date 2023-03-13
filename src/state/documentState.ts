@@ -159,6 +159,21 @@ export default (() => {
     }
 
     return {
+        addBookmark: (bookmarkToAdd: number) => {
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                /* eslint-disable no-param-reassign */
+                draftDoc.bookmarkedNodeIds = [
+                    ...draftDoc.bookmarkedNodeIds,
+                    bookmarkToAdd,
+                ];
+            });
+
+            // Not sure having bookmarks participate in undo/redo is best
+            // user experience, but having to manage stale bookmarked nodes
+            // would be challenging
+            applyNewDocToUndoStack(newDoc);
+        },
+
         /**
          * Add a child with the specified contents to the specified parent node
          *
@@ -260,6 +275,12 @@ export default (() => {
                         depthFirstDelete(childId);
                     });
                     draftDocment.nodes.delete(nodeId);
+
+                    // Make sure bookmark list doesn't include this node
+                    /* eslint-disable no-param-reassign */
+                    draftDocment.bookmarkedNodeIds = draftDocment.bookmarkedNodeIds.filter(
+                        (bookmarkedNodeId) => bookmarkedNodeId !== nodeId,
+                    );
                 }
 
                 // Remove all nodes from the Set then remove the specified
@@ -468,6 +489,20 @@ export default (() => {
                 state.currentDocIndex += 1;
                 state.hasUnsavedChanges = true;
             }
+        },
+
+        removeBookmark: (bookmarkToRemove: number) => {
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                /* eslint-disable no-param-reassign */
+                draftDoc.bookmarkedNodeIds = draftDoc.bookmarkedNodeIds.filter(
+                    (nodeId) => nodeId !== bookmarkToRemove,
+                );
+            });
+
+            // Not sure having bookmarks participate in undo/redo is best
+            // user experience, but having to manage stale bookmarked nodes
+            // would be challenging
+            applyNewDocToUndoStack(newDoc);
         },
 
         /**

@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -23,6 +23,7 @@ import FileMenu from './menus/FileMenu';
 import MoveNodeMenu from './menus/MoveNodeMenu';
 import SizeSettingsMenu from './menus/SizeSettingsMenu';
 import UndoRedoMenu from './menus/UndoRedoMenu';
+import BookmarksMenu from './menus/BookmarksMenu';
 
 /**
  * A component that renders the current menu
@@ -47,6 +48,9 @@ function Menu(): m.Component {
 
             case 'undoRedo':
                 return m(UndoRedoMenu);
+
+            case 'bookmarks':
+                return m(BookmarksMenu);
 
             default:
                 return m('');
