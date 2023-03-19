@@ -20,6 +20,7 @@ import * as m from 'mithril';
 import DisplayedDocument from './DisplayedDocument';
 import DocumentHeader from './DocumentHeader';
 import BinaryModal from './BinaryModal';
+import BookmarksListModal, { BookmarksListModalAttributes } from './BookmarksListModal';
 import FileExportModal, { FileExportModalAttributes } from './FileExportModal';
 import FileImportModal, { FileImportModalAttributes } from './FileImportModal';
 import FileOpenModal, { FileOpenModalAttributes } from './FileOpenModal';
@@ -70,7 +71,8 @@ function App(): m.Component {
         m.Vnode<FileOpenModalAttributes> |
         m.Vnode<FileSaveModalAttributes> |
         m.Vnode<MiscFileOpsModalAttributes> |
-        m.Vnode<TextInputModalAttributes> {
+        m.Vnode<TextInputModalAttributes> |
+        m.Vnode<BookmarksListModalAttributes> {
         const currentModal = state.ui.getCurrentModal();
 
         if (currentModal === 'addChild') {
@@ -229,6 +231,19 @@ function App(): m.Component {
                 MiscFileOpsModal,
                 {
                     onClose: () => state.ui.setCurrentModal('none'),
+                },
+            );
+        }
+
+        if (currentModal === 'bookmarksList') {
+            return m(
+                BookmarksListModal,
+                {
+                    onCancel: () => state.ui.setCurrentModal('none'),
+                    onBookmarkSelected: (nodeId) => {
+                        state.ui.setCurrentModal('none');
+                        console.log(nodeId);
+                    },
                 },
             );
         }

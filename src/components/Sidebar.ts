@@ -54,11 +54,11 @@ function Sidebar(): m.Component {
                         style: {
                             background: '#eeeeee',
                             position: 'fixed',
-                            bottom: '100px',
+                            bottom: '80px',
                             right: '0',
                             'font-size': `${state.ui.getCurrentFontSize()}px`,
                             width: '120px',
-                            height: `${state.ui.getCurrentFontSize() * 16}px`,
+                            height: `${state.ui.getCurrentFontSize() * 18}px`,
                             'text-align': 'center',
                             'z-index': '20',
                         },
@@ -140,6 +140,19 @@ function Sidebar(): m.Component {
                                 },
                             },
                             'Bookmarks +/-',
+                        ),
+                        m('br'),
+                        m('br'),
+                        m(
+                            'a',
+                            {
+                                href: '#',
+                                onclick: () => {
+                                    state.ui.setCurrentModal('bookmarksList');
+                                    state.ui.setSidebarVisibility(false);
+                                },
+                            },
+                            'Bookmarks',
                         ),
                     ],
                 ),
