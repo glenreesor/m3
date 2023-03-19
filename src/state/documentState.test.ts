@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -272,7 +272,11 @@ describe('getCurrentDocAsJson', () => {
         // Note we're creating the expected map using an array of nodes
         // rather than a map, as that's what the tested function does
         const expectedMap = {
+            rootId: 0,
+            highestNodeId: 0,
             selectedNodeId: 0,
+
+            bookmarkedNodeIds: [],
             nodes: [{
                 id: 0,
                 contents: 'New Map',
@@ -280,8 +284,6 @@ describe('getCurrentDocAsJson', () => {
                 childrenVisible: true,
                 parentId: undefined,
             }],
-            highestNodeId: 0,
-            rootId: 0,
         };
         const expectedJson = JSON.stringify(expectedMap);
 
@@ -300,7 +302,11 @@ describe('getCurrentDocAsJson', () => {
         // Note we're creating the expected map using an array of nodes
         // rather than a map, as that's what the tested function does
         const expectedMap = {
+            rootId: 0,
+            highestNodeId: 2,
             selectedNodeId: 0,
+
+            bookmarkedNodeIds: [],
             nodes: [
                 {
                     id: 0,
@@ -324,8 +330,6 @@ describe('getCurrentDocAsJson', () => {
                     parentId: 0,
                 },
             ],
-            highestNodeId: 2,
-            rootId: 0,
         };
         const expectedJson = JSON.stringify(expectedMap);
 
@@ -342,7 +346,11 @@ describe('getCurrentDocAsJson', () => {
         // Note we're creating the expected map using an array of nodes
         // rather than a map, as that's what the tested function does
         const expectedMap = {
+            rootId: 0,
+            highestNodeId: 1,
             selectedNodeId: 1,
+
+            bookmarkedNodeIds: [],
             nodes: [
                 {
                     id: 0,
@@ -359,8 +367,6 @@ describe('getCurrentDocAsJson', () => {
                     parentId: 0,
                 },
             ],
-            highestNodeId: 1,
-            rootId: 0,
         };
         docState.setSelectedNodeId(1);
 
