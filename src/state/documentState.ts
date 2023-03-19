@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -39,12 +39,12 @@ export default (() => {
     // Parts of user's document that are affected by editing, including undo
     // and redo
     interface Doc {
-        nodes: Map<number, Node>,
-        highestNodeId: number,
         rootId: number,
-
-        // The ID of the currently selected node
+        highestNodeId: number,
         selectedNodeId: number,
+
+        bookmarkedNodeIds: number[],
+        nodes: Map<number, Node>,
     }
 
     // Full state
@@ -106,10 +106,12 @@ export default (() => {
             parentId: undefined,
         };
         const initialDoc = {
-            selectedNodeId: rootNodeId,
-            nodes: (new Map() as Map<number, Node>).set(rootNodeId, rootNode),
-            highestNodeId: rootNodeId,
             rootId: rootNodeId,
+            highestNodeId: rootNodeId,
+            selectedNodeId: rootNodeId,
+
+            bookmarkedNodeIds: [],
+            nodes: (new Map() as Map<number, Node>).set(rootNodeId, rootNode),
         };
 
         return initialDoc;
@@ -157,6 +159,21 @@ export default (() => {
     }
 
     return {
+        addBookmark: (bookmarkToAdd: number) => {
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                /* eslint-disable no-param-reassign */
+                draftDoc.bookmarkedNodeIds = [
+                    ...draftDoc.bookmarkedNodeIds,
+                    bookmarkToAdd,
+                ];
+            });
+
+            // Not sure having bookmarks participate in undo/redo is best
+            // user experience, but having to manage stale bookmarked nodes
+            // would be challenging
+            applyNewDocToUndoStack(newDoc);
+        },
+
         /**
          * Add a child with the specified contents to the specified parent node
          *
@@ -258,6 +275,12 @@ export default (() => {
                         depthFirstDelete(childId);
                     });
                     draftDocment.nodes.delete(nodeId);
+
+                    // Make sure bookmark list doesn't include this node
+                    /* eslint-disable no-param-reassign */
+                    draftDocment.bookmarkedNodeIds = draftDocment.bookmarkedNodeIds.filter(
+                        (bookmarkedNodeId) => bookmarkedNodeId !== nodeId,
+                    );
                 }
 
                 // Remove all nodes from the Set then remove the specified
@@ -273,6 +296,35 @@ export default (() => {
 
             applyNewDocToUndoStack(newDoc);
         },
+
+        /**
+         * Ensure all ancestors to the specified node have their children
+         * unfolded.
+         */
+        ensureNodeVisible: (nodeId: number) => {
+            // We need to use immer since the current state is frozen.
+            // However we won't push this new state to docHistory[] since we
+            // don't want changing children visibility to participate in
+            // undo / redo functionality
+            const thisNode = safeGetNode(nodeId, 'ensureNodeVisible');
+            const thisNodeParentId = thisNode.parentId;
+
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                function makeChildrenVisible(parentId: number | undefined) {
+                    if (parentId !== undefined) {
+                        const parentNode = safeGetNode(parentId, 'ensureNodeVisible', draftDoc);
+                        parentNode.childrenVisible = true;
+                        const grandParentId = parentNode.parentId;
+                        makeChildrenVisible(grandParentId);
+                    }
+                }
+                makeChildrenVisible(thisNodeParentId);
+            });
+
+            state.docHistory[state.currentDocIndex] = newDoc;
+        },
+
+        getBookmarkedNodeIds: ():number[] => getCurrentDoc().bookmarkedNodeIds,
 
         /**
          * Get whether the children of the specified node are visible
@@ -466,6 +518,20 @@ export default (() => {
             }
         },
 
+        removeBookmark: (bookmarkToRemove: number) => {
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                /* eslint-disable no-param-reassign */
+                draftDoc.bookmarkedNodeIds = draftDoc.bookmarkedNodeIds.filter(
+                    (nodeId) => nodeId !== bookmarkToRemove,
+                );
+            });
+
+            // Not sure having bookmarks participate in undo/redo is best
+            // user experience, but having to manage stale bookmarked nodes
+            // would be challenging
+            applyNewDocToUndoStack(newDoc);
+        },
+
         /**
          * Replace the currently loaded document with the specified one
          *
@@ -486,6 +552,12 @@ export default (() => {
                 ...docUsingArrayForNodes,
                 nodes: nodesAsMap,
             };
+
+            // To deal with importing a document that was creating prior to
+            // adding bookmarkedNodeIds to the document structure
+            if (docUsingArrayForNodes.bookmarkedNodeIds === undefined) {
+                docUsingNodesAsMap.bookmarkedNodeIds = [];
+            }
 
             state = {
                 currentDocIndex: 0,

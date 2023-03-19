@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -54,11 +54,11 @@ function Sidebar(): m.Component {
                         style: {
                             background: '#eeeeee',
                             position: 'fixed',
-                            bottom: '40px',
+                            bottom: '80px',
                             right: '0',
                             'font-size': `${state.ui.getCurrentFontSize()}px`,
-                            width: '100px',
-                            height: `${state.ui.getCurrentFontSize() * 14}px`,
+                            width: '120px',
+                            height: `${state.ui.getCurrentFontSize() * 18}px`,
                             'text-align': 'center',
                             'z-index': '20',
                         },
@@ -127,6 +127,32 @@ function Sidebar(): m.Component {
                                 },
                             },
                             'Undo / Redo',
+                        ),
+                        m('br'),
+                        m('br'),
+                        m(
+                            'a',
+                            {
+                                href: '#',
+                                onclick: () => {
+                                    state.ui.setCurrentMenu('bookmarks');
+                                    state.ui.setSidebarVisibility(false);
+                                },
+                            },
+                            'Bookmarks +/-',
+                        ),
+                        m('br'),
+                        m('br'),
+                        m(
+                            'a',
+                            {
+                                href: '#',
+                                onclick: () => {
+                                    state.ui.setCurrentModal('bookmarksList');
+                                    state.ui.setSidebarVisibility(false);
+                                },
+                            },
+                            'Bookmarks',
                         ),
                     ],
                 ),

@@ -86,6 +86,8 @@ export function renderDocument(
 
     const maxNodeWidth = 0.75 * canvasDimensions.width;
 
+    canvasState.resetAllRenderedNodesCoordinates();
+
     createNodeAndChildrenRenderingInfo({
         fontSize,
         maxNodeWidth,
@@ -151,11 +153,19 @@ function createNodeAndChildrenRenderingInfo(args: {
         nodeId,
     } = args;
     const nodeIsSelected = documentState.getSelectedNodeId() === nodeId;
+    const nodeIsBookmarked = documentState.getBookmarkedNodeIds().includes(nodeId);
     const contents = documentState.getNodeContents(nodeId);
 
     renderableNodes.set(
         nodeId,
-        new Node({ ctx: localCtx, fontSize, maxWidth: maxNodeWidth, nodeIsSelected, contents }),
+        new Node({
+            ctx: localCtx,
+            fontSize,
+            maxWidth: maxNodeWidth,
+            nodeIsSelected,
+            nodeIsBookmarked,
+            contents,
+        }),
     );
 
     let totalChildrenHeight = 0;
@@ -186,6 +196,8 @@ function createNodeAndChildrenRenderingInfo(args: {
 }
 
 function renderNodeAndChildren(nodeId: number, coordinatesCenterLeft: Coordinates) {
+    canvasState.setRenderedNodeCoordinates(nodeId, coordinatesCenterLeft);
+
     const renderableNode = safeGetRenderableNode(nodeId);
 
     const clickableNodeRegion = renderableNode.render(coordinatesCenterLeft);

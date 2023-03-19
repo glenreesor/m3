@@ -36,6 +36,7 @@ export default (() => {
         'addChild' |
         'addSibling' |
         'binaryModal' |
+        'bookmarksList' |
         'editNode' |
         'fileExport' |
         'fileImport' |
@@ -43,7 +44,7 @@ export default (() => {
         'fileSave' |
         'miscFileOps'
     );
-    type MenuType = 'edit' | 'file' | 'moveNode' | 'sizeSettings' | 'undoRedo';
+    type MenuType = 'edit' | 'file' | 'moveNode' | 'sizeSettings' | 'undoRedo' | 'bookmarks';
 
     interface State {
         binaryModalAttrs?: BinaryModalAttributes,
