@@ -36,6 +36,29 @@ describe('initial state', () => {
     });
 });
 
+describe('addBookmark and getBookmarks', () => {
+    it('adds a bookmark when there are no existing bookmarks', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addBookmark(rootNodeId);
+
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId]);
+    });
+
+    it('adds a bookmark when there are existing bookmarks', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addChild(rootNodeId, 'This is the child');
+
+        const childId = docState.getNodeChildIds(rootNodeId)[0];
+
+        docState.addBookmark(rootNodeId);
+        docState.addBookmark(childId);
+
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId, childId]);
+    });
+});
+
 describe('addChild', () => {
     it('adds a child node when the parent has no children', () => {
         const newChildContentsSrc = 'new child';
@@ -227,6 +250,21 @@ describe('deleteNode', () => {
         expect(
             docState.getNodeContents(nodeToDeleteId),
         ).toBe(nodeToDeleteContentsSrc);
+    });
+
+    it('removes the corresponding bookmark when deleted node is bookmarked', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addChild(rootNodeId, 'This is the child');
+
+        const childId = docState.getNodeChildIds(rootNodeId)[0];
+
+        docState.addBookmark(rootNodeId);
+        docState.addBookmark(childId);
+
+        docState.deleteNode(childId);
+
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId]);
     });
 });
 
@@ -680,6 +718,32 @@ describe('redo / undo / getRedoIsAvailable / getUndoIsAvailable', () => {
             expect(docState.getUndoIsAvailable()).toBe(true);
             expect(docState.getRedoIsAvailable()).toBe(expectedRedoIsAvailable);
         });
+    });
+});
+
+describe('removeBookmark and getBookmarks', () => {
+    it('removes the specified bookmark when it is the only bookmark', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addBookmark(rootNodeId);
+
+        docState.removeBookmark(rootNodeId);
+
+        const bookmarks = docState.getBookmarkedNodeIds();
+        expect(bookmarks).toHaveLength(0);
+    });
+
+    it('removes the specified bookmark when there are other bookmarks', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addChild(rootNodeId, 'This is the child');
+
+        const childId = docState.getNodeChildIds(rootNodeId)[0];
+
+        docState.addBookmark(rootNodeId);
+        docState.addBookmark(childId);
+
+        docState.removeBookmark(childId);
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId]);
     });
 });
 
