@@ -81,7 +81,7 @@ function DisplayedDocument(): m.Component<Attrs> {
             ontouchmove: (e: TouchEvent) => {
                 canvasState.handleUserDragMovement({
                     x: e.touches[0].pageX,
-                    y: e.touches[1].pageY,
+                    y: e.touches[0].pageY,
                 });
             },
         };
