@@ -297,6 +297,33 @@ export default (() => {
             applyNewDocToUndoStack(newDoc);
         },
 
+        /**
+         * Ensure all ancestors to the specified node have their children
+         * unfolded.
+         */
+        ensureNodeVisible: (nodeId: number) => {
+            // We need to use immer since the current state is frozen.
+            // However we won't push this new state to docHistory[] since we
+            // don't want changing children visibility to participate in
+            // undo / redo functionality
+            const thisNode = safeGetNode(nodeId, 'ensureNodeVisible');
+            const thisNodeParentId = thisNode.parentId;
+
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                function makeChildrenVisible(parentId: number | undefined) {
+                    if (parentId !== undefined) {
+                        const parentNode = safeGetNode(parentId, 'ensureNodeVisible', draftDoc);
+                        parentNode.childrenVisible = true;
+                        const grandParentId = parentNode.parentId;
+                        makeChildrenVisible(grandParentId);
+                    }
+                }
+                makeChildrenVisible(thisNodeParentId);
+            });
+
+            state.docHistory[state.currentDocIndex] = newDoc;
+        },
+
         getBookmarkedNodeIds: ():number[] => getCurrentDoc().bookmarkedNodeIds,
 
         /**

@@ -241,8 +241,16 @@ function App(): m.Component {
                 {
                     onCancel: () => state.ui.setCurrentModal('none'),
                     onBookmarkSelected: (nodeId) => {
+                        state.doc.ensureNodeVisible(nodeId);
+                        state.doc.setSelectedNodeId(nodeId);
                         state.ui.setCurrentModal('none');
-                        console.log(nodeId);
+
+                        // We need to wait for a redraw before we can trigger
+                        // the scroll because we need the map to be redrawn
+                        // so we have the coordinates of the target node.
+                        // (It may not have been visible if its parent had
+                        // folded children)
+                        setTimeout(() => state.canvas.scrollToNode(nodeId));
                     },
                 },
             );

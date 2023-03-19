@@ -51,9 +51,17 @@ function BookmarksListModal(): m.Component<BookmarksListModalAttributes> {
     }
 
     function getCurrentBookmarksMarkup(attrs: BookmarksListModalAttributes) {
-        const currentBookmarksMarkup:Array<m.Vnode> = [];
-        state.doc.getBookmarkedNodeIds().forEach((id, index) => {
-            const bookmarkName = state.doc.getNodeContents(id);
+        const bookmarkedNodes = state.doc.getBookmarkedNodeIds().map(
+            (nodeId) => ({ nodeId, name: state.doc.getNodeContents(nodeId) }),
+        );
+        const sortedBookmarkedNodes = bookmarkedNodes.sort((a, b) => {
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+            return 0;
+        });
+
+        const currentBookmarksMarkup: Array<m.Vnode> = [];
+        sortedBookmarkedNodes.forEach((node, index) => {
             currentBookmarksMarkup.push(
                 m(
                     'div',
@@ -67,9 +75,9 @@ function BookmarksListModal(): m.Component<BookmarksListModalAttributes> {
                             paddingLeft: '20px',
                             paddingRight: '20px',
                         },
-                        onclick: () => attrs.onBookmarkSelected(id),
+                        onclick: () => attrs.onBookmarkSelected(node.nodeId),
                     },
-                    bookmarkName,
+                    node.name,
                 ),
             );
         });

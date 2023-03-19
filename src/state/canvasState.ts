@@ -36,6 +36,8 @@ export default (
         setRedrawFunction: (redrawFunction: () => void) => void,
 
         setCanvasDimensions: (dimensions: Dimensions) => void,
+
+        scrollToNode: (nodeId: number) => void,
     } => {
         let canvasDimensions: Dimensions = { width: 0, height: 0 };
         let rootNodeCoords: Coordinates = { x: 0, y: 0 };
@@ -74,11 +76,15 @@ export default (
             // http://ariya.ofilabs.com/2013/11/javascript-kinetic-scrolling-part-2.html
             //
             // Start with an exponential function of the form:
-            //  d(t) = -a*e^(-b*t) + k    (a > 0, b > 0, k > 0)
+            //  d(t) = -a*e^(-b*t) + k       (a > 0, b > 0, k > 0)
+            //  v(t) = d'(t)
+            //       = a*b*e^(-b*t)
             //
-            // This provides a curve like this:
+            // This provides a curve with an asymptote at d = k like this:
+            //
             //    d
-            //    ^                    xxxxxxx
+            //    ^                            _____________________ <-- k
+            //    |                    xxxxxxx
             //    |              xxxxxx
             //    |         xxxxx
             //    |     xxxx
@@ -130,7 +136,14 @@ export default (
 
             redrawDocument();
 
-            if (Math.abs(deltaX / t) > 0.0005 || Math.abs(deltaY / t) > 0.0005) {
+            const vX = deltaX / t;
+            const vY = deltaY / t;
+
+            // We use * instead of exponentiation since the latter is
+            // significantly slower (at least on Firefox)
+            const v = Math.sqrt(vX * vX + vY * vY);
+
+            if (Math.abs(v) > 0.0003) {
                 window.requestAnimationFrame(performInertiaScroll);
             } else {
                 movementState = 'none';
@@ -233,6 +246,49 @@ export default (
 
             resetAllRenderedNodesCoordinates: () => {
                 renderedNodesCoordinates = new Map<number, Coordinates>();
+            },
+
+            scrollToNode: (nodeId: number): void => {
+                const destinationNodeCoords = renderedNodesCoordinates.get(nodeId);
+
+                if (!destinationNodeCoords) return;
+
+                const distToMoveX = destinationNodeCoords.x - canvasDimensions.width / 2;
+                const distToMoveY = destinationNodeCoords.y - canvasDimensions.height / 2;
+
+                const requiredRootNodePositionX = rootNodeCoords.x - distToMoveX;
+                const requiredRootNodePositionY = rootNodeCoords.y - distToMoveY;
+
+                // We're going to use performInertiaScroll() to nicely scroll
+                // to our required position.
+                //
+                // Looking at the math in performInertiaScroll(), we can see
+                // the limiting position of the inertia scroll is d(t) = k.
+                // This limiting position is where we want to end up -- i.e.
+                // k = requiredRootNodePosition
+                //
+                // We can use this information to solve for v(0), which will be
+                // an initial velocity that will result in scrolling to our desired
+                // position.
+                //
+                // k = d(0) + a
+                //   = d(0) + v(0) / b
+                //   ...
+                // v(0)  = b * (requiredRootNodePosition - current root node position)
+                const b = 0.002;
+
+                inertiaScrollState = {
+                    startTime: Date.now(),
+                    startPosition: { ...rootNodeCoords },
+                    previousPosition: { ...rootNodeCoords },
+                    startVelocity: {
+                        x: b * (requiredRootNodePositionX - rootNodeCoords.x),
+                        y: b * (requiredRootNodePositionY - rootNodeCoords.y),
+                    },
+                };
+
+                movementState = 'inertiaScroll';
+                window.requestAnimationFrame(performInertiaScroll);
             },
 
             setRenderedNodeCoordinates: (nodeId: number, coords: Coordinates) => {
