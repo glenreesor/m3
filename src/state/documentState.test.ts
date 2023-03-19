@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -33,6 +33,29 @@ beforeEach(docState.replaceCurrentDocWithNewEmptyDoc);
 describe('initial state', () => {
     it('has a single root node with no children', () => {
         expect(docIsInInitialState()).toBe(true);
+    });
+});
+
+describe('addBookmark and getBookmarks', () => {
+    it('adds a bookmark when there are no existing bookmarks', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addBookmark(rootNodeId);
+
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId]);
+    });
+
+    it('adds a bookmark when there are existing bookmarks', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addChild(rootNodeId, 'This is the child');
+
+        const childId = docState.getNodeChildIds(rootNodeId)[0];
+
+        docState.addBookmark(rootNodeId);
+        docState.addBookmark(childId);
+
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId, childId]);
     });
 });
 
@@ -228,6 +251,21 @@ describe('deleteNode', () => {
             docState.getNodeContents(nodeToDeleteId),
         ).toBe(nodeToDeleteContentsSrc);
     });
+
+    it('removes the corresponding bookmark when deleted node is bookmarked', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addChild(rootNodeId, 'This is the child');
+
+        const childId = docState.getNodeChildIds(rootNodeId)[0];
+
+        docState.addBookmark(rootNodeId);
+        docState.addBookmark(childId);
+
+        docState.deleteNode(childId);
+
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId]);
+    });
 });
 
 describe('getChildrenVisible', () => {
@@ -272,7 +310,11 @@ describe('getCurrentDocAsJson', () => {
         // Note we're creating the expected map using an array of nodes
         // rather than a map, as that's what the tested function does
         const expectedMap = {
+            rootId: 0,
+            highestNodeId: 0,
             selectedNodeId: 0,
+
+            bookmarkedNodeIds: [],
             nodes: [{
                 id: 0,
                 contents: 'New Map',
@@ -280,8 +322,6 @@ describe('getCurrentDocAsJson', () => {
                 childrenVisible: true,
                 parentId: undefined,
             }],
-            highestNodeId: 0,
-            rootId: 0,
         };
         const expectedJson = JSON.stringify(expectedMap);
 
@@ -300,7 +340,11 @@ describe('getCurrentDocAsJson', () => {
         // Note we're creating the expected map using an array of nodes
         // rather than a map, as that's what the tested function does
         const expectedMap = {
+            rootId: 0,
+            highestNodeId: 2,
             selectedNodeId: 0,
+
+            bookmarkedNodeIds: [],
             nodes: [
                 {
                     id: 0,
@@ -324,8 +368,6 @@ describe('getCurrentDocAsJson', () => {
                     parentId: 0,
                 },
             ],
-            highestNodeId: 2,
-            rootId: 0,
         };
         const expectedJson = JSON.stringify(expectedMap);
 
@@ -342,7 +384,11 @@ describe('getCurrentDocAsJson', () => {
         // Note we're creating the expected map using an array of nodes
         // rather than a map, as that's what the tested function does
         const expectedMap = {
+            rootId: 0,
+            highestNodeId: 1,
             selectedNodeId: 1,
+
+            bookmarkedNodeIds: [],
             nodes: [
                 {
                     id: 0,
@@ -359,8 +405,6 @@ describe('getCurrentDocAsJson', () => {
                     parentId: 0,
                 },
             ],
-            highestNodeId: 1,
-            rootId: 0,
         };
         docState.setSelectedNodeId(1);
 
@@ -674,6 +718,32 @@ describe('redo / undo / getRedoIsAvailable / getUndoIsAvailable', () => {
             expect(docState.getUndoIsAvailable()).toBe(true);
             expect(docState.getRedoIsAvailable()).toBe(expectedRedoIsAvailable);
         });
+    });
+});
+
+describe('removeBookmark and getBookmarks', () => {
+    it('removes the specified bookmark when it is the only bookmark', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addBookmark(rootNodeId);
+
+        docState.removeBookmark(rootNodeId);
+
+        const bookmarks = docState.getBookmarkedNodeIds();
+        expect(bookmarks).toHaveLength(0);
+    });
+
+    it('removes the specified bookmark when there are other bookmarks', () => {
+        const rootNodeId = docState.getRootNodeId();
+        docState.addChild(rootNodeId, 'This is the child');
+
+        const childId = docState.getNodeChildIds(rootNodeId)[0];
+
+        docState.addBookmark(rootNodeId);
+        docState.addBookmark(childId);
+
+        docState.removeBookmark(childId);
+        const docBookmarks = docState.getBookmarkedNodeIds();
+        expect(docBookmarks).toStrictEqual([rootNodeId]);
     });
 });
 
