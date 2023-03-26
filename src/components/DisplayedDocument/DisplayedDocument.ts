@@ -160,8 +160,8 @@ function DisplayedDocument(): m.Component<Attrs> {
         },
 
         onupdate: (vnode) => {
-            // Canvas elements reset their scale and translation when their
-            // dimensions change, so reset when that happens
+            // Canvas elements reset their scale when their dimensions change,
+            // so reset scale when that happens
             if (
                 currentCanvasDimensions.width !== vnode.attrs.documentDimensions.width ||
                 currentCanvasDimensions.height !== vnode.attrs.documentDimensions.height
@@ -169,7 +169,6 @@ function DisplayedDocument(): m.Component<Attrs> {
                 saveCanvasDimensionsFromAttrs(vnode.attrs);
 
                 ctx.scale(devicePixelRatio, devicePixelRatio);
-                canvasState.resetRootNodeCoords();
             }
 
             redrawCanvas();
