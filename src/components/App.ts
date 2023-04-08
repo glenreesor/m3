@@ -28,7 +28,13 @@ import FileSaveModal, { FileSaveModalAttributes } from './FileSaveModal';
 import MiscFileOpsModal, { MiscFileOpsModalAttributes } from './MiscFileOpsModal';
 import Menu from './Menu';
 import { MENU_HEIGHT } from './menus/constants';
-import { FILE_EXISTS, getSavedDocument, saveDocument } from '../utils/file';
+import {
+    FILE_EXISTS,
+    getLastUsedDocumentName,
+    getSavedDocument,
+    getSavedDocumentList,
+    saveDocument,
+} from '../utils/file';
 import importFile from '../utils/importFile';
 import Sidebar from './Sidebar';
 import TextInputModal, { TextInputModalAttributes } from './TextInputModal';
@@ -268,6 +274,23 @@ function App(): m.Component {
             window.addEventListener('resize', onWindowResize);
             state.canvas.setCanvasDimensions(getDocumentDimensions());
             state.canvas.resetRootNodeCoords();
+
+            const lastUsedDocumentName = getLastUsedDocumentName();
+            if (
+                lastUsedDocumentName !== null &&
+                getSavedDocumentList().includes(lastUsedDocumentName)
+            ) {
+                const docToLoad = getSavedDocument(lastUsedDocumentName);
+                if (typeof docToLoad !== 'number') {
+                    state.doc.replaceCurrentDocFromJson(
+                        lastUsedDocumentName,
+                        docToLoad,
+                    );
+
+                    // Need to do this to get the header to update
+                    m.redraw();
+                }
+            }
         },
 
         onremove: () => {

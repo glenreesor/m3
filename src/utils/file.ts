@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2022, 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -22,6 +22,7 @@ export const FILE_NOT_FOUND = 2;
 export const FILE_OPERATION_SUCCESSFUL = 3;
 
 const DOCUMENT_LIST_KEY = 'm3DocumentList';
+const LAST_DOCUMENT_USED_NAME_KEY = 'm3LastDocumentUsedName';
 
 // This module implements a simple document storage system using the browser's
 // localStorage.
@@ -63,6 +64,13 @@ export function deleteDocument(documentName: string): number {
 }
 
 /**
+ * Get the name of the last used document
+ */
+export function getLastUsedDocumentName(): string | null {
+    return window.localStorage.getItem(LAST_DOCUMENT_USED_NAME_KEY);
+}
+
+/**
  * Return a list of documents currently saved in localStorage
  *
  * @returns An array of names of the saved documents
@@ -90,6 +98,7 @@ export function getSavedDocument(name: string): string | number {
 
     const documentKey = getSavedDocumentKey(documentIndex);
     const doc = window.localStorage.getItem(documentKey) || '';
+    saveLastUsedDocumentName(name);
 
     return doc;
 }
@@ -170,6 +179,8 @@ export function saveDocument(
 
     // Save the document itself
     saveDocumentAtIndex(indexForSaveOp, doc);
+    saveLastUsedDocumentName(docName);
+
     return FILE_OPERATION_SUCCESSFUL;
 }
 
@@ -182,4 +193,8 @@ function getSavedDocumentKey(index: number) {
 function saveDocumentAtIndex(docIndex: number, doc: string) {
     window.localStorage.setItem(getSavedDocumentKey(docIndex), doc);
     state.doc.setHasUnsavedChanges(false);
+}
+
+function saveLastUsedDocumentName(docName: string) {
+    window.localStorage.setItem(LAST_DOCUMENT_USED_NAME_KEY, docName);
 }
