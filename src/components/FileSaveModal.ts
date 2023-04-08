@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2022, 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //

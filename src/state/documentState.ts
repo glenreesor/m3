@@ -42,6 +42,7 @@ export default (() => {
         rootId: number,
         highestNodeId: number,
         selectedNodeId: number,
+        lastExportedTimestamp: number | undefined,
 
         bookmarkedNodeIds: number[],
         nodes: Map<number, Node>,
@@ -109,6 +110,7 @@ export default (() => {
             rootId: rootNodeId,
             highestNodeId: rootNodeId,
             selectedNodeId: rootNodeId,
+            lastExportedTimestamp: undefined,
 
             bookmarkedNodeIds: [],
             nodes: (new Map() as Map<number, Node>).set(rootNodeId, rootNode),
@@ -363,6 +365,9 @@ export default (() => {
             return JSON.stringify(jsonCapableMap);
         },
 
+        getDocLastExportedTimestamp: (): number | undefined => getCurrentDoc()
+            .lastExportedTimestamp,
+
         /**
          * Return the name of the current document
          *
@@ -553,7 +558,7 @@ export default (() => {
                 nodes: nodesAsMap,
             };
 
-            // To deal with importing a document that was creating prior to
+            // Deal with importing a document that was creating prior to
             // adding bookmarkedNodeIds to the document structure
             if (docUsingArrayForNodes.bookmarkedNodeIds === undefined) {
                 docUsingNodesAsMap.bookmarkedNodeIds = [];
@@ -601,6 +606,15 @@ export default (() => {
          */
         setDocName: (docName: string) => {
             state.docName = docName;
+        },
+
+        setDocLastExportedTimestamp: (lastExportedTimestamp: number) => {
+            const newDoc = produce(getCurrentDoc(), (draftDoc) => {
+                draftDoc.lastExportedTimestamp = lastExportedTimestamp;
+            });
+
+            state.docHistory[state.currentDocIndex] = newDoc;
+            state.hasUnsavedChanges = true;
         },
 
         /**

@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2022, 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -22,6 +22,7 @@ import state from '../state/state';
 interface DocumentHeaderAttributes {
     documentName: string,
     hasUnsavedChanges: boolean,
+    docLastExportedTimestamp: number | undefined,
 }
 
 /**
@@ -36,15 +37,37 @@ function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
             const docName = attrs.documentName === '' ? 'New Map' : attrs.documentName;
             const modifiedIndicator = attrs.hasUnsavedChanges ? ' (Modified)' : '';
 
+            let formattedExportedTimestamp = '';
+            if (attrs.docLastExportedTimestamp) {
+                const exportedDateObject = new Date(attrs.docLastExportedTimestamp);
+                const exportedYear = exportedDateObject.getFullYear();
+                const exportedMonth = exportedDateObject.getMonth();
+                const exportedDate = exportedDateObject.getDate();
+
+                const monthPadding = exportedMonth < 10 ? '0' : '';
+                const datePadding = exportedDate < 10 ? '0' : '';
+                formattedExportedTimestamp = `${exportedYear}-${monthPadding}${exportedMonth}-${datePadding}${exportedDate}`;
+            }
+
+            const lastExportedInfo = attrs.docLastExportedTimestamp
+                ? `Last Exported: ${formattedExportedTimestamp}`
+                : '';
+
             return m(
                 'div',
-                { style: `font-size: ${state.ui.getCurrentFontSize()}px` },
-                docName,
+                {
+                    style: `display: flex; justify-content: space-between; font-size: ${state.ui.getCurrentFontSize()}px`,
+                },
                 m(
                     'span',
-                    { style: 'color: blue' },
-                    modifiedIndicator,
+                    docName,
+                    m(
+                        'span',
+                        { style: 'color: blue' },
+                        modifiedIndicator,
+                    ),
                 ),
+                lastExportedInfo,
             );
         },
     };

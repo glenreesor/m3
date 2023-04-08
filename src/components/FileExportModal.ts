@@ -1,4 +1,4 @@
-// Copyright 2022 Glen Reesor
+// Copyright 2022, 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -62,6 +62,11 @@ function FileExportModal(): m.Component<FileExportModalAttributes> {
             getNumberAsZeroPaddedTwoDigits(dateNow.getHours()) + ':' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getMinutes()) + ':' +
             getNumberAsZeroPaddedTwoDigits(dateNow.getSeconds());
+
+        // For now assume that if user opens this dialog, they actually *do*
+        // export it. This will also be kind of goofy because it's going to
+        // mark the doc as modified (because we need the user to save it)
+        state.doc.setDocLastExportedTimestamp(Date.now());
 
         const documentAsJson = state.doc.getCurrentDocAsJson();
         const blobUrl = URL.createObjectURL(
