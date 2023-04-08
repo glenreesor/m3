@@ -1,4 +1,4 @@
-// Copyright 2023 Glen Reesor
+// Copyright 2022, 2023 Glen Reesor
 //
 // This file is part of m3 Mind Mapper.
 //
@@ -438,6 +438,12 @@ describe('getCurrentDocAsJson / replaceCurrentDocFromJson', () => {
     });
 });
 
+describe('getDocLastExportedTimestamp', () => {
+    it('returns undefined for a newly created document', () => {
+        expect(docState.getDocLastExportedTimestamp()).toBe(undefined);
+    });
+});
+
 describe('getDocName / setDocName', () => {
     it('returns the name that was set for this document', () => {
         const docName = 'the doc name';
@@ -812,5 +818,15 @@ describe('replaceNodeContents', () => {
         docState.replaceNodeContents(rootNodeId, newContents);
 
         expect(docState.getNodeContents(rootNodeId)).toBe(newContents);
+    });
+});
+
+describe('setDocLastExportedTimestamp', () => {
+    it('updates the value and sets hasUnsavedChanges to true', () => {
+        const testTimestamp = Date.now();
+        docState.setDocLastExportedTimestamp(testTimestamp);
+
+        expect(docState.getDocLastExportedTimestamp()).toBe(testTimestamp);
+        expect(docState.hasUnsavedChanges()).toBe(true);
     });
 });
