@@ -300,13 +300,21 @@ function App(): m.Component {
         view: (): m.Vnode => {
             const documentName = state.doc.getDocName();
             const hasUnsavedChanges = state.doc.hasUnsavedChanges();
+            const docLastExportedTimestamp = state.doc.getDocLastExportedTimestamp();
 
             return m(
                 'div',
                 [
                     getOptionalModalMarkup(),
                     getOptionalSidebar(),
-                    m(DocumentHeader, { documentName, hasUnsavedChanges }),
+                    m(
+                        DocumentHeader,
+                        {
+                            documentName,
+                            hasUnsavedChanges,
+                            docLastExportedTimestamp,
+                        },
+                    ),
                     m(
                         DisplayedDocument,
                         {
