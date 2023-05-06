@@ -41,7 +41,9 @@ function DocumentHeader(): m.Component<DocumentHeaderAttributes> {
             if (attrs.docLastExportedTimestamp) {
                 const exportedDateObject = new Date(attrs.docLastExportedTimestamp);
                 const exportedYear = exportedDateObject.getFullYear();
-                const exportedMonth = exportedDateObject.getMonth();
+
+                // JS Date months are 0-based
+                const exportedMonth = exportedDateObject.getMonth() + 1;
                 const exportedDate = exportedDateObject.getDate();
 
                 const monthPadding = exportedMonth < 10 ? '0' : '';
